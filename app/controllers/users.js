@@ -15,8 +15,8 @@ const { validationResult } = require('express-validator/check');
 const { user: userMiddleware } = require('../../config/middlewares/authorization.js');
 const crypto = require('crypto');
 const mailer = require('../mailer/email.action');
-
 mongoose.set('useFindAndModify', false);
+const config = require('../../config/config');
 /**
  * Load
  */
@@ -47,9 +47,7 @@ exports.create = async(function*(req, res) {
       res.redirect('/');
     });
   } catch (err) {
-    const errors = Object.keys(err.errors).map(
-      field => err.errors[field].message
-    );
+    const errors = Object.keys(err.errors).map(field => err.errors[field].message);
 
     res.render('users/signup', {
       title: 'Sign up',
@@ -128,7 +126,10 @@ exports.apiSignup = function(req, res) {
       });
     }
 
-    mailer.activeEmail(user).then(result => res.status(200).json({ msg: result })).catch(err => console.log(err));
+    mailer
+      .activeEmail(user)
+      .then(result => res.status(200).json({ msg: result }))
+      .catch(err => console.log(err));
   });
 };
 
@@ -145,21 +146,22 @@ exports.confirmEmail = function(req, res) {
       } else if (user.active) {
         res.status(200).json({ msg: __('mail.alreadyConfirmed') });
       }
-        
+
       if (active_token !== user.active_token) {
         res.status(401).json({ msg: __('token_invalid') });
       }
 
       if (new Date(user.active_token_expire) < new Date()) {
         res.status(412).json({ msg: __('mail.expired_token') });
-      } 
+      }
 
       User.findOneAndUpdate(userId, {
         active: true,
         active_token: null,
         active_token_expire: null,
-      }).then(() => res.status(200).json({ msg: __('mail.confirmed') }))
-      .catch(err => console.log(err));
+      })
+        .then(() => res.status(200).json({ msg: __('mail.confirmed') }))
+        .catch(err => console.log(err));
     })
     .catch(err => res.status(500).json({ msg: __('mail.confirm_failed') }));
 };
@@ -179,10 +181,10 @@ exports.logout = function(req, res) {
 exports.session = login;
 
 function customMessageValidate(errors) {
-  let customErrors = {... errors.array()};
+  let customErrors = { ...errors.array() };
   for (let i in customErrors) {
-      customErrors[customErrors[i].param] = customErrors[i].msg
-      delete customErrors[i];
+    customErrors[customErrors[i].param] = customErrors[i].msg;
+    delete customErrors[i];
   }
 
   return customErrors;
@@ -247,4 +249,22 @@ exports.apiLogin = async(function*(req, res) {
       message: 'Authentication failed',
     });
   }
+});
+
+exports.contactRequest = async(function*(req, res) {
+  let { _id } = req.decoded;
+  const page = (req.query.page > 0 ? req.query.page : 1) - 1;
+  const limit = config.LIMIT_ITEM_SHOW;
+  const options = {
+    limit: limit,
+    page: page,
+  };
+  const contact = yield User.getMyContactRequest(_id, options);
+  res.json({ result: contact[0]['requested_in_comming'] });
+});
+
+exports.totalContactRequest = async(function*(req, res) {
+  let { _id } = req.decoded;
+  const data = yield User.getAllContactRequest(_id);
+  res.json({ result: data[0]['number_of_contact'] });
 });

@@ -1,0 +1,51 @@
+.infinite-container {
+  border: 1px solid #e8e8e8;
+  border-radius: 4px;
+  overflow: auto;
+  margin-top: 3%;
+  height: 500px;
+}
+.loading-container {
+  position: absolute;
+  bottom: 40px;
+  width: 100%;
+  text-align: center;
+}
+.title-contact {
+  text-align: center;
+  padding-top: 3%;
+  font-weight: bold;
+}
+.ant-list-item-meta-title {
+  font-size: 16px;
+  font-weight: bold;
+}
+.ant-avatar.ant-avatar-circle.ant-avatar-image {
+  width: 45px;
+  height: 45px;
+}
+.ant-checkbox-group {
+  width: 100%;
+}
+.item-checkbox.ant-checkbox-wrapper {
+  padding: 2%;
+  width: 10%;
+}
+.contact-check-all {
+  margin-top: 5%;
+  padding-left: 2%;
+}
+.btn-all-accept {
+  margin-left: 25%;
+}
+.ant-btn.load-more-contact {
+  text-align: center;
+  margin-left: 50%;
+}
+.demo-loading-container {
+  margin-left: 50%;
+}
+.ant-btn-group.btn-all-accept {
+  float: right;
+  margin-right: 3%;
+}
