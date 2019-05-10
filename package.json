@@ -66,6 +66,7 @@
     "passport-twitter": "~1.0.4",
     "pm2": "~3.5.0",
     "pug": "~2.0.3",
+    "socket.io": "^2.2.0",
     "ultimate-pagination": "~1.0.0",
     "view-helpers": "~0.2.0",
     "winston": "~3.2.1"

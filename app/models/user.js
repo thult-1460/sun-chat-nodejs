@@ -36,7 +36,14 @@ const UserSchema = new Schema(
       type: String,
       required: true,
     },
-    salt: { type: String, default: '' },
+    salt: {
+      type: String,
+      default: ''
+    },
+    active: {
+      type: Boolean,
+      default: false
+    },
     active_token: {
       type: String,
     },
@@ -53,7 +60,6 @@ const UserSchema = new Schema(
 /**
  * Virtuals
  */
-
 const validatePresenceOf = value => value && value.length;
 
 /**
@@ -167,7 +173,7 @@ UserSchema.statics = {
     return this.findOne(options.criteria)
       .select(options.select)
       .exec(cb);
-  }
+  },
 };
 
 mongoose.model('User', UserSchema);

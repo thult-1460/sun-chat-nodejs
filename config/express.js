@@ -10,6 +10,8 @@ const compression = require('compression');
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
+const expressValidator = require('express-validator');
+const i18n = require('i18n');
 const methodOverride = require('method-override');
 // const csrf = require('csurf');
 const cors = require('cors');
@@ -26,6 +28,7 @@ const config = require('./');
 const pkg = require('../package.json');
 
 const env = process.env.NODE_ENV || 'development';
+const apiRoutes = require('../routes/api');
 
 /**
  * Expose
@@ -95,6 +98,7 @@ module.exports = function(app, passport) {
 
   // CookieParser should be above session
   app.use(cookieParser());
+  app.use(expressValidator());
   app.use(
     session({
       resave: false,
@@ -107,9 +111,39 @@ module.exports = function(app, passport) {
     })
   );
 
+  // Languages
+  i18n.configure({
+    locales: ['en', 'vi'],
+    register: global,
+    fallbacks: { vi: 'en' },
+    cookie: 'lang',
+    queryParameter: 'lang',
+    defaultLocale: 'en',
+    directory: __dirname + '/../lang',
+    directoryPermissions: '755',
+    autoReload: true,
+    updateFiles: true,
+    objectNotation: true,
+    api: {
+      __: '__', //now req.__ becomes req.__, can change alias other
+      __n: '__n', //and req.__n can be called as req.__n
+    },
+  });
+
+  app.use(function(req, res, next) {
+    i18n.init(req, res, next);
+  });
+
   // use passport session
   app.use(passport.initialize());
   app.use(passport.session());
+
+  app.use(function(req, res, next) {
+    res.locals.clanguage = req.getLocale();
+    i18n.setLocale(res.locals.clanguage);
+    res.locals.languages = i18n.getLocales();
+    next();
+  });
 
   // connect flash for flash messages - should be declared after sessions
   app.use(flash());
@@ -128,6 +162,9 @@ module.exports = function(app, passport) {
   //     next();
   //   });
   // }
+  
+  // API
+  app.use('/api', apiRoutes);
 
   if (env === 'development') {
     app.locals.pretty = true;
