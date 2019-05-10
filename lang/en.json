@@ -28,6 +28,10 @@
   "token_expired": "Token have been expired",
   "authentication_failed": "Authentication failed",
   "login_successfully": "Login successfully",
+  "load_to_fail_user_info": "Can't load user information !",
+  "update_to_fail_user": "Update failed !",
+  "update_to_success_user": "Update Successfully !",
+  "request_not_processed": "Request is not accepted !",
   "change_password": {
     "user_not_found": "User not found",
     "old_password_incorrect": "Wrong password. Try again.",

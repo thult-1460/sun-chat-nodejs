@@ -16,23 +16,39 @@ const oAuthTypes = ['github', 'twitter', 'google', 'linkedin'];
 
 const UserSchema = new Schema(
   {
+    name: {
+      type: String,
+      default: '',
+      required: true,
+    },
     email: {
       type: String,
+      default: '',
       lowercase: true,
       unique: true,
       required: true,
     },
     username: {
       type: String,
+      default: '',
       unique: true,
       required: true,
     },
-    name: {
+    full_address: {
       type: String,
-      required: true,
+      default: '',
+    },
+    phone_number: {
+      type: String,
+      default: '',
+    },
+    provider: {
+      type: String,
+      default: '',
     },
     hashed_password: {
       type: String,
+      default: '',
       required: true,
     },
     salt: {
@@ -49,6 +65,20 @@ const UserSchema = new Schema(
     active_token_expire: {
       type: Date,
       default: moment().add(process.env.ACTIVE_TOKEN_EXPIRE_TIME, 'days'),
+    },
+    twitter: {
+      type: String,
+      default: '',
+    },
+    github: {
+      type: String,
+      default: '',
+    },
+    google: {
+      type: String,
+      default: '',
+    },
+    linkedin: {
     },
     requested_in_comming: [
       {
@@ -206,6 +236,7 @@ UserSchema.statics = {
 
   load: function(options, cb) {
     options.select = options.select || 'name username hashed_password salt reset_token_expire email active';
+
     return this.findOne(options.criteria)
       .select(options.select)
       .exec(cb);
@@ -214,6 +245,7 @@ UserSchema.statics = {
   getMyContactRequest: function(userId, options) {
     let limit = options.limit;
     const page = options.page || 0;
+
     return this.find(
       {
         _id: userId,
@@ -238,6 +270,16 @@ UserSchema.statics = {
         },
       },
     ]);
+  },
+
+  updateInfo: function (options) {
+    try {
+      this.updateOne(options.criteria, options.data);
+
+      return true;
+    } catch (err) {
+      return false;
+    }
   },
 };
 

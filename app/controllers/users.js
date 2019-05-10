@@ -58,13 +58,49 @@ exports.create = async(function*(req, res) {
  *  Show profile
  */
 
-exports.show = function(req, res) {
-  const user = req.profile;
-  res.render('users/show', {
-    title: user.name,
-    user: user,
-  });
-};
+exports.show = async(function*(req, res) {
+  const { _id } = req.decoded;
+  const criteria = { _id: _id };
+  const option = 'name email username password twitter github google full_address phone_number';
+  const user = yield User.load({ select: option, criteria });
+  res.json(user);
+});
+
+exports.update = async(function*(req, res) {
+  const { _id } = req.decoded;
+  const criteria = { _id: _id };
+  const error = validationResult(req);
+
+  if (error.array().length) {
+    const errors = customMessageValidate(error);
+
+    return res.status(422).json(errors);
+  }
+
+  try {
+    const data_changed = {
+      criteria,
+      data: {
+        name: req.body.name,
+        email: req.body.email,
+        username: req.body.username,
+        twitter: req.body.twitter,
+        github: req.body.github,
+        google: req.body.google,
+        full_address: req.body.address,
+        phone_number: req.body.phone,
+      },
+    };
+
+    if (!User.updateInfo(data_changed)) {
+      throw new Error(__('update_to_fail_user'));
+    }
+
+    return res.status(200).json({ success: true, msg: __('update_to_success_user') });
+  } catch (e) {
+    return res.status(500).json({ success: false, msg: __('update_to_fail_user') });
+  }
+});
 
 exports.signin = function() {};
 
@@ -180,7 +216,15 @@ exports.session = login;
 function customMessageValidate(errors) {
   let customErrors = { ...errors.array() };
   for (let i in customErrors) {
-    customErrors[customErrors[i].param] = customErrors[i].msg;
+    let param = customErrors[i].param;
+
+    if (customErrors[param] == undefined) {
+      customErrors[param] = '';
+    } else {
+      customErrors[param] += ', ';
+    }
+
+    customErrors[param] += customErrors[i].msg;
     delete customErrors[i];
   }
 

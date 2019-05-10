@@ -28,6 +28,10 @@
   "token_expired": "Token đã hết hạn sử dụng",
   "authentication_failed": "Xác thực lỗi",
   "login_successfully": "Đăng nhập thành công",
+  "load_to_fail_user_info": "Không thể tải lên thông tin người dùng !",
+  "update_to_fail_user": "Cập nhật thông tin người dùng thất bại !",
+  "update_to_success_user": "Cập nhật thông tin người dùng thành công !",
+  "request_not_processed": "Yêu cầu không được tiếp nhận !",
   "change_password": {
     "user_not_found": "Tài khoản không tồn tại",
     "old_password_incorrect": "Sai mật khẩu. Hãy thử lại.",

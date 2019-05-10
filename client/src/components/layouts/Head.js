@@ -41,6 +41,7 @@ class Head extends React.Component {
     const menu = (
       <Menu>
         <Menu.Item>
+          <Link to="/setting/profile">Profile</Link>
           <Link to="/change_password">Change Passowrd</Link>
           <a href="javascript:;" onClick={this.onLogout}>
             Logout

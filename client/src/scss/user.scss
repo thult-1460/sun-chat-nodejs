@@ -1,0 +1,68 @@
+.success {
+  color: #04b836;
+}
+
+.area-edit-profile {
+  width: 40%;
+  margin: 100px 0 0 25%;
+
+  > div {
+    margin-top: 25px;
+    padding-top: 45px;
+  }
+
+  label {
+    float: left;
+    padding-top: 5px;
+    width: 20%;
+  }
+
+  input, .ant-form-item {
+    float: left;
+    width: 80%;
+  }
+
+  .ant-alert {
+    width: 80%;
+    margin-left: 20%;
+  }
+}
+
+.bold {
+  font-weight: 600;
+}
+
+.ant-input-password {
+  width: 80%;
+  margin-bottom: -27px;
+}
+
+#password, .ant-input {
+  width: 100% !important;
+}
+
+.button-submit {
+  float: right;
+  margin-top: 25px;
+  background-color: #eb4e10;
+  color: white;
+  border: none;
+}
+
+.font30 {
+  font-size: 30px;
+  text-align: center;
+  margin-top: -50px;
+}
+
+.password {
+  padding-top: 15px !important;
+}
+
+section.ant-layout {
+  min-height: 950px;
+}
+
+.nav-text a {
+  color: white;
+}

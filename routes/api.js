@@ -34,4 +34,7 @@ router.post('/reset-password', usersValidate.validate('resetPassword'), users.ap
 router.param('userId', users.load);
 router.post('/change_password', auth.jwtMiddleware, usersValidate.validate('change_password'), users.apiChangePassword);
 
+router.get('/users', auth.jwtMiddleware, users.show);
+router.post('/update/user', auth.jwtMiddleware, usersValidate.validate('update'), users.update);
+
 module.exports = router;
