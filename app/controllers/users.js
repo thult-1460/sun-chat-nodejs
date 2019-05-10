@@ -11,7 +11,8 @@
 const mongoose = require('mongoose');
 const { wrap: async } = require('co');
 const User = mongoose.model('User');
-
+const { validationResult } = require('express-validator/check');
+const { user: userMiddleware } = require('../../config/middlewares/authorization.js');
 /**
  * Load
  */
@@ -119,6 +120,20 @@ function login(req, res) {
   res.redirect(redirectTo);
 }
 
+/*
+ * Handle validate
+ */
+function handleValidate(req, res) {
+  // Finds the validation errors in this request and wraps them in an object with handy functions
+  const errors = validationResult(req);
+
+  if (errors.array().length) {
+    res.json({
+      status: 401,
+      message: 'Authentication failed',
+    })
+  }
+}
 
 /**
  * Hello from other app
@@ -127,3 +142,38 @@ function login(req, res) {
 exports.hello = function(req, res) {
     res.json({sayHi: 'hello from server, nice to meet you!'})
 };
+
+exports.apiLogin = async(function*(req, res) {
+  const { email, password } = req.body;
+  const jwtSecret = process.env.JWT_SECRET || 'RESTFULAPIs';
+
+  handleValidate(req, res);
+
+  const criteria = {
+    email: email,
+  }
+  try {
+    var user = yield User.load({ criteria });
+    if (user == null) {
+      res.json({
+        status: 401,
+        message: 'Authentication failed',
+      })
+    } else if (user.comparePassword(password)) {
+      res.json({
+        status: 401,
+        message: 'Authentication failed',
+      })
+    } else {
+      res.json({
+        message: 'Login successfully',
+        token: userMiddleware.generateJWTToken(user),
+      })
+    }
+  } catch (err) {
+    res.json({
+      status: 401,
+      message: 'Authentication failed',
+    })
+  }
+});

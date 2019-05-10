@@ -39,6 +39,7 @@ You can also use docker for development. Make sure you run npm install on your h
 ```sh
 npm i
 cp .env.example .env
+cp client/.env.example client/.env
 ```
 
 Start the services

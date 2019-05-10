@@ -150,6 +150,10 @@ UserSchema.methods = {
 
   skipValidation: function() {
     return ~oAuthTypes.indexOf(this.provider);
+  },
+
+  comparePassword: function(password) {
+    return this.encryptPassword(password) != this.hashed_password
   }
 };
 
@@ -167,7 +171,7 @@ UserSchema.statics = {
    */
 
   load: function(options, cb) {
-    options.select = options.select || 'name username';
+    options.select = options.select || 'name username hashed_password salt';
     return this.findOne(options.criteria)
       .select(options.select)
       .exec(cb);

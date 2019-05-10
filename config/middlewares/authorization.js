@@ -1,5 +1,6 @@
 'use strict';
 
+const jwt = require('jsonwebtoken');
 /*
  *  Generic require login routing middleware
  */
@@ -10,6 +11,21 @@ exports.requiresLogin = function(req, res, next) {
   res.redirect('/login');
 };
 
+exports.requiresAPILogin = function(req, res, next) {
+  const jwtSecret = process.env.JWT_SECRET || 'RESTFULAPIs';
+
+  try {
+    jwt.verify(req.headers.authorization, jwtSecret);
+
+    return next();
+  } catch (err) {
+    res.json({
+      status: 401,
+      message: 'Error token',
+      error: err.message,
+    });
+  }
+};
 /*
  *  User authorization routing middleware
  */
@@ -21,7 +37,18 @@ exports.user = {
       return res.redirect('/users/' + req.profile.id);
     }
     next();
-  }
+  },
+
+  generateJWTToken: function(user) {
+    const jwtSecret = process.env.JWT_SECRET || 'RESTFULAPIs';
+    const expireTokenHour = process.env.JWT_TTL;
+
+    return jwt.sign(
+      { email: user.email, fullName: user.username, _id: user._id },
+      jwtSecret,
+      { expiresIn: expireTokenHour * 60 * 60 }
+    );
+  },
 };
 
 /*
@@ -35,7 +62,7 @@ exports.article = {
       return res.redirect('/articles/' + req.article.id);
     }
     next();
-  }
+  },
 };
 
 /**
@@ -55,5 +82,5 @@ exports.comment = {
       req.flash('info', 'You are not authorized');
       res.redirect('/articles/' + req.article.id);
     }
-  }
+  },
 };

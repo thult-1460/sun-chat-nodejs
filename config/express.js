@@ -11,7 +11,7 @@ const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const methodOverride = require('method-override');
-const csrf = require('csurf');
+// const csrf = require('csurf');
 const cors = require('cors');
 const helmet = require('helmet');
 const upload = require('multer')();
@@ -20,7 +20,7 @@ const mongoStore = require('connect-mongo')(session);
 const flash = require('connect-flash');
 const winston = require('winston');
 const helpers = require('view-helpers');
-const ultimatePagination = require('ultimate-pagination');
+// const ultimatePagination = require('ultimate-pagination');
 const requireHttps = require('./middlewares/require-https');
 const config = require('./');
 const pkg = require('../package.json');
@@ -38,7 +38,7 @@ module.exports = function(app, passport) {
   // Compression middleware (should be placed before express.static)
   app.use(
     compression({
-      threshold: 512
+      threshold: 512,
     })
   );
 
@@ -46,7 +46,7 @@ module.exports = function(app, passport) {
     cors({
       origin: ['http://localhost:3000'],
       optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
-      credentials: true
+      credentials: true,
     })
   );
 
@@ -58,8 +58,8 @@ module.exports = function(app, passport) {
   if (env !== 'development') {
     log = {
       stream: {
-        write: message => winston.info(message)
-      }
+        write: message => winston.info(message),
+      },
     };
   }
 
@@ -102,8 +102,8 @@ module.exports = function(app, passport) {
       secret: pkg.name,
       store: new mongoStore({
         url: config.db,
-        collection: 'sessions'
-      })
+        collection: 'sessions',
+      }),
     })
   );
 
@@ -117,16 +117,17 @@ module.exports = function(app, passport) {
   // should be declared after session and flash
   app.use(helpers(pkg.name));
 
-  if (env !== 'test') {
-    app.use(csrf());
+  // Remove csrf_field temporary
+  // if (env !== 'test') {
+  //   app.use(csrf());
 
-    // This could be moved to view-helpers :-)
-    app.use(function(req, res, next) {
-      res.locals.csrf_token = req.csrfToken();
-      res.locals.paginate = ultimatePagination.getPaginationModel;
-      next();
-    });
-  }
+  //   // This could be moved to view-helpers :-)
+  //   app.use(function(req, res, next) {
+  //     res.locals.csrf_token = req.csrfToken();
+  //     res.locals.paginate = ultimatePagination.getPaginationModel;
+  //     next();
+  //   });
+  // }
 
   if (env === 'development') {
     app.locals.pretty = true;

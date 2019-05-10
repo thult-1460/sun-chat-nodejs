@@ -5,6 +5,7 @@
  */
 
 const users = require('../app/controllers/users');
+const usersValidate = require('./../app/validations/users.js');
 const articles = require('../app/controllers/articles');
 const comments = require('../app/controllers/comments');
 const tags = require('../app/controllers/tags');
@@ -86,7 +87,7 @@ module.exports = function(app, passport) {
   app.delete('/articles/:id', articleAuth, articles.destroy);
 
   // home route
-  app.get('/', articles.index);
+  app.get('/', auth.requiresAPILogin, articles.index);
 
   // comment routes
   app.param('commentId', comments.load);
@@ -97,6 +98,9 @@ module.exports = function(app, passport) {
     commentAuth,
     comments.destroy
   );
+
+  // API routes
+  app.post('/api/login', usersValidate.validate('login'), users.apiLogin);
 
   // tag routes
   app.get('/tags/:tag', tags.index);
