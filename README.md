@@ -69,3 +69,23 @@ docker-compose exec -e MONGODB_URL=mongodb://mongo:27017/noobjs_test node npm te
 ```
 
 Note that we are overriding the environment variable set in `.env` file because we don't want our data erased by the tests.
+
+## Prettier
+Before commit code, please check files changed with command
+```sh
+./node_modules/.bin/prettier --write ${file_path}.js
+```
+or (If you installed prettier as global) 
+```sh
+prettier --write ${file_path}.js
+```
+Example
+```sh
+./node_modules/.bin/prettier --write client/src/config.js
+```
+_Reference link:_
+https://prettier.io/docs/en/cli.html#check
+  
+**Highly recommend:**  
+Let's use extensions for editor. It can auto check when you saved file
+https://prettier.io/docs/en/editors.html

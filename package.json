@@ -78,16 +78,5 @@
     "prettier": "~1.17.0",
     "supertest": "*",
     "tape": "~4.10.1"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  },
-  "lint-staged": {
-    "*.js": [
-      "eslint --fix",
-      "git add"
-    ]
   }
 }
