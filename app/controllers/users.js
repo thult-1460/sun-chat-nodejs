@@ -13,6 +13,7 @@ const { wrap: async } = require('co');
 const User = mongoose.model('User');
 const { validationResult } = require('express-validator/check');
 const { user: userMiddleware } = require('../../config/middlewares/authorization.js');
+const crypto = require('crypto');
 /**
  * Load
  */
@@ -49,7 +50,7 @@ exports.create = async(function*(req, res) {
     res.render('users/signup', {
       title: 'Sign up',
       errors,
-      user
+      user,
     });
   }
 });
@@ -62,7 +63,7 @@ exports.show = function(req, res) {
   const user = req.profile;
   res.render('users/show', {
     title: user.name,
-    user: user
+    user: user,
   });
 };
 
@@ -80,7 +81,7 @@ exports.authCallback = login;
 
 exports.login = function(req, res) {
   res.render('users/login', {
-    title: 'Login'
+    title: 'Login',
   });
 };
 
@@ -88,10 +89,42 @@ exports.login = function(req, res) {
  * Show sign up form
  */
 
+
 exports.signup = function(req, res) {
   res.render('users/signup', {
     title: 'Sign up',
     user: new User()
+  });
+};
+
+exports.apiSignup = function(req, res) {
+  const errors = validationResult(req);
+  if (errors.array().length > 0) {
+    let customErrors = customMessageValidate(errors);
+
+    return res.status(422).json(customErrors);
+  }
+
+  const { email, name, username, password } = req.body;
+
+  const active_token = crypto.randomBytes(20).toString('hex');
+
+  new User({
+    name,
+    email,
+    username,
+    password,
+    active_token,
+  }).save(err => {
+    if (err) {
+      return res.status(500).json({
+        error: req.__('register_failed'),
+      });
+    }
+
+    return res.status(200).json({
+      success: req.__('register_successfully'),
+    });
   });
 };
 
@@ -109,6 +142,16 @@ exports.logout = function(req, res) {
  */
 
 exports.session = login;
+
+function customMessageValidate(errors) {
+  let customErrors = {... errors.array()};
+  for (let i in customErrors) {
+      customErrors[customErrors[i].param] = customErrors[i].msg
+      delete customErrors[i];
+  }
+
+  return customErrors;
+}
 
 /**
  * Login
@@ -128,8 +171,7 @@ function handleValidate(req, res) {
   const errors = validationResult(req);
 
   if (errors.array().length) {
-    res.json({
-      status: 401,
+    res.status(401).json({
       message: 'Authentication failed',
     })
   }
@@ -155,24 +197,21 @@ exports.apiLogin = async(function*(req, res) {
   try {
     var user = yield User.load({ criteria });
     if (user == null) {
-      res.json({
-        status: 401,
+      res.status(401).json({
         message: 'Authentication failed',
       })
     } else if (user.comparePassword(password)) {
-      res.json({
-        status: 401,
+      res.status(401).json({
         message: 'Authentication failed',
       })
     } else {
-      res.json({
+      res.status(200).json({
         message: 'Login successfully',
         token: userMiddleware.generateJWTToken(user),
       })
     }
   } catch (err) {
-    res.json({
-      status: 401,
+    res.status(401).json({
       message: 'Authentication failed',
     })
   }

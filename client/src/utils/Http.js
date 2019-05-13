@@ -1,10 +1,11 @@
 import axios from 'axios'
-import systemConfig from './../config';
+import systemConfig from './../config/configServer';
 
 const DEFAULT_CONFIG = {
     baseURL: systemConfig.API_URL,
     headers: {
         'Content-Type': 'application/json',
+        'Accept-Language': systemConfig.LOCALE,
         'X-Requested-With': 'XMLHttpRequest'
     },
     // enable credentials to send cookie to server.

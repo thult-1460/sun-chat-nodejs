@@ -1,12 +1,13 @@
 import Home from '../pages/index'
-import Login from '../pages/auth/login.js'
+import Login from '../pages/auth/login'
 import NotFound from '../pages/404/index';
+import Register from '../pages/auth/register';
 
 const routes = [
     {
         path: '/',
         exact: true,
-        auth: false,
+        auth: true,
         component: Home
     },
     {
@@ -14,6 +15,12 @@ const routes = [
         exact: true,
         auth: false,
         component: Login
+    },
+    {
+        path: '/register',
+        exact: true,
+        auth: false,
+        component: Register
     },
     //notFound
     {

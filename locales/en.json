@@ -1,0 +1,16 @@
+{
+    "register_successfully": "Register Successfully",
+    "register_failed": "Register Failed",
+    "name_required": "The field name is required",
+    "username_required": "The field username is required",
+    "password_required": "The field password is required",
+    "invalid_email": "Email must be from Sun Asterisk INC",
+    "password_dont_match": "Passwords don't match",
+    "email_or_username_already": "That email address or username is already in use.",
+    "name_length": "Name must be {{min}} to {{max}} characters",
+    "username_length": "Username must be {{min}} to {{max}} characters",
+    "email_length": "Email may not be greater than {{max}} characters",
+    "password_length": "Password must be {{min}} to {{max}} characters",
+    "name_already_exist": "Name already exist",
+    "email_already_exist": "Email already exist"
+}

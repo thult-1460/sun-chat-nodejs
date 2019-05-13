@@ -1,16 +1,17 @@
 import React from 'react'
 import {Route, Redirect} from 'react-router-dom'
 import Main from '../components/layouts/Main'
+import {checkExpiredToken} from './../helpers/common';
 
-const PrivateRoute = ({component: Component, isAuthenticated, ...rest}) => (
+const PrivateRoute = ({component: Component, ...rest}) => (
     <Route {...rest} render={props => (
-        isAuthenticated ? (
+        checkExpiredToken() ? (
             <Main {...props}>
                 <Component {...props}/>
             </Main>
         ) : (
             <Redirect to={{
-                pathname: '/sign_in',
+                pathname: '/login',
                 state: {from: props.location}
             }}/>
         )

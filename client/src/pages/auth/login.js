@@ -1,26 +1,35 @@
-import React from 'react';
-import Main from './../../components/layouts/Main';
+import React, {Fragment} from 'react';
 import 'antd/dist/antd.css';
-import { getapiLogin } from './../../api/auth.js';
+import { getApiLogin } from './../../api/auth.js';
 import {
-  Form, Icon, Input, Button, Alert
+  Form, Icon, Input, Button, Alert, Checkbox
 } from 'antd';
-import './../../css/auth/login.css';
+import {PrivateIcon} from './../../components/PrivateIcon';
+import {Link} from 'react-router-dom';
 
-class Home extends React.Component {
-  // State and props in properties
+class LoginPage extends React.Component {
+
   state = {
     email: '',
     password: '',
     error: '',
     isError: false,
+    message: ''
   }
 
-  handlecheckLogin = (e) => {
+  componentDidMount() {
+    if (this.props.history.location.state !== '') {
+      this.setState({
+        message: this.props.history.location.state
+      })
+    }
+  }
+
+  handleCheckLogin = (e) => {
     const { email, password } = this.state;
     const _this = this;
 
-    getapiLogin({
+    getApiLogin({
       email: email,
       password: password,
     }).then(res => {
@@ -49,7 +58,7 @@ class Home extends React.Component {
   }
 
   render() {
-    const { isError } = this.state;
+    const { isError, message } = this.state;
     let errorHTML;
 
     if (isError) {
@@ -66,37 +75,45 @@ class Home extends React.Component {
       errorHTML = '';
     }
     return (
-      <Main>
-        <Form className="login-form">
-          <h2> Welcome to Summoner's Rift  </h2>
-          { errorHTML }
-          <Form.Item>
-            <Input prefix={<Icon type="user" />}
-              placeholder="Email address"
-              type="text"
-              onChange={this.handleChangeUsername} />
-          </Form.Item>
-          <Form.Item>
-            <Input prefix={<Icon type="lock" />}
-              placeholder="Your password"
-              type="password"
-              onChange={this.handleChangePassword} />
-          </Form.Item>
-          <Form.Item>
-            <a className="login-form-forgot" href="#">Forgot password</a>
-            <br/>
-            <Button
-              className="login-form-button"
-              type="primary"
-              value="Log in"
-              onClick={this.handlecheckLogin} > Login
-            </Button>
-            Or <a href="#">register now!</a>
-          </Form.Item>
-        </Form>
-      </Main>
+      <Fragment>
+        <div className="form">
+          <Form className="login-form">
+            <h2 className="logo"><Icon style={{ fontSize: 100, color: '#40A9FF' }} theme="outlined" component={PrivateIcon} /></h2>
+            { errorHTML }
+            {typeof message === 'string' && message !== '' && 
+              <Form.Item>
+                <Alert
+                  description={message}
+                  type="success"
+                  showIcon
+                />
+              </Form.Item>
+            }
+            <Form.Item>
+              <Input prefix={<Icon type="user" />}
+                placeholder="Email address"
+                type="text"
+                onChange={this.handleChangeUsername} />
+            </Form.Item>
+            <Form.Item>
+              <Input prefix={<Icon type="lock" />}
+                placeholder="Your password"
+                type="password"
+                onChange={this.handleChangePassword} />
+            </Form.Item>
+            <Form.Item>
+                <Checkbox>Remember me</Checkbox>
+              <a className="login-form-forgot" href="">Forgot password</a>
+              <Button type="primary" htmlType="submit" className="login-form-button" onClick={this.handleCheckLogin}>
+                Log in
+              </Button>
+              Or <Link to="/register">register now!</Link>
+            </Form.Item>
+          </Form>
+        </div>
+      </Fragment>
     );
   }
 }
 
-export default Home;
+export default LoginPage;

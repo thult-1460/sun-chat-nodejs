@@ -30,7 +30,6 @@ module.exports = function(app, passport) {
   const pauth = passport.authenticate.bind(passport);
 
   // user routes
-  app.get('/users/hello', users.hello);
   app.get('/login', users.login);
   app.get('/signup', users.signup);
   app.get('/logout', users.logout);
@@ -100,7 +99,9 @@ module.exports = function(app, passport) {
   );
 
   // API routes
+  app.get('/api/users/hello', users.hello);
   app.post('/api/login', usersValidate.validate('login'), users.apiLogin);
+  app.post('/api/signup', usersValidate.validate('register'), users.apiSignup);
 
   // tag routes
   app.get('/tags/:tag', tags.index);

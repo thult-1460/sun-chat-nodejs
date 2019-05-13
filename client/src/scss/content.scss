@@ -1,0 +1,24 @@
+.list-message {
+    padding: 24px;
+    background: #fff;
+    overflow: auto;
+}
+
+@media screen and (min-width: 1500px) {
+    .list-message {
+    padding: 24px;
+        background: #fff;
+        overflow: auto;
+        height: 68.5vh;
+    }
+}
+
+@media screen and (min-width: 1800px) {
+    .list-message {
+    padding: 24px;
+        background: #fff;
+        overflow: auto;
+        height: 73.5vh;
+    }
+}
+

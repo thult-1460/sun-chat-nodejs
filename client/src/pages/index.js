@@ -1,27 +1,35 @@
 import React from 'react';
-import Main from './../components/layouts/Main';
-import {getData} from './../api/example';
+import {withRouter} from 'react-router';
+import { Layout, Input } from 'antd'
+
+const { Content } = Layout;
 
 class Home extends React.Component {
-    state = {
-        greeting: ''
-    }
-
-    componentDidMount() {
-        getData().then(res => {
-            this.setState({
-                greeting: res.data.sayHi
-            });
-        });
-    }
-
     render() {
         return (
-            <Main>
-                <h1>{this.state.greeting}</h1>
-            </Main>
+            <Content style={{ margin: '24px 16px 0', overflow: 'initial' }}>
+                <div className="list-message">
+                    ...
+                    <br />
+                    Really
+                    <br />...<br />...<br />...<br />
+                    long
+                    <br />...<br />...<br />...<br />...<br />...<br />...
+                    <br />...<br />...<br />...<br />...<br />...<br />...
+                    <br />...<br />...<br />...<br />...<br />...<br />...
+                    <br />...<br />...<br />...<br />
+                    content
+                    long
+                    <br />...<br />...<br />...<br />...<br />...<br />...
+                    <br />...<br />...<br />...<br />...<br />...<br />...
+                    <br />...<br />...<br />...<br />...<br />...<br />...
+                    <br />...<br />...<br />...<br />
+                    content
+                </div>
+                    <Input.TextArea placeholder="Typing in here !!!" rows={4} style={{resize: 'none'}}/>
+            </Content>
         );
     }
 }
 
-export default Home;
+export default withRouter(Home);
