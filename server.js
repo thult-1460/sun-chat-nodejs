@@ -16,21 +16,12 @@ const moment = require('moment-timezone');
 const models = join(__dirname, 'app/models');
 const port = process.env.PORT || 3001;
 const app = express();
-const i18n = require('i18n');
 const { timezone } = require('./config/app.js');
 moment.tz.setDefault(timezone);
-
-i18n.configure({
-  locales: ['vi', 'en'],
-  directory: __dirname + '/locales',
-  defaultLocale: 'vi',
-});
-app.use(i18n.init);
 
 /**
  * Expose
  */
-
 module.exports = app;
 
 // Bootstrap models

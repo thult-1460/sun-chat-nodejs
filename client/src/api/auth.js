@@ -7,3 +7,9 @@ export function getApiLogin(data) {
 export function register(data) {
     return new Http().post('/signup', data);
 }
+
+export function confirmEmail(data) {
+	const { id, active_token } = data;
+
+    return new Http().get('/confirm/' + id + '/' + active_token);
+}

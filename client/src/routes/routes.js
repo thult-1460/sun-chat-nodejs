@@ -2,6 +2,7 @@ import Home from '../pages/index'
 import Login from '../pages/auth/login'
 import NotFound from '../pages/404/index';
 import Register from '../pages/auth/register';
+import ConfirmEmail from '../pages/auth/ConfirmEmail';
 
 const routes = [
     {
@@ -21,6 +22,12 @@ const routes = [
         exact: true,
         auth: false,
         component: Register
+    },
+    {
+        path: '/confirm/:id/:active_token',
+        exact: true,
+        auth: false,
+        component: ConfirmEmail
     },
     //notFound
     {

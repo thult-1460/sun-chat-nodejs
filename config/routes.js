@@ -3,7 +3,6 @@
 /*
  * Module dependencies.
  */
-
 const users = require('../app/controllers/users');
 const usersValidate = require('./../app/validations/users.js');
 const articles = require('../app/controllers/articles');
@@ -19,7 +18,7 @@ const articleAuth = [auth.requiresLogin, auth.article.hasAuthorization];
 const commentAuth = [auth.requiresLogin, auth.comment.hasAuthorization];
 
 const fail = {
-  failureRedirect: '/login'
+  failureRedirect: '/login',
 };
 
 /**
@@ -28,6 +27,13 @@ const fail = {
 
 module.exports = function(app, passport) {
   const pauth = passport.authenticate.bind(passport);
+
+  // change language
+  app.get('/change-lang/:lang', (req, res) => {
+    let { lang } = req.params;
+    res.cookie('lang', lang, { maxAge: 900000, httpOnly: true });
+    res.send('Check your cookies. One should be in there now');
+  });
 
   // user routes
   app.get('/login', users.login);
@@ -38,7 +44,7 @@ module.exports = function(app, passport) {
     '/users/session',
     pauth('local', {
       failureRedirect: '/login',
-      failureFlash: 'Invalid email or password.'
+      failureFlash: 'Invalid email or password.',
     }),
     users.session
   );
@@ -53,8 +59,8 @@ module.exports = function(app, passport) {
       failureRedirect: '/login',
       scope: [
         'https://www.googleapis.com/auth/userinfo.profile',
-        'https://www.googleapis.com/auth/userinfo.email'
-      ]
+        'https://www.googleapis.com/auth/userinfo.email',
+      ],
     }),
     users.signin
   );
@@ -63,7 +69,7 @@ module.exports = function(app, passport) {
     '/auth/linkedin',
     pauth('linkedin', {
       failureRedirect: '/login',
-      scope: ['r_emailaddress']
+      scope: ['r_emailaddress'],
     }),
     users.signin
   );
@@ -72,6 +78,7 @@ module.exports = function(app, passport) {
     pauth('linkedin', fail),
     users.authCallback
   );
+  app.get('/email/confirm/:userId/:active_token', users.confirmEmail);
 
   app.param('userId', users.load);
 
@@ -99,10 +106,10 @@ module.exports = function(app, passport) {
   );
 
   // API routes
-  app.get('/api/users/hello', users.hello);
-  app.post('/api/login', usersValidate.validate('login'), users.apiLogin);
-  app.post('/api/signup', usersValidate.validate('register'), users.apiSignup);
-
+  // app.get('/api/users/hello', users.hello);
+  // app.post('/api/login', usersValidate.validate('login'), users.apiLogin);
+  // app.post('/api/signup', usersValidate.validate('register'), users.apiSignup);
+  
   // tag routes
   app.get('/tags/:tag', tags.index);
 
@@ -135,7 +142,7 @@ module.exports = function(app, passport) {
   app.use(function(req, res) {
     const payload = {
       url: req.originalUrl,
-      error: 'Not found'
+      error: 'Not found',
     };
     if (req.accepts('json')) return res.status(404).json(payload);
     res.status(404).render('404', payload);

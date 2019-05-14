@@ -29,7 +29,7 @@ export default class Http {
     authenticated() {
         const storedData = localStorage.getItem('token'); // get token from localstorage
         if (storedData) {
-            this.config.headers.Authorization = storedData;
+            this.config.headers.authorization = storedData;
         }
 
         return this;

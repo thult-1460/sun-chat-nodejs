@@ -8,11 +8,13 @@ import {withRouter} from 'react-router';
 import {authValidate} from './../../config/validate';
 import {PrivateIcon} from './../../components/PrivateIcon';
 import {Link} from 'react-router-dom';
+import Notifications, { notify } from 'react-notify-toast';
 const FormItem = Form.Item
 
 class RegisterPage extends React.Component {
     state = {
         isLoading: false,
+        sendingEmail: false,
         errors: {},
         error: ''
     }
@@ -86,29 +88,37 @@ class RegisterPage extends React.Component {
 
     onSubmit = e => {
         e.preventDefault();
+        this.setState({ sendingEmail: true})
         const {username, name, email, password, password_confirmation} = this.props.form.getFieldsValue();
         const newUser = {username, name, email, password, password_confirmation};
+
+        let myColor = { background: '#0E1717', text: "#FFFFFF" };
 
         this.props.form.validateFields((err, values) => {
             if (!err) {
                 this.setState({isLoading: true});
-                register(newUser)
-                    .then(res => {
-                        this.props.history.push('/login', res.data.success)
+                register(newUser).then(res => res.data)
+                .then(data => {
+                    this.setState({ 
+                        sendingEmail: false,
+                        isLoading: false
                     })
-                    .catch(err => {
-                        if (err.response.data.error) {
-                            this.setState({
-                                error: err.response.data.error,
-                                isLoading: false
-                            })
-                        } else {
-                            this.setState({
-                                errors: err.response.data,
-                                isLoading: false
-                            });
-                        }
-                    })
+                    notify.show(data.msg, "custom", 5000, myColor)
+                    this.props.form.resetFields()
+                })
+                .catch(err => {
+                    if (err.response.data.error) {
+                        this.setState({
+                            error: err.response.data.error,
+                            isLoading: false
+                        })
+                    } else {
+                        this.setState({
+                            errors: err.response.data,
+                            isLoading: false
+                        });
+                    }
+                })
             }
         });
     };
@@ -123,6 +133,8 @@ class RegisterPage extends React.Component {
 
         return (
             <Fragment>
+                <Notifications />
+
                 <div className="form" style={{height: 560}}>
                     {isLoading && 
                         <Loading />

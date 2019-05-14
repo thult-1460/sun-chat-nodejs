@@ -14,6 +14,9 @@ const User = mongoose.model('User');
 const { validationResult } = require('express-validator/check');
 const { user: userMiddleware } = require('../../config/middlewares/authorization.js');
 const crypto = require('crypto');
+const mailer = require('../mailer/email.action');
+
+mongoose.set('useFindAndModify', false);
 /**
  * Load
  */
@@ -36,6 +39,7 @@ exports.load = async(function*(req, res, next, _id) {
 exports.create = async(function*(req, res) {
   const user = new User(req.body);
   user.provider = 'local';
+
   try {
     yield user.save();
     req.logIn(user, err => {
@@ -89,16 +93,16 @@ exports.login = function(req, res) {
  * Show sign up form
  */
 
-
 exports.signup = function(req, res) {
   res.render('users/signup', {
     title: 'Sign up',
-    user: new User()
+    user: new User(),
   });
 };
 
 exports.apiSignup = function(req, res) {
   const errors = validationResult(req);
+
   if (errors.array().length > 0) {
     let customErrors = customMessageValidate(errors);
 
@@ -109,23 +113,55 @@ exports.apiSignup = function(req, res) {
 
   const active_token = crypto.randomBytes(20).toString('hex');
 
-  new User({
+  const user = new User({
     name,
     email,
     username,
     password,
     active_token,
-  }).save(err => {
+  });
+
+  user.save(err => {
     if (err) {
-      return res.status(500).json({
+      res.status(500).json({
         error: req.__('register_failed'),
       });
     }
 
-    return res.status(200).json({
-      success: req.__('register_successfully'),
-    });
+    mailer.activeEmail(user).then(result => res.status(200).json({ msg: result })).catch(err => console.log(err));
   });
+};
+
+/**
+ *  Confirm Email
+ */
+exports.confirmEmail = function(req, res) {
+  const { userId, active_token } = req.params;
+
+  User.findById(userId)
+    .then(user => {
+      if (!user) {
+        res.status(401).json({ msg: __('mail.couldNotFind') });
+      } else if (user.active) {
+        res.status(200).json({ msg: __('mail.alreadyConfirmed') });
+      }
+        
+      if (active_token !== user.active_token) {
+        res.status(401).json({ msg: __('token_invalid') });
+      }
+
+      if (new Date(user.active_token_expire) < new Date()) {
+        res.status(412).json({ msg: __('mail.expired_token') });
+      } 
+
+      User.findOneAndUpdate(userId, {
+        active: true,
+        active_token: null,
+        active_token_expire: null,
+      }).then(() => res.status(200).json({ msg: __('mail.confirmed') }))
+      .catch(err => console.log(err));
+    })
+    .catch(err => res.status(500).json({ msg: __('mail.confirm_failed') }));
 };
 
 /**
@@ -140,7 +176,6 @@ exports.logout = function(req, res) {
 /**
  * Session
  */
-
 exports.session = login;
 
 function customMessageValidate(errors) {
@@ -156,7 +191,6 @@ function customMessageValidate(errors) {
 /**
  * Login
  */
-
 function login(req, res) {
   const redirectTo = req.session.returnTo ? req.session.returnTo : '/';
   delete req.session.returnTo;
@@ -167,22 +201,20 @@ function login(req, res) {
  * Handle validate
  */
 function handleValidate(req, res) {
-  // Finds the validation errors in this request and wraps them in an object with handy functions
   const errors = validationResult(req);
 
   if (errors.array().length) {
     res.status(401).json({
       message: 'Authentication failed',
-    })
+    });
   }
 }
 
 /**
  * Hello from other app
  */
-
 exports.hello = function(req, res) {
-    res.json({sayHi: 'hello from server, nice to meet you!'})
+  res.json({ sayHi: 'hello from server, nice to meet you!' });
 };
 
 exports.apiLogin = async(function*(req, res) {
@@ -193,26 +225,26 @@ exports.apiLogin = async(function*(req, res) {
 
   const criteria = {
     email: email,
-  }
+  };
   try {
     var user = yield User.load({ criteria });
     if (user == null) {
       res.status(401).json({
         message: 'Authentication failed',
-      })
+      });
     } else if (user.comparePassword(password)) {
       res.status(401).json({
         message: 'Authentication failed',
-      })
+      });
     } else {
       res.status(200).json({
         message: 'Login successfully',
         token: userMiddleware.generateJWTToken(user),
-      })
+      });
     }
   } catch (err) {
     res.status(401).json({
       message: 'Authentication failed',
-    })
+    });
   }
 });
