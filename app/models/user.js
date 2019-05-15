@@ -10,7 +10,6 @@ const moment = require('moment-timezone');
 
 const Schema = mongoose.Schema;
 const oAuthTypes = ['github', 'twitter', 'google', 'linkedin'];
-
 /**
  * User Schema
  */
@@ -38,11 +37,11 @@ const UserSchema = new Schema(
     },
     salt: {
       type: String,
-      default: ''
+      default: '',
     },
     active: {
       type: Boolean,
-      default: false
+      default: false,
     },
     active_token: {
       type: String,
@@ -50,6 +49,16 @@ const UserSchema = new Schema(
     active_token_expire: {
       type: Date,
       default: moment().add(process.env.ACTIVE_TOKEN_EXPIRE_TIME, 'days'),
+    },
+    requested_in_comming: [
+      {
+        type: Schema.ObjectId,
+        ref: 'User',
+      },
+    ],
+    avatar: {
+      type: String,
+      default: '',
     },
   },
   {
@@ -151,8 +160,8 @@ UserSchema.methods = {
   },
 
   comparePassword: function(password) {
-    return this.encryptPassword(password) !== this.hashed_password
-  }
+    return this.encryptPassword(password) !== this.hashed_password;
+  },
 };
 
 /**
@@ -173,6 +182,35 @@ UserSchema.statics = {
     return this.findOne(options.criteria)
       .select(options.select)
       .exec(cb);
+  },
+
+  getMyContactRequest: function(userId, options) {
+    let limit = options.limit;
+    const page = options.page || 0;
+    return this.find(
+      {
+        _id: userId,
+      },
+      { name: 1, requested_in_comming: { $slice: [limit * page, limit] } }
+    )
+      .populate({
+        path: 'requested_in_comming',
+        select: { avatar: 1, name: 1, _id: 1, email: 1 },
+      })
+      .exec();
+  },
+
+  getAllContactRequest: function(userId) {
+    return this.aggregate([
+      { $match: { _id: mongoose.Types.ObjectId(userId) } },
+      {
+        $project: {
+          number_of_contact: {
+            $cond: { if: { $isArray: '$requested_in_comming' }, then: { $size: '$requested_in_comming' }, else: 0 },
+          },
+        },
+      },
+    ]);
   },
 };
 

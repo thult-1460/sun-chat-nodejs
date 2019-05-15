@@ -57,10 +57,7 @@ module.exports = function(app, passport) {
     '/auth/google',
     pauth('google', {
       failureRedirect: '/login',
-      scope: [
-        'https://www.googleapis.com/auth/userinfo.profile',
-        'https://www.googleapis.com/auth/userinfo.email',
-      ],
+      scope: ['https://www.googleapis.com/auth/userinfo.profile', 'https://www.googleapis.com/auth/userinfo.email'],
     }),
     users.signin
   );
@@ -73,13 +70,8 @@ module.exports = function(app, passport) {
     }),
     users.signin
   );
-  app.get(
-    '/auth/linkedin/callback',
-    pauth('linkedin', fail),
-    users.authCallback
-  );
+  app.get('/auth/linkedin/callback', pauth('linkedin', fail), users.authCallback);
   app.get('/email/confirm/:userId/:active_token', users.confirmEmail);
-
   app.param('userId', users.load);
 
   // article routes
@@ -92,24 +84,12 @@ module.exports = function(app, passport) {
   app.put('/articles/:id', articleAuth, articles.update);
   app.delete('/articles/:id', articleAuth, articles.destroy);
 
-  // home route
-  app.get('/', auth.requiresAPILogin, articles.index);
-
   // comment routes
   app.param('commentId', comments.load);
   app.post('/articles/:id/comments', auth.requiresLogin, comments.create);
   app.get('/articles/:id/comments', auth.requiresLogin, comments.create);
-  app.delete(
-    '/articles/:id/comments/:commentId',
-    commentAuth,
-    comments.destroy
-  );
+  app.delete('/articles/:id/comments/:commentId', commentAuth, comments.destroy);
 
-  // API routes
-  // app.get('/api/users/hello', users.hello);
-  // app.post('/api/login', usersValidate.validate('login'), users.apiLogin);
-  // app.post('/api/signup', usersValidate.validate('register'), users.apiSignup);
-  
   // tag routes
   app.get('/tags/:tag', tags.index);
 
@@ -119,11 +99,7 @@ module.exports = function(app, passport) {
 
   app.use(function(err, req, res, next) {
     // treat as 404
-    if (
-      err.message &&
-      (~err.message.indexOf('not found') ||
-        ~err.message.indexOf('Cast to ObjectId failed'))
-    ) {
+    if (err.message && (~err.message.indexOf('not found') || ~err.message.indexOf('Cast to ObjectId failed'))) {
       return next();
     }
 

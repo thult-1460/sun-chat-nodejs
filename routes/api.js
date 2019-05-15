@@ -13,13 +13,16 @@ const usersValidate = require('../app/validations/users.js');
 router.get('/language/:lang', (req, res) => {
   let { lang } = req.params;
   res.cookie('lang', lang, { maxAge: 900000, httpOnly: true });
-  res.status(200).json({ msg: __('changed_lang', {lang: lang}) });;
+  res.status(200).json({ msg: __('changed_lang', { lang: lang }) });
 });
 
 // Users
 router.post('/login', usersValidate.validate('login'), users.apiLogin);
 router.post('/signup', usersValidate.validate('register'), users.apiSignup);
 router.get('/confirm/:userId/:active_token', users.confirmEmail);
+//Contact
+router.get('/my-contact-request', auth.jwtMiddleware, users.contactRequest);
+router.get('/my-contact-request-number', auth.jwtMiddleware, users.totalContactRequest);
 router.param('userId', users.load);
 
 module.exports = router;
