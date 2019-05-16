@@ -18,6 +18,24 @@ class RegisterPage extends React.Component {
     error: '',
   };
 
+  validateToNextPassword = (rule, value, callback) => {
+    const form = this.props.form;
+    if (value && this.state.confirmDirty) {
+      form.validateFields(['password_confirmation'], { force: true });
+    }
+
+    callback();
+  };
+
+  compareToFirstPassword = (rule, value, callback) => {
+    const form = this.props.form;
+    if (value && value !== form.getFieldValue('password')) {
+      callback(this.props.t('validate.password_confirmation.dont_match'));
+    } else {
+      callback();
+    }
+  };
+
   rules = {
     name: {
       validateFirst: true,
@@ -106,24 +124,6 @@ class RegisterPage extends React.Component {
   handleConfirmBlur = e => {
     const value = e.target.value;
     this.setState({ confirmDirty: this.state.confirmDirty || !!value });
-  };
-
-  compareToFirstPassword = (rule, value, callback) => {
-    const form = this.props.form;
-    if (value && value !== form.getFieldValue('password')) {
-      callback(this.props.t('validate.password_confirmation.dont_match'));
-    } else {
-      callback();
-    }
-  };
-
-  validateToNextPassword = (rule, value, callback) => {
-    const form = this.props.form;
-    if (value && this.state.confirmDirty) {
-      form.validateFields(['password_confirmation'], { force: true });
-    }
-
-    callback();
   };
 
   onSubmit = e => {

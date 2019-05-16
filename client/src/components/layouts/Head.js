@@ -5,25 +5,6 @@ import ListContactRequest from '../contact/ListContactRequest';
 import ChangeLanguage from './../ChangeLanguage';
 const { Header } = Layout;
 
-const menu = (
-  <Menu>
-    <Menu.Item>
-      <a href="/change_password">Change password</a>
-      <a>Logout</a>
-    </Menu.Item>
-  </Menu>
-);
-
-const content = (
-  <div>
-    <p>Content</p>
-    <p>Content</p>
-    <p>Content</p>
-    <p>Content</p>
-    <p>Content</p>
-  </div>
-);
-
 class Head extends React.Component {
   state = {
     visible: false,
@@ -43,6 +24,11 @@ class Head extends React.Component {
     });
   };
 
+  onLogout = () => {
+    localStorage.removeItem('token');
+    window.location.href = '/login';
+  };
+
   handleCancel = e => {
     this.setState({
       visible: false,
@@ -51,6 +37,25 @@ class Head extends React.Component {
   };
 
   render() {
+    const menu = (
+      <Menu>
+        <Menu.Item>
+          <a href="javascript:;" onClick={this.onLogout}>
+            Logout
+          </a>
+        </Menu.Item>
+      </Menu>
+    );
+
+    const content = (
+      <div>
+        <p>Content</p>
+        <p>Content</p>
+        <p>Content</p>
+        <p>Content</p>
+        <p>Content</p>
+      </div>
+    );
     return checkExpiredToken() ? (
       <Header style={{ background: '#fff', padding: 0 }}>
         <Row type="flex" justify="end" align="middle">
@@ -58,21 +63,9 @@ class Head extends React.Component {
             <Badge className="header-icon" dot>
               <Icon type="contacts" theme="twoTone" onClick={this.showModal} />
               <Modal visible={this.state.visible} onOk={this.handleOk} onCancel={this.handleCancel} footer={null}>
-                {this.state.showComponent == true ? <ListContactRequest /> : ''}
+                {this.state.showComponent === true ? <ListContactRequest /> : ''}
               </Modal>
             </Badge>
-            <Badge className="header-icon" dot>
-              <a href="javascript:;">
-                <Icon type="mail" />
-              </a>
-            </Badge>
-            <Popover content={content} title="Title" trigger="click">
-              <Badge className="header-icon" dot>
-                <a href="#">
-                  <Icon type="notification" />
-                </a>
-              </Badge>
-            </Popover>
             <Popover content={content} title="Create Room" trigger="click">
               <Badge className="header-icon">
                 <a href="#">
