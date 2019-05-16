@@ -162,6 +162,15 @@ UserSchema.methods = {
   comparePassword: function(password) {
     return this.encryptPassword(password) !== this.hashed_password;
   },
+
+  updatePassword: function(newPassword) {
+    try {
+      this.hashed_password = this.encryptPassword(newPassword);
+      this.save();
+    } catch (err) {
+      throw new Error(err);
+    }
+  },
 };
 
 /**

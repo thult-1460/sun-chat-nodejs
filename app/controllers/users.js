@@ -1,10 +1,6 @@
 'use strict';
 
 /**
- * This is demo for users.
- */
-
-/**
  * Module dependencies.
  */
 
@@ -205,11 +201,14 @@ function login(req, res) {
 function handleValidate(req, res) {
   const errors = validationResult(req);
 
-  if (errors.array().length) {
-    res.status(401).json({
-      message: 'Authentication failed',
-    });
+  if (errors.array().length > 0) {
+    let customErrors = customMessageValidate(errors);
+    res.status(422).json(customErrors);
+
+    return false;
   }
+
+  return true;
 }
 
 /**
@@ -223,7 +222,9 @@ exports.apiLogin = async(function*(req, res) {
   const { email, password } = req.body;
   const jwtSecret = process.env.JWT_SECRET || 'RESTFULAPIs';
 
-  handleValidate(req, res);
+  if (handleValidate(req, res) === false) {
+    return res;
+  }
 
   const criteria = {
     email: email,
@@ -232,21 +233,21 @@ exports.apiLogin = async(function*(req, res) {
     var user = yield User.load({ criteria });
     if (user == null) {
       res.status(401).json({
-        message: 'Authentication failed',
+        message: __('authentication_failed'),
       });
     } else if (user.comparePassword(password)) {
       res.status(401).json({
-        message: 'Authentication failed',
+        message: __('authentication_failed'),
       });
     } else {
       res.status(200).json({
-        message: 'Login successfully',
+        message: __('login_successfully'),
         token: userMiddleware.generateJWTToken(user),
       });
     }
   } catch (err) {
-    res.status(401).json({
-      message: 'Authentication failed',
+    res.status(500).json({
+      message: __('authentication_failed'),
     });
   }
 });
@@ -267,4 +268,47 @@ exports.totalContactRequest = async(function*(req, res) {
   let { _id } = req.decoded;
   const data = yield User.getAllContactRequest(_id);
   res.json({ result: data[0]['number_of_contact'] });
+});
+
+/**
+ *  Change password
+ */
+exports.apiChangePassword = async(function*(req, res) {
+  const { current_password, new_password, confirm_password } = req.body;
+  const criteria = { _id: req.decoded._id };
+
+  try {
+    var user = yield User.load({ criteria });
+
+    if (handleValidate(req, res) === false) {
+      return res;
+    }
+
+    if (!user) {
+      return res.status(401).json({
+        error: __('change_password.user_not_found'),
+      });
+    }
+
+    if (!user.authenticate(current_password)) {
+      return res.status(422).json({
+        error: __('change_password.old_password_incorrect'),
+      });
+    }
+
+    if (new_password === current_password) {
+      return res.status(422).json({
+        error: __('change_password.compare_current_and_new_password_failed'),
+      });
+    }
+
+    user.updatePassword(new_password);
+    res.status(200).json({
+      success: __('change_password.update_successfully'),
+    });
+  } catch (err) {
+    res.status(500).json({
+      error: __('change_password.change_password_failed'),
+    });
+  }
 });

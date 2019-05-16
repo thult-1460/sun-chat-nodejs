@@ -24,5 +24,6 @@ router.get('/confirm/:userId/:active_token', users.confirmEmail);
 router.get('/my-contact-request', auth.jwtMiddleware, users.contactRequest);
 router.get('/my-contact-request-number', auth.jwtMiddleware, users.totalContactRequest);
 router.param('userId', users.load);
+router.post('/change_password', auth.jwtMiddleware, usersValidate.validate('change_password'), users.apiChangePassword);
 
 module.exports = router;

@@ -8,6 +8,7 @@ const { Header } = Layout;
 const menu = (
   <Menu>
     <Menu.Item>
+      <a href="/change_password">Change password</a>
       <a>Logout</a>
     </Menu.Item>
   </Menu>

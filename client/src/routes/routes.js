@@ -4,6 +4,7 @@ import NotFound from '../pages/404/index';
 import Register from '../pages/auth/register';
 import ListContactRequest from '../components/contact/ListContactRequest';
 import ConfirmEmail from '../pages/auth/ConfirmEmail';
+import ChangePassword from '../pages/auth/changePassword';
 
 const routes = [
   {
@@ -35,6 +36,13 @@ const routes = [
     exact: true,
     auth: true,
     component: ListContactRequest,
+  },
+  // change password
+  {
+    path: '/change_password',
+    exact: true,
+    auth: true,
+    component: ChangePassword,
   },
   //notFound
   {
