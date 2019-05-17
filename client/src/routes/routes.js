@@ -1,6 +1,7 @@
 import Home from '../pages/index';
 import Login from '../pages/auth/login';
 import NotFound from '../pages/404/index';
+import Profile from '../pages/setting/profile';
 import Register from '../pages/auth/register';
 import ListContactRequest from '../components/contact/ListContactRequest';
 import ConfirmEmail from '../pages/auth/ConfirmEmail';
@@ -45,6 +46,13 @@ const routes = [
     auth: true,
     component: ListContactRequest,
   },
+  {
+    path: '/setting/profile',
+    exact: true,
+    auth: true,
+    component: Profile
+  },
+  // change password
   {
     path: '/forgot-password',
     exact: true,

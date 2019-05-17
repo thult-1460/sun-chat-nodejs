@@ -1,0 +1,22 @@
+{
+  "message": {
+    "load_to_fail_user_info": "Can't load user information !",
+    "update_to_fail_user": "Update failed !",
+    "update_to_success_user": "Update Successfully !",
+    "request_not_processed": "Request is not accepted !"
+  },
+  "label": {
+    "name": "Name",
+    "email": "Email",
+    "user_name": "User Name",
+    "twitter": "Twitter Account",
+    "github": "Github Account",
+    "google": "Google Account",
+    "address": "Address",
+    "phone": "Phone Number",
+    "title_update_info": "Setting Information"
+  },
+  "button": {
+    "update_info": "Update Information"
+  }
+}

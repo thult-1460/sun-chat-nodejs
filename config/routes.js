@@ -48,7 +48,9 @@ module.exports = function(app, passport) {
     }),
     users.session
   );
-  app.get('/users/:userId', users.show);
+
+  app.param('userId', users.load);
+
   app.get('/auth/github', pauth('github', fail), users.signin);
   app.get('/auth/github/callback', pauth('github', fail), users.authCallback);
   app.get('/auth/twitter', pauth('twitter', fail), users.signin);
@@ -72,7 +74,6 @@ module.exports = function(app, passport) {
   );
   app.get('/auth/linkedin/callback', pauth('linkedin', fail), users.authCallback);
   app.get('/email/confirm/:userId/:active_token', users.confirmEmail);
-  app.param('userId', users.load);
 
   // article routes
   app.param('id', articles.load);
