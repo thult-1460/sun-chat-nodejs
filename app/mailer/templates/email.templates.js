@@ -12,4 +12,13 @@ module.exports = {
       config.CLIENT_ORIGIN
     }/confirm/${id}/${token}`,
   }),
+
+  resetPassword: (token) => ({
+    subject: 'Reset your password',
+    html: `
+      <a href='${config.CLIENT_ORIGIN}/reset-password?token=${token}'>
+        Reset password
+      </a>
+    `,
+  }),
 };

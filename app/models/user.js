@@ -60,6 +60,14 @@ const UserSchema = new Schema(
       type: String,
       default: '',
     },
+    reset_token: {
+      type: String,
+      default: '',
+    },
+    reset_token_expire: {
+      type: Date,
+      default: '',
+    },
   },
   {
     timestamps: true,
@@ -159,16 +167,26 @@ UserSchema.methods = {
     return ~oAuthTypes.indexOf(this.provider);
   },
 
-  comparePassword: function(password) {
-    return this.encryptPassword(password) !== this.hashed_password;
-  },
-
   updatePassword: function(newPassword) {
     try {
       this.hashed_password = this.encryptPassword(newPassword);
       this.save();
     } catch (err) {
       throw new Error(err);
+    }
+  },
+  /**
+   * Reset password
+   */
+  resetPassword: function(password) {
+    try {
+      this.password = password;
+      this.reset_token = '';
+      this.reset_token_expire = '';
+
+      return this.save();
+    } catch (err) {
+      throw new Error(err.toString());
     }
   },
 };
@@ -187,7 +205,7 @@ UserSchema.statics = {
    */
 
   load: function(options, cb) {
-    options.select = options.select || 'name username hashed_password salt';
+    options.select = options.select || 'name username hashed_password salt reset_token_expire email active';
     return this.findOne(options.criteria)
       .select(options.select)
       .exec(cb);

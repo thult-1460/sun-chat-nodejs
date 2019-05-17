@@ -25,6 +25,7 @@
   "email_already_exist": "Email đã tồn tại",
   "changed_lang": "Thay đổi ngôn ngữ sang {{lang}}",
   "token_invalid": "Token không hợp lệ",
+  "token_expired": "Token đã hết hạn sử dụng",
   "authentication_failed": "Xác thực lỗi",
   "login_successfully": "Đăng nhập thành công",
   "change_password": {
@@ -39,5 +40,17 @@
     "new_password_required": "Mật khẩu mới không được để trống",
     "new_password_length": "Mật khâu mới phải từ {{min}} đến {{max}} ký tự",
     "confirm_password_required": "Mật khẩu không được để trống"
+  },
+  "reset_password": {
+    "success": "Mật khẩu đã được cập nhật thành công",
+    "fail": "Cập nhật mật khẩu thất bại",
+    "send_email": "Hãy kiểm tra hòm thư của bạn để cập nhật mật khẩu mới",
+    "not_match_pw": "Hai mật khẩu không trùng nhau",
+    "send_email_error": "Gửi mail thất bại"
+  },
+  "login": {
+    "success": "Đăng nhập thành công",
+    "fail": "Thông tin tài khoản không đúng",
+    "unactive": "Làm ơn hãy kích hoạt tài khoản này"
   }
 }

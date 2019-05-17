@@ -5,8 +5,16 @@ import Register from '../pages/auth/register';
 import ListContactRequest from '../components/contact/ListContactRequest';
 import ConfirmEmail from '../pages/auth/ConfirmEmail';
 import ChangePassword from '../pages/auth/changePassword';
+import ForgotPassword from '../pages/auth/forgotpassword.js';
+import ResetPassword from '../pages/auth/resetpassword.js';
 
 const routes = [
+  {
+    path: '/change_password',
+    exact: true,
+    auth: true,
+    component: ChangePassword,
+  },
   {
     path: '/',
     exact: true,
@@ -37,12 +45,17 @@ const routes = [
     auth: true,
     component: ListContactRequest,
   },
-  // change password
   {
-    path: '/change_password',
+    path: '/forgot-password',
     exact: true,
-    auth: true,
-    component: ChangePassword,
+    auth: false,
+    component: ForgotPassword,
+  },
+  {
+    path: '/reset-password',
+    exact: true,
+    auth: false,
+    component: ResetPassword,
   },
   //notFound
   {

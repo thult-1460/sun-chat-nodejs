@@ -25,6 +25,7 @@
   "email_already_exist": "Email already exist",
   "changed_lang": "Change language to {{lang}}",
   "token_invalid": "Token invalid",
+  "token_expired": "Token have been expired",
   "authentication_failed": "Authentication failed",
   "login_successfully": "Login successfully",
   "change_password": {
@@ -39,5 +40,17 @@
     "new_password_required": "The field new password is required",
     "new_password_length": "New password must be {{min}} to {{max}} characters",
     "confirm_password_required": "The field password is required"
+  },
+  "reset_password": {
+    "success": "Reset password Successfully",
+    "fail": "Reset password Failed",
+    "send_email": "Please check your email to reset password",
+    "not_match_pw": "The confirm password is not same password",
+    "send_email_error": "Send email unsuccessfully"
+  },
+  "login": {
+    "success": "Login Successfully",
+    "fail": "Invalid email or password.",
+    "unactive": "Please active your account"
   }
 }

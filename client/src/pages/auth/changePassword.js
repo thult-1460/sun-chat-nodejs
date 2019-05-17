@@ -191,7 +191,7 @@ class ChangePasswordForm extends React.Component {
             </FormItem>
             <FormItem>
               <Button type="primary" htmlType="submit" className="login-form-button">
-                Save
+                {t('save')}
               </Button>
             </FormItem>
           </Form>

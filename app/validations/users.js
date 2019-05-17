@@ -1,5 +1,6 @@
 const { checkName, checkUsername, checkEmail, checkPassword } = require('./actions/register');
 const { checkCurrentPassword, checkNewPassword, checkConfirmPassword } = require('./actions/changePassword');
+const { checkEmail: checkEmailResetPassword } = require('./actions/reset_password');
 const { check } = require('express-validator/check');
 
 exports.validate = (type, app) => {
@@ -12,19 +13,12 @@ exports.validate = (type, app) => {
       return [checkCurrentPassword(), checkNewPassword(), checkConfirmPassword()];
     }
 
-    case 'login': {
-      return [
-        check('email')
-          .not()
-          .isEmpty()
-          .withMessage('Email field is not empty'),
-        check('password')
-          .not()
-          .isEmpty()
-          .withMessage('Password is not empty')
-          .isLength({ min: 5 })
-          .withMessage('Password must be at least 5 chars long'),
-      ];
+    case 'resetPassword': {
+      return [checkPassword()];
+    }
+
+    case 'sendMailResetPassword': {
+      return [checkEmailResetPassword()];
     }
   }
 };

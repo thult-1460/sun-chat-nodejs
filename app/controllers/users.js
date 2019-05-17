@@ -13,6 +13,7 @@ const crypto = require('crypto');
 const mailer = require('../mailer/email.action');
 mongoose.set('useFindAndModify', false);
 const config = require('../../config/config');
+const moment = require('moment-timezone');
 /**
  * Load
  */
@@ -202,13 +203,22 @@ function handleValidate(req, res) {
   const errors = validationResult(req);
 
   if (errors.array().length > 0) {
-    let customErrors = customMessageValidate(errors);
-    res.status(422).json(customErrors);
+    res.status(422).json(customMessageValidate(errors));
 
     return false;
   }
 
   return true;
+}
+
+/*
+ * Make token to reset password
+ */
+function makeTokenResetPassword(plainText) {
+  return crypto
+    .createHash('sha256')
+    .update(plainText)
+    .digest('base64');
 }
 
 /**
@@ -220,34 +230,26 @@ exports.hello = function(req, res) {
 
 exports.apiLogin = async(function*(req, res) {
   const { email, password } = req.body;
-  const jwtSecret = process.env.JWT_SECRET || 'RESTFULAPIs';
-
-  if (handleValidate(req, res) === false) {
-    return res;
-  }
-
   const criteria = {
     email: email,
   };
+
   try {
     var user = yield User.load({ criteria });
-    if (user == null) {
-      res.status(401).json({
-        message: __('authentication_failed'),
-      });
-    } else if (user.comparePassword(password)) {
-      res.status(401).json({
-        message: __('authentication_failed'),
-      });
-    } else {
-      res.status(200).json({
-        message: __('login_successfully'),
-        token: userMiddleware.generateJWTToken(user),
+
+    if (user == null || !user.authenticate(password) || !user.active) {
+      return res.status(401).json({
+        message: __('login.fail'),
       });
     }
+
+    return res.status(200).json({
+      message: __('login.success'),
+      token: userMiddleware.generateJWTToken(user),
+    });
   } catch (err) {
-    res.status(500).json({
-      message: __('authentication_failed'),
+    return res.status(401).json({
+      message: __('login.fail'),
     });
   }
 });
@@ -261,13 +263,13 @@ exports.contactRequest = async(function*(req, res) {
     page: page,
   };
   const contact = yield User.getMyContactRequest(_id, options);
-  res.json({ result: contact[0]['requested_in_comming'] });
+  return res.json({ result: contact[0]['requested_in_comming'] });
 });
 
 exports.totalContactRequest = async(function*(req, res) {
   let { _id } = req.decoded;
   const data = yield User.getAllContactRequest(_id);
-  res.json({ result: data[0]['number_of_contact'] });
+  return res.json({ result: data[0]['number_of_contact'] });
 });
 
 /**
@@ -303,12 +305,98 @@ exports.apiChangePassword = async(function*(req, res) {
     }
 
     user.updatePassword(new_password);
-    res.status(200).json({
+    return res.status(200).json({
       success: __('change_password.update_successfully'),
     });
   } catch (err) {
-    res.status(500).json({
+    return res.status(500).json({
       error: __('change_password.change_password_failed'),
+    });
+  }
+});
+
+exports.apiSendMailResetPassword = async(function*(req, res) {
+  if (handleValidate(req, res) === false) {
+    return res;
+  }
+
+  const { email } = req.body;
+  const criteria = {
+    email: email,
+  };
+  try {
+    var user = yield User.load({ criteria });
+
+    if (user == null) {
+      // TODO log action
+      return res.status(200).json({
+        message: __('reset_password.send_email'),
+      });
+    }
+
+    var tokenResetPw = crypto.randomBytes(10).toString('hex');
+    var hashTokenResetPw = makeTokenResetPassword(tokenResetPw);
+    var resetTokenExpire = moment().add(parseInt(process.env.RESET_PW_TTL), 'hours');
+    var updateToken = {
+      reset_token: hashTokenResetPw,
+      reset_token_expire: resetTokenExpire,
+    };
+
+    // Update token in database
+    yield User.updateOne(criteria, updateToken);
+
+    // Send mail to reset password
+    mailer
+      .resetPassword(user, tokenResetPw)
+      .then(result => {
+        return res.status(200).json({ message: result });
+      })
+      .catch(err => {
+        throw new Error(err.toString());
+      });
+  } catch (err) {
+    return res.status(500).json({
+      error: __('reset_password.send_email_error'),
+    });
+  }
+});
+
+exports.apiResetPassword = async(function*(req, res) {
+  if (handleValidate(req, res) === false) {
+    return res;
+  }
+
+  const { token, password } = req.body;
+  const criteria = {
+    reset_token: makeTokenResetPassword(token),
+  };
+
+  try {
+    var user = yield User.load({ criteria });
+
+    if (user == null) {
+      return res.status(401).json({
+        error: __('token_invalid'),
+      });
+    }
+
+    var expireToken = new Date(user.reset_token_expire);
+    var now = new Date(Date.now());
+
+    if (expireToken < now) {
+      return res.status(401).json({
+        error: __('token_expired'),
+      });
+    }
+
+    user.resetPassword(password);
+
+    return res.status(200).json({
+      message: __('reset_password.success'),
+    });
+  } catch (err) {
+    return res.status(500).json({
+      error: __('token_invalid'),
     });
   }
 });

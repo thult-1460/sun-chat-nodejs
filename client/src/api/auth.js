@@ -12,6 +12,14 @@ export function apiChangePassword(data) {
   return new Http().authenticated().post('/change_password', data);
 }
 
+export function sendMailResetPassword(data) {
+  return new Http().post('/send-mail-reset-password', data)
+}
+
+export function resetPassword(data) {
+  return new Http().post('/reset-password', data)
+}
+
 export function confirmEmail(data) {
   const { id, active_token } = data;
 

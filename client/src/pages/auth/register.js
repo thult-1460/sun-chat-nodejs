@@ -266,7 +266,7 @@ class RegisterPage extends React.Component {
               <Button type="primary" htmlType="submit" className="login-form-button">
                 {t('register')}
               </Button>
-              Or <Link to="/login">{t('login')} !</Link>
+              {t('or')} <Link to="/login">{t('login')} !</Link>
             </Form.Item>
           </Form>
         </div>

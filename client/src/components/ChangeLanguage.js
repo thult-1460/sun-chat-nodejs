@@ -35,7 +35,7 @@ class ChangeLanguage extends Component {
           <Button
             key={key}
             type={localStorage.getItem('i18nextLng') === resource ? 'danger' : ''}
-            disabled={localStorage.getItem('i18nextLng') === resource ? true : false}
+            disabled={localStorage.getItem('i18nextLng') === resource}
             onClick={() => this.changeLanguage(resource)}
           >
             <ReactCountryFlag code={icon} svg />

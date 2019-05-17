@@ -15,3 +15,10 @@ exports.activeEmail = async (user, resend = false) => {
     return __('mail.alreadyConfirmed');
   }
 };
+
+exports.resetPassword = async (user, token, resend = false) => {
+  return await sendEmail(
+    user.email,
+    templates.resetPassword(token)
+  ).then(() => (resend ? __('mail.resend') : __('mail.send')));
+};

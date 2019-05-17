@@ -1,113 +1,101 @@
-import React, {Fragment} from 'react';
+import React, { Fragment } from 'react';
 import 'antd/dist/antd.css';
 import { getApiLogin } from './../../api/auth.js';
-import {
-  Form, Icon, Input, Button, Alert, Checkbox
-} from 'antd';
-import {PrivateIcon} from './../../components/PrivateIcon';
-import {Link} from 'react-router-dom';
+import { Form, Icon, Input, Button, Alert, Checkbox } from 'antd';
+import { PrivateIcon } from './../../components/PrivateIcon';
+import { Link } from 'react-router-dom';
+import { withNamespaces } from 'react-i18next';
+import { withRouter } from 'react-router';
 
 class LoginPage extends React.Component {
-
   state = {
     email: '',
     password: '',
     error: '',
     isError: false,
-    message: ''
-  }
+  };
 
-  componentDidMount() {
-    if (this.props.history.location.state !== '') {
-      this.setState({
-        message: this.props.history.location.state
-      })
-    }
-  }
-
-  handleCheckLogin = (e) => {
+  handleCheckLogin = e => {
     const { email, password } = this.state;
+    const { t } = this.props;
     const _this = this;
 
     getApiLogin({
       email: email,
       password: password,
-    }).then(res => {
-      if (res.data.token !== undefined) {
-        localStorage.setItem('token', res.data.token);
-        window.location.href = "/";
-      } else {
+    })
+      .then(res => {
+        if (res.data.token !== undefined) {
+          localStorage.setItem('token', res.data.token);
+          window.location.href = '/';
+        } else {
+          _this.setState({
+            isError: true,
+            error: t('invalid_account'),
+          });
+        }
+      })
+      .catch(function(error) {
         _this.setState({
           isError: true,
-          error: 'Invalid email or password.',
-        })
-      }
+          error: error.response.data.message,
+        });
+      });
+  };
+
+  handleChangeUsername = e => {
+    this.setState({
+      email: e.target.value,
     });
-  }
+  };
 
-  handleChangeUsername = (e) => {
+  handleChangePassword = e => {
     this.setState({
-      email: e.target.value
-    })
-  }
-
-  handleChangePassword = (e) => {
-    this.setState({
-      password: e.target.value
-    })
-  }
+      password: e.target.value,
+    });
+  };
 
   render() {
-    const { isError, message } = this.state;
-    let errorHTML;
+    const { isError } = this.state;
+    const { t } = this.props;
 
-    if (isError) {
-      errorHTML = 
-        <Form.Item>
-          <Alert
-            message="Authentication failed"
-            description={this.state.error}
-            type="error"
-            showIcon
-          />
-        </Form.Item>;
-    } else {
-      errorHTML = '';
-    }
     return (
       <Fragment>
         <div className="form">
           <Form className="login-form">
-            <h2 className="logo"><Icon style={{ fontSize: 100, color: '#40A9FF' }} theme="outlined" component={PrivateIcon} /></h2>
-            { errorHTML }
-            {typeof message === 'string' && message !== '' && 
+            <h2 className="logo">
+              <Icon style={{ fontSize: 100, color: '#40A9FF' }} theme="outlined" component={PrivateIcon} />
+            </h2>
+            {isError && (
               <Form.Item>
-                <Alert
-                  description={message}
-                  type="success"
-                  showIcon
-                />
+                <Alert message={t('login_error')} description={this.state.error} type="error" showIcon />
               </Form.Item>
-            }
+            )}
             <Form.Item>
-              <Input prefix={<Icon type="user" />}
+              <Input
+                prefix={<Icon type="user" />}
                 placeholder="Email address"
                 type="text"
-                onChange={this.handleChangeUsername} />
+                onChange={this.handleChangeUsername}
+              />
             </Form.Item>
             <Form.Item>
-              <Input prefix={<Icon type="lock" />}
+              <Input
+                prefix={<Icon type="lock" />}
                 placeholder="Your password"
                 type="password"
-                onChange={this.handleChangePassword} />
+                onChange={this.handleChangePassword}
+              />
             </Form.Item>
             <Form.Item>
-                <Checkbox>Remember me</Checkbox>
-              <a className="login-form-forgot" href="">Forgot password</a>
+              <Checkbox>{t('remember_me')}</Checkbox>
+              <a className="login-form-forgot" href="/forgot-password">
+                {t('forgot_password')}
+              </a>
               <Button type="primary" htmlType="submit" className="login-form-button" onClick={this.handleCheckLogin}>
-                Log in
+                {t('login')}
               </Button>
-              Or <Link to="/register">register now!</Link>
+              {t('or')} <a href="/register">{t('register')}</a>
             </Form.Item>
           </Form>
         </div>
@@ -116,4 +104,6 @@ class LoginPage extends React.Component {
   }
 }
 
-export default LoginPage;
+LoginPage = Form.create()(LoginPage);
+
+export default withNamespaces(['auth'])(withRouter(LoginPage));

@@ -1,4 +1,4 @@
-const jwt = require("jsonwebtoken");
+const jwt = require('jsonwebtoken');
 const jwtSecret = process.env.JWT_SECRET;
 
 // middleware check token is invalid when requested
@@ -17,4 +17,4 @@ exports.jwtMiddleware = (req, res, next) => {
   } else {
     return res.status(401).json({ errorMsg: __('token_invalid') });
   }
-}
+};
