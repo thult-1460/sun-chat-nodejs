@@ -3,6 +3,7 @@ import { Layout, Row, Col, Menu, Icon, Badge, Dropdown, Avatar, Popover, Modal }
 import { checkExpiredToken } from './../../helpers/common';
 import ListContactRequest from '../contact/ListContactRequest';
 import ChangeLanguage from './../ChangeLanguage';
+import { Link } from 'react-router-dom';
 const { Header } = Layout;
 
 class Head extends React.Component {
@@ -40,6 +41,7 @@ class Head extends React.Component {
     const menu = (
       <Menu>
         <Menu.Item>
+          <Link to="/change_password">Change Passowrd</Link>
           <a href="javascript:;" onClick={this.onLogout}>
             Logout
           </a>

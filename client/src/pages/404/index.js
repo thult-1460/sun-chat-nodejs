@@ -1,10 +1,5 @@
 import React from 'react';
-import Main from './../../components/layouts/Main';
 
-const NotFound = () => (
-    <Main>
-        Not Found
-    </Main>
-)
+const NotFound = () => <div>Not Found</div>;
 
 export default NotFound;
