@@ -14,6 +14,9 @@ const mailer = require('../mailer/email.action');
 mongoose.set('useFindAndModify', false);
 const config = require('../../config/config');
 const moment = require('moment-timezone');
+const logger = require('./../logger/winston');
+const channel = logger.init('error');
+
 /**
  * Load
  */
@@ -162,7 +165,7 @@ exports.apiSignup = function(req, res) {
     mailer
       .activeEmail(user)
       .then(result => res.status(200).json({ msg: result }))
-      .catch(err => console.log(err));
+      .catch(err => channel.error(err.toString()));
   });
 };
 
@@ -194,9 +197,13 @@ exports.confirmEmail = function(req, res) {
         active_token_expire: null,
       })
         .then(() => res.status(200).json({ msg: __('mail.confirmed') }))
-        .catch(err => console.log(err));
+        .catch(err => channel.error(err.toString()));
     })
-    .catch(err => res.status(500).json({ msg: __('mail.confirm_failed') }));
+    .catch(err => {
+      channel.error(err.toString());
+
+      return res.status(500).json({ msg: __('mail.confirm_failed') });
+    });
 };
 
 /**
@@ -292,6 +299,8 @@ exports.apiLogin = async(function*(req, res) {
       token: userMiddleware.generateJWTToken(user),
     });
   } catch (err) {
+    channel.error(err.toString());
+
     return res.status(401).json({
       message: __('login.fail'),
     });
@@ -353,6 +362,8 @@ exports.apiChangePassword = async(function*(req, res) {
       success: __('change_password.update_successfully'),
     });
   } catch (err) {
+    channel.error(err.toString());
+
     return res.status(500).json({
       error: __('change_password.change_password_failed'),
     });
@@ -399,6 +410,8 @@ exports.apiSendMailResetPassword = async(function*(req, res) {
         throw new Error(err.toString());
       });
   } catch (err) {
+    channel.error(err.toString());
+
     return res.status(500).json({
       error: __('reset_password.send_email_error'),
     });
@@ -439,6 +452,8 @@ exports.apiResetPassword = async(function*(req, res) {
       message: __('reset_password.success'),
     });
   } catch (err) {
+    channel.error(err.toString());
+
     return res.status(500).json({
       error: __('token_invalid'),
     });
@@ -460,18 +475,17 @@ exports.rejectContact = async(function*(req, res) {
             $in: rejectContactIds,
           },
         },
-      },
-      function(err, res) {
-        console.log(err);
       }
     );
 
     return res.status(200).json({
-      message: __('contact.success'),
+      message: __('contact.reject.success'),
     });
   } catch (err) {
+    channel.error(err.toString());
+
     return res.status(500).json({
-      error: __('contact.fail'),
+      error: __('contact.reject.fail'),
     });
   }
 });
