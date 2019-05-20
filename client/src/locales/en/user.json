@@ -17,6 +17,10 @@
     "title_update_info": "Setting Information"
   },
   "button": {
-    "update_info": "Update Information"
-  }
+    "update_info": "Update Information",
+    "delete": "Delete",
+    "accept": "Accept",
+    "check_all": "Check all"
+  },
+  "error_title": "Error"
 }

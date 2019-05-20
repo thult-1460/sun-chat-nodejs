@@ -23,6 +23,7 @@ router.get('/confirm/:userId/:active_token', users.confirmEmail);
 //Contact
 router.get('/my-contact-request', auth.jwtMiddleware, users.contactRequest);
 router.get('/my-contact-request-number', auth.jwtMiddleware, users.totalContactRequest);
+router.post('/reject-contact', auth.jwtMiddleware, users.rejectContact);
 
 router.post(
   '/send-mail-reset-password',

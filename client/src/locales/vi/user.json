@@ -17,6 +17,10 @@
     "title_update_info": "Chỉnh sửa thông tin"
   },
   "button": {
-    "update_info": "Cập nhật thông tin"
-  }
+    "update_info": "Cập nhật thông tin",
+    "delete": "Xóa",
+    "accept": "Chấp nhận",
+    "check_all": "Chọn tất cả"
+  },
+  "error_title": "Lỗi"
 }
