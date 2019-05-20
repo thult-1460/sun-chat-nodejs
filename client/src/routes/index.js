@@ -13,10 +13,15 @@ class Routes extends React.Component {
           {routes.map((route, i) => {
             if (route.auth) {
               return <PrivateRoute key={i} {...route} />;
-            } else if (checkExpiredToken() && route.path !== '') {
-              return <Redirect to="/" />;
-            } else {
-              return <PublicRoute key={i} {...route} />;
+            }
+          })}
+          {routes.map((route, i) => {
+            if (!route.auth) {
+              if (checkExpiredToken() && route.path !== '') {
+                return <Redirect to="/" />;
+              } else {
+                return <PublicRoute key={i} {...route} />;
+              }
             }
           })}
         </Switch>
