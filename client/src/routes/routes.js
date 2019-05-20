@@ -50,7 +50,7 @@ const routes = [
     path: '/setting/profile',
     exact: true,
     auth: true,
-    component: Profile
+    component: Profile,
   },
   // change password
   {

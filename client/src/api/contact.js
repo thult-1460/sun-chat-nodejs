@@ -7,3 +7,7 @@ export function getContactRequest(page) {
 export function getNumberContactRequest() {
   return new Http().authenticated().get('/my-contact-request-number');
 }
+
+export function rejectContact(contactIds) {
+  return new Http().authenticated().post('/reject-contact', contactIds);
+}

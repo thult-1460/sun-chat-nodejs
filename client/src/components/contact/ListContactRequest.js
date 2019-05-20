@@ -2,7 +2,7 @@ import React from 'react';
 import 'antd/dist/antd.css';
 import InfiniteScroll from 'react-infinite-scroller';
 import { List, Avatar, Button, Checkbox, Spin, message } from 'antd';
-import { getContactRequest, getNumberContactRequest } from '../../api/contact';
+import { getContactRequest, getNumberContactRequest, rejectContact } from '../../api/contact';
 const CheckboxGroup = Checkbox.Group;
 
 class ListContactRequest extends React.Component {
@@ -83,6 +83,41 @@ class ListContactRequest extends React.Component {
     this.fetchData(newPage);
   };
 
+  handleRejectContact = e => {
+    let dataInput = {};
+    let newData = [];
+    const { data, numberAlldata } = this.state;
+
+    // If check all
+    if (e.target.value == 0) {
+      dataInput = {
+        rejectContactIds: this.state.checkedList,
+      };
+    } else {
+      dataInput = {
+        rejectContactIds: [e.target.value],
+      };
+    }
+
+    rejectContact(dataInput)
+      .then(res => {
+        for (var i = 0; i < data.length; i++) {
+          // get new data without reject contact_ids
+          if (dataInput['rejectContactIds'].indexOf(data[i]['_id']) === -1) {
+            newData.push(data[i]);
+          }
+        }
+
+        this.setState({
+          data: newData,
+          numberAlldata: numberAlldata - dataInput['rejectContactIds'].length,
+        });
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  };
+
   render() {
     return (
       <React.Fragment>
@@ -111,7 +146,9 @@ class ListContactRequest extends React.Component {
 
                         <Button.Group className="btn-accept">
                           <Button type="primary">Accept</Button>
-                          <Button>Delete</Button>
+                          <Button value={item._id} onClick={this.handleRejectContact}>
+                            Delete
+                          </Button>
                         </Button.Group>
                       </List.Item>
                     )}
@@ -135,7 +172,9 @@ class ListContactRequest extends React.Component {
               </Checkbox>
               <Button.Group className="btn-all-accept">
                 <Button type="primary">Accept</Button>
-                <Button>Delete</Button>
+                <Button value="0" onClick={this.handleRejectContact}>
+                  Delete
+                </Button>
               </Button.Group>
             </div>
           </div>

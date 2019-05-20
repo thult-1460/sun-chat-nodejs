@@ -444,3 +444,34 @@ exports.apiResetPassword = async(function*(req, res) {
     });
   }
 });
+
+exports.rejectContact = async(function*(req, res) {
+  let { _id } = req.decoded;
+  const { rejectContactIds } = req.body;
+
+  try {
+    yield User.updateOne(
+      {
+        _id: _id,
+      },
+      {
+        $pull: {
+          requested_in_comming: {
+            $in: rejectContactIds,
+          },
+        },
+      },
+      function(err, res) {
+        console.log(err);
+      }
+    );
+
+    return res.status(200).json({
+      message: __('contact.success'),
+    });
+  } catch (err) {
+    return res.status(500).json({
+      error: __('contact.fail'),
+    });
+  }
+});

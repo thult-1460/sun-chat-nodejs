@@ -56,5 +56,9 @@
     "success": "Login Successfully",
     "fail": "Invalid email or password.",
     "unactive": "Please active your account"
+  },
+  "contact": {
+    "success": "Reject contact successfully",
+    "fail": "Reject contact failed"
   }
 }

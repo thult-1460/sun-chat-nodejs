@@ -56,5 +56,9 @@
     "success": "Đăng nhập thành công",
     "fail": "Thông tin tài khoản không đúng",
     "unactive": "Làm ơn hãy kích hoạt tài khoản này"
+  },
+  "contact": {
+    "success": "Từ chối kết bạn thành công",
+    "fail": "Từ chối kết bạn thất bại"
   }
 }
