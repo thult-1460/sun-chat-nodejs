@@ -7,7 +7,8 @@
 const mongoose = require('mongoose');
 const crypto = require('crypto');
 const moment = require('moment-timezone');
-
+const Room = mongoose.model('Room');
+const config = require('../../config/config');
 const Schema = mongoose.Schema;
 const oAuthTypes = ['github', 'twitter', 'google', 'linkedin'];
 /**
@@ -78,8 +79,7 @@ const UserSchema = new Schema(
       type: String,
       default: '',
     },
-    linkedin: {
-    },
+    linkedin: {},
     requested_in_comming: [
       {
         type: Schema.ObjectId,
@@ -272,13 +272,32 @@ UserSchema.statics = {
     ]);
   },
 
-  updateInfo: function (options) {
+  updateInfo: function(options) {
     try {
       this.updateOne(options.criteria, options.data);
 
       return true;
     } catch (err) {
       return false;
+    }
+  },
+
+  acceptRequest: function(userId, requestUserIds) {
+    try {
+      for (let i = 0; i < requestUserIds.length; i++) {
+        let rooms = new Room({ type: config.ROOM_TYPE.DIRECT_CHAT });
+        rooms.members.push(
+          { user: userId, role: config.MEMBER_ROLE.MEMBER },
+          { user: requestUserIds[i], role: config.MEMBER_ROLE.MEMBER }
+        );
+        rooms.save(function(err) {
+          if (err) throw new Error(__('contact.accept.failed'));
+        });
+      }
+
+      return this.update({ _id: userId }, { $pullAll: { requested_in_comming: requestUserIds } });
+    } catch (err) {
+      throw new Error(__('contact.accept.failed'));
     }
   },
 };

@@ -61,6 +61,10 @@
     "reject": {
       "success": "Từ chối kết bạn thành công",
       "fail": "Từ chối kết bạn thất bại"
+    },
+    "accept": {
+      "success": "Chấp nhận kết bạn thành công",
+      "failed": "Chấp nhận kết bạn thất bại"
     }
   }
 }

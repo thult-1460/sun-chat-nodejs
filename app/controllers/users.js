@@ -489,3 +489,19 @@ exports.rejectContact = async(function*(req, res) {
     });
   }
 });
+
+exports.acceptContact = async(function*(req, res) {
+  let acceptUserIds = req.body;
+  let { _id } = req.decoded;
+  try {
+    yield User.acceptRequest(_id, acceptUserIds);
+
+    return res.status(200).json({
+      success: __('contact.accept.success'),
+    });
+  } catch (err) {
+    return res.status(500).json({
+      error: __('contact.accept.failed'),
+    });
+  }
+});

@@ -2,7 +2,7 @@ import React from 'react';
 import 'antd/dist/antd.css';
 import InfiniteScroll from 'react-infinite-scroller';
 import { List, Avatar, Button, Checkbox, Spin, message, Alert } from 'antd';
-import { getContactRequest, getNumberContactRequest, rejectContact } from '../../api/contact';
+import { getContactRequest, getNumberContactRequest, rejectContact, acceptContact } from '../../api/contact';
 import { withNamespaces } from 'react-i18next';
 import { withRouter } from 'react-router';
 const CheckboxGroup = Checkbox.Group;
@@ -114,6 +114,24 @@ class ListContactRequest extends React.Component {
     }
   };
 
+  acceptContact = e => {
+    const requestId = e.target.value == 0 ? this.state.checkedList : [e.target.value];
+    acceptContact(requestId)
+      .then(res => {
+        message.success(res.data.success);
+        requestId.map(idCheck => {
+          this.setState(prevState => ({
+            data: prevState.data.filter(item => item._id != idCheck),
+            allItem: prevState.allItem.filter(item => item != idCheck),
+            numberContacts: prevState.numberContacts - 1,
+          }));
+        });
+      })
+      .catch(error => {
+        message.error(error.response.data.error);
+      });
+  };
+
   render() {
     const { t } = this.props;
     const { error } = this.state;
@@ -139,7 +157,7 @@ class ListContactRequest extends React.Component {
                     dataSource={this.state.data}
                     renderItem={item => (
                       <List.Item key={item._id}>
-                        <Checkbox value={item._id} className="item-checkbox" />
+                        <Checkbox value={item._id} className="item-checkbox" key={item._id} />
                         <List.Item.Meta
                           avatar={<Avatar src={item.avatar} />}
                           title={<a href="https://ant.design">{item.name}</a>}
@@ -147,9 +165,11 @@ class ListContactRequest extends React.Component {
                         />
 
                         <Button.Group className="btn-accept">
-                          <Button type="primary">{t('button.accept')}</Button>
                           <Button value={item._id} onClick={this.handleRejectContact}>
                             {t('button.delete')}
+                          </Button>
+                          <Button type="primary" value={item._id} onClick={this.acceptContact}>
+                            {t('button.accept')}
                           </Button>
                         </Button.Group>
                       </List.Item>
@@ -173,9 +193,11 @@ class ListContactRequest extends React.Component {
                 {t('button.check_all')}
               </Checkbox>
               <Button.Group className="btn-all-accept">
-                <Button type="primary">{t('button.accept')}</Button>
                 <Button value="0" onClick={this.handleRejectContact}>
                   {t('button.delete')}
+                </Button>
+                <Button type="primary" onClick={this.acceptContact}>
+                  {t('button.accept')}
                 </Button>
               </Button.Group>
             </div>

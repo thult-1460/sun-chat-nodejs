@@ -61,6 +61,10 @@
     "reject": {
       "success": "Reject contact successfully",
       "fail": "Reject contact failed"
+    },
+    "accept": {
+      "success": "Accept contact successfully",
+      "failed": "Accept contact failed"
     }
   }
 }
