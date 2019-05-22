@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const config = require('../../config/config');
 
 const Schema = mongoose.Schema;
+
 // Setup schema
 const Messages = new Schema(
   {
@@ -77,6 +78,108 @@ RoomSchema.statics = {
     return this.findOne(options.criteria)
       .select(options.select)
       .exec(cb);
+  },
+
+  getListRoomByUserId: function({ limit, page = 0, userId }) {
+    return this.aggregate([
+      { $match: { 'members.user': mongoose.Types.ObjectId(userId) } },
+      {
+        $addFields: {
+          last_msg_id_reserve: {
+            $arrayElemAt: [
+              {
+                $filter: {
+                  input: '$members',
+                  as: 'mem',
+                  cond: { $eq: ['$$mem.user', mongoose.Types.ObjectId(userId)] },
+                },
+              },
+              0,
+            ],
+          },
+        },
+      },
+      { $unwind: '$members' },
+      {
+        $match: {
+          $or: [
+            { 'members.user': mongoose.Types.ObjectId(userId), type: config.ROOM_TYPE.GROUP_CHAT },
+            { 'members.user': { $ne: mongoose.Types.ObjectId(userId) }, type: config.ROOM_TYPE.DIRECT_CHAT },
+          ],
+        },
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'members.user',
+          foreignField: '_id',
+          as: 'members.user_info',
+        },
+      },
+      {
+        $project: {
+          name: {
+            $cond: {
+              if: { $eq: ['$type', config.ROOM_TYPE.GROUP_CHAT] },
+              then: '$name',
+              else: { $arrayElemAt: ['$members.user_info.name', 0] },
+            },
+          },
+          avatar_url: {
+            $cond: {
+              if: { $eq: ['$type', config.ROOM_TYPE.GROUP_CHAT] },
+              then: '$avatar_url',
+              else: { $arrayElemAt: ['$members.user_info.avatar', 0] },
+            },
+          },
+          type: 1,
+          messages: 1,
+          last_created_msg: { $max: '$messages.createdAt' },
+          marked: '$members.marked',
+          'members.user': 1,
+          'members.user_info._id': 1,
+          'members.user_info.avatar': 1,
+          'members.user_info.name': 1,
+          'members.user_info.username': 1,
+          'members.last_message_id': '$last_msg_id_reserve.last_message_id',
+          quantity_unread: {
+            $reduce: {
+              input: '$messages',
+              initialValue: 0,
+              in: {
+                $sum: [
+                  '$$value',
+                  {
+                    $cond: {
+                      if: { $cmp: ['$$this._id', '$last_msg_id_reserve.last_message_id'] },
+                      then: 0,
+                      else: 1,
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        },
+      },
+      {
+        $sort: {
+          marked: -1,
+          last_created_msg: -1,
+        },
+      },
+    ])
+      .limit(limit)
+      .skip(limit * page)
+      .exec();
+  },
+
+  getQuantityRoomsByUserId: function(userId) {
+    return this.find({
+      'members.user': userId,
+    })
+      .count()
+      .exec();
   },
 };
 
