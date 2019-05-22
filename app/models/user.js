@@ -7,10 +7,10 @@
 const mongoose = require('mongoose');
 const crypto = require('crypto');
 const moment = require('moment-timezone');
-const Room = mongoose.model('Room');
 const config = require('../../config/config');
 const Schema = mongoose.Schema;
 const oAuthTypes = ['github', 'twitter', 'google', 'linkedin'];
+const Room = require('./room');
 /**
  * User Schema
  */
@@ -299,6 +299,36 @@ UserSchema.statics = {
     } catch (err) {
       throw new Error(__('contact.accept.failed'));
     }
+  },
+
+  getListContacts: function({ limit, page = 0, userId }) {
+    return Room.find(
+      {
+        type: config.ROOM_TYPE.DIRECT_CHAT,
+        'members.user': userId,
+        deleteAt: null,
+      },
+      {
+        'members.role': 0,
+        'members.marked': 0,
+        'members.deletedAt': 0,
+        'members._id': 0,
+        'members.last_message_id': 0,
+        'members.createdAt': 0,
+        'members.updatedAt': 0,
+        members: { $elemMatch: { user: { $ne: userId } } },
+      }
+    )
+      .populate('members.user', '_id name email username full_address phone_number twitter github google avatar ')
+      .limit(limit)
+      .skip(limit * page)
+      .exec();
+  },
+
+  getContactCount: function(userId) {
+    return Room.find({ type: config.ROOM_TYPE.DIRECT_CHAT, 'members.user': userId })
+      .count()
+      .exec();
   },
 };
 

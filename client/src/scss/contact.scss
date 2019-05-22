@@ -20,6 +20,9 @@
   font-size: 16px;
   font-weight: bold;
 }
+.ant-list-item-meta-avatar {
+  margin-left: 15px;
+}
 .ant-avatar.ant-avatar-circle.ant-avatar-image {
   width: 45px;
   height: 45px;
@@ -48,4 +51,7 @@
 .ant-btn-group.btn-all-accept {
   float: right;
   margin-right: 3%;
+}
+.ant-btn-group {
+  margin-right: 10px;
 }

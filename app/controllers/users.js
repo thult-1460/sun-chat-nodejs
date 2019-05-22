@@ -505,3 +505,45 @@ exports.acceptContact = async(function*(req, res) {
     });
   }
 });
+
+exports.listContacts = async(function*(req, res) {
+  const { _id } = req.decoded;
+  const page = (req.query.page > 0 ? req.query.page : 1) - 1;
+  const limit = config.LIMIT_ITEM_SHOW;
+  const options = {
+    userId: _id,
+    limit: limit,
+    page: page,
+  };
+
+  try {
+    const contacts = yield User.getListContacts(options);
+
+    if (!contacts) {
+      throw new Error(__('contact.list.failed'));
+    }
+
+    return res.status(200).json({
+      result: contacts,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      error: __('contact.list.failed'),
+    });
+  }
+});
+
+exports.totalContact = async(function*(req, res) {
+  const { _id } = req.decoded;
+  try {
+    const numberOfContacts = yield User.getContactCount(_id);
+
+    return res.status(200).json({
+      result: numberOfContacts,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      error: __('contact.total.failed'),
+    });
+  }
+});

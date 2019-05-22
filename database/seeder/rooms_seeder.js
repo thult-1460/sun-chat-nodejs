@@ -8,7 +8,7 @@ const _ = require('lodash');
 const config = require(__dirname + '/../../config');
 const configCommon = require(__dirname + '/../../config/config');
 
-const roomCount = 20;
+const roomCount = 500;
 const minMsgCount = 0;
 const maxMsgCount = 20;
 const minMemberCount = 2;

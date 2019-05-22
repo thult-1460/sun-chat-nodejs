@@ -65,6 +65,12 @@
     "accept": {
       "success": "Accept contact successfully",
       "failed": "Accept contact failed"
+    },
+    "list": {
+      "failed": "Get list contacts failed"
+    },
+    "total": {
+      "failed": "Get data failed"
     }
   }
 }

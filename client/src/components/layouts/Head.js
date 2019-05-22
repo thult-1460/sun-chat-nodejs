@@ -1,42 +1,13 @@
 import React from 'react';
-import { Layout, Row, Col, Menu, Icon, Badge, Dropdown, Avatar, Popover, Modal } from 'antd';
+import { Layout, Row, Col, Menu, Icon, Badge, Dropdown, Avatar, Popover } from 'antd';
 import { checkExpiredToken } from './../../helpers/common';
-import ListContactRequest from '../contact/ListContactRequest';
+import ModalListContacts from '../modals/contact/ModalListContacts';
+import ModalListContactRequest from '../modals/contact/ModalListContactRequest';
 import ChangeLanguage from './../ChangeLanguage';
 import { Link } from 'react-router-dom';
 const { Header } = Layout;
 
 class Head extends React.Component {
-  state = {
-    visible: false,
-    showComponent: false,
-  };
-
-  showModal = () => {
-    this.setState({
-      visible: true,
-      showComponent: true,
-    });
-  };
-
-  handleOk = e => {
-    this.setState({
-      visible: false,
-    });
-  };
-
-  onLogout = () => {
-    localStorage.removeItem('token');
-    window.location.href = '/login';
-  };
-
-  handleCancel = e => {
-    this.setState({
-      visible: false,
-      showComponent: false,
-    });
-  };
-
   render() {
     const menu = (
       <Menu>
@@ -63,12 +34,8 @@ class Head extends React.Component {
       <Header style={{ background: '#fff', padding: 0 }}>
         <Row type="flex" justify="end" align="middle">
           <Col span={3}>
-            <Badge className="header-icon" dot>
-              <Icon type="contacts" theme="twoTone" onClick={this.showModal} />
-              <Modal visible={this.state.visible} onOk={this.handleOk} onCancel={this.handleCancel} footer={null}>
-                {this.state.showComponent === true ? <ListContactRequest /> : ''}
-              </Modal>
-            </Badge>
+            <ModalListContacts/>
+            <ModalListContactRequest/>
             <Popover content={content} title="Create Room" trigger="click">
               <Badge className="header-icon">
                 <a href="#">

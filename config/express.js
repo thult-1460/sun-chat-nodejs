@@ -154,7 +154,6 @@ module.exports = function(app, passport) {
   // Remove csrf_field temporary
   // if (env !== 'test') {
   //   app.use(csrf());
-
   //   // This could be moved to view-helpers :-)
   //   app.use(function(req, res, next) {
   //     res.locals.csrf_token = req.csrfToken();

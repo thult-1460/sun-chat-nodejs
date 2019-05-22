@@ -2,7 +2,7 @@ import React from 'react';
 import 'antd/dist/antd.css';
 import InfiniteScroll from 'react-infinite-scroller';
 import { List, Avatar, Button, Checkbox, Spin, message, Alert } from 'antd';
-import { getContactRequest, getNumberContactRequest, rejectContact, acceptContact } from '../../api/contact';
+import { getContactRequest, getNumberContactRequest, rejectContact, acceptContact } from '../../../api/contact';
 import { withNamespaces } from 'react-i18next';
 import { withRouter } from 'react-router';
 const CheckboxGroup = Checkbox.Group;

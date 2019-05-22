@@ -32,6 +32,8 @@ router.post(
   users.apiSendMailResetPassword
 );
 router.post('/reset-password', usersValidate.validate('resetPassword'), users.apiResetPassword);
+router.get('/contacts', auth.jwtMiddleware, users.listContacts);
+router.get('/contacts-number', auth.jwtMiddleware, users.totalContact);
 
 router.param('userId', users.load);
 router.post('/change_password', auth.jwtMiddleware, usersValidate.validate('change_password'), users.apiChangePassword);

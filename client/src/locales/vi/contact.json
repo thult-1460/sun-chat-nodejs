@@ -2,5 +2,11 @@
   "request": {
     "no_data": "Không có yêu cầu nào",
     "list_title": "Danh sách yêu cầu liên lạc"
+  },
+  "list_contact": {
+    "title_list_contact": "Danh bạ",
+    "btn_send_message": "Gửi tin nhắn",
+    "no_contact": "Danh bạ trống",
+    "loaded_all": "Toàn bộ danh bạ đã được tải về"
   }
 }

@@ -2,5 +2,11 @@
   "request": {
     "no_data": "No request",
     "list_title": "List contact request"
+  },
+  "list_contact": {
+    "title_list_contact": "List contacts",
+    "btn_send_message": "Send message",
+    "no_contact": "No contact",
+    "loaded_all": "List have loaded all"
   }
 }

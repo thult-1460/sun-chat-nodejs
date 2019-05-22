@@ -65,6 +65,13 @@
     "accept": {
       "success": "Chấp nhận kết bạn thành công",
       "failed": "Chấp nhận kết bạn thất bại"
+    },
+    "list_contact": {
+      "failed": "Lấy dữ liệu thất bại"
+    },
+    "total_contact": {
+      "failed": "Lấy dữ liệu thất bại"
     }
   }
+
 }
