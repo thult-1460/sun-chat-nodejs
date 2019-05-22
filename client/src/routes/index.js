@@ -18,7 +18,7 @@ class Routes extends React.Component {
           {routes.map((route, i) => {
             if (!route.auth) {
               if (checkExpiredToken() && route.path !== '') {
-                return <Redirect to="/" />;
+                return <Redirect to="/" key={i}/>;
               } else {
                 return <PublicRoute key={i} {...route} />;
               }

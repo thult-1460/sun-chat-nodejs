@@ -7,6 +7,47 @@
 
 .logo2 {
   height: 32px;
-  background: rgba(255,255,255,.2);
+  background: rgba(255, 255, 255, 0.2);
   margin: 16px;
+}
+
+body {
+  overflow: hidden;
+}
+
+li[role='menuitem'] {
+  margin: 0 0 15px 15px;
+
+  .nav-text {
+    color: white;
+  }
+  .ant-typography {
+    height: 25px;
+    margin: 5px 0 0 0;
+    padding: 12px 10px;
+    float: right;
+
+    mark {
+      background-color: #6b54b2;
+      border-radius: 5px;
+      font-size: 13px;
+      color: white;
+      width: 20px;
+      padding: 3px !important;
+    }
+  }
+
+  .anticon {
+    float: right;
+    margin: 10px 3px 0 0;
+  }
+}
+
+section.ant-layout {
+  margin-left: 0 !important;
+
+  main.ant-layout-content {
+    border: 3px solid #adaddc;
+    border-radius: 4px;
+  }
 }
