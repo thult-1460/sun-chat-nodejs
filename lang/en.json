@@ -4,10 +4,16 @@
     "confirmed": "Your email is confirmed!",
     "send": "Confirmation email resent, maybe check your spam?",
     "resend": "Email has expired! Confirmation email resent again, maybe check your spam?",
+    "resend_active_mail": "Confirmation email has been resent, if you do not see it, maybe check your spam?",
+    "send_active_mail": "Confirmation email resent, maybe check your spam?",
     "couldNotFind": "Could not find you!",
     "alreadyConfirmed": "Your email was already confirmed",
     "confirm_failed": "Confirm failed",
-    "expired_token": "Expired token"
+    "expired_token": "Expired token",
+    "resend_active_email": {
+      "failed": " Resend  email active  failed",
+      "account_have_active": "Account have  active"
+    }
   },
   "register_successfully": "Register Successfully",
   "register_failed": "Register Failed",

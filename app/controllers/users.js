@@ -188,16 +188,17 @@ exports.confirmEmail = function(req, res) {
       }
 
       if (new Date(user.active_token_expire) < new Date()) {
-        res.status(412).json({ msg: __('mail.expired_token') });
+        res
+          .status(412)
+          .json({ msg: __('mail.expired_token'), resend_email: true, user_id: userId, active_token: active_token });
       }
 
-      User.findOneAndUpdate(userId, {
-        active: true,
-        active_token: null,
-        active_token_expire: null,
-      })
-        .then(() => res.status(200).json({ msg: __('mail.confirmed') }))
-        .catch(err => channel.error(err.toString()));
+      user.active = true;
+      user.active_token = null;
+      user.active_token_expire = null;
+      user.save();
+
+      res.status(200).json({ msg: __('mail.confirmed') });
     })
     .catch(err => {
       channel.error(err.toString());
@@ -544,6 +545,51 @@ exports.totalContact = async(function*(req, res) {
   } catch (err) {
     return res.status(500).json({
       error: __('contact.total.failed'),
+    });
+  }
+});
+
+exports.resendActiveEmail = async(function*(req, res) {
+  const { _id, active_token } = req.body;
+  const criteria = {
+    _id,
+    active_token,
+  };
+
+  try {
+    const user = yield User.load({ criteria });
+
+    if (!user) {
+      return res.status(401).json({
+        error: __('token_invalid'),
+      });
+    }
+
+    if (user.active) {
+      return res.status(401).json({
+        error: __('mail.resend_active_email.account_have_active'),
+      });
+    }
+
+    const resetActiveToken = crypto.randomBytes(20).toString('hex');
+    const resetTokenExpire = moment().add(parseInt(process.env.ACTIVE_TOKEN_EXPIRE_TIME), 'days');
+    user.active_token = resetActiveToken;
+    user.active_token_expire = resetTokenExpire;
+    user.save();
+
+    mailer
+      .activeEmail(user, true)
+      .then(result => {
+        return res.status(200).json({ message: result });
+      })
+      .catch(err => {
+        throw new Error(err.toString());
+      });
+  } catch (err) {
+    channel.error(err.toString());
+
+    return res.status(500).json({
+      error: __('mail.resend_active_email.failed'),
     });
   }
 });

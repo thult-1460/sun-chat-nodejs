@@ -3,11 +3,17 @@
     "confirm": "Đã gửi một email, bạn vui lòng kiểm tra trong hòm thư mail!",
     "confirmed": "Email của bạn đã được xác nhận!",
     "send": "Email xác nhận đã được gửi, nếu không thấy bạn có thể kiểm tra lại trong phần sapm!",
-    "resend": "Email đã hết hạn! Email xác nhận đã được gửi lại?",
+    "resend": "Email đã được gửi lại, ",
+    "resend_active_mail": "Email xác nhận đã được gửi lại,nếu không thấy bạn có thể kiểm tra lại trong phần sapm!",
+    "send_active_mail": "mail xác nhận đã được gửi, nếu không thấy bạn có thể kiểm tra lại trong phần sapm!",
     "couldNotFind": "Không thể tìm thấy!",
     "alreadyConfirmed": "Email của bạn đã được xác nhận rồi!",
     "confirm_failed": "Xác nhận thất bại",
-    "expired_token": "Token đã hết hạn"
+    "expired_token": "Token đã hết hạn",
+    "resend_active_email": {
+      "failed": " Gửi lại email thất bại",
+      "account_have_active": "Tài khoản đã được kích hoạt"
+    }
   },
   "register_successfully": "Đăng ký thành công",
   "register_failed": "Đăng ký thất bại",
@@ -73,5 +79,4 @@
       "failed": "Lấy dữ liệu thất bại"
     }
   }
-
 }

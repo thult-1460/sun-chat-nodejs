@@ -28,6 +28,9 @@ router.get('/confirm/:userId/:active_token', users.confirmEmail);
 router.get('/my-contact-request', auth.jwtMiddleware, users.contactRequest);
 router.get('/my-contact-request-number', auth.jwtMiddleware, users.totalContactRequest);
 router.post('/reject-contact', auth.jwtMiddleware, users.rejectContact);
+router.post('/accept-contact', auth.jwtMiddleware, users.acceptContact);
+router.get('/contacts', auth.jwtMiddleware, users.listContacts);
+router.get('/contacts-number', auth.jwtMiddleware, users.totalContact);
 
 router.post(
   '/send-mail-reset-password',
@@ -38,6 +41,7 @@ router.post('/reset-password', usersValidate.validate('resetPassword'), users.ap
 
 router.param('userId', users.load);
 router.post('/change_password', auth.jwtMiddleware, usersValidate.validate('change_password'), users.apiChangePassword);
+router.post('/resend-active-email', users.resendActiveEmail);
 
 router.get('/users', auth.jwtMiddleware, users.show);
 router.post('/update/user', auth.jwtMiddleware, usersValidate.validate('update'), users.update);
