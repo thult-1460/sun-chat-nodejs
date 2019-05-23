@@ -7,7 +7,8 @@
     "title_list_contact": "List contacts",
     "btn_send_message": "Send message",
     "no_contact": "No contact",
-    "loaded_all": "List have loaded all"
+    "loaded_all": "List have loaded all",
+    "limit_contact": "(Only {{limit}} users are displayed. Use search to find more users.)"
   },
   "list_contact_request": {
     "loaded_all": "List have loaded all"

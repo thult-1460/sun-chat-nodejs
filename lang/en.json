@@ -87,6 +87,17 @@
     "403": "Forbidden error"
   },
   "room": {
+    "create": {
+      "success": "Create room successfully",
+      "failed": "Create room failed",
+      "upload_file_failed": "Image must smaller than {{max}} MB!"
+    },
+    "invitation_code_required": "The link is required",
+    "invitation_code_length": "The invitation code link must be {{min}} to {{max}} characters",
+    "format_invitation_code": "Contains invalid characters, we only accept alphabets, - , and _",
+    "invitation_code_unique": "The code already exist",
+    "unknown_file": "Unknown file",
+    "name_length": "The name must be {{min}} to {{max}} characters",
     "delete_room": {
       "success": "Delete room successfully",
       "failed": "Delete room failed"

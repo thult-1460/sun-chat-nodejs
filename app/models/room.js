@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const config = require('../../config/config');
 
+mongoose.set('useFindAndModify', false);
+
 const Schema = mongoose.Schema;
 
 // Setup schema
@@ -57,7 +59,7 @@ const RoomSchema = new Schema(
   {
     name: { type: String },
     desc: { type: String },
-    type: { type: Number, defauls: config.ROOM_TYPE.GROUP_CHAT }, //0: group chat - 1: direct chat
+    type: { type: Number, default: config.ROOM_TYPE.GROUP_CHAT }, //0: group chat - 1: direct chat
     invitation_code: { type: String },
     invitation_type: { type: Number, default: config.INVITATION_TYPE.NOT_NEED_APPROVAL }, //0: don't need admin approves - 1: need admin approves
     avatar_url: { type: String },

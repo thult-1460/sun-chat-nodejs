@@ -1,0 +1,23 @@
+{
+  "validate": {
+    "img_type": "Bạn chỉ có thể tải lên tệp {{types}} !",
+    "img_size": "File ảnh phải nhỏ hơn {{max}} MB!",
+    "amount_char": "Chỉ có thể nhập từ {{min}} đến {{max}} ký tự!",
+    "format_char": "Chỉ có thể sử dụng các kí tự không có dấu, - và _"
+  },
+  "title": {
+    "add_contact": "Thêm liên lạc",
+    "create_room": "Tạo nhóm trò chuyện mới",
+    "upload": "Tải lên",
+    "link_share": "Liên kết",
+    "avatar": "Ảnh đại diện",
+    "room_name": "Tên nhóm trò chuyện",
+    "room_des": "Mô tả",
+    "admin_confirm": "Cần sự xác nhận của quản trị viên",
+    "add_member": "Thêm thành viên"
+  },
+  "button": {
+    "cancel": "Hủy",
+    "submit": "Tạo"
+  }
+}

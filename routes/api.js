@@ -8,9 +8,11 @@ const auth = require('../app/controllers/auth/authController');
 
 //controller
 const users = require('../app/controllers/users');
-const rooms = require('../app/controllers/rooms');
-const usersValidate = require('../app/validations/users.js');
+const roomsController = require('../app/controllers/rooms');
 const roomAuthorization = require('../config/middlewares/authorization.js');
+//validation
+const usersValidate = require('../app/validations/users.js');
+const roomsValidate = require('../app/validations/rooms.js');
 
 // Change language
 router.get('/language/:lang', (req, res) => {
@@ -32,7 +34,7 @@ router.get('/contacts', auth.jwtMiddleware, users.listContacts);
 router.get('/contacts-number', auth.jwtMiddleware, users.totalContact);
 router.delete('/delete-contact', auth.jwtMiddleware, users.deleteContact);
 
-router.get('/members/rooms', [auth.jwtMiddleware, roomAuthorization.showMember], rooms.getMemberOfRoom);
+router.get('/members/rooms', [auth.jwtMiddleware, roomAuthorization.showMember], roomsController.getMemberOfRoom);
 
 router.post(
   '/send-mail-reset-password',
@@ -49,8 +51,9 @@ router.get('/users', auth.jwtMiddleware, users.show);
 router.post('/update/user', auth.jwtMiddleware, usersValidate.validate('update'), users.update);
 
 //Rooms
-router.get('/rooms/index', auth.jwtMiddleware, rooms.index);
-router.get('/rooms/get-total-rooms-by-user', auth.jwtMiddleware, rooms.getQuantityRoomsByUserId);
-router.delete('/delete-room', [auth.jwtMiddleware, roomAuthorization.checkAdmin], rooms.deleteRoom);
+router.get('/rooms/index', auth.jwtMiddleware, roomsController.index);
+router.get('/rooms/get-total-rooms-by-user', auth.jwtMiddleware, roomsController.getQuantityRoomsByUserId);
+router.post('/create-room', auth.jwtMiddleware, roomsValidate.validate('create'), roomsController.createRoom);
+router.delete('/delete-room', [auth.jwtMiddleware, roomAuthorization.checkAdmin], roomsController.deleteRoom);
 
 module.exports = router;

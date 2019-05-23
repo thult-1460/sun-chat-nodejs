@@ -35,10 +35,12 @@ class LoginPage extends React.Component {
         }
       })
       .catch(function(error) {
-        _this.setState({
-          isError: true,
-          error: error.response.data.message,
-        });
+        if (error.response) {
+          _this.setState({
+            isError: true,
+            error: error.response.data.message,
+          });
+        }
       });
   };
 

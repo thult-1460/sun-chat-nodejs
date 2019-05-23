@@ -15,3 +15,7 @@ export function getMembersOfRoom(roomId) {
 export function deleteRoom(roomId) {
   return new Http().authenticated().delete('/delete-room', roomId);
 }
+
+export function createRoom(data) {
+  return new Http().authenticated().post('/create-room', data);
+}
