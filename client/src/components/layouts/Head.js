@@ -3,6 +3,7 @@ import { Layout, Row, Col, Menu, Icon, Badge, Dropdown, Avatar, Popover } from '
 import { checkExpiredToken } from './../../helpers/common';
 import ModalListContacts from '../modals/contact/ModalListContacts';
 import ModalListContactRequest from '../modals/contact/ModalListContactRequest';
+import ModalListMember from '../modals/room/ModalListMember';
 import ChangeLanguage from './../ChangeLanguage';
 import { Link } from 'react-router-dom';
 const { Header } = Layout;
@@ -34,8 +35,9 @@ class Head extends React.Component {
       <Header style={{ background: '#fff', padding: 0 }}>
         <Row type="flex" justify="end" align="middle">
           <Col span={3}>
-            <ModalListContacts/>
-            <ModalListContactRequest/>
+            <ModalListContacts />
+            <ModalListContactRequest />
+            <ModalListMember />
             <Popover content={content} title="Create Room" trigger="click">
               <Badge className="header-icon">
                 <a href="#">

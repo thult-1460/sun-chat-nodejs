@@ -1,0 +1,15 @@
+{
+  "list": {
+    "title": "List member"
+  },
+  "member": "Member",
+  "action": {
+    "edit_role": "Edit role"
+  },
+  "role": {
+    "admin": "Admin",
+    "member": "Member",
+    "readonly": "Readonly"
+  },
+  "save": "Save"
+}

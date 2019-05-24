@@ -82,5 +82,8 @@
       "success": "Delete contact successfully",
       "failed": "Delete contact failed"
     }
+  },
+  "error": {
+    "403": "Forbidden error"
   }
 }

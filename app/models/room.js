@@ -294,6 +294,38 @@ RoomSchema.statics = {
 
     return this.aggregate(query).exec();
   },
+
+  getMembersOfRoom($roomId) {
+    return this.aggregate([
+      { $match: { _id: mongoose.Types.ObjectId($roomId) } },
+      { $unwind: '$members' },
+      { $match: { 'members.deletedAt': null } },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'members.user',
+          foreignField: '_id',
+          as: 'members.user',
+        },
+      },
+      {
+        $project: {
+          'members.role': 1,
+          _id: 0,
+          user: { $arrayElemAt: ['$members.user', 0] },
+        },
+      },
+      {
+        $project: {
+          members: 1,
+          'user._id': 1,
+          'user.name': 1,
+          'user.email': 1,
+          'user.avatar': 1,
+        },
+      },
+    ]);
+  },
 };
 
 module.exports = mongoose.model('Room', RoomSchema);

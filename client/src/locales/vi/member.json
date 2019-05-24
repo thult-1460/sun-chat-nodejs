@@ -1,0 +1,15 @@
+{
+  "list": {
+    "title": "Danh sách thành viên"
+  },
+  "member": "Thành viên",
+  "action": {
+    "edit_role": "Chỉnh sửa quyền"
+  },
+  "role": {
+    "admin": "Quản trị",
+    "member": "Thành viên",
+    "readonly": "Chỉ đọc"
+  },
+  "save": "Lưu"
+}

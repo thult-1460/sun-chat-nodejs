@@ -1,6 +1,11 @@
 'use strict';
 
+const { wrap: async } = require('co');
+const mongoose = require('mongoose');
+const Room = mongoose.model('Room');
 const jwt = require('jsonwebtoken');
+const logger = require('./../../app/logger/winston.js');
+const channel = logger.init('error');
 /*
  *  Generic require login routing middleware
  */
@@ -43,11 +48,9 @@ exports.user = {
     const jwtSecret = process.env.JWT_SECRET || 'RESTFULAPIs';
     const expireTokenHour = process.env.JWT_TTL;
 
-    return jwt.sign(
-      { email: user.email, fullName: user.username, _id: user._id },
-      jwtSecret,
-      { expiresIn: expireTokenHour * 60 * 60 }
-    );
+    return jwt.sign({ email: user.email, fullName: user.username, _id: user._id }, jwtSecret, {
+      expiresIn: expireTokenHour * 60 * 60,
+    });
   },
 };
 
@@ -73,10 +76,7 @@ exports.comment = {
   hasAuthorization: function(req, res, next) {
     // if the current user is comment owner or article owner
     // give them authority to delete
-    if (
-      req.user.id === req.comment.user.id ||
-      req.user.id === req.article.user.id
-    ) {
+    if (req.user.id === req.comment.user.id || req.user.id === req.article.user.id) {
       next();
     } else {
       req.flash('info', 'You are not authorized');
@@ -84,3 +84,36 @@ exports.comment = {
     }
   },
 };
+
+/**
+ * Show member of the room
+ */
+exports.showMember = async(function*(req, res, next) {
+  const { roomId } = req.query;
+  let { _id } = req.decoded;
+  let isInRoom = false;
+
+  try {
+    let result = [];
+    const room = yield Room.findOne(
+      {
+        $and: [{ _id: roomId }, { members: { $elemMatch: { user: _id, deletedAt: null } } }],
+      },
+      { members: 1 }
+    );
+
+    if (room === null) {
+      return res.status(403).json({
+        error: __('error.403'),
+      });
+    }
+
+    next();
+  } catch (err) {
+    channel.error(err.toString());
+
+    return res.status(403).json({
+      error: __('error.403'),
+    });
+  }
+});

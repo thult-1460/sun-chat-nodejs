@@ -1,8 +1,15 @@
+'use strict';
+
+/**
+ * Module dependencies.
+ */
+
 const mongoose = require('mongoose');
+mongoose.set('useFindAndModify', false);
+const logger = require('./../logger/winston');
+const channel = logger.init('error');
 const Room = mongoose.model('Room');
 const config = require('../../config/config');
-
-mongoose.set('useFindAndModify', false);
 
 exports.index = async function(req, res) {
   let { _id } = req.decoded;
@@ -26,4 +33,45 @@ exports.getQuantityRoomsByUserId = async function(req, res) {
   const data = await Room.getQuantityRoomsByUserId({ _id, filter_type });
 
   res.json({ result: data[0].result });
+};
+
+exports.getMemberOfRoom = async function(req, res) {
+  const { roomId } = req.query;
+  let { _id } = req.decoded;
+  let isAdmin = false;
+
+  try {
+    let results = [];
+    const members = await Room.getMembersOfRoom(roomId);
+
+    members.map(function(member) {
+      let { _id: memberId } = member.user;
+
+      if (memberId == _id && member.members.role === config.MEMBER_ROLE.ADMIN) {
+        isAdmin = true;
+      }
+
+      results.push(
+        Object.assign(member.user, {
+          role: Object.keys(config.MEMBER_ROLE)
+            .find(key => config.MEMBER_ROLE[key] === member.members.role)
+            .toLowerCase(),
+        })
+      );
+    });
+
+    res.status(200).json({
+      results: {
+        members: results,
+        isAdmin: isAdmin,
+      },
+    });
+  } catch (err) {
+    channel.error(err.toString());
+
+    res.status(500).json({
+      results: [],
+      isAdmin: false,
+    });
+  }
 };

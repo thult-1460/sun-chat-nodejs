@@ -82,5 +82,8 @@
       "success": "Xóa bạn bè thanh công",
       "failed": "Xóa bạn bè thất bại"
     }
+  },
+  "error": {
+    "403": "Bạn không có quyền thực hiện hành động này"
   }
 }
