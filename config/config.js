@@ -15,4 +15,16 @@ module.exports = {
     NEED_APPROVAL: 1,
     CANNOT_REQUEST: 2,
   },
+  FILTER_TYPE: {
+    LIST_ROOM: {
+      ALL: 0,
+      UNREAD: 1,
+      PINNED: 2,
+      GROUP: 3,
+      DIRECT: 4,
+    },
+  },
+  LIMIT_MESSAGE: {
+    COUNT_UNREAD: 1000,
+  },
 };

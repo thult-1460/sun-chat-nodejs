@@ -80,8 +80,17 @@ RoomSchema.statics = {
       .exec(cb);
   },
 
-  getListRoomByUserId: function({ limit, page = 0, userId }) {
-    return this.aggregate([
+  getListRoomByUserId: function({ userId, filter_type, limit, page = 0 }) {
+    let list_filter_type_chat = [],
+      default_quantity_unread = config.LIMIT_MESSAGE.COUNT_UNREAD,
+      filter_unread = { $match: { quantity_unread: { $gt: 0 } } },
+      filter_pinned = { $match: { 'last_msg_id_reserve.marked': true } },
+      filter_group = { 'members.user': mongoose.Types.ObjectId(userId), type: config.ROOM_TYPE.GROUP_CHAT },
+      filter_direct = { 'members.user': { $ne: mongoose.Types.ObjectId(userId) }, type: config.ROOM_TYPE.DIRECT_CHAT };
+
+    filter_type = parseInt(filter_type);
+
+    let query = [
       { $match: { 'members.user': mongoose.Types.ObjectId(userId) } },
       {
         $addFields: {
@@ -99,15 +108,49 @@ RoomSchema.statics = {
           },
         },
       },
-      { $unwind: '$members' },
       {
-        $match: {
-          $or: [
-            { 'members.user': mongoose.Types.ObjectId(userId), type: config.ROOM_TYPE.GROUP_CHAT },
-            { 'members.user': { $ne: mongoose.Types.ObjectId(userId) }, type: config.ROOM_TYPE.DIRECT_CHAT },
-          ],
+        $addFields: {
+          message_able: {
+            $filter: {
+              input: '$messages',
+              as: 'mes',
+              cond: {
+                $or: [
+                  { $eq: ['$$mes.deletedAt', null] },
+                  { $eq: ['$$mes._id', '$last_msg_id_reserve.last_message_id'] },
+                ],
+              },
+            },
+          },
         },
       },
+      {
+        $addFields: {
+          message_limit: { $slice: ['$message_able', default_quantity_unread] },
+        },
+      },
+      { $unwind: '$members' },
+    ];
+
+    if (filter_type === config.FILTER_TYPE.LIST_ROOM.GROUP) {
+      list_filter_type_chat.push(filter_group);
+    } else if (filter_type === config.FILTER_TYPE.LIST_ROOM.DIRECT) {
+      list_filter_type_chat.push(filter_direct);
+    } else {
+      list_filter_type_chat = [filter_group, filter_direct];
+    }
+
+    query.push({
+      $match: {
+        $or: list_filter_type_chat,
+      },
+    });
+
+    if (filter_type === config.FILTER_TYPE.LIST_ROOM.PINNED) {
+      query.push(filter_pinned);
+    }
+
+    query.push(
       {
         $lookup: {
           from: 'users',
@@ -133,9 +176,8 @@ RoomSchema.statics = {
             },
           },
           type: 1,
-          messages: 1,
           last_created_msg: { $max: '$messages.createdAt' },
-          marked: '$members.marked',
+          marked: '$last_msg_id_reserve.marked',
           'members.user': 1,
           'members.user_info._id': 1,
           'members.user_info.avatar': 1,
@@ -143,43 +185,114 @@ RoomSchema.statics = {
           'members.user_info.username': 1,
           'members.last_message_id': '$last_msg_id_reserve.last_message_id',
           quantity_unread: {
-            $reduce: {
-              input: '$messages',
-              initialValue: 0,
-              in: {
-                $sum: [
-                  '$$value',
-                  {
-                    $cond: {
-                      if: { $cmp: ['$$this._id', '$last_msg_id_reserve.last_message_id'] },
-                      then: 0,
-                      else: 1,
-                    },
-                  },
+            $cond: {
+              if: {
+                $and: [
+                  { $gt: [{ $indexOfArray: ['$message_limit._id', '$last_msg_id_reserve.last_message_id'] }, -1] },
+                  { $ne: ['$last_msg_id_reserve.last_message_id', null] },
                 ],
               },
+              then: { $indexOfArray: ['$message_limit._id', '$last_msg_id_reserve.last_message_id'] },
+              else: { $size: '$message_limit' },
             },
           },
         },
+      }
+    );
+
+    if (filter_type === config.FILTER_TYPE.LIST_ROOM.UNREAD) {
+      query.push(filter_unread);
+    }
+
+    query.push({
+      $sort: {
+        marked: -1,
+        last_created_msg: -1,
       },
-      {
-        $sort: {
-          marked: -1,
-          last_created_msg: -1,
-        },
-      },
-    ])
+    });
+
+    return this.aggregate(query)
       .limit(limit)
       .skip(limit * page)
       .exec();
   },
 
-  getQuantityRoomsByUserId: function(userId) {
-    return this.find({
-      'members.user': userId,
-    })
-      .count()
-      .exec();
+  getQuantityRoomsByUserId: function({ _id, filter_type }) {
+    let list_filter_type_chat = [],
+      filter_unread = { $match: { quantity_unread: { $gt: 0 } } },
+      filter_pinned = { $match: { 'last_msg_id_reserve.marked': true } },
+      filter_group = { 'members.user': mongoose.Types.ObjectId(_id), type: config.ROOM_TYPE.GROUP_CHAT },
+      filter_direct = { 'members.user': { $ne: mongoose.Types.ObjectId(_id) }, type: config.ROOM_TYPE.DIRECT_CHAT };
+
+    filter_type = parseInt(filter_type);
+
+    let query = [
+      {
+        $match: { 'members.user': mongoose.Types.ObjectId(_id) },
+      },
+    ];
+
+    if (filter_type === config.FILTER_TYPE.LIST_ROOM.GROUP) {
+      list_filter_type_chat.push(filter_group);
+    } else if (filter_type === config.FILTER_TYPE.LIST_ROOM.DIRECT) {
+      list_filter_type_chat.push(filter_direct);
+    } else {
+      list_filter_type_chat = [filter_group, filter_direct];
+    }
+
+    query.push({
+      $match: {
+        $or: list_filter_type_chat,
+      },
+    });
+
+    if ([config.FILTER_TYPE.LIST_ROOM.PINNED, config.FILTER_TYPE.LIST_ROOM.UNREAD].indexOf(filter_type) >= 0) {
+      query.push({
+        $addFields: {
+          last_msg_id_reserve: {
+            $arrayElemAt: [
+              {
+                $filter: {
+                  input: '$members',
+                  as: 'mem',
+                  cond: { $eq: ['$$mem.user', mongoose.Types.ObjectId(_id)] },
+                },
+              },
+              0,
+            ],
+          },
+        },
+      });
+      query.push(filter_pinned);
+    }
+
+    if (filter_type === config.FILTER_TYPE.LIST_ROOM.UNREAD) {
+      query.push(
+        {
+          $addFields: {
+            message_able: {
+              $filter: {
+                input: '$messages',
+                as: 'mes',
+                cond: { $eq: ['$$mes.deletedAt', null] },
+              },
+            },
+          },
+        },
+        {
+          $addFields: {
+            quantity_unread: { $gte: [{ $first: '$message_able._id' }, '$last_msg_id_reserve.last_message_id'] },
+          },
+        }
+      );
+      query.push(filter_unread);
+    }
+
+    query.push({
+      $count: 'result',
+    });
+
+    return this.aggregate(query).exec();
   },
 };
 

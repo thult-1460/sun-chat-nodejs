@@ -1,27 +1,30 @@
 import React from 'react';
-import { Layout, Icon, Menu, Avatar, message, Typography } from 'antd';
+import { Layout, Icon, Menu, Avatar, message, Typography, Dropdown } from 'antd';
 import InfiniteScroll from 'react-infinite-scroller';
 import { checkExpiredToken } from './../../helpers/common';
-import { getListRoomsByUser, getAllRoomsByUserNumber } from './../../api/room';
+import { getListRoomsByUser, getQuantityRoomsByUserId } from './../../api/room';
 import { Link } from 'react-router-dom';
+import config from './../../config/listRoom';
 import { withNamespaces } from 'react-i18next';
+import Loading from '../Loading';
 const { Sider } = Layout;
 
 class Sidebar extends React.Component {
   state = {
     rooms: [],
     error: '',
-    loading: false,
+    loading: true,
     hasMore: true,
     page: 1,
-    numberAllData: 0,
+    quantity_chats: 0,
+    filter_flag: 0,
   };
 
-  fetchData = page => {
-    getListRoomsByUser(page).then(res => {
+  fetchData = param => {
+    getListRoomsByUser(param).then(res => {
       this.setState({
         rooms: res.data,
-        page: page,
+        page: param.page,
         loading: false,
       });
     });
@@ -29,23 +32,24 @@ class Sidebar extends React.Component {
 
   componentDidMount() {
     const { page } = this.state;
-    this.fetchData(page);
+    const filter_type = config.FILTER_TYPE.LIST_ROOM.ALL;
+    this.fetchData({ page, filter_type });
 
-    getAllRoomsByUserNumber().then(res => {
+    getQuantityRoomsByUserId(filter_type).then(res => {
       this.setState({
-        numberAllData: res.data.result,
+        quantity_chats: res.data.result,
       });
     });
   }
 
   handleInfiniteOnLoad = () => {
-    let { page, data, numberAlldata } = this.state;
+    let { page, data, quantity_chats } = this.state;
     const newPage = parseInt(page) + 1;
     this.setState({
       loading: true,
     });
 
-    if (data.length >= numberAlldata) {
+    if (data.length >= quantity_chats) {
       message.warning(this.props.t('notice.action.end_of_list'));
       this.setState({
         hasMore: false,
@@ -57,8 +61,48 @@ class Sidebar extends React.Component {
     this.fetchData(newPage);
   };
 
+  onClick = e => {
+    const filter_type = e.item.props.flag;
+
+    this.setState({
+      loading: true,
+      page: 1,
+      filter_flag: filter_type,
+    });
+
+    const { page } = this.state;
+    this.fetchData({ page, filter_type });
+
+    getQuantityRoomsByUserId({ type: e.item.props.flag }).then(res => {
+      this.setState({
+        quantity_chats: res.data.result,
+      });
+    });
+  };
+
   render() {
-    const { rooms } = this.state;
+    const { rooms, loading } = this.state;
+    const { t } = this.props;
+    const list_flag = config.FILTER_TYPE.LIST_ROOM;
+    const active = 'ant-dropdown-menu-item-selected';
+    let selected_content, condFilter = [];
+
+    for (let index in list_flag) {
+      condFilter.push(
+        <Menu.Item
+          key={list_flag[index].value}
+          flag={list_flag[index].value}
+          className={this.state.filter_flag === list_flag[index].value ? active : ''}
+        >
+          {t(list_flag[index].title)}
+        </Menu.Item>
+      );
+
+      if (list_flag[index].value == this.state.filter_flag) {
+        selected_content = t(list_flag[index].title);
+      }
+    }
+    const cond_filter = <Menu onClick={this.onClick.bind(this.context)}>{condFilter}</Menu>;
 
     let renderHtml =
       rooms.length > 0 &&
@@ -79,7 +123,15 @@ class Sidebar extends React.Component {
     return (
       checkExpiredToken() && (
         <Sider>
-          <div className="logo2" />
+          <div id="div-filter">
+            {loading && <Loading />}
+            <Dropdown overlay={cond_filter}>
+              <a className="ant-dropdown-link" href="#">
+                {selected_content}
+                <Icon type="filter" />
+              </a>
+            </Dropdown>
+          </div>
           <Menu theme="dark" mode="inline" defaultSelectedKeys={['1']}>
             <div>
               <InfiniteScroll

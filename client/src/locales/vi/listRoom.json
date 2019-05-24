@@ -3,5 +3,12 @@
     "action": {
       "end_of_list": "Đã tải toàn bộ danh sách"
     }
+  },
+  "filter": {
+    "all": "Tất cả",
+    "un_read": "Box chưa đọc",
+    "pinned": "Box đã ghim",
+    "group_chat": "Nhóm chat",
+    "direct_chat": "Liên hệ riêng"
   }
 }

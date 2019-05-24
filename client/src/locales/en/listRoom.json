@@ -3,5 +3,12 @@
     "action": {
       "end_of_list": "List have loaded all"
     }
+  },
+  "filter": {
+    "all": "The All",
+    "un_read": "Unread Chats",
+    "pinned": "Pinned Chats",
+    "group_chat": "Group Chats",
+    "direct_chat": "Direct Chats"
   }
 }

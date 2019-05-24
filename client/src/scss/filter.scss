@@ -1,0 +1,24 @@
+.anticon-filter {
+  float: right;
+  margin: 3px;
+}
+
+#div-filter {
+  height: 30px;
+  background-color: white;
+  margin: 16px;
+  border-radius: 5px;
+  text-align: center;
+  padding: 4px;
+}
+
+.ant-dropdown-menu-light {
+  margin-left: -50px;
+  margin-top: 7px;
+  min-width: 165px;
+  background-color: cornflowerblue;
+
+  li {
+    background-color: #cadae8;
+  }
+}
