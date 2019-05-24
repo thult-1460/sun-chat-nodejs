@@ -4,7 +4,7 @@ import { withRouter } from 'react-router';
 import 'antd/dist/antd.css';
 import InfiniteScroll from 'react-infinite-scroller';
 import { List, Avatar, Button, message, Spin, Alert } from 'antd';
-import { getListContacts, getContactCount } from '../../../api/contact';
+import { getListContacts, getContactCount, deleteContact } from '../../../api/contact';
 
 class ListContacts extends Component {
   state = {
@@ -81,6 +81,21 @@ class ListContacts extends Component {
     return <Avatar icon="user" size="large" />;
   }
 
+  handleDeteleContact = e => {
+    const contactId = e.target.value;
+    deleteContact({ contactId })
+      .then(res => {
+        this.setState(prevState => ({
+          contacts: prevState.contacts.filter(item => item.members[0].user._id != contactId),
+          totalContact: prevState.totalContact - 1,
+        }));
+        message.success(res.data.success);
+      })
+      .catch(error => {
+        message.error(error.response.data.error);
+      });
+  };
+
   render() {
     const { t } = this.props;
     const { error } = this.state;
@@ -112,6 +127,9 @@ class ListContacts extends Component {
                       />
                       <Button.Group className="btn-accept">
                         <Button type="primary">{t('contact:list_contact.btn_send_message')}</Button>
+                        <Button value={item.members[0].user._id} onClick={this.handleDeteleContact}>
+                          {t('button.delete')}
+                        </Button>
                       </Button.Group>
                     </List.Item>
                   )}

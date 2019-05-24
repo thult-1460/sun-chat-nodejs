@@ -593,3 +593,18 @@ exports.resendActiveEmail = async(function*(req, res) {
     });
   }
 });
+
+exports.deleteContact = async(function*(req, res) {
+  const { contactId } = req.body;
+  const { _id } = req.decoded;
+  try {
+    yield User.deleteContact(_id, contactId);
+    return res.status(200).json({
+      success: __('contact.delete_contact.success'),
+    });
+  } catch (err) {
+    res.status(500).json({
+      error: __('contact.delete_contact.failed'),
+    });
+  }
+});

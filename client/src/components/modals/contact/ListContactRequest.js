@@ -74,7 +74,7 @@ class ListContactRequest extends React.Component {
     });
 
     if (data.length >= numberContacts) {
-      message.warning('List have loaded alll');
+      message.warning(this.props.t('contact:list_contact_request.loaded_all'));
       this.setState({
         hasMore: false,
         loading: false,
@@ -103,8 +103,10 @@ class ListContactRequest extends React.Component {
               data: prevState.data.filter(item => item._id != checkedId),
               allItem: prevState.allItem.filter(item => item != checkedId),
               numberContacts: prevState.numberContacts - 1,
+              checkedList: prevState.checkedList.filter(item => item != checkedId),
             }));
           });
+          this.setState({ indeterminate: this.state.checkedList.length > 0 });
         })
         .catch(error => {
           this.setState({
@@ -124,8 +126,10 @@ class ListContactRequest extends React.Component {
             data: prevState.data.filter(item => item._id != idCheck),
             allItem: prevState.allItem.filter(item => item != idCheck),
             numberContacts: prevState.numberContacts - 1,
+            checkedList: prevState.checkedList.filter(item => item != idCheck),
           }));
         });
+        this.setState({ indeterminate: this.state.checkedList.length > 0 });
       })
       .catch(error => {
         message.error(error.response.data.error);

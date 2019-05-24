@@ -77,6 +77,10 @@
     },
     "total": {
       "failed": "Get data failed"
+    },
+    "delete_contact": {
+      "success": "Delete contact successfully",
+      "failed": "Delete contact failed"
     }
   }
 }

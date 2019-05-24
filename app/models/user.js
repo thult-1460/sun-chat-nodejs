@@ -306,7 +306,7 @@ UserSchema.statics = {
       {
         type: config.ROOM_TYPE.DIRECT_CHAT,
         'members.user': userId,
-        deleteAt: null,
+        deletedAt: null,
       },
       {
         'members.role': 0,
@@ -326,9 +326,21 @@ UserSchema.statics = {
   },
 
   getContactCount: function(userId) {
-    return Room.find({ type: config.ROOM_TYPE.DIRECT_CHAT, 'members.user': userId })
+    return Room.find({ type: config.ROOM_TYPE.DIRECT_CHAT, deletedAt: null, 'members.user': userId })
       .count()
       .exec();
+  },
+
+  deleteContact: function(userId, contactId) {
+    return Room.findOneAndUpdate(
+      {
+        type: config.ROOM_TYPE.DIRECT_CHAT,
+        deletedAt: null,
+        'members.user': userId,
+        members: { $elemMatch: { user: contactId } },
+      },
+      { $set: { deletedAt: Date.now() } }
+    );
   },
 };
 

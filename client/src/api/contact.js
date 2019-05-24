@@ -23,3 +23,7 @@ export function getContactCount() {
 export function acceptContact(contactIds) {
   return new Http().authenticated().post('/accept-contact', contactIds);
 }
+
+export function deleteContact(contactId) {
+  return new Http().authenticated().delete('/delete-contact', contactId);
+}

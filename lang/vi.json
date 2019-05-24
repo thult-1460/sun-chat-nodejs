@@ -77,6 +77,10 @@
     },
     "total_contact": {
       "failed": "Lấy dữ liệu thất bại"
+    },
+    "delete_contact": {
+      "success": "Xóa bạn bè thanh công",
+      "failed": "Xóa bạn bè thất bại"
     }
   }
 }

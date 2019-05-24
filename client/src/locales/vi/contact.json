@@ -8,5 +8,8 @@
     "btn_send_message": "Gửi tin nhắn",
     "no_contact": "Danh bạ trống",
     "loaded_all": "Toàn bộ danh bạ đã được tải về"
+  },
+  "list_contact_request": {
+    "loaded_all": "Toàn bộ danh bạ đã được tải về"
   }
 }
