@@ -12,5 +12,13 @@
   },
   "list_contact_request": {
     "loaded_all": "List have loaded all"
+  },
+  "send_request_contact": {
+    "title": "User Search",
+    "description": "Search by Name or Email address",
+    "input_search": "Enter name, Email address here",
+    "button_add": "Add",
+    "no_data": "Search for people you may know",
+    "required_search_user": "Please enter name or email address to search"
   }
 }

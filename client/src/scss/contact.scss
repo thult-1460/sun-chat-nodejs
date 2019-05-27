@@ -55,3 +55,28 @@
 .ant-btn-group {
   margin-right: 10px;
 }
+.contact-search {
+  .ant-input-affix-wrapper {
+    width: 90%;
+  }
+  .ant-btn-circle {
+    margin-left: 10px;
+  }
+}
+.search-by-name {
+  .ant-avatar {
+    height: 50px;
+    width: 50px;
+  }
+  .infinite-container {
+    border: none;
+  }
+  .ant-list-split .ant-list-item {
+    border: 1px solid #e8e8e8;
+    margin-bottom: 10px;
+    border-radius: 5px;
+  }
+  #user_add_contact {
+    margin-right: 10px;
+  }
+}

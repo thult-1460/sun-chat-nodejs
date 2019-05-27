@@ -3,6 +3,7 @@ import { Layout, Row, Col, Menu, Icon, Badge, Dropdown, Avatar, Popover } from '
 import { checkExpiredToken } from './../../helpers/common';
 import ModalListContacts from '../modals/contact/ModalListContacts';
 import ModalListContactRequest from '../modals/contact/ModalListContactRequest';
+import ModalAddContact from '../modals/contact/ModalAddContact';
 import ModalListMember from '../modals/room/ModalListMember';
 import CreateRoom from '../room/CreateRoom';
 import ChangeLanguage from './../ChangeLanguage';
@@ -15,7 +16,7 @@ class Head extends React.Component {
       <Menu>
         <Menu.Item>
           <Link to="/setting/profile">Profile</Link>
-          <Link to="/change_password">Change Passowrd</Link>
+          <Link to="/change-password">Change Passowrd</Link>
           <a href="javascript:;" onClick={this.onLogout}>
             Logout
           </a>
@@ -26,10 +27,11 @@ class Head extends React.Component {
     return checkExpiredToken() ? (
       <Header style={{ background: '#fff', padding: 0 }}>
         <Row type="flex" justify="end" align="middle">
-          <Col span={3}>
+          <Col span={4}>
             <ModalListContacts />
             <ModalListContactRequest />
             <ModalListMember />
+            <ModalAddContact />
             <CreateRoom />
           </Col>
           <Col span={3}>

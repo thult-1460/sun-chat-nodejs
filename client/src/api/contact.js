@@ -31,3 +31,11 @@ export function acceptContact(contactIds) {
 export function deleteContact(contactId) {
   return new Http().authenticated().delete('/delete-contact', contactId);
 }
+
+export function getSearchContactByName(searchText, page) {
+  return new Http().authenticated().get(`/user-search?searchText=${searchText}&page=${page}`);
+}
+
+export function addContact(userId) {
+  return new Http().authenticated().post('/send-request-contact', userId);
+}

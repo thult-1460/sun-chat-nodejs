@@ -57,6 +57,20 @@ body {
   }
 }
 
+li[role='menuitem'].ant-dropdown-menu-item {
+  margin: 0;
+  &:hover {
+    background-color: white;
+  }
+  a:hover {
+    background-color: #e6f7ff;
+  }
+}
+
+.ant-dropdown-menu {
+  padding: 0;
+}
+
 section.ant-layout {
   margin-left: 0 !important;
 

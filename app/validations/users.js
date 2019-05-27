@@ -1,7 +1,7 @@
 const { checkName, checkUsername, checkEmail, checkPassword } = require('./actions/register');
 const { checkCurrentPassword, checkNewPassword, checkConfirmPassword } = require('./actions/changePassword');
 const { checkEmail: checkEmailResetPassword } = require('./actions/reset_password');
-const {checkNameEdit, checkUsernameEdit, checkEmailEdit} = require('./actions/profile');
+const { checkNameEdit, checkUsernameEdit, checkEmailEdit } = require('./actions/profile');
 
 exports.validate = (type, app) => {
   switch (type) {
@@ -9,7 +9,7 @@ exports.validate = (type, app) => {
       return [checkName(), checkUsername(), checkEmail(), checkPassword()];
     }
 
-    case 'change_password': {
+    case 'changePassword': {
       return [checkCurrentPassword(), checkNewPassword(), checkConfirmPassword()];
     }
 
@@ -22,11 +22,7 @@ exports.validate = (type, app) => {
     }
 
     case 'update': {
-      return [
-        checkNameEdit(),
-        checkUsernameEdit(),
-        checkEmailEdit(),
-      ]
+      return [checkNameEdit(), checkUsernameEdit(), checkEmailEdit()];
     }
   }
 };

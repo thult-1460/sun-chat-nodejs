@@ -342,6 +342,55 @@ UserSchema.statics = {
       { $set: { deletedAt: Date.now() } }
     );
   },
+
+  getSendRequestMakeFriend: function(userId) {
+    return this.find({ requested_in_comming: { $in: [userId] } }, { _id: 1 }).exec();
+  },
+
+  getListRequestedMakeFriend: function(userId) {
+    return this.findOne({ _id: userId }, { requested_in_comming: 1, _id: 0 }).exec();
+  },
+
+  getSearchContactByName: function(options) {
+    options.select = options.select || '_id name username email avatar';
+    let regexText = `.*${options.searchText}.*`;
+    let regexEmail = `.*${options.searchText}.*@sun-asterisk\.com`;
+    let limit = options.limit || '';
+    let page = options.page || 0;
+
+    return this.find({ _id: { $nin: options.listUserIdsIgnore } })
+      .or([
+        { name: { $regex: regexText, $options: '$xi' } },
+        { username: { $regex: regexText, $options: '$xi' } },
+        { email: { $regex: regexEmail, $options: '$xi' } },
+      ])
+      .limit(limit)
+      .skip(limit * page)
+      .select(options.select)
+      .exec();
+  },
+
+  getListContactIds: function({ userId }) {
+    return Room.find(
+      {
+        type: config.ROOM_TYPE.DIRECT_CHAT,
+        'members.user': userId,
+        deleteAt: null,
+      },
+      { members: { $elemMatch: { user: { $ne: userId } } }, _id: 0 }
+    ).exec();
+  },
+
+  /**
+   * Update Send Request Friend
+   */
+  updateRequestFriend: function(userIdReceive, userIdSend) {
+    try {
+      return this.update({ _id: userIdReceive }, { $push: { requested_in_comming: userIdSend } });
+    } catch (err) {
+      throw new Error(err);
+    }
+  },
 };
 
 module.exports = mongoose.model('User', UserSchema);

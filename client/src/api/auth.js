@@ -9,7 +9,7 @@ export function register(data) {
 }
 
 export function apiChangePassword(data) {
-  return new Http().authenticated().post('/change_password', data);
+  return new Http().authenticated().post('/change-password', data);
 }
 
 export function sendMailResetPassword(data) {

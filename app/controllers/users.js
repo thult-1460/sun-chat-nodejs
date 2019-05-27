@@ -16,6 +16,7 @@ const config = require('../../config/config');
 const moment = require('moment-timezone');
 const logger = require('./../logger/winston');
 const channel = logger.init('error');
+const contact = require('./../services/contactService.js');
 
 /**
  * Load
@@ -324,6 +325,55 @@ exports.totalContactRequest = async(function*(req, res) {
   let { _id } = req.decoded;
   const data = yield User.getAllContactRequest(_id);
   return res.json({ result: data[0]['number_of_contact'] });
+});
+
+exports.userSearch = async(function*(req, res) {
+  if (handleValidate(req, res) === false) {
+    return res;
+  }
+
+  let { searchText } = req.query;
+  let userId = req.decoded._id;
+
+  const listRequestAccept = yield User.getListRequestedMakeFriend(userId); // they send me a friend
+  const listSendRequested = yield User.getSendRequestMakeFriend(userId); // send a friend to them
+  const friendIds = yield User.getListContactIds({ userId }); // made friends
+
+  let page = (req.query.page > 0 ? req.query.page : 1) - 1;
+  let limit = config.LIMIT_ITEM_SHOW;
+  let listUserIdsIgnore = [userId];
+
+  friendIds.map((item, key) => {
+    return listUserIdsIgnore.push(item.members[0].user.toString());
+  });
+
+  let options = {
+    limit,
+    page,
+    searchText,
+    listUserIdsIgnore,
+  };
+  const listSearch = yield User.getSearchContactByName(options);
+  const data = contact.getListRequestFriend(listSearch, listRequestAccept.requested_in_comming, listSendRequested);
+
+  return res.status(200).json({ result: data });
+});
+
+exports.sendRequestContact = async(function*(req, res) {
+  let userIdReceive = req.body.userId;
+  let userIdSend = req.decoded._id;
+
+  try {
+    yield User.updateRequestFriend(userIdReceive, userIdSend);
+
+    return res.status(200).json({
+      success: __('contact.send_request.success'),
+    });
+  } catch (err) {
+    return res.status(500).json({
+      error: __('contact.send_request.failed'),
+    });
+  }
 });
 
 /**

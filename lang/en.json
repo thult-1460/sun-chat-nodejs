@@ -81,6 +81,11 @@
     "delete_contact": {
       "success": "Delete contact successfully",
       "failed": "Delete contact failed"
+    },
+    "send_request": {
+      "success": "Send contact request successfully",
+      "failed": "Send contact request failed",
+      "required_input_search": "Please enter name or email address to search"
     }
   },
   "error": {

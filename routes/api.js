@@ -13,6 +13,7 @@ const roomAuthorization = require('../config/middlewares/authorization.js');
 //validation
 const usersValidate = require('../app/validations/users.js');
 const roomsValidate = require('../app/validations/rooms.js');
+const contactValidate = require('../app/validations/contact.js');
 
 // Change language
 router.get('/language/:lang', (req, res) => {
@@ -35,6 +36,8 @@ router.get('/contacts-number', auth.jwtMiddleware, users.totalContact);
 router.delete('/delete-contact', auth.jwtMiddleware, users.deleteContact);
 
 router.get('/members/rooms', [auth.jwtMiddleware, roomAuthorization.showMember], roomsController.getMemberOfRoom);
+router.get('/user-search', auth.jwtMiddleware, contactValidate.validate('addContact'), users.userSearch);
+router.post('/send-request-contact', auth.jwtMiddleware, users.sendRequestContact);
 
 router.post(
   '/send-mail-reset-password',
@@ -44,7 +47,7 @@ router.post(
 router.post('/reset-password', usersValidate.validate('resetPassword'), users.apiResetPassword);
 
 router.param('userId', users.load);
-router.post('/change_password', auth.jwtMiddleware, usersValidate.validate('change_password'), users.apiChangePassword);
+router.post('/change-password', auth.jwtMiddleware, usersValidate.validate('changePassword'), users.apiChangePassword);
 router.post('/resend-active-email', users.resendActiveEmail);
 
 router.get('/users', auth.jwtMiddleware, users.show);

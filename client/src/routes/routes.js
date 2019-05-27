@@ -10,10 +10,11 @@ import ForgotPassword from '../pages/auth/forgotpassword.js';
 import ResetPassword from '../pages/auth/resetpassword.js';
 import ListContacts from '../components/modals/contact/ListContacts';
 import RoomDetail from '../components/room/RoomDetail';
+import AddContact from '../components/modals/contact/AddContact';
 
 const routes = [
   {
-    path: '/change_password',
+    path: '/change-password',
     exact: true,
     auth: true,
     component: ChangePassword,
@@ -78,6 +79,12 @@ const routes = [
     exact: true,
     auth: false,
     component: ResetPassword,
+  },
+  {
+    path: '/send-request-contact',
+    exact: true,
+    auth: true,
+    component: AddContact,
   },
   //notFound
   {
