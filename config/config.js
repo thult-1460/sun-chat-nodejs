@@ -27,4 +27,5 @@ module.exports = {
   LIMIT_MESSAGE: {
     COUNT_UNREAD: 1000,
   },
+  DIR_UPLOAD_FILE: './public/uploads/',
 };

@@ -509,13 +509,22 @@ exports.acceptContact = async(function*(req, res) {
 
 exports.listContacts = async(function*(req, res) {
   const { _id } = req.decoded;
-  const page = (req.query.page > 0 ? req.query.page : 1) - 1;
-  const limit = config.LIMIT_ITEM_SHOW;
-  const options = {
-    userId: _id,
-    limit: limit,
-    page: page,
-  };
+  let options = {};
+
+  if (req.query.limit) {
+    options = {
+      userId: _id,
+      limit: parseInt(req.query.limit),
+    };
+  } else {
+    const page = (req.query.page > 0 ? req.query.page : 1) - 1;
+    const limit = config.LIMIT_ITEM_SHOW;
+    options = {
+      userId: _id,
+      limit: limit,
+      page: page,
+    };
+  }
 
   try {
     const contacts = yield User.getListContacts(options);

@@ -1,0 +1,23 @@
+{
+  "validate": {
+    "img_type": "You can only upload {{types}} file!",
+    "img_size": "Image must smaller than {{max}} MB!",
+    "amount_char": "Only can enter from {{min}} to {{max}} characters!",
+    "format_char": "Contains invalid characters, we only accept alphabets, - , and _"
+  },
+  "title": {
+    "add_contact": "Add contact",
+    "create_room": "Create new room",
+    "upload": "Upload",
+    "link_share": "Link",
+    "avatar": "Avatar",
+    "room_name": "Group Chat Name",
+    "room_des": "Description",
+    "admin_confirm": "Requires confirmation from admin to join",
+    "add_member": "Add members"
+  },
+  "button": {
+    "cancel": "Cancel",
+    "submit": "Create"
+  }
+}

@@ -4,12 +4,31 @@
  * Module dependencies.
  */
 
-const mongoose = require('mongoose');
-mongoose.set('useFindAndModify', false);
+const Room = require('../models/room.js');
+const slug = require('slug');
+const { validationResult } = require('express-validator/check');
+const files = require('../services/files.js');
 const logger = require('./../logger/winston');
 const channel = logger.init('error');
-const Room = mongoose.model('Room');
 const config = require('../../config/config');
+
+function customMessageValidate(errors) {
+  let customErrors = { ...errors.array() };
+  for (let i in customErrors) {
+    let param = customErrors[i].param;
+
+    if (customErrors[param] == undefined) {
+      customErrors[param] = '';
+    } else {
+      customErrors[param] += ', ';
+    }
+
+    customErrors[param] += customErrors[i].msg;
+    delete customErrors[i];
+  }
+
+  return customErrors;
+}
 
 exports.index = async function(req, res) {
   let { _id } = req.decoded;
@@ -80,6 +99,8 @@ exports.deleteRoom = async function(req, res) {
   const { _id } = req.decoded;
   const { roomId } = req.body;
 
+  console.log(roomId)
+
   try {
     const result = await Room.deleteRoom(_id, roomId);
 
@@ -90,4 +111,44 @@ exports.deleteRoom = async function(req, res) {
     channel.error(err.toString());
     res.status(500).json({ error: __('room.delete_room.failed') });
   }
+};
+
+exports.createRoom = async (req, res) => {
+  const errors = validationResult(req);
+
+  if (errors.array().length > 0) {
+    let customErrors = customMessageValidate(errors);
+
+    return res.status(422).json(customErrors);
+  }
+
+  const { _id, fullName } = req.decoded;
+  const room = req.body;
+  room.name = room.name ? room.name : fullName;
+  room.members.push({ user: _id, role: config.MEMBER_ROLE.ADMIN });
+
+  if (room.avatar_url) {
+    try {
+      await files.saveImage(room.avatar_url, slug(room.name, '-')).then(url => {
+        room.avatar_url = url;
+      });
+    } catch (err) {
+      channel.error(err.toString());
+
+      return res.status(500).json({ error: __('room.create.failed') });
+    }
+  }
+
+  const newRoom = new Room(room);
+
+  await newRoom
+    .save()
+    .then(result => {
+      if (result) return res.status(200).json({ message: __('room.create.success') });
+    })
+    .catch(err => {
+      channel.error(err.toString());
+
+      return res.status(500).json({ error: __('room.create.failed') });
+    });
 };

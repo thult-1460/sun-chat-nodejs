@@ -30,3 +30,5 @@ client/yarn-error.log*
 .idea/*
 app/logger/*.log
 app/logger/*.json
+
+public/uploads/

@@ -7,7 +7,8 @@
     "title_list_contact": "Danh bạ",
     "btn_send_message": "Gửi tin nhắn",
     "no_contact": "Danh bạ trống",
-    "loaded_all": "Toàn bộ danh bạ đã được tải về"
+    "loaded_all": "Toàn bộ danh bạ đã được tải về",
+    "limit_contact": "(Chỉ {{limit}} người dùng được hiển thị. Hãy sử dụng tính năng tìm kiếm để tìm được nhiều người dùng hơn.)"
   },
   "list_contact_request": {
     "loaded_all": "Toàn bộ danh bạ đã được tải về"

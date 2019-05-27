@@ -16,6 +16,19 @@ const authValidate = {
     }
 }
 
+const roomValidate = {
+    invitation_code: {
+        minLength: 10,
+        maxLength: 50
+    },
+    name: {
+        minLength: 10,
+        maxLength: 50 
+    },
+    IMG_SIZE: 5, //MB
+}
+
 module.exports = {
-    authValidate
+    authValidate,
+    roomValidate
 };

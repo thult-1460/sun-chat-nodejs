@@ -16,6 +16,10 @@ export function getListContacts(page) {
   return new Http().authenticated().get(`/contacts?page=${page}`);
 }
 
+export function getLimitListContacts(limit) {
+  return new Http().authenticated().get(`/contacts?limit=${limit}`);
+}
+
 export function getContactCount() {
   return new Http().authenticated().get('/contacts-number');
 }

@@ -4,6 +4,7 @@ import { checkExpiredToken } from './../../helpers/common';
 import ModalListContacts from '../modals/contact/ModalListContacts';
 import ModalListContactRequest from '../modals/contact/ModalListContactRequest';
 import ModalListMember from '../modals/room/ModalListMember';
+import CreateRoom from '../room/CreateRoom';
 import ChangeLanguage from './../ChangeLanguage';
 import { Link } from 'react-router-dom';
 const { Header } = Layout;
@@ -22,15 +23,6 @@ class Head extends React.Component {
       </Menu>
     );
 
-    const content = (
-      <div>
-        <p>Content</p>
-        <p>Content</p>
-        <p>Content</p>
-        <p>Content</p>
-        <p>Content</p>
-      </div>
-    );
     return checkExpiredToken() ? (
       <Header style={{ background: '#fff', padding: 0 }}>
         <Row type="flex" justify="end" align="middle">
@@ -38,18 +30,12 @@ class Head extends React.Component {
             <ModalListContacts />
             <ModalListContactRequest />
             <ModalListMember />
-            <Popover content={content} title="Create Room" trigger="click">
-              <Badge className="header-icon">
-                <a href="#">
-                  <Icon type="plus-circle" />
-                </a>
-              </Badge>
-            </Popover>
+            <CreateRoom />
           </Col>
           <Col span={3}>
             <Dropdown overlay={menu}>
               <a className="ant-dropdown-link" href="#">
-                <Avatar style={{ verticalAlign: 'middle' }}>Abc</Avatar>
+                <Avatar style={{ verticalAlign: 'middle' }}>User</Avatar>
                 <Icon type="down" />
               </a>
             </Dropdown>
@@ -70,4 +56,5 @@ class Head extends React.Component {
     );
   }
 }
+
 export default Head;

@@ -61,7 +61,7 @@ export default class Http {
         return Promise.resolve(response);
       })
       .catch(error => {
-        if (error.response.status === statusCode.UNAUTHORIZED) {
+        if (error.response && error.response.status === statusCode.UNAUTHORIZED) {
           // do something
         }
 
