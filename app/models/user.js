@@ -301,34 +301,75 @@ UserSchema.statics = {
     }
   },
 
-  getListContacts: function({ limit, page = 0, userId }) {
-    return Room.find(
+  getListContacts: function({ limit, page = 0, userId, searchText = '' }, getListFlag = false) {
+    const text = `.*${searchText}.*`;
+    const query = [
       {
-        type: config.ROOM_TYPE.DIRECT_CHAT,
-        'members.user': userId,
-        deletedAt: null,
+        $match: {
+          type: config.ROOM_TYPE.DIRECT_CHAT,
+          'members.user': mongoose.Types.ObjectId(userId),
+        },
       },
       {
-        'members.role': 0,
-        'members.marked': 0,
-        'members.deletedAt': 0,
-        'members._id': 0,
-        'members.last_message_id': 0,
-        'members.createdAt': 0,
-        'members.updatedAt': 0,
-        members: { $elemMatch: { user: { $ne: userId } } },
-      }
-    )
-      .populate('members.user', '_id name email username full_address phone_number twitter github google avatar ')
-      .limit(limit)
-      .skip(limit * page)
-      .exec();
-  },
+        $unwind: {
+          path: '$members',
+        },
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'members.user',
+          foreignField: '_id',
+          as: 'info_user',
+        },
+      },
+      {
+        $addFields: {
+          member: { $arrayElemAt: ['$info_user', 0] },
+        },
+      },
+      {
+        $project: {
+          _id: '$member._id',
+          name: '$member.name',
+          username: '$member.username',
+          email: '$member.email',
+          full_address: '$member.full_address',
+          phone_number: '$member.phone_number',
+          twitter: '$member.twitter',
+          google: '$member.google',
+          github: '$member.github',
+          avatar: '$member.avatar',
+        },
+      },
+      {
+        $match: {
+          _id: { $ne: mongoose.Types.ObjectId(userId) },
+          $or: [
+            { name: { $regex: text, $options: '$i' } },
+            { username: { $regex: text, $options: '$i' } },
+            { email: { $regex: `${text}@sun-asterisk\.com`, $options: '$i' } },
+          ],
+        },
+      },
+    ];
 
-  getContactCount: function(userId) {
-    return Room.find({ type: config.ROOM_TYPE.DIRECT_CHAT, deletedAt: null, 'members.user': userId })
-      .count()
-      .exec();
+    if (getListFlag) {
+      query.push(
+        {
+          $skip: limit * page,
+        },
+        {
+          $limit: limit,
+        }
+      );
+    } else {
+      query.push({
+        $count: 'number_of_contacts',
+      });
+    }
+    
+    return Room.aggregate(query);
   },
 
   deleteContact: function(userId, contactId) {

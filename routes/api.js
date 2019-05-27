@@ -32,7 +32,6 @@ router.get('/my-contact-request-number', auth.jwtMiddleware, users.totalContactR
 router.post('/reject-contact', auth.jwtMiddleware, users.rejectContact);
 router.post('/accept-contact', auth.jwtMiddleware, users.acceptContact);
 router.get('/contacts', auth.jwtMiddleware, users.listContacts);
-router.get('/contacts-number', auth.jwtMiddleware, users.totalContact);
 router.delete('/delete-contact', auth.jwtMiddleware, users.deleteContact);
 
 router.get('/members/rooms', [auth.jwtMiddleware, roomAuthorization.showMember], roomsController.getMemberOfRoom);

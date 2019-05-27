@@ -12,16 +12,12 @@ export function rejectContact(contactIds) {
   return new Http().authenticated().post('/reject-contact', contactIds);
 }
 
-export function getListContacts(page) {
-  return new Http().authenticated().get(`/contacts?page=${page}`);
+export function getListContacts(page, searchText = '') {
+  return new Http().authenticated().get(`/contacts?searchText=${searchText}&page=${page}`);
 }
 
 export function getLimitListContacts(limit) {
   return new Http().authenticated().get(`/contacts?limit=${limit}`);
-}
-
-export function getContactCount() {
-  return new Http().authenticated().get('/contacts-number');
 }
 
 export function acceptContact(contactIds) {

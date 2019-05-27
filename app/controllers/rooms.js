@@ -34,7 +34,7 @@ exports.index = async function(req, res) {
   let { _id } = req.decoded;
   const page = (req.query.page > 0 ? req.query.page : 1) - 1;
   const filter_type = req.query.filter_type >= 0 ? req.query.filter_type : 0;
-  const limit = config.LIMIT_ITEM_SHOW;
+  const limit = config.LIMIT_ITEM_SHOW.ROOM;
   const options = {
     userId: _id,
     filter_type: filter_type,
@@ -98,8 +98,6 @@ exports.getMemberOfRoom = async function(req, res) {
 exports.deleteRoom = async function(req, res) {
   const { _id } = req.decoded;
   const { roomId } = req.body;
-
-  console.log(roomId)
 
   try {
     const result = await Room.deleteRoom(_id, roomId);

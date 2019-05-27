@@ -312,7 +312,7 @@ exports.apiLogin = async(function*(req, res) {
 exports.contactRequest = async(function*(req, res) {
   let { _id } = req.decoded;
   const page = (req.query.page > 0 ? req.query.page : 1) - 1;
-  const limit = config.LIMIT_ITEM_SHOW;
+  const limit = config.LIMIT_ITEM_SHOW.REQUEST_CONTACT;
   const options = {
     limit: limit,
     page: page,
@@ -559,51 +559,33 @@ exports.acceptContact = async(function*(req, res) {
 
 exports.listContacts = async(function*(req, res) {
   const { _id } = req.decoded;
-  let options = {};
+  const page = (req.query.page > 0 ? req.query.page : 1) - 1;
+  const searchText = req.query.searchText.trim().replace(/\s+/g, ' ');
+  const getListFlag = true;
 
-  if (req.query.limit) {
-    options = {
-      userId: _id,
-      limit: parseInt(req.query.limit),
-    };
-  } else {
-    const page = (req.query.page > 0 ? req.query.page : 1) - 1;
-    const limit = config.LIMIT_ITEM_SHOW;
-    options = {
-      userId: _id,
-      limit: limit,
-      page: page,
-    };
-  }
+  const limit = config.LIMIT_ITEM_SHOW.CONTACT;
+  const options = {
+    userId: _id,
+    limit,
+    page,
+    searchText,
+  };
 
   try {
-    const contacts = yield User.getListContacts(options);
+    const contacts = yield User.getListContacts(options, getListFlag);
+    const totalContact = yield User.getListContacts(options);
 
-    if (!contacts) {
-      throw new Error(__('contact.list.failed'));
+    if (totalContact.length === 0) {
+      totalContact.push({ number_of_contacts: 0 });
     }
 
     return res.status(200).json({
+      totalContact: totalContact[0].number_of_contacts,
       result: contacts,
     });
   } catch (err) {
     return res.status(500).json({
       error: __('contact.list.failed'),
-    });
-  }
-});
-
-exports.totalContact = async(function*(req, res) {
-  const { _id } = req.decoded;
-  try {
-    const numberOfContacts = yield User.getContactCount(_id);
-
-    return res.status(200).json({
-      result: numberOfContacts,
-    });
-  } catch (err) {
-    return res.status(500).json({
-      error: __('contact.total.failed'),
     });
   }
 });

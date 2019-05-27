@@ -3,8 +3,8 @@ import { withNamespaces } from 'react-i18next';
 import { withRouter } from 'react-router';
 import 'antd/dist/antd.css';
 import InfiniteScroll from 'react-infinite-scroller';
-import { List, Avatar, Button, message, Spin, Alert } from 'antd';
-import { getListContacts, getContactCount, deleteContact } from '../../../api/contact';
+import { List, Avatar, Button, message, Spin, Alert, Input } from 'antd';
+import { getListContacts, deleteContact } from '../../../api/contact';
 
 class ListContacts extends Component {
   state = {
@@ -14,20 +14,27 @@ class ListContacts extends Component {
     hasMore: true,
     page: 1,
     totalContact: 0,
+    searchText: '',
   };
 
-  fetchData = page => {
-    getListContacts(page)
+  fetchData = (page, searchText) => {
+    getListContacts(page, searchText)
       .then(res => {
         const { contacts } = this.state;
         res.data.result.map(item => {
           contacts.push(item);
         });
         this.setState({
-          contacts: contacts,
-          page: page,
+          contacts,
+          page,
           loading: false,
+          searchText,
         });
+        if (res.data.totalContact.length !== 0) {
+          this.setState({
+            totalContact: res.data.totalContact,
+          });
+        }
       })
       .catch(error => {
         this.setState({
@@ -37,25 +44,13 @@ class ListContacts extends Component {
   };
 
   componentDidMount() {
-    const { page } = this.state;
-    this.fetchData(page);
-
-    getContactCount()
-      .then(res => {
-        this.setState({
-          totalContact: res.data.result,
-        });
-      })
-      .catch(error => {
-        this.setState({
-          error: error.response.data.error,
-        });
-      });
+    const { page, searchText } = this.state;
+    this.fetchData(page, searchText);
   }
 
   handleInfiniteOnLoad = () => {
     const { t } = this.props;
-    let { page, contacts, totalContact } = this.state;
+    let { page, contacts, totalContact, searchText } = this.state;
     const newPage = parseInt(page) + 1;
     this.setState({
       loading: true,
@@ -70,7 +65,7 @@ class ListContacts extends Component {
       return;
     }
 
-    this.fetchData(newPage);
+    this.fetchData(newPage, searchText);
   };
 
   setAvatar(avatar) {
@@ -86,7 +81,7 @@ class ListContacts extends Component {
     deleteContact({ contactId })
       .then(res => {
         this.setState(prevState => ({
-          contacts: prevState.contacts.filter(item => item.members[0].user._id != contactId),
+          contacts: prevState.contacts.filter(item => item._id != contactId),
           totalContact: prevState.totalContact - 1,
         }));
         message.success(res.data.success);
@@ -96,15 +91,35 @@ class ListContacts extends Component {
       });
   };
 
+  handleSearch(searchText) {
+    let page = 1;
+
+    this.setState({
+      contacts: [],
+      page,
+      loading: true,
+      hasMore: true,
+    });
+
+    this.fetchData(page, searchText);
+  }
+
   render() {
     const { t } = this.props;
     const { error } = this.state;
+    const Search = Input.Search;
 
     return (
       <React.Fragment>
         <h2 className="title-contact">
           {t('contact:list_contact.title_list_contact')} ({this.state.totalContact})
         </h2>
+        <Search
+          placeholder="input search text"
+          enterButton="Search"
+          size="large"
+          onSearch={searchText => this.handleSearch(searchText)}
+        />
         {this.state.contacts.length > 0 ? (
           <div>
             {error && <Alert message={t('user:error_title')} type="error" description={error} />}
@@ -121,13 +136,13 @@ class ListContacts extends Component {
                   renderItem={item => (
                     <List.Item key={item._id}>
                       <List.Item.Meta
-                        avatar={this.setAvatar(item.members[0].user.avatar)}
-                        title={<a href="https://ant.design">{item.members[0].user.name}</a>}
-                        description={item.members[0].user.email}
+                        avatar={this.setAvatar(item.avatar)}
+                        title={<a href="#">{item.name}</a>}
+                        description={item.email}
                       />
                       <Button.Group className="btn-accept">
                         <Button type="primary">{t('contact:list_contact.btn_send_message')}</Button>
-                        <Button value={item.members[0].user._id} onClick={this.handleDeteleContact}>
+                        <Button value={item._id} onClick={this.handleDeteleContact}>
                           {t('button.delete')}
                         </Button>
                       </Button.Group>
