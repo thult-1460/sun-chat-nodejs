@@ -32,7 +32,7 @@ exports.getQuantityRoomsByUserId = async function(req, res) {
   const filter_type = req.query.filter_type >= 0 ? req.query.filter_type : 0;
   const data = await Room.getQuantityRoomsByUserId({ _id, filter_type });
 
-  res.json({ result: data[0].result });
+  res.json(data.length ? { result: 0 } : data[0]);
 };
 
 exports.getMemberOfRoom = async function(req, res) {

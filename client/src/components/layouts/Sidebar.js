@@ -1,5 +1,5 @@
 import React from 'react';
-import { Layout, Icon, Menu, Avatar, message, Typography, Dropdown } from 'antd';
+import { Layout, Icon, Menu, Avatar, message, Typography, Dropdown, List } from 'antd';
 import InfiniteScroll from 'react-infinite-scroller';
 import { checkExpiredToken } from './../../helpers/common';
 import { getListRoomsByUser, getQuantityRoomsByUserId } from './../../api/room';
@@ -32,7 +32,7 @@ class Sidebar extends React.Component {
 
   componentDidMount() {
     const { page } = this.state;
-    const filter_type = config.FILTER_TYPE.LIST_ROOM.ALL;
+    const filter_type = config.FILTER_TYPE.LIST_ROOM.ALL.VALUE;
     this.fetchData({ page, filter_type });
 
     getQuantityRoomsByUserId(filter_type).then(res => {
@@ -73,7 +73,7 @@ class Sidebar extends React.Component {
     const { page } = this.state;
     this.fetchData({ page, filter_type });
 
-    getQuantityRoomsByUserId({ type: e.item.props.flag }).then(res => {
+    getQuantityRoomsByUserId(filter_type).then(res => {
       this.setState({
         quantity_chats: res.data.result,
       });
@@ -85,21 +85,22 @@ class Sidebar extends React.Component {
     const { t } = this.props;
     const list_flag = config.FILTER_TYPE.LIST_ROOM;
     const active = 'ant-dropdown-menu-item-selected';
-    let selected_content, condFilter = [];
+    let selected_content,
+      condFilter = [];
 
     for (let index in list_flag) {
       condFilter.push(
         <Menu.Item
-          key={list_flag[index].value}
-          flag={list_flag[index].value}
-          className={this.state.filter_flag === list_flag[index].value ? active : ''}
+          key={list_flag[index].VALUE}
+          flag={list_flag[index].VALUE}
+          className={this.state.filter_flag === list_flag[index].VALUE ? active : ''}
         >
-          {t(list_flag[index].title)}
+          {t(list_flag[index].TITLE)}
         </Menu.Item>
       );
 
-      if (list_flag[index].value == this.state.filter_flag) {
-        selected_content = t(list_flag[index].title);
+      if (list_flag[index].VALUE == this.state.filter_flag) {
+        selected_content = t(list_flag[index].TITLE);
       }
     }
     const cond_filter = <Menu onClick={this.onClick.bind(this.context)}>{condFilter}</Menu>;
@@ -108,15 +109,17 @@ class Sidebar extends React.Component {
       rooms.length > 0 &&
       rooms.map((room, key) => {
         return (
-          <Menu.Item key={key}>
+          <List.Item key={key}>
             <Link to={'/room/' + room._id}>
-              <Avatar src={room.avatar_url} />
-              &nbsp;&nbsp;
-              <span className="nav-text">{room.name}</span>
+              <div className="avatar-name">
+                <Avatar src={room.avatar_url} />
+                &nbsp;&nbsp;
+                <span className="nav-text">{room.name}</span>
+              </div>
               {room.marked && <Icon type="pushpin" />}
               {room.quantity_unread > 0 && <Typography.Text mark>{room.quantity_unread}</Typography.Text>}
             </Link>
-          </Menu.Item>
+          </List.Item>
         );
       });
 

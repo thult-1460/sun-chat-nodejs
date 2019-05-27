@@ -2,24 +2,24 @@ const config = {
   FILTER_TYPE: {
     LIST_ROOM: {
       ALL: {
-        value: '0',
-        title: 'filter.all',
+        VALUE: 0,
+        TITLE: 'filter.all',
       },
       UNREAD: {
-        value: '1',
-        title: 'filter.un_read',
+        VALUE: 1,
+        TITLE: 'filter.un_read',
       },
       PINNED: {
-        value: '2',
-        title: 'filter.pinned',
+        VALUE: 2,
+        TITLE: 'filter.pinned',
       },
       GROUP: {
-        value: '3',
-        title: 'filter.group_chat',
+        VALUE: 3,
+        TITLE: 'filter.group_chat',
       },
       DIRECT: {
-        value: '4',
-        title: 'filter.direct_chat',
+        VALUE: 4,
+        TITLE: 'filter.direct_chat',
       },
     },
   },

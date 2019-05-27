@@ -9,6 +9,7 @@ module.exports = {
   ROOM_TYPE: {
     GROUP_CHAT: 0,
     DIRECT_CHAT: 1,
+    SELF_CHAT: 2,
   },
   INVITATION_TYPE: {
     NOT_NEED_APPROVAL: 0,
