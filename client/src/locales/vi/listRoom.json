@@ -10,5 +10,9 @@
     "pinned": "Box đã ghim",
     "group_chat": "Nhóm chat",
     "direct_chat": "Liên hệ riêng"
+  },
+  "button": {
+    "delete-room": "Xóa cuộc trò chuyện",
+    "left-room": "Rời khỏi cuộc trò chuyện"
   }
 }

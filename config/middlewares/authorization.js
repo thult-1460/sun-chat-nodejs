@@ -6,6 +6,7 @@ const Room = mongoose.model('Room');
 const jwt = require('jsonwebtoken');
 const logger = require('./../../app/logger/winston.js');
 const channel = logger.init('error');
+const config = require('../config');
 /*
  *  Generic require login routing middleware
  */
@@ -114,6 +115,33 @@ exports.showMember = async(function*(req, res, next) {
 
     return res.status(403).json({
       error: __('error.403'),
+    });
+  }
+});
+
+// middleware check user is admin of room
+exports.checkAdmin = async(function*(req, res, next) {
+  const { roomId } = req.body;
+  let { _id } = req.decoded;
+
+  try {
+    const room = yield Room.findOne({
+      _id: roomId,
+      members: { $elemMatch: { user: _id, role: config.MEMBER_ROLE.ADMIN } },
+    }).exec();
+
+    if (room === null) {
+      return res.status(403).json({
+        error: __('room.not_admin'),
+      });
+    }
+
+    next();
+  } catch (err) {
+    channel.error(err.toString());
+
+    return res.status(403).json({
+      error: __('room.not_admin'),
     });
   }
 });

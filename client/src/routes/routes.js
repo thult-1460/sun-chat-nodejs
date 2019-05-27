@@ -9,6 +9,7 @@ import ChangePassword from '../pages/auth/changePassword';
 import ForgotPassword from '../pages/auth/forgotpassword.js';
 import ResetPassword from '../pages/auth/resetpassword.js';
 import ListContacts from '../components/modals/contact/ListContacts';
+import RoomDetail from '../components/room/RoomDetail';
 
 const routes = [
   {
@@ -46,6 +47,12 @@ const routes = [
     exact: true,
     auth: true,
     component: ListContactRequest,
+  },
+  {
+    path: '/room/:id',
+    exact: true,
+    auth: true,
+    component: RoomDetail,
   },
   {
     path: '/contacts',

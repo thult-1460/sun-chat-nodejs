@@ -51,5 +51,6 @@ router.post('/update/user', auth.jwtMiddleware, usersValidate.validate('update')
 //Rooms
 router.get('/rooms/index', auth.jwtMiddleware, rooms.index);
 router.get('/rooms/get-total-rooms-by-user', auth.jwtMiddleware, rooms.getQuantityRoomsByUserId);
+router.delete('/delete-room', [auth.jwtMiddleware, roomAuthorization.checkAdmin], rooms.deleteRoom);
 
 module.exports = router;

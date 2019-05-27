@@ -81,6 +81,13 @@
     "delete_contact": {
       "success": "Xóa bạn bè thanh công",
       "failed": "Xóa bạn bè thất bại"
+    },
+    "room": {
+      "delete_room": {
+        "success": "Xóa cuộc trò truyện thành công",
+        "failed": "Xóa cuộc trò chuyện thất bại"
+      },
+      "not_admin": "Bạn không phải là admin. Vì vậy bạn không thể xóa cuộc trò chuyện này "
     }
   },
   "error": {

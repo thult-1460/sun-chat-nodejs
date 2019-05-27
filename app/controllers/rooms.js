@@ -75,3 +75,19 @@ exports.getMemberOfRoom = async function(req, res) {
     });
   }
 };
+
+exports.deleteRoom = async function(req, res) {
+  const { _id } = req.decoded;
+  const { roomId } = req.body;
+
+  try {
+    const result = await Room.deleteRoom(_id, roomId);
+
+    if (!result) throw new Error(__('room.delete_room.failed'));
+
+    return res.status(200).json({ success: __('room.delete_room.success') });
+  } catch (err) {
+    channel.error(err.toString());
+    res.status(500).json({ error: __('room.delete_room.failed') });
+  }
+};

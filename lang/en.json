@@ -85,5 +85,12 @@
   },
   "error": {
     "403": "Forbidden error"
+  },
+  "room": {
+    "delete_room": {
+      "success": "Delete room successfully",
+      "failed": "Delete room failed"
+    },
+    "not_admin": "You are not  an admin. So you can't delete room."
   }
 }

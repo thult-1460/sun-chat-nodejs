@@ -1,0 +1,33 @@
+.sidebar-chat.ant-layout-sider {
+  color: #fff;
+  line-height: 120px;
+  float: right;
+  background-color: #e6e6e6;
+  min-width: 406px !important;
+}
+.icon-setting-room {
+  color: black;
+  font-size: 17px;
+  float: right;
+  padding-top: 20px;
+  padding-right: 20px;
+}
+.chat-room {
+  background-color: white;
+  margin: '24px 16px 0';
+  overflow: 'initial';
+}
+.ant-dropdown-menu.menu-detail-room {
+  background-color: white;
+  margin-top: 0px;
+  margin-left: -92px;
+  min-width: 0;
+}
+.ant-dropdown-menu.menu-detail-room > li {
+  background-color: white;
+}
+.ant-dropdown-menu-item.item-setting > button {
+  display: block;
+  text-align: center;
+  border: none;
+}

@@ -326,6 +326,17 @@ RoomSchema.statics = {
       },
     ]);
   },
+
+  deleteRoom: function(userId, roomId) {
+    return this.findOneAndUpdate(
+      {
+        _id: roomId,
+        deletedAt: null,
+        members: { $elemMatch: { user: userId, role: config.MEMBER_ROLE.ADMIN } },
+      },
+      { $set: { deletedAt: Date.now() } }
+    ).exec();
+  },
 };
 
 module.exports = mongoose.model('Room', RoomSchema);
