@@ -67,6 +67,12 @@ const RoomSchema = new Schema(
     messages: [Messages],
     tasks: [Tasks],
     files: [Files],
+    incoming_requests: [
+      {
+        type: Schema.ObjectId,
+        ref: 'User',
+      },
+    ],
     deletedAt: { type: Date, default: null },
   },
   {
@@ -304,9 +310,9 @@ RoomSchema.statics = {
     return this.aggregate(query).exec();
   },
 
-  getMembersOfRoom($roomId) {
+  getMembersOfRoom(roomId) {
     return this.aggregate([
-      { $match: { _id: mongoose.Types.ObjectId($roomId) } },
+      { $match: { _id: mongoose.Types.ObjectId(roomId) } },
       { $unwind: '$members' },
       { $match: { 'members.deletedAt': null } },
       {
@@ -345,6 +351,40 @@ RoomSchema.statics = {
       },
       { $set: { deletedAt: Date.now() } }
     ).exec();
+  },
+
+  getRoomInfoToInvitate(invitationCode) {
+    return this.findOne({ invitation_code: invitationCode }, 'name avatar_url');
+  },
+
+  addJoinRequest(roomId, userId) {
+    return this.updateOne(
+      {
+        _id: roomId,
+      },
+      {
+        $push: { incoming_requests: userId },
+      }
+    );
+  },
+
+  addNewMemberToRoom(roomId, userId) {
+    let memberObject = {
+      deletedAt: null,
+      role: config.MEMBER_ROLE.MEMBER,
+      marked: false,
+      user: userId,
+      last_message_id: null,
+    };
+
+    return this.updateOne(
+      {
+        _id: roomId,
+      },
+      {
+        $push: { members: memberObject },
+      }
+    );
   },
 };
 

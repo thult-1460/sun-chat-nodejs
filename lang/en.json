@@ -89,7 +89,8 @@
     }
   },
   "error": {
-    "403": "Forbidden error"
+    "403": "Forbidden error",
+    "404": "Not found"
   },
   "room": {
     "create": {
@@ -107,6 +108,14 @@
       "success": "Delete room successfully",
       "failed": "Delete room failed"
     },
-    "not_admin": "You are not  an admin. So you can't delete room."
+    "not_admin": "You are not  an admin. So you can't delete room.",
+    "for_invatation": {
+      "get_error": "The group chat doesn't exist, or set as private.",
+      "join_request": "Your request have just send, please waiting the approved from administrator",
+      "in_room": "You are in room",
+      "join_success": "You joined this room",
+      "requested": "You requested this room",
+      "cant_join": "You can't join this room"
+    }
   }
 }

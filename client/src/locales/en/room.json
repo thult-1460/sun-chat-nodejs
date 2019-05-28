@@ -19,5 +19,11 @@
   "button": {
     "cancel": "Cancel",
     "submit": "Create"
+  },
+  "join": "Join",
+  "joined": "You are in this room",
+  "invitation": {
+    "have_request_before": "You requested this room",
+    "cant_join": "You can't join this room"
   }
 }

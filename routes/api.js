@@ -57,5 +57,13 @@ router.get('/rooms/index', auth.jwtMiddleware, roomsController.index);
 router.get('/rooms/get-total-rooms-by-user', auth.jwtMiddleware, roomsController.getQuantityRoomsByUserId);
 router.post('/create-room', auth.jwtMiddleware, roomsValidate.validate('create'), roomsController.createRoom);
 router.delete('/delete-room', [auth.jwtMiddleware, roomAuthorization.checkAdmin], roomsController.deleteRoom);
+router.get('/rooms/index', auth.jwtMiddleware, roomsController.index);
+router.get('/rooms/get-total-rooms-by-user', auth.jwtMiddleware, roomsController.getQuantityRoomsByUserId);
+router.get(
+  '/r/:invitation_code',
+  [auth.jwtMiddleware, roomAuthorization.checkMemberCanJoinRoom],
+  roomsController.getRoomInfoFromInvitionCode
+);
+router.post('/rooms/request/add', auth.jwtMiddleware, roomsController.createJoinRequest);
 
 module.exports = router;

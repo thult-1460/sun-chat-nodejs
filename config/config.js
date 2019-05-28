@@ -20,6 +20,12 @@ module.exports = {
     NEED_APPROVAL: 1,
     CANNOT_REQUEST: 2,
   },
+  INVITATION_STATUS: {
+    IN_ROOM: 700,
+    JOIN_AS_MEMBER: 701,
+    HAVE_REQUEST_BEFORE: 702,
+    CANT_JOIN: 703,
+  },
   FILTER_TYPE: {
     LIST_ROOM: {
       ALL: 0,
