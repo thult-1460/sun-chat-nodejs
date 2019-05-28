@@ -27,3 +27,7 @@ export function sendRequestJoinRoom(data) {
 export function getMembersOfRoom(roomId) {
   return new Http().authenticated().get(`/rooms/members?roomId=${roomId}`);
 }
+
+export function deleteMember(data) {
+  return new Http().authenticated().delete('/delete-member', data);
+}

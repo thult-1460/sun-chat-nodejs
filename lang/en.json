@@ -117,6 +117,11 @@
       "join_success": "You joined this room",
       "requested": "You requested this room",
       "cant_join": "You can't join this room"
-    }
+    },
+    "delete_member": {
+      "success": "Delete member successfully",
+      "failed": "Delete member failed"
+    },
+    "not_admin": "You are not  an admin. So you can't delete room."
   }
 }

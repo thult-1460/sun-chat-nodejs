@@ -11,5 +11,10 @@
     "member": "Member",
     "readonly": "Readonly"
   },
-  "save": "Save"
+  "save": "Save",
+  "delete_member": {
+    "question_confirm": "Are you sure delete {{name}} from the conversation?",
+    "yes": "Yes",
+    "no": "No"
+  }
 }

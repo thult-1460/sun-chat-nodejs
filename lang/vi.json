@@ -117,6 +117,11 @@
       "join_success": "Bạn đã gửi yêu cầu vào phòng thành công",
       "requested": "Bạn đã gửi yêu cầu trước đó",
       "cant_join": "Không thể gửi yêu cầu vào phòng này"
-    }
+    },
+    "delete_member": {
+      "success": "Xóa thành viên thành công",
+      "failed": "Xóa thành viên thất bại"
+    },
+    "not_admin": "Bạn không phải là admin. Vì vậy bạn không thể xóa cuộc trò chuyện này "
   }
 }

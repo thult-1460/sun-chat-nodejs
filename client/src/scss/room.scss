@@ -40,3 +40,13 @@
   padding-top: 15px;
   margin-bottom: 80%;
 }
+.delete-member {
+  padding: 0;
+  border: none;
+  &:hover {
+    color: red;
+  }
+  i {
+    padding: 10px;
+  }
+}

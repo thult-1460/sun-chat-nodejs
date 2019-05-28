@@ -1,6 +1,6 @@
 import React from 'react';
-import { Avatar, Tabs, Button, Input } from 'antd';
-import { getMembersOfRoom } from './../../api/room.js';
+import { Avatar, Tabs, Button, Input, message } from 'antd';
+import { getMembersOfRoom, deleteMember } from './../../api/room';
 import { withNamespaces } from 'react-i18next';
 import { withRouter } from 'react-router';
 import AdminRoleMemberList from './../../components/member/AdminRoleMemberList';
@@ -47,6 +47,22 @@ class ListMember extends React.Component {
     });
   };
 
+  handleDeleteMember = memberId => {
+    const { searchMembers } = this.state;
+    const data = { memberId: memberId, roomId: this.props.match.params.id };
+
+    deleteMember(data)
+      .then(res => {
+        this.setState(prevState => ({
+          searchMembers: prevState.searchMembers.filter(member => member._id != memberId),
+        }));
+        message.success(res.data.success);
+      })
+      .catch(error => {
+        message.error(error.response.data.error);
+      });
+  };
+
   render() {
     const { searchMembers, members, isAdmin } = this.state;
     const { t } = this.props;
@@ -66,7 +82,9 @@ class ListMember extends React.Component {
     });
     return (
       <div>
-        <h2 className="title-contact">{t('list.title')}</h2>
+        <h2 className="title-contact">
+          {t('list.title')} {this.state.name}
+        </h2>
         <Tabs type="card">
           <TabPane tab={t('member')} key="1">
             <OtherRoleMemberList adminRows={adminRows} memberRows={memberRows} readOnlyRows={readOnlyRows} />
@@ -74,7 +92,7 @@ class ListMember extends React.Component {
           {isAdmin && (
             <TabPane tab={t('action.edit_role')} key="2">
               <Input placeholder="Search" onChange={this.handleSearchMember} />
-              <AdminRoleMemberList members={searchMembers} />
+              <AdminRoleMemberList members={searchMembers} onDeleteRow={this.handleDeleteMember} />
               <div className="contact-check-all">
                 <Button.Group className="btn-all-accept">
                   <Button type="primary">{t('save')}</Button>
