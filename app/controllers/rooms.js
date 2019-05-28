@@ -151,16 +151,14 @@ exports.createRoom = async (req, res) => {
     });
 };
 
-exports.getRoomInfoFromInvitionCode = async function(req, res) {
+exports.checkInvitationCode = async function(req, res) {
   let { invitation_code } = req.params;
 
   try {
-    const room = await Room.getRoomInfoToInvitate(invitation_code);
+    const room = await Room.getRoomInfoByInvitateCode(invitation_code);
 
     if (room === null) {
-      return res.status(404).json({
-        error: __('room.for_invatation.get_error'),
-      });
+      throw new Error(__('error.404'));
     }
 
     return res.status(200).json({
@@ -169,8 +167,8 @@ exports.getRoomInfoFromInvitionCode = async function(req, res) {
   } catch (err) {
     channel.error(err.toString());
 
-    res.status(404).json({
-      error: __('room.for_invatation.get_error'),
+    res.status(500).json({
+      error: __('room.invitation.get_error'),
     });
   }
 };
@@ -193,23 +191,24 @@ exports.createJoinRequest = async function(req, res) {
     if (room.invitation_type == config.INVITATION_TYPE.CANNOT_REQUEST) {
       return res.status(200).json({
         status: config.INVITATION_STATUS.CANT_JOIN,
-        message: __('room.for_invatation.cant_join'),
+        message: __('room.invitation.cant_join'),
       });
     } else if (room.invitation_type == config.INVITATION_TYPE.NEED_APPROVAL) {
       await Room.addJoinRequest(roomId, userId);
 
       return res.status(200).json({
-        status: config.INVITATION_TYPE.NEED_APPROVAL,
-        message: __('room.for_invatation.join_request'),
-      });
-    } else {
-      await Room.addNewMemberToRoom(roomId, userId);
-
-      return res.status(200).json({
-        status: config.INVITATION_STATUS.JOIN_AS_MEMBER,
-        message: __('room.for_invatation.join_success'),
+        status: config.INVITATION_STATUS.WAITING_APPROVE,
+        message: __('room.invitation.join_request'),
       });
     }
+
+    const lastMsgId = room.messages[room.messages.length - 1]._id;
+    await Room.addNewMember(roomId, userId, lastMsgId);
+
+    return res.status(200).json({
+      status: config.INVITATION_STATUS.JOIN_AS_MEMBER,
+      message: __('room.invitation.join_success'),
+    });
   } catch (err) {
     channel.error(err.toString());
 

@@ -109,7 +109,7 @@
       "failed": "Delete room failed"
     },
     "not_admin": "You are not  an admin. So you can't delete room.",
-    "for_invatation": {
+    "invitation": {
       "get_error": "The group chat doesn't exist, or set as private.",
       "join_request": "Your request have just send, please waiting the approved from administrator",
       "in_room": "You are in room",

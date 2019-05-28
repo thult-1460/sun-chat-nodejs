@@ -3,7 +3,7 @@ import Login from '../pages/auth/login';
 import NotFound from '../pages/404/index';
 import Profile from '../pages/setting/profile';
 import Register from '../pages/auth/register';
-import JoinInvation from '../pages/rooms/JoinInvation';
+import JoinInvitation from '../pages/rooms/JoinInvitation';
 import ListContactRequest from '../components/modals/contact/ListContactRequest';
 import ConfirmEmail from '../pages/auth/ConfirmEmail';
 import ChangePassword from '../pages/auth/changePassword';
@@ -72,7 +72,7 @@ const routes = [
     path: '/r/:invitation_code',
     exact: true,
     auth: true,
-    component: JoinInvation,
+    component: JoinInvitation,
   },
   {
     path: '/forgot-password',

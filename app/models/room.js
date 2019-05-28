@@ -353,7 +353,7 @@ RoomSchema.statics = {
     ).exec();
   },
 
-  getRoomInfoToInvitate(invitationCode) {
+  getRoomInfoByInvitateCode(invitationCode) {
     return this.findOne({ invitation_code: invitationCode }, 'name avatar_url');
   },
 
@@ -368,13 +368,13 @@ RoomSchema.statics = {
     );
   },
 
-  addNewMemberToRoom(roomId, userId) {
+  addNewMember(roomId, userId, lastMsgId) {
     let memberObject = {
       deletedAt: null,
       role: config.MEMBER_ROLE.MEMBER,
       marked: false,
       user: userId,
-      last_message_id: null,
+      last_message_id: lastMsgId,
     };
 
     return this.updateOne(

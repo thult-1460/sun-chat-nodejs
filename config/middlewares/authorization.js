@@ -171,14 +171,15 @@ exports.checkMemberCanJoinRoom = async(function*(req, res, next) {
     if (roomCheckMember !== null) {
       return res.status(200).json({
         status: config.INVITATION_STATUS.IN_ROOM,
-        message: __('room.for_invatation.in_room'),
+        message: __('room.invitation.in_room'),
+        room_id: roomCheckMember._id,
       });
     }
 
     if (roomCheckRequest.length > 0) {
       return res.status(200).json({
         status: config.INVITATION_STATUS.HAVE_REQUEST_BEFORE,
-        message: __('room.for_invatation.requested'),
+        message: __('room.invitation.requested'),
       });
     }
 

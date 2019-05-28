@@ -1,11 +1,11 @@
 import React from 'react';
-import { getInfoRoomWithInvitionCode, sendJoinRoomRequest } from './../../api/room.js';
+import { getInfoRoomWithInvitionCode, sendRequestJoinRoom } from './../../api/room.js';
 import { Avatar, Button, Row, Col, Alert } from 'antd';
 import { withNamespaces } from 'react-i18next';
 import { withRouter } from 'react-router';
 import { INVATATION_STATUS } from './../../config/room.js';
 
-class JoinInvation extends React.Component {
+class JoinInvitation extends React.Component {
   state = {
     room: {},
     isSendRequest: false,
@@ -20,11 +20,11 @@ class JoinInvation extends React.Component {
       roomId: roomId,
     };
 
-    sendJoinRoomRequest(data)
+    sendRequestJoinRoom(data)
       .then(res => {
         let { status } = res.data;
 
-        if (status == INVATATION_STATUS.cant_join) {
+        if (status == INVATATION_STATUS.CANT_JOIN) {
           this.setState({
             error: t('invitation.cant_join'),
           });
@@ -48,17 +48,14 @@ class JoinInvation extends React.Component {
 
     getInfoRoomWithInvitionCode(invitation_code)
       .then(res => {
-        let { status } = res.data;
+        let { status, room_id } = res.data;
 
         switch (status) {
-          case INVATATION_STATUS.in_room:
-            this.setState({
-              isSendRequest: true,
-              message: t('joined'),
-            });
+          case INVATATION_STATUS.IN_ROOM:
+            window.location.href = `/room/${room_id}`;
 
             break;
-          case INVATATION_STATUS.have_request_before:
+          case INVATATION_STATUS.HAVE_REQUEST_BEFORE:
             this.setState({
               isSendRequest: true,
               message: t('invitation.have_request_before'),
@@ -66,10 +63,10 @@ class JoinInvation extends React.Component {
 
             break;
           default:
-            let roomInfo = res.data.room;
+            const { room } = res.data;
 
             this.setState({
-              room: roomInfo,
+              room: room,
             });
 
             break;
@@ -101,7 +98,7 @@ class JoinInvation extends React.Component {
                 <span> {name} </span>
                 <div className="btn-join-room">
                   <Button type="primary" onClick={this.handleJoinRoomRequest}>
-                    {t('join')}
+                    {t('button.join')}
                   </Button>
                 </div>
               </div>
@@ -113,4 +110,4 @@ class JoinInvation extends React.Component {
   }
 }
 
-export default withNamespaces(['room'])(withRouter(JoinInvation));
+export default withNamespaces(['room'])(withRouter(JoinInvitation));
