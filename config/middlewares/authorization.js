@@ -113,8 +113,8 @@ exports.showMember = async(function*(req, res, next) {
   } catch (err) {
     channel.error(err.toString());
 
-    return res.status(403).json({
-      error: __('error.403'),
+    return res.status(500).json({
+      error: __('error.common'),
     });
   }
 });
@@ -140,8 +140,55 @@ exports.checkAdmin = async(function*(req, res, next) {
   } catch (err) {
     channel.error(err.toString());
 
-    return res.status(403).json({
-      error: __('room.not_admin'),
+    return res.status(500).json({
+      error: __('error.common'),
+    });
+  }
+});
+
+exports.checkMemberCanJoinRoom = async(function*(req, res, next) {
+  let { invitation_code } = req.params;
+  let { _id } = req.decoded;
+
+  try {
+    let result = [];
+    const roomCheckMember = yield Room.findOne(
+      {
+        $and: [{ invitation_code: invitation_code }, { members: { $elemMatch: { user: _id, deletedAt: null } } }],
+      },
+      { members: 1 }
+    );
+
+    const roomCheckRequest = yield Room.aggregate([
+      {
+        $match: {
+          invitation_code: invitation_code,
+          incoming_requests: { $in: [mongoose.Types.ObjectId(_id)] },
+        },
+      },
+    ]);
+
+    if (roomCheckMember !== null) {
+      return res.status(200).json({
+        status: config.INVITATION_STATUS.IN_ROOM,
+        message: __('room.invitation.in_room'),
+        room_id: roomCheckMember._id,
+      });
+    }
+
+    if (roomCheckRequest.length > 0) {
+      return res.status(200).json({
+        status: config.INVITATION_STATUS.HAVE_REQUEST_BEFORE,
+        message: __('room.invitation.requested'),
+      });
+    }
+
+    next();
+  } catch (err) {
+    channel.error(err.toString());
+
+    return res.status(500).json({
+      error: __('error.common'),
     });
   }
 });

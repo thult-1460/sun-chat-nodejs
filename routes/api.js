@@ -34,7 +34,6 @@ router.post('/accept-contact', auth.jwtMiddleware, users.acceptContact);
 router.get('/contacts', auth.jwtMiddleware, users.listContacts);
 router.delete('/delete-contact', auth.jwtMiddleware, users.deleteContact);
 
-router.get('/members/rooms', [auth.jwtMiddleware, roomAuthorization.showMember], roomsController.getMemberOfRoom);
 router.get('/user-search', auth.jwtMiddleware, contactValidate.validate('addContact'), users.userSearch);
 router.post('/send-request-contact', auth.jwtMiddleware, users.sendRequestContact);
 
@@ -57,5 +56,12 @@ router.get('/rooms/index', auth.jwtMiddleware, roomsController.index);
 router.get('/rooms/get-total-rooms-by-user', auth.jwtMiddleware, roomsController.getQuantityRoomsByUserId);
 router.post('/create-room', auth.jwtMiddleware, roomsValidate.validate('create'), roomsController.createRoom);
 router.delete('/delete-room', [auth.jwtMiddleware, roomAuthorization.checkAdmin], roomsController.deleteRoom);
+router.get(
+  '/r/:invitation_code',
+  [auth.jwtMiddleware, roomAuthorization.checkMemberCanJoinRoom],
+  roomsController.checkInvitationCode
+);
+router.post('/rooms/requests/add', auth.jwtMiddleware, roomsController.createJoinRequest);
+router.get('/rooms/members', [auth.jwtMiddleware, roomAuthorization.showMember], roomsController.getMemberOfRoom);
 
 module.exports = router;

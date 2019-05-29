@@ -5,7 +5,6 @@ import { withNamespaces } from 'react-i18next';
 import { withRouter } from 'react-router';
 import AdminRoleMemberList from './../../components/member/AdminRoleMemberList';
 import OtherRoleMemberList from './../../components/member/OtherRoleMemberList';
-import queryString from 'query-string';
 
 const TabPane = Tabs.TabPane;
 
@@ -18,10 +17,8 @@ class ListMember extends React.Component {
   };
 
   componentDidMount() {
-    const url = this.props.location.search;
     const { t } = this.props;
-    const { rid } = queryString.parse(url);
-    const roomId = rid;
+    const roomId = this.props.match.params.id;
 
     getMembersOfRoom(roomId).then(res => {
       this.setState({

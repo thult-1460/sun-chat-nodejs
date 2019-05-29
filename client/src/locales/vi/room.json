@@ -18,6 +18,12 @@
   },
   "button": {
     "cancel": "Hủy",
-    "submit": "Tạo"
+    "submit": "Tạo",
+    "join": "Tham gia phòng"
+  },
+  "invitation": {
+    "joined": "Bạn đã vào phòng này",
+    "have_request_before": "Bạn đã gửi yêu cầu vào phòng này",
+    "cant_join": "Bạn không thể gửi yêu cầu vào phòng này"
   }
 }

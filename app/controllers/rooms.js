@@ -150,3 +150,73 @@ exports.createRoom = async (req, res) => {
       return res.status(500).json({ error: __('room.create.failed') });
     });
 };
+
+exports.checkInvitationCode = async function(req, res) {
+  let { invitation_code } = req.params;
+
+  try {
+    const room = await Room.getRoomInfoByInvitateCode(invitation_code);
+
+    if (room === null) {
+      throw new Error(__('error.404'));
+    }
+
+    return res.status(200).json({
+      room: room,
+    });
+  } catch (err) {
+    channel.error(err.toString());
+
+    res.status(500).json({
+      error: __('room.invitation.get_error'),
+    });
+  }
+};
+
+exports.createJoinRequest = async function(req, res) {
+  let { _id: userId } = req.decoded;
+  let { roomId } = req.body;
+
+  try {
+    const room = await Room.findOne(
+      {
+        _id: roomId,
+      },
+      { messages: { $slice: -1 }, invitation_type: 1 }
+    );
+
+    if (room === null) {
+      return res.status(404).json({
+        error: __('error.404'),
+      });
+    }
+
+    if (room.invitation_type == config.INVITATION_TYPE.CANNOT_REQUEST) {
+      return res.status(200).json({
+        status: config.INVITATION_STATUS.CANT_JOIN,
+        message: __('room.invitation.cant_join'),
+      });
+    } else if (room.invitation_type == config.INVITATION_TYPE.NEED_APPROVAL) {
+      await Room.addJoinRequest(roomId, userId);
+
+      return res.status(200).json({
+        status: config.INVITATION_STATUS.WAITING_APPROVE,
+        message: __('room.invitation.join_request'),
+      });
+    }
+
+    const lastMsgId = room.messages[0]._id;
+    await Room.addNewMember(roomId, userId, lastMsgId);
+
+    return res.status(200).json({
+      status: config.INVITATION_STATUS.JOIN_AS_MEMBER,
+      message: __('room.invitation.join_success'),
+    });
+  } catch (err) {
+    channel.error(err.toString());
+
+    return res.status(500).json({
+      error: err.toString(),
+    });
+  }
+};

@@ -89,7 +89,9 @@
     }
   },
   "error": {
-    "403": "Bạn không có quyền thực hiện hành động này"
+    "403": "Bạn không có quyền thực hiện hành động này",
+    "404": "Dữ liệu không tồn tại",
+    "common": "Đã xảy ra lỗi "
   },
   "room": {
     "create": {
@@ -107,6 +109,14 @@
       "success": "Xóa cuộc trò truyện thành công",
       "failed": "Xóa cuộc trò chuyện thất bại"
     },
-    "not_admin": "Bạn không phải là admin. Vì vậy bạn không thể xóa cuộc trò chuyện này "
+    "not_admin": "Bạn không phải là admin. Vì vậy bạn không thể xóa cuộc trò chuyện này ",
+    "invitation": {
+      "get_error": "Nhóm trò chuyện không tồn tại hoặc được cài đặt bí mật",
+      "join_request": "Yêu cầu của bạn đã được gửi, làm ơn hãy chờ sự phê duyệt từ người quản trị viên",
+      "in_room": "Bạn đã ở trong phòng này",
+      "join_success": "Bạn đã gửi yêu cầu vào phòng thành công",
+      "requested": "Bạn đã gửi yêu cầu trước đó",
+      "cant_join": "Không thể gửi yêu cầu vào phòng này"
+    }
   }
 }
