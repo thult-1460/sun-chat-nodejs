@@ -90,7 +90,8 @@
   },
   "error": {
     "403": "Forbidden error",
-    "404": "Not found"
+    "404": "Not found",
+    "common": "Something went wrong"
   },
   "room": {
     "create": {

@@ -380,6 +380,7 @@ RoomSchema.statics = {
     return this.updateOne(
       {
         _id: roomId,
+        deletedAt: null,
       },
       {
         $push: { members: memberObject },

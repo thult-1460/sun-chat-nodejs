@@ -113,8 +113,8 @@ exports.showMember = async(function*(req, res, next) {
   } catch (err) {
     channel.error(err.toString());
 
-    return res.status(403).json({
-      error: __('error.403'),
+    return res.status(500).json({
+      error: __('error.common'),
     });
   }
 });
@@ -140,8 +140,8 @@ exports.checkAdmin = async(function*(req, res, next) {
   } catch (err) {
     channel.error(err.toString());
 
-    return res.status(403).json({
-      error: __('room.not_admin'),
+    return res.status(500).json({
+      error: __('error.common'),
     });
   }
 });
@@ -187,8 +187,8 @@ exports.checkMemberCanJoinRoom = async(function*(req, res, next) {
   } catch (err) {
     channel.error(err.toString());
 
-    return res.status(403).json({
-      error: __('error.403'),
+    return res.status(500).json({
+      error: __('error.common'),
     });
   }
 });

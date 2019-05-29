@@ -90,7 +90,8 @@
   },
   "error": {
     "403": "Bạn không có quyền thực hiện hành động này",
-    "404": "Dữ liệu không tồn tại"
+    "404": "Dữ liệu không tồn tại",
+    "common": "Đã xảy ra lỗi "
   },
   "room": {
     "create": {

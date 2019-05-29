@@ -178,9 +178,12 @@ exports.createJoinRequest = async function(req, res) {
   let { roomId } = req.body;
 
   try {
-    const room = await Room.findOne({
-      _id: roomId,
-    });
+    const room = await Room.findOne(
+      {
+        _id: roomId,
+      },
+      { messages: { $slice: -1 }, invitation_type: 1 }
+    );
 
     if (room === null) {
       return res.status(404).json({
@@ -202,7 +205,7 @@ exports.createJoinRequest = async function(req, res) {
       });
     }
 
-    const lastMsgId = room.messages[room.messages.length - 1]._id;
+    const lastMsgId = room.messages[0]._id;
     await Room.addNewMember(roomId, userId, lastMsgId);
 
     return res.status(200).json({
