@@ -63,6 +63,10 @@ router.get(
 );
 router.post('/rooms/requests/add', auth.jwtMiddleware, roomsController.createJoinRequest);
 router.get('/rooms/members', [auth.jwtMiddleware, roomAuthorization.showMember], roomsController.getMemberOfRoom);
-router.delete('/delete-member', [auth.jwtMiddleware, roomAuthorization.checkAdmin], roomsController.deleteMember);
+router.delete(
+  '/rooms/delete-member',
+  [auth.jwtMiddleware, roomAuthorization.checkAdmin, roomAuthorization.checkDeleteAdmin],
+  roomsController.deleteMember
+);
 
 module.exports = router;

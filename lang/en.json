@@ -120,7 +120,8 @@
     },
     "delete_member": {
       "success": "Delete member successfully",
-      "failed": "Delete member failed"
+      "failed": "Delete member failed",
+      "myself": "Can't delete myself"
     },
     "not_admin": "You are not  an admin. So you can't delete room."
   }

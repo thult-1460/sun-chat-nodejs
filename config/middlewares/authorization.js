@@ -192,3 +192,15 @@ exports.checkMemberCanJoinRoom = async(function*(req, res, next) {
     });
   }
 });
+
+exports.checkDeleteAdmin = async(function*(req, res, next) {
+  const { memberId } = req.body;
+  let { _id } = req.decoded;
+
+  if (memberId == _id) {
+    return res.status(403).json({
+      error: __('room.not_admin'),
+    });
+  }
+  next();
+});

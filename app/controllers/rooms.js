@@ -83,6 +83,7 @@ exports.getMemberOfRoom = async function(req, res) {
       results: {
         members: results,
         isAdmin: isAdmin,
+        userId: _id,
       },
     });
   } catch (err) {
@@ -151,7 +152,6 @@ exports.createRoom = async (req, res) => {
     });
 };
 
-<<<<<<< f73d5f0a1882b7edee641d8a5580d9a2796f11c6
 exports.checkInvitationCode = async function(req, res) {
   let { invitation_code } = req.params;
 
@@ -219,11 +219,18 @@ exports.createJoinRequest = async function(req, res) {
     return res.status(500).json({
       error: err.toString(),
     });
-=======
+  }
+};
+
 exports.deleteMember = async (req, res) => {
   const { memberId, roomId } = req.body;
+  const userId = req.decoded._id;
 
   try {
+    if (memberId == userId) {
+      throw new Error(__('room.delete_member.myself'));
+    }
+
     const result = await Room.deleteMember(memberId, roomId);
 
     if (!result) throw new Error(__('room.delete_member.failed'));
@@ -232,6 +239,5 @@ exports.deleteMember = async (req, res) => {
   } catch (err) {
     channel.error(err.toString());
     res.status(500).json({ error: __('room.delete_member.failed') });
->>>>>>> [RoomChat] Delete Member
   }
 };

@@ -120,7 +120,8 @@
     },
     "delete_member": {
       "success": "Xóa thành viên thành công",
-      "failed": "Xóa thành viên thất bại"
+      "failed": "Xóa thành viên thất bại",
+      "myself": "Không thể xóa chính mình"
     },
     "not_admin": "Bạn không phải là admin. Vì vậy bạn không thể xóa cuộc trò chuyện này "
   }

@@ -14,6 +14,7 @@ class ListMember extends React.Component {
     searchMembers: [],
     searchText: '',
     isAdmin: false,
+    userId: '',
   };
 
   componentDidMount() {
@@ -25,12 +26,13 @@ class ListMember extends React.Component {
         members: res.data.results.members,
         searchMembers: res.data.results.members,
         isAdmin: res.data.results.isAdmin,
+        userId: res.data.results.userId,
       });
     });
   }
 
   handleSearchMember = e => {
-    const { members } = this.state;
+    const { members, userId } = this.state;
     const searchContent = e.target.value.toLowerCase();
     const searchMembers = [];
 
@@ -44,17 +46,19 @@ class ListMember extends React.Component {
 
     this.setState({
       searchMembers: searchMembers,
+      userId: userId,
     });
   };
 
   handleDeleteMember = memberId => {
-    const { searchMembers } = this.state;
+    const { searchMembers, members } = this.state;
     const data = { memberId: memberId, roomId: this.props.match.params.id };
 
     deleteMember(data)
       .then(res => {
         this.setState(prevState => ({
           searchMembers: prevState.searchMembers.filter(member => member._id != memberId),
+          members: prevState.members.filter(member => member._id != memberId),
         }));
         message.success(res.data.success);
       })
@@ -64,7 +68,7 @@ class ListMember extends React.Component {
   };
 
   render() {
-    const { searchMembers, members, isAdmin } = this.state;
+    const { searchMembers, members, isAdmin, userId } = this.state;
     const { t } = this.props;
 
     let adminRows = [];
@@ -92,10 +96,10 @@ class ListMember extends React.Component {
           {isAdmin && (
             <TabPane tab={t('action.edit_role')} key="2">
               <Input placeholder="Search" onChange={this.handleSearchMember} />
-              <AdminRoleMemberList members={searchMembers} onDeleteRow={this.handleDeleteMember} />
+              <AdminRoleMemberList members={searchMembers} onDeleteRow={this.handleDeleteMember} userId={userId} />
               <div className="contact-check-all">
                 <Button.Group className="btn-all-accept">
-                  <Button type="primary">{t('save')}</Button>
+                  <Button type="primary">{t('button.save')}</Button>
                 </Button.Group>
               </div>
             </TabPane>

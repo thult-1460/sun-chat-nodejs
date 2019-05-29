@@ -29,5 +29,5 @@ export function getMembersOfRoom(roomId) {
 }
 
 export function deleteMember(data) {
-  return new Http().authenticated().delete('/delete-member', data);
+  return new Http().authenticated().delete('/rooms/delete-member', data);
 }
