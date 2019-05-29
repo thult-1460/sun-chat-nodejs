@@ -1,14 +1,19 @@
 import React from 'react';
-import { List, Avatar } from 'antd';
+import { List, Avatar, Icon, Button, Popconfirm } from 'antd';
 import { Select } from 'antd';
 import { withNamespaces } from 'react-i18next';
 import { withRouter } from 'react-router';
 import { ROLES } from './../../config/member';
-
 const Option = Select.Option;
+
 class MemberRow extends React.Component {
+  handleDeleteMember = () => {
+    const { member } = this.props;
+    this.props.onDeleteMember(member._id);
+  };
+
   render() {
-    const { member, t } = this.props;
+    const { member, t, userId } = this.props;
     let roleRows = [];
 
     for (var key in ROLES) {
@@ -31,6 +36,20 @@ class MemberRow extends React.Component {
             {roleRows}
           </Select>
         </div>
+        {userId != member._id ? (
+          <Popconfirm
+            title={t('delete_member.question_confirm', { name: member.name })}
+            onConfirm={this.handleDeleteMember}
+            okText={t('button.yes')}
+            cancelText={t('button.no')}
+          >
+            <Button className="delete-member">
+              <Icon type="close" />
+            </Button>
+          </Popconfirm>
+        ) : (
+          ''
+        )}
       </List.Item>
     );
   }

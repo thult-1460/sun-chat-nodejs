@@ -83,6 +83,7 @@ exports.getMemberOfRoom = async function(req, res) {
       results: {
         members: results,
         isAdmin: isAdmin,
+        userId: _id,
       },
     });
   } catch (err) {
@@ -218,5 +219,25 @@ exports.createJoinRequest = async function(req, res) {
     return res.status(500).json({
       error: err.toString(),
     });
+  }
+};
+
+exports.deleteMember = async (req, res) => {
+  const { memberId, roomId } = req.body;
+  const userId = req.decoded._id;
+
+  try {
+    if (memberId == userId) {
+      throw new Error(__('room.delete_member.myself'));
+    }
+
+    const result = await Room.deleteMember(memberId, roomId);
+
+    if (!result) throw new Error(__('room.delete_member.failed'));
+
+    return res.status(200).json({ success: __('room.delete_member.success') });
+  } catch (err) {
+    channel.error(err.toString());
+    res.status(500).json({ error: __('room.delete_member.failed') });
   }
 };

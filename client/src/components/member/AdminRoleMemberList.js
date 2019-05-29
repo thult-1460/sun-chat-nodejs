@@ -6,14 +6,16 @@ import MemberRow from './MemberRow';
 
 class AdminRoleMemberList extends React.Component {
   render() {
-    const { members } = this.props;
+    const { members, userId } = this.props;
 
     return (
       <div className="members-content">
         <List
           itemLayout="horizontal"
           dataSource={members}
-          renderItem={member => <MemberRow key={member._id} member={member} />}
+          renderItem={member => (
+            <MemberRow key={member._id} member={member} onDeleteMember={this.props.onDeleteRow} userId={userId} />
+          )}
         />
       </div>
     );

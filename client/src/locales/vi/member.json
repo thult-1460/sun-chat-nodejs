@@ -11,5 +11,12 @@
     "member": "Thành viên",
     "readonly": "Chỉ đọc"
   },
-  "save": "Lưu"
+  "delete_member": {
+    "question_confirm": "Bạn có chắc chắn muốn xóa {{name}} ra khỏi cuộc trò chuyện"
+  },
+  "button": {
+    "save": "Lưu",
+    "yes": "Có",
+    "no": "Không"
+  }
 }

@@ -40,3 +40,17 @@
   padding-top: 15px;
   margin-bottom: 80%;
 }
+.delete-member {
+  padding: 0;
+  border: none;
+  &:hover {
+    color: red;
+  }
+  i {
+    padding: 10px;
+  }
+}
+.members-content .ant-list-item.ant-list-item-no-flex {
+  display: flex;
+  margin-right: 34px;
+}
