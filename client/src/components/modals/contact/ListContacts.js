@@ -3,19 +3,25 @@ import { withNamespaces } from 'react-i18next';
 import { withRouter } from 'react-router';
 import 'antd/dist/antd.css';
 import InfiniteScroll from 'react-infinite-scroller';
-import { List, Avatar, Button, message, Spin, Alert, Input } from 'antd';
+import { List, Avatar, Button, message, Spin, Alert, Input, Row, Col } from 'antd';
 import { getListContacts, deleteContact } from '../../../api/contact';
+import ContactDetail from './ContactDetail';
 
 class ListContacts extends Component {
-  state = {
-    contacts: [],
-    error: '',
-    loading: false,
-    hasMore: true,
-    page: 1,
-    totalContact: 0,
-    searchText: '',
-  };
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      contacts: [],
+      error: '',
+      loading: false,
+      hasMore: true,
+      page: 1,
+      totalContact: 0,
+      searchText: '',
+      contactDetail: null,
+    };
+  }
 
   fetchData = (page, searchText) => {
     getListContacts(page, searchText)
@@ -99,10 +105,22 @@ class ListContacts extends Component {
       page,
       loading: true,
       hasMore: true,
+      contactDetail: null,
     });
 
     this.fetchData(page, searchText);
   }
+
+  showContactDetail = e => {
+    const userId = e.currentTarget.id;
+    for (let i in this.state.contacts) {
+      if (this.state.contacts[i]._id == userId) {
+        this.setState({
+          contactDetail: this.state.contacts[i],
+        });
+      }
+    }
+  };
 
   render() {
     const { t } = this.props;
@@ -114,53 +132,63 @@ class ListContacts extends Component {
         <h2 className="title-contact">
           {t('contact:list_contact.title_list_contact')} ({this.state.totalContact})
         </h2>
-        <Search
-          placeholder="input search text"
-          enterButton="Search"
-          size="large"
-          onSearch={searchText => this.handleSearch(searchText)}
-        />
-        {this.state.contacts.length > 0 ? (
-          <div>
-            {error && <Alert message={t('user:error_title')} type="error" description={error} />}
+        <Row gutter={16}>
+          <Col span={14}>
+            <Search
+              placeholder={t('contact:list_contact.btn_search_placeholder')}
+              enterButton={t('contact:list_contact.btn_search')}
+              size="large"
+              onSearch={searchText => this.handleSearch(searchText)}
+            />
             <div className="infinite-container">
-              <InfiniteScroll
-                initialLoad={false}
-                pageStart={0}
-                loadMore={this.handleInfiniteOnLoad}
-                hasMore={!this.state.loading && this.state.hasMore}
-                useWindow={false}
-              >
-                <List
-                  dataSource={this.state.contacts}
-                  renderItem={item => (
-                    <List.Item key={item._id}>
-                      <List.Item.Meta
-                        avatar={this.setAvatar(item.avatar)}
-                        title={<a href="#">{item.name}</a>}
-                        description={item.email}
-                      />
-                      <Button.Group className="btn-accept">
-                        <Button type="primary">{t('contact:list_contact.btn_send_message')}</Button>
-                        <Button value={item._id} onClick={this.handleDeteleContact}>
-                          {t('button.delete')}
-                        </Button>
-                      </Button.Group>
-                    </List.Item>
-                  )}
-                >
-                  {this.state.loading && this.state.hasMore && (
-                    <div className="demo-loading-container">
-                      <Spin />
-                    </div>
-                  )}
-                </List>
-              </InfiniteScroll>
+              {this.state.contacts.length > 0 ? (
+                <div>
+                  {error && <Alert message={t('user:error_title')} type="error" description={error} />}
+                  <InfiniteScroll
+                    initialLoad={false}
+                    pageStart={0}
+                    loadMore={this.handleInfiniteOnLoad}
+                    hasMore={!this.state.loading && this.state.hasMore}
+                    useWindow={false}
+                  >
+                    <List
+                      dataSource={this.state.contacts}
+                      renderItem={item => (
+                        <List.Item key={item._id}>
+                          <a onClick={this.showContactDetail} id={item._id}>
+                            <List.Item.Meta
+                              avatar={this.setAvatar(item.avatar)}
+                              title={item.name}
+                              description={item.email}
+                              id="list-contact-item"
+                            />
+                          </a>
+                          <Button.Group className="btn-accept">
+                            <Button type="primary">{t('contact:list_contact.btn_send_message')}</Button>
+                            <Button value={item._id} onClick={this.handleDeteleContact}>
+                              {t('button.delete')}
+                            </Button>
+                          </Button.Group>
+                        </List.Item>
+                      )}
+                    >
+                      {this.state.loading && this.state.hasMore && (
+                        <div className="demo-loading-container">
+                          <Spin />
+                        </div>
+                      )}
+                    </List>
+                  </InfiniteScroll>
+                </div>
+              ) : (
+                <div className="title-contact-empty">{t('contact:list_contact.no_contact')}</div>
+              )}
             </div>
-          </div>
-        ) : (
-          <div className="title-contact">{t('contact:list_contact.no_contact')}</div>
-        )}
+          </Col>
+          <Col span={10}>
+            <ContactDetail contactDetail={this.state.contactDetail} />
+          </Col>
+        </Row>
       </React.Fragment>
     );
   }

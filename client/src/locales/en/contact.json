@@ -8,7 +8,9 @@
     "btn_send_message": "Send message",
     "no_contact": "No contact",
     "loaded_all": "List have loaded all",
-    "limit_contact": "(Only {{limit}} users are displayed. Use search to find more users.)"
+    "limit_contact": "(Only {{limit}} users are displayed. Use search to find more users.)",
+    "btn_search": "Search",
+    "btn_search_placeholder": "Search by user name or email address"
   },
   "list_contact_request": {
     "loaded_all": "List have loaded all"
@@ -20,5 +22,16 @@
     "button_add": "Add",
     "no_data": "Search for people you may know",
     "required_search_user": "Please enter name or email address to search"
+  },
+  "contact_detail": {
+    "title_contact_detail": "Contact detail",
+    "title_contact_empty": "Please select contact to view details",
+    "username": "Username",
+    "email": "Email",
+    "full_address": "Address",
+    "phone_number": "Telephone",
+    "twitter": "Twitter",
+    "github": "Github",
+    "google": "Google"
   }
 }

@@ -307,6 +307,7 @@ UserSchema.statics = {
       {
         $match: {
           type: config.ROOM_TYPE.DIRECT_CHAT,
+          deletedAt: null,
           'members.user': mongoose.Types.ObjectId(userId),
         },
       },
@@ -368,7 +369,7 @@ UserSchema.statics = {
         $count: 'number_of_contacts',
       });
     }
-    
+
     return Room.aggregate(query);
   },
 

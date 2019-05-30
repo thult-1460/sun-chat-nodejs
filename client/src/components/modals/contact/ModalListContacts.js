@@ -32,7 +32,13 @@ class ModalListContacts extends Component {
     return (
       <Badge className="header-icon" dot>
         <Icon type="contacts" onClick={this.showModal} />
-        <Modal visible={this.state.visible} onOk={this.handleOk} onCancel={this.handleCancel} footer={null}>
+        <Modal
+          visible={this.state.visible}
+          onOk={this.handleOk}
+          onCancel={this.handleCancel}
+          footer={null}
+          width="900px"
+        >
           {this.state.showComponent === true ? <ListContacts /> : ''}
         </Modal>
       </Badge>

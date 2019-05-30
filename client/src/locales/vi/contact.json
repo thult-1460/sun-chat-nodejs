@@ -8,7 +8,9 @@
     "btn_send_message": "Gửi tin nhắn",
     "no_contact": "Danh bạ trống",
     "loaded_all": "Toàn bộ danh bạ đã được tải về",
-    "limit_contact": "(Chỉ {{limit}} người dùng được hiển thị. Hãy sử dụng tính năng tìm kiếm để tìm được nhiều người dùng hơn.)"
+    "limit_contact": "(Chỉ {{limit}} người dùng được hiển thị. Hãy sử dụng tính năng tìm kiếm để tìm được nhiều người dùng hơn.)",
+    "btn_search": "Tìm kiếm",
+    "btn_search_placeholder": "Tìm kiếm theo tên người dùng hoặc địa chỉ email"
   },
   "list_contact_request": {
     "loaded_all": "Toàn bộ danh bạ đã được tải về"
@@ -20,5 +22,16 @@
     "button_add": "Thêm liên lạc",
     "no_data": "Tìm kiếm những người bạn có thể biết",
     "required_search_user": "Vui lòng nhập tên hoặc email để tìm kiếm"
+  },
+  "contact_detail": {
+    "title_contact_detail": "Thông tin người dùng",
+    "title_contact_empty": "Chọn liên lạc để xem chi tiết",
+    "username": "Username",
+    "email": "Email",
+    "full_address": "Địa chỉ",
+    "phone_number": "Số điện thoại",
+    "twitter": "Twitter",
+    "github": "Github",
+    "google": "Google"
   }
 }

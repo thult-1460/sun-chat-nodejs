@@ -13,7 +13,7 @@
 }
 .title-contact {
   text-align: center;
-  padding-top: 3%;
+  padding: 1.5% 0 1.5% 0;
   font-weight: bold;
 }
 .ant-list-item-meta-title {
@@ -79,4 +79,31 @@
   #user_add_contact {
     margin-right: 10px;
   }
+}
+.title-contact-detail {
+  text-align: center;
+  padding-bottom: 9px;
+  font-weight: bold;
+}
+.contact-detail {
+  border: 1px solid #e8e8e8;
+  border-radius: 4px;
+  overflow: auto;
+  margin-top: 15px;
+  height: 500px;
+}
+.contact-detail-avatar {
+  text-align: center;
+  padding-top: 10px;
+}
+.form-group {
+  padding: 5px 15px 5px 15px;
+}
+.title-contact-empty {
+  text-align: center;
+  padding-top: 10px;
+  font-weight: bold;
+}
+#list-contact-item {
+  width: 290px;
 }
