@@ -19,7 +19,9 @@
   "button": {
     "cancel": "Cancel",
     "submit": "Create",
-    "join": "Join"
+    "join": "Join",
+    "delete-room": "Delete room chat",
+    "left-room": "Left the room chat"
   },
 
   "invitation": {

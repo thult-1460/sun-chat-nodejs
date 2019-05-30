@@ -4,3 +4,9 @@ export const INVATATION_STATUS = {
   HAVE_REQUEST_BEFORE: 702,
   CANT_JOIN: 703,
 };
+
+export const ROOM_TYPE = {
+  GROUP_CHAT: 0,
+};
+
+export const LIMIT_REPRESENTATIVE_MEMBER = 5;

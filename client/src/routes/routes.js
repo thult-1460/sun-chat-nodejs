@@ -10,7 +10,7 @@ import ChangePassword from '../pages/auth/changePassword';
 import ForgotPassword from '../pages/auth/forgotpassword.js';
 import ResetPassword from '../pages/auth/resetpassword.js';
 import ListContacts from '../components/modals/contact/ListContacts';
-import RoomDetail from '../components/room/RoomDetail';
+import RoomDetail from '../pages/rooms/RoomDetail';
 import AddContact from '../components/modals/contact/AddContact';
 
 const routes = [

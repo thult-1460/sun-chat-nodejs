@@ -404,6 +404,53 @@ RoomSchema.statics = {
       { $set: { 'members.$.deletedAt': Date.now() } }
     ).exec();
   },
+
+  getInforOfRoom: function(roomId) {
+    return this.aggregate([
+      { $match: { _id: mongoose.Types.ObjectId(roomId), 'members.deletedAt': null } },
+      { $addFields: { representative_members: { $slice: ['$members', config.ROOM.LIMIT_REPRESENTATIVE_MEMBER] } } },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'representative_members.user',
+          foreignField: '_id',
+          as: 'members_info',
+        },
+      },
+      {
+        $project: {
+          name: 1,
+          desc: 1,
+          type: 1,
+          avatar_url: 1,
+          'members_info._id': 1,
+          'members_info.name': 1,
+          'members_info.email': 1,
+          'members_info.avatar': 1,
+          number_of_members: {
+            $cond: { if: { type: config.ROOM_TYPE.GROUP_CHAT }, then: { $size: '$members' }, else: 0 },
+          },
+        },
+      },
+    ]);
+  },
+
+  checkAdmin: async function(roomId, userId) {
+    let isAdmin = false;
+
+    await this.findOne({
+      _id: roomId,
+      members: { $elemMatch: { user: userId, role: config.MEMBER_ROLE.ADMIN } },
+    })
+      .then(room => {
+        if (room != null) isAdmin = true;
+      })
+      .catch(err => {
+        channel.error(err.toString());
+      });
+
+    return isAdmin;
+  },
 };
 
 module.exports = mongoose.model('Room', RoomSchema);

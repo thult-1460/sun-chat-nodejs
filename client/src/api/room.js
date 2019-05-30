@@ -31,3 +31,7 @@ export function getMembersOfRoom(roomId) {
 export function deleteMember(data) {
   return new Http().authenticated().delete('/rooms/delete-member', data);
 }
+
+export function getInforRoom(roomId) {
+  return new Http().authenticated().get('rooms/' + roomId);
+}

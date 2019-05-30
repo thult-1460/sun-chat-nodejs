@@ -40,4 +40,7 @@ module.exports = {
     COUNT_UNREAD: 1000,
   },
   DIR_UPLOAD_FILE: './public/uploads/',
+  ROOM: {
+    LIMIT_REPRESENTATIVE_MEMBER: 5,
+  },
 };

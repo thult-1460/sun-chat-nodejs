@@ -241,3 +241,33 @@ exports.deleteMember = async (req, res) => {
     res.status(500).json({ error: __('room.delete_member.failed') });
   }
 };
+
+exports.getInforOfRoom = async function(req, res) {
+  const { _id } = req.decoded;
+  const { roomId } = req.params;
+
+  try {
+    const isAdmin = await Room.checkAdmin(roomId, _id);
+    let roomInfo = await Room.getInforOfRoom(roomId);
+
+    if (roomInfo.length == 0) {
+      throw new Error(__('room.not_found'));
+    }
+
+    if (roomInfo[0].type == config.ROOM_TYPE.DIRECT_CHAT) {
+      let member = roomInfo[0].members_info.filter(item => item._id != _id);
+      roomInfo[0].name = member[0].name;
+      roomInfo[0].avatar_url = member[0].avatar;
+    }
+
+    return res.status(200).json({
+      isAdmin: isAdmin,
+      roomInfo: roomInfo[0],
+    });
+  } catch (err) {
+    channel.error(err.toString());
+    res.status(500).json({
+      err: __('room.get_infor.failed'),
+    });
+  }
+};

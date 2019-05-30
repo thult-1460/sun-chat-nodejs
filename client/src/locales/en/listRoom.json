@@ -10,9 +10,5 @@
     "pinned": "Pinned Chats",
     "group_chat": "Group Chats",
     "direct_chat": "Direct Chats"
-  },
-  "button": {
-    "delete-room": "Delete room chat",
-    "left-room": "Left the room chat"
   }
 }

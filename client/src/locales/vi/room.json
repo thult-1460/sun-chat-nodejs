@@ -19,7 +19,9 @@
   "button": {
     "cancel": "Hủy",
     "submit": "Tạo",
-    "join": "Tham gia phòng"
+    "join": "Tham gia phòng",
+    "delete-room": "Delete room chat",
+    "left-room": "Left the room chat"
   },
   "invitation": {
     "joined": "Bạn đã vào phòng này",

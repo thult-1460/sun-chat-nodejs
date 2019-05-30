@@ -123,6 +123,9 @@
       "failed": "Delete member failed",
       "myself": "Can't delete myself"
     },
-    "not_admin": "You are not  an admin. So you can't delete room."
+    "not_found": "Room not found",
+    "get_infor": {
+      "failed": "Get infor room  failed."
+    }
   }
 }

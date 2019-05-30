@@ -9,8 +9,8 @@
   color: black;
   font-size: 17px;
   float: right;
-  padding-top: 20px;
-  padding-right: 20px;
+  padding-top: 10px;
+  padding-right: 10px;
 }
 .chat-room {
   background-color: white;
@@ -40,7 +40,7 @@
   padding-top: 15px;
   margin-bottom: 80%;
 }
-.delete-member {
+head .delete-member {
   padding: 0;
   border: none;
   &:hover {
@@ -53,4 +53,35 @@
 .members-content .ant-list-item.ant-list-item-no-flex {
   display: flex;
   margin-right: 34px;
+}
+.header-chat-room {
+  background-color: #fff;
+  height: 40px;
+  border: none;
+  padding: 0px;
+}
+.ant-avatar.avatar-room-chat {
+  margin-left: 10px;
+  float: left;
+  margin-top: 5px;
+}
+.name-chat-room {
+  float: left;
+  margin-left: 10px;
+  margin-top: -10px;
+}
+.list-member-chat-room {
+  float: right;
+  margin-top: 5px;
+}
+.title-desc-chat-room {
+  display: flex;
+  padding: 4px 8px;
+  margin-bottom: 8px;
+  color: black;
+  height: 30px;
+}
+.content-desc-chat-room {
+  padding-left: 10px;
+  padding-right: 10px;
 }
