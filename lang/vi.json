@@ -135,6 +135,10 @@
       "text_search_required": "Yêu cầu phải có từ khoá tìm kiếm",
       "length_text_search": "Tìm kiếm với tối thiểu {{min}} kí tự"
     },
-    "user_not_in_room": "Bạn không phải là thành viên của phòng"
+    "user_not_in_room": "Bạn không phải là thành viên của phòng",
+    "pinned": {
+      "success": "{{pinned}} thành công",
+      "failed": "{{pinned}} thất bại"
+    }
   }
 }

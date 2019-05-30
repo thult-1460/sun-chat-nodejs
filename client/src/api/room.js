@@ -55,3 +55,7 @@ export function acceptRequests(roomId, requestIds) {
 export function rejectRequests(roomId, requestIds) {
   return new Http().authenticated().post(`/rooms/${roomId}/reject-requests`, requestIds);
 }
+
+export function togglePinnedRoom(roomId) {
+  return new Http().authenticated().post(`/rooms/${roomId}/pinned-room`);
+}

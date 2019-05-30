@@ -22,7 +22,7 @@ const Members = new Schema(
     user: { type: Schema.ObjectId, ref: 'User' },
     role: { type: Number, default: config.MEMBER_ROLE.MEMBER }, //0: admin - 1: member - 2: read-only
     last_message_id: { type: Schema.ObjectId, ref: 'Messages' },
-    marked: { type: Boolean, default: false },
+    pinned: { type: Boolean, default: false },
     room_group: { type: Schema.ObjectId, ref: 'Room_group' },
     deletedAt: { type: Date, default: null },
   },
@@ -92,7 +92,7 @@ RoomSchema.statics = {
     let list_filter_type_chat = [],
       default_quantity_unread = config.LIMIT_MESSAGE.COUNT_UNREAD,
       filter_unread = { $match: { quantity_unread: { $gt: 0 } } },
-      filter_pinned = { $match: { 'last_msg_id_reserve.marked': true } },
+      filter_pinned = { $match: { 'last_msg_id_reserve.pinned': true } },
       filter_group = { 'members.user': mongoose.Types.ObjectId(userId), type: config.ROOM_TYPE.GROUP_CHAT },
       filter_direct = { 'members.user': { $ne: mongoose.Types.ObjectId(userId) }, type: config.ROOM_TYPE.DIRECT_CHAT },
       filter_self = { 'members.user': mongoose.Types.ObjectId(userId), type: config.ROOM_TYPE.SELF_CHAT };
@@ -187,7 +187,7 @@ RoomSchema.statics = {
           },
           type: 1,
           last_created_msg: { $max: '$messages.createdAt' },
-          marked: '$last_msg_id_reserve.marked',
+          pinned: '$last_msg_id_reserve.pinned',
           'members.user': 1,
           'members.user_info._id': 1,
           'members.user_info.avatar': 1,
@@ -216,7 +216,7 @@ RoomSchema.statics = {
 
     query.push({
       $sort: {
-        marked: -1,
+        pinned: -1,
         last_created_msg: -1,
       },
     });
@@ -230,7 +230,7 @@ RoomSchema.statics = {
   getQuantityRoomsByUserId: function({ _id, filter_type }) {
     let list_filter_type_chat = [],
       filter_unread = { $match: { quantity_unread: true } },
-      filter_pinned = { $match: { 'last_msg_id_reserve.marked': true } },
+      filter_pinned = { $match: { 'last_msg_id_reserve.pinned': true } },
       filter_group = { 'members.user': mongoose.Types.ObjectId(_id), type: config.ROOM_TYPE.GROUP_CHAT },
       filter_direct = { 'members.user': { $ne: mongoose.Types.ObjectId(_id) }, type: config.ROOM_TYPE.DIRECT_CHAT },
       filter_self = { 'members.user': mongoose.Types.ObjectId(_id), type: config.ROOM_TYPE.SELF_CHAT };
@@ -431,7 +431,7 @@ RoomSchema.statics = {
     let memberObject = {
       deletedAt: null,
       role: config.MEMBER_ROLE.MEMBER,
-      marked: false,
+      pinned: false,
       user: userId,
       last_message_id: lastMsgId,
     };
@@ -606,6 +606,29 @@ RoomSchema.statics = {
     );
 
     return room.messages[0]._id;
+  },
+
+  getPinnedRoom: function(roomId, userId) {
+    return this.findOne(
+      {
+        _id: roomId,
+        deletedAt: null,
+      },
+      {
+        members: { $elemMatch: { user: { $eq: userId }, deletedAt: null } },
+      }
+    ).exec();
+  },
+
+  pinnedRoom: function(roomId, userId, pinned) {
+    return this.findOneAndUpdate(
+      {
+        _id: roomId,
+        deletedAt: null,
+        members: { $elemMatch: { user: userId, deletedAt: null } },
+      },
+      { $set: { 'members.$.pinned': pinned } }
+    ).exec();
   },
 };
 

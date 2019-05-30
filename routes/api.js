@@ -104,5 +104,10 @@ router.post(
   [auth.jwtMiddleware, authorization.room.checkAdmin],
   roomsController.acceptRequests
 );
+router.post(
+  '/rooms/:roomId/pinned-room',
+  [auth.jwtMiddleware, authorization.room.hasAuthorization],
+  roomsController.togglePinnedRoom
+);
 
 module.exports = router;

@@ -3,7 +3,7 @@ module.exports = {
   LIMIT_ITEM_SHOW: {
     CONTACT: 10,
     REQUEST_CONTACT: 10,
-    ROOM: 10,
+    ROOM: 20,
   },
   MEMBER_ROLE: {
     ADMIN: 0,
