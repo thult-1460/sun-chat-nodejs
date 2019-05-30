@@ -460,8 +460,23 @@ RoomSchema.statics = {
 
   getInforOfRoom: function(roomId) {
     return this.aggregate([
-      { $match: { _id: mongoose.Types.ObjectId(roomId), 'members.deletedAt': null } },
-      { $addFields: { representative_members: { $slice: ['$members', config.ROOM.LIMIT_REPRESENTATIVE_MEMBER] } } },
+      { $match: { _id: mongoose.Types.ObjectId(roomId), deletedAt: null } },
+      {
+        $addFields: {
+          members: {
+            $filter: {
+              input: '$members',
+              as: 'member_not_delete',
+              cond: { $eq: ['$$member_not_delete.deletedAt', null] },
+            },
+          },
+        },
+      },
+      {
+        $addFields: {
+          representative_members: { $slice: ['$members', config.ROOM.LIMIT_REPRESENTATIVE_MEMBER] },
+        },
+      },
       {
         $lookup: {
           from: 'users',

@@ -204,3 +204,32 @@ exports.checkDeleteAdmin = async(function*(req, res, next) {
   }
   next();
 });
+
+exports.room = {
+  hasAuthorization: async(function*(req, res, next) {
+    const { roomId } = req.params;
+    const { _id } = req.decoded;
+
+    try {
+      const room = yield Room.findOne({
+        _id: roomId,
+        deletedAt: null,
+        members: { $elemMatch: { user: _id, deletedAt: null } },
+      });
+
+      if (room === null) {
+        return res.status(403).json({
+          err: __('room.user_not_in_room'),
+        });
+      }
+
+      next();
+    } catch (err) {
+      channel.error(err.toString());
+
+      return res.status(500).json({
+        err: __('error.common'),
+      });
+    }
+  }),
+};
