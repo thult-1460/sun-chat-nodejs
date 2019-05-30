@@ -75,6 +75,10 @@ router.delete(
   [auth.jwtMiddleware, roomAuthorization.checkAdmin, roomAuthorization.checkDeleteAdmin],
   roomsController.deleteMember
 );
-router.get('/rooms/:roomId', auth.jwtMiddleware, roomsController.getInforOfRoom);
+router.get(
+  '/rooms/:roomId',
+  [auth.jwtMiddleware, roomAuthorization.room.hasAuthorization],
+  roomsController.getInforOfRoom
+);
 
 module.exports = router;
