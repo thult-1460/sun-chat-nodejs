@@ -112,7 +112,7 @@ class Sidebar extends React.Component {
           <List.Item key={key}>
             <Link to={'/room/' + room._id}>
               <div className="avatar-name">
-                <Avatar src={room.avatar_url} />
+                <Avatar src={room.avatar} />
                 &nbsp;&nbsp;
                 <span className="nav-text">{room.name}</span>
               </div>

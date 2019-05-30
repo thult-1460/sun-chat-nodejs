@@ -43,9 +43,9 @@ new Promise(resolve => {
       }
 
       item.push({
-        name: faker.lorem.word(),
-        description: faker.lorem.text(),
-        avatar_url: faker.image.avatar(),
+        name: '[ROOM] ' + faker.lorem.word(),
+        desc: faker.lorem.text(),
+        avatar: faker.image.avatar(),
         type: type,
         members: members,
         messages: message,

@@ -24,7 +24,9 @@ class FormCreateRoom extends PureComponent {
       previewVisible: false,
       previewImage: '',
       fileList: [],
-      invitationCode: Math.random().toString(36).substring(2, 35),
+      invitationCode: Math.random()
+        .toString(36)
+        .substring(2, 35),
       isChangeLink: false,
       invitationType: 0,
       members: [],
@@ -42,7 +44,7 @@ class FormCreateRoom extends PureComponent {
         }),
         min: roomConfig.CHAR_MIN,
         max: roomConfig.CHAR_MAX,
-      }
+      },
     ],
     invitation_code: [
       {
@@ -58,7 +60,7 @@ class FormCreateRoom extends PureComponent {
         pattern: '^[A-Za-z0-9_-]*$',
         message: this.props.t('validate.format_char'),
       },
-    ]
+    ],
   };
 
   handleCancelPreview = () => this.setState({ previewVisible: false });
@@ -74,17 +76,21 @@ class FormCreateRoom extends PureComponent {
     const types = roomConfig.IMG_TYPES;
 
     if (types.every(type => info.file.type !== type)) {
-      message.error(this.props.t('validate.img_type', {
-        types: roomConfig.IMG_TYPES.join(', ')
-      }));
+      message.error(
+        this.props.t('validate.img_type', {
+          types: roomConfig.IMG_TYPES.join(', '),
+        })
+      );
 
       return;
     }
 
-    if ((info.file.size / 1024 / 1024) > roomConfig.IMG_MAX_SIZE) {
-      message.error(this.props.t('validate.img_size', {
-        max: roomConfig.IMG_MAX_SIZE
-      }));
+    if (info.file.size / 1024 / 1024 > roomConfig.IMG_MAX_SIZE) {
+      message.error(
+        this.props.t('validate.img_size', {
+          max: roomConfig.IMG_MAX_SIZE,
+        })
+      );
 
       return;
     }
@@ -99,13 +105,13 @@ class FormCreateRoom extends PureComponent {
       errors: {},
     });
     this.props.handleModalVisible();
-  }
+  };
 
   handleSubmit = () => {
     const { form, handleModalVisible } = this.props;
     const { members, invitationType, invitationCode, fileList } = this.state;
 
-    const roles = form.getFieldsValue()
+    const roles = form.getFieldsValue();
 
     form.validateFields((err, fieldsValue) => {
       if (err) return;
@@ -117,35 +123,36 @@ class FormCreateRoom extends PureComponent {
       }
 
       if (this.state.fileList.length > 0) {
-        roomVals = { ...roomVals, ...{ avatar_url: fileList[0].thumbUrl } };
+        roomVals = { ...roomVals, ...{ avatar: fileList[0].thumbUrl } };
       }
 
       let room = { ...roomVals, ...{ members } };
 
-      createRoom(room).then(response => {
-        form.resetFields();
-        this.setState({
-          fileList: [],
-          isChangeLink: false,
-        });
-        message.success(response.data.message);
-        handleModalVisible();
-      })
-      .catch(err => {
-        if (err.response.data.error) {
-          message.error(err.response.data.error);
-        } else {
+      createRoom(room)
+        .then(response => {
+          form.resetFields();
           this.setState({
-            errors: err.response.data,
+            fileList: [],
+            isChangeLink: false,
           });
-
-          if (err.response.data.invitation_code) {
+          message.success(response.data.message);
+          handleModalVisible();
+        })
+        .catch(err => {
+          if (err.response.data.error) {
+            message.error(err.response.data.error);
+          } else {
             this.setState({
-              isChangeLink: true,
+              errors: err.response.data,
             });
+
+            if (err.response.data.invitation_code) {
+              this.setState({
+                isChangeLink: true,
+              });
+            }
           }
-        }
-      });
+        });
     });
   };
 
@@ -171,9 +178,9 @@ class FormCreateRoom extends PureComponent {
 
   adminApproves = e => {
     this.setState({
-      invitationType: e.target.checked ? 
-        roomConfig.INVITATION_TYPE.NEED_APPROVAL : 
-        roomConfig.INVITATION_TYPE.NOT_NEED_APPROVAL,
+      invitationType: e.target.checked
+        ? roomConfig.INVITATION_TYPE.NEED_APPROVAL
+        : roomConfig.INVITATION_TYPE.NOT_NEED_APPROVAL,
     });
   };
 
@@ -208,7 +215,7 @@ class FormCreateRoom extends PureComponent {
         <Col span={3}>
           <Button type="link">{t('link_share')}:</Button>
         </Col>
-        <Col span={19} style={{display: 'flex'}}>
+        <Col span={19} style={{ display: 'flex' }}>
           <span style={{ margin: '7px 0 0 25px', textAlign: 'right' }}>{invitationURL}</span>
           <FormItem
             key="invitation_code"
@@ -226,7 +233,7 @@ class FormCreateRoom extends PureComponent {
             {form.getFieldDecorator('invitation_code', {
               initialValue: invitationCode,
               rules: this.rules.invitation_code,
-            })(<Input onChange={() => this.setState({errors: {}})}/>)}
+            })(<Input onChange={() => this.setState({ errors: {} })} />)}
           </FormItem>
         </Col>
         <Col span={1}>
@@ -263,10 +270,7 @@ class FormCreateRoom extends PureComponent {
               >
                 {fileList.length >= 1 ? null : uploadButton}
               </Upload>
-                { errors && errors.avatar_url ? (
-                    <span className="error-message-from-server">{errors.avatar_url}</span>
-                  ) : ( '' )
-                }
+              {errors && errors.avatar ? <span className="error-message-from-server">{errors.avatar}</span> : ''}
               <Modal visible={previewVisible} footer={null} onCancel={this.handleCancelPreview}>
                 <img alt="{t('avatar')}" style={{ width: '100%' }} src={previewImage} />
               </Modal>

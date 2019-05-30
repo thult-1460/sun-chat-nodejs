@@ -62,7 +62,7 @@ const RoomSchema = new Schema(
     type: { type: Number, default: config.ROOM_TYPE.GROUP_CHAT }, //0: group chat - 1: direct chat
     invitation_code: { type: String },
     invitation_type: { type: Number, default: config.INVITATION_TYPE.NOT_NEED_APPROVAL }, //0: don't need admin approves - 1: need admin approves
-    avatar_url: { type: String },
+    avatar: { type: String },
     members: [Members],
     messages: [Messages],
     tasks: [Tasks],
@@ -177,10 +177,10 @@ RoomSchema.statics = {
               else: { $arrayElemAt: ['$members.user_info.name', 0] },
             },
           },
-          avatar_url: {
+          avatar: {
             $cond: {
               if: { $eq: ['$type', config.ROOM_TYPE.GROUP_CHAT] },
-              then: '$avatar_url',
+              then: '$avatar',
               else: { $arrayElemAt: ['$members.user_info.avatar', 0] },
             },
           },
@@ -360,7 +360,7 @@ RoomSchema.statics = {
   },
 
   getRoomInfoByInvitateCode(invitationCode) {
-    return this.findOne({ invitation_code: invitationCode }, 'name avatar_url');
+    return this.findOne({ invitation_code: invitationCode }, 'name avatar');
   },
 
   addJoinRequest(roomId, userId) {
@@ -422,7 +422,7 @@ RoomSchema.statics = {
           name: 1,
           desc: 1,
           type: 1,
-          avatar_url: 1,
+          avatar: 1,
           'members_info._id': 1,
           'members_info.name': 1,
           'members_info.email': 1,

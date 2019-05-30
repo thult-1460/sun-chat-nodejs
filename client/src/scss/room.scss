@@ -1,6 +1,6 @@
 .sidebar-chat.ant-layout-sider {
   color: #fff;
-  line-height: 120px;
+
   float: right;
   background-color: #e6e6e6;
   min-width: 406px !important;
@@ -84,4 +84,7 @@ head .delete-member {
 .content-desc-chat-room {
   padding-left: 10px;
   padding-right: 10px;
+}
+.content-desc-chat-room {
+  color: #000;
 }
