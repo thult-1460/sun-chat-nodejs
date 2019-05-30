@@ -46,7 +46,7 @@ class RoomDetail extends React.Component {
                   <Text strong> {t('title.room_des')} </Text>
                 </Col>
               </Row>
-              <Text className="content-desc-chat-room">{roomInfo.desc}</Text>
+              <div className="content-desc-chat-room">{roomInfo.desc}</div>
             </Sider>
           </Layout>
         </Layout>

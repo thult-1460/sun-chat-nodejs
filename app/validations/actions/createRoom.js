@@ -7,9 +7,9 @@ let checkRoomName = () => {
     .optional()
     .custom(async (value, { req }) => {
       if (value !== '' && (value.length < roomValidate.name.minLength || value.length > roomValidate.name.maxLength)) {
-        throw Error (req.__('room.name_length', { min: roomValidate.name.minLength, max: roomValidate.name.maxLength }));
+        throw Error(req.__('room.name_length', { min: roomValidate.name.minLength, max: roomValidate.name.maxLength }));
       }
-    })
+    });
 };
 
 let checkInvitationCode = () => {
@@ -21,7 +21,10 @@ let checkInvitationCode = () => {
     })
     .isLength({ min: roomValidate.invitation_code.minLength, max: roomValidate.invitation_code.maxLength })
     .withMessage((value, { req, loc, path }) => {
-      return req.__('room.invitation_code_length', { min: roomValidate.invitation_code.minLength, max: roomValidate.invitation_code.maxLength });
+      return req.__('room.invitation_code_length', {
+        min: roomValidate.invitation_code.minLength,
+        max: roomValidate.invitation_code.maxLength,
+      });
     })
     .matches('^[A-Za-z0-9_-]*$')
     .withMessage((value, { req, loc, path }) => {
@@ -39,21 +42,28 @@ let checkInvitationCode = () => {
 };
 
 let checkImgFile = () => {
-  return check('avatar_url')
+  return check('avatar')
     .optional()
     .custom(async (value, { req }) => {
-      if (value == null || value.Length == 0
-        || value.includes(' ') || value.includes('\t') 
-        || value.includes('\r') || value.includes('\n')) {
-        throw Error (req.__('room.unknown_file'))
+      if (
+        value == null ||
+        value.Length == 0 ||
+        value.includes(' ') ||
+        value.includes('\t') ||
+        value.includes('\r') ||
+        value.includes('\n')
+      ) {
+        throw Error(req.__('room.unknown_file'));
       }
 
-      let imgSize = parseInt(value.replace(/=/g,"").length * 0.75)/1024/1024;
+      let imgSize = parseInt(value.replace(/=/g, '').length * 0.75) / 1024 / 1024;
 
       if (imgSize > roomValidate.IMG_SIZE) {
-        throw Error (req.__('room.create.upload_file_failed', {
-          max: roomValidate.IMG_SIZE,
-        }));
+        throw Error(
+          req.__('room.create.upload_file_failed', {
+            max: roomValidate.IMG_SIZE,
+          })
+        );
       }
 
       return value;

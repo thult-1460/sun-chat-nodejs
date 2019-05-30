@@ -126,10 +126,10 @@ exports.createRoom = async (req, res) => {
   room.name = room.name ? room.name : fullName;
   room.members.push({ user: _id, role: config.MEMBER_ROLE.ADMIN });
 
-  if (room.avatar_url) {
+  if (room.avatar) {
     try {
-      await files.saveImage(room.avatar_url, slug(room.name, '-')).then(url => {
-        room.avatar_url = url;
+      await files.saveImage(room.avatar, slug(room.name, '-')).then(url => {
+        room.avatar = url;
       });
     } catch (err) {
       channel.error(err.toString());
@@ -257,7 +257,7 @@ exports.getInforOfRoom = async function(req, res) {
     if (roomInfo[0].type == config.ROOM_TYPE.DIRECT_CHAT) {
       let member = roomInfo[0].members_info.filter(item => item._id != _id);
       roomInfo[0].name = member[0].name;
-      roomInfo[0].avatar_url = member[0].avatar;
+      roomInfo[0].avatar = member[0].avatar;
     }
 
     return res.status(200).json({
