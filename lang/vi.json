@@ -126,6 +126,10 @@
     "not_found": "Không tìm thấy phòng",
     "get_infor": {
       "failed": "Lấy thông tin phòng thất bại"
+    },
+    "search": {
+      "text_search_required": "Yêu cầu phải có từ khoá tìm kiếm",
+      "length_text_search": "Tìm kiếm với tối thiểu {{min}} kí tự"
     }
   }
 }

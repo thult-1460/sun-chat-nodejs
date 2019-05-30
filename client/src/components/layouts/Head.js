@@ -1,6 +1,7 @@
 import React from 'react';
-import { Layout, Row, Col, Menu, Icon, Badge, Dropdown, Avatar, Popover } from 'antd';
+import { Layout, Row, Col, Menu, Icon, Dropdown, Avatar } from 'antd';
 import { checkExpiredToken } from './../../helpers/common';
+import InputSearch from './../InputSearch';
 import ModalListContacts from '../modals/contact/ModalListContacts';
 import ModalListContactRequest from '../modals/contact/ModalListContactRequest';
 import ModalAddContact from '../modals/contact/ModalAddContact';
@@ -27,6 +28,11 @@ class Head extends React.Component {
     return checkExpiredToken() ? (
       <Header style={{ background: '#fff', padding: 0 }}>
         <Row type="flex" justify="end" align="middle">
+          <Col span={5}>
+            <InputSearch />
+          </Col>
+          <Col span={7}>
+          </Col>
           <Col span={4}>
             <ModalListContacts />
             <ModalListContactRequest />
@@ -34,7 +40,7 @@ class Head extends React.Component {
             <ModalAddContact />
             <CreateRoom />
           </Col>
-          <Col span={3}>
+          <Col span={4}>
             <Dropdown overlay={menu}>
               <a className="ant-dropdown-link" href="#">
                 <Avatar style={{ verticalAlign: 'middle' }}>User</Avatar>

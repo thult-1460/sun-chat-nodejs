@@ -80,6 +80,24 @@ section.ant-layout {
   }
 }
 
-.ant-col-3 {
-  width: 13.5%;
+.ant-row-flex > div:first-child {
+  margin-right: 50px;
+
+  .ant-list-split {
+    position: fixed;
+    width: 20pc;
+    padding: 0;
+    background-color: #cbd9e8;
+    ul.ant-list-items {
+      max-height: 400px;
+      overflow: auto;
+
+      span {
+        width: 30px;
+        height: 30px;
+        color: #d11b4f;
+      }
+    }
+  }
 }
+

@@ -23,6 +23,9 @@ const config = {
       },
     },
   },
+  COND_SEARCH_TEXT: {
+    MIN_LENGTH: 3,
+  }
 };
 
 export default config;

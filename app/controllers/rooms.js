@@ -46,6 +46,28 @@ exports.index = async function(req, res) {
   return res.status(200).json(rooms);
 };
 
+exports.getRoomsBySubName = async function(req, res) {
+  let { _id } = req.decoded;
+  let sub_name = req.query.sub_name;
+
+  const options = {
+    userId: _id,
+    sub_name: sub_name,
+  };
+
+  try {
+    let rooms = await Room.getRoomsBySubName(options);
+
+    return res.status(200).json(rooms);
+  } catch (err) {
+    channel.error(err.toString());
+
+    return res.status(500).json({
+      error: err.toString(),
+    });
+  }
+};
+
 exports.getQuantityRoomsByUserId = async function(req, res) {
   const { _id } = req.decoded;
   const filter_type = req.query.filter_type >= 0 ? req.query.filter_type : 0;

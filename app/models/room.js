@@ -100,7 +100,7 @@ RoomSchema.statics = {
     filter_type = parseInt(filter_type);
 
     let query = [
-      { $match: { 'members.user': mongoose.Types.ObjectId(userId) } },
+      { $match: { deletedAt: null, 'members.user': mongoose.Types.ObjectId(userId) } },
       {
         $addFields: {
           last_msg_id_reserve: {
@@ -151,6 +151,7 @@ RoomSchema.statics = {
 
     query.push({
       $match: {
+        'members.deletedAt': null,
         $or: list_filter_type_chat,
       },
     });
@@ -238,7 +239,7 @@ RoomSchema.statics = {
 
     let query = [
       {
-        $match: { 'members.user': mongoose.Types.ObjectId(_id) },
+        $match: { deletedAt: null, 'members.user': mongoose.Types.ObjectId(_id) },
       },
     ];
 
@@ -252,6 +253,7 @@ RoomSchema.statics = {
 
     query.push({
       $match: {
+        'members.deletedAt': null,
         $or: list_filter_type_chat,
       },
     });
@@ -308,6 +310,57 @@ RoomSchema.statics = {
     });
 
     return this.aggregate(query).exec();
+  },
+
+  getRoomsBySubName: function({ userId, sub_name }) {
+    return this.aggregate([
+      { $match: { deletedAt: null, 'members.user': mongoose.Types.ObjectId(userId) } },
+      { $unwind: '$members' },
+      {
+        $match: {
+          'members.deletedAt': null,
+          $or: [
+            { 'members.user': mongoose.Types.ObjectId(userId), type: config.ROOM_TYPE.GROUP_CHAT },
+            { 'members.user': { $ne: mongoose.Types.ObjectId(userId) }, type: config.ROOM_TYPE.DIRECT_CHAT },
+          ],
+        },
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'members.user',
+          foreignField: '_id',
+          as: 'members.user_info',
+        },
+      },
+      {
+        $addFields: {
+          name: {
+            $cond: {
+              if: { $in: ['$type', [config.ROOM_TYPE.GROUP_CHAT, config.ROOM_TYPE.SELF_CHAT]] },
+              then: '$name',
+              else: { $arrayElemAt: ['$members.user_info.name', 0] },
+            },
+          },
+          avatar_url: {
+            $cond: {
+              if: { $eq: ['$type', config.ROOM_TYPE.GROUP_CHAT] },
+              then: '$avatar_url',
+              else: { $arrayElemAt: ['$members.user_info.avatar', 0] },
+            },
+          },
+        },
+      },
+      {
+        $match: { name: { $regex: '^.*' + sub_name + '.*$', $options: 'i' } },
+      },
+      {
+        $project: {
+          name: 1,
+          avatar_url: 1,
+        },
+      },
+    ]);
   },
 
   getMembersOfRoom(roomId) {

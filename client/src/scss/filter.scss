@@ -10,10 +10,15 @@
   border-radius: 5px;
   text-align: center;
   padding: 4px;
+
+  a {
+    float: left;
+    width: 100%;
+  }
 }
 
 .ant-dropdown-menu-light {
-  margin-left: -100px;
+  margin-left: -2px;
   margin-top: 7px;
   min-width: 265px;
   background-color: cornflowerblue;
@@ -22,3 +27,4 @@
     background-color: #cadae8;
   }
 }
+

@@ -14,6 +14,7 @@ const roomAuthorization = require('../config/middlewares/authorization.js');
 const usersValidate = require('../app/validations/users.js');
 const roomsValidate = require('../app/validations/rooms.js');
 const contactValidate = require('../app/validations/contact.js');
+const searchValidate = require('../app/validations/search.js');
 
 // Change language
 router.get('/language/:lang', (req, res) => {
@@ -53,6 +54,12 @@ router.post('/update/user', auth.jwtMiddleware, usersValidate.validate('update')
 
 //Rooms
 router.get('/rooms/index', auth.jwtMiddleware, roomsController.index);
+router.get(
+  '/rooms/get-rooms-by-sub-name',
+  auth.jwtMiddleware,
+  searchValidate.validate(),
+  roomsController.getRoomsBySubName
+);
 router.get('/rooms/get-total-rooms-by-user', auth.jwtMiddleware, roomsController.getQuantityRoomsByUserId);
 router.post('/create-room', auth.jwtMiddleware, roomsValidate.validate('create'), roomsController.createRoom);
 router.delete('/delete-room', [auth.jwtMiddleware, roomAuthorization.checkAdmin], roomsController.deleteRoom);
