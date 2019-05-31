@@ -9,7 +9,7 @@ const auth = require('../app/controllers/auth/authController');
 //controller
 const users = require('../app/controllers/users');
 const roomsController = require('../app/controllers/rooms');
-const roomAuthorization = require('../config/middlewares/authorization.js');
+const authorization = require('../config/middlewares/authorization.js');
 //validation
 const usersValidate = require('../app/validations/users.js');
 const roomsValidate = require('../app/validations/rooms.js');
@@ -62,23 +62,47 @@ router.get(
 );
 router.get('/rooms/get-total-rooms-by-user', auth.jwtMiddleware, roomsController.getQuantityRoomsByUserId);
 router.post('/create-room', auth.jwtMiddleware, roomsValidate.validate('create'), roomsController.createRoom);
-router.delete('/delete-room', [auth.jwtMiddleware, roomAuthorization.checkAdmin], roomsController.deleteRoom);
+router.delete('/delete-room', [auth.jwtMiddleware, authorization.room.checkAdmin], roomsController.deleteRoom);
 router.get(
   '/r/:invitation_code',
-  [auth.jwtMiddleware, roomAuthorization.checkMemberCanJoinRoom],
+  [auth.jwtMiddleware, authorization.room.checkMemberCanJoinRoom],
   roomsController.checkInvitationCode
 );
 router.post('/rooms/requests/add', auth.jwtMiddleware, roomsController.createJoinRequest);
-router.get('/rooms/members', [auth.jwtMiddleware, roomAuthorization.showMember], roomsController.getMemberOfRoom);
+router.get(
+  '/rooms/:roomId/members',
+  [auth.jwtMiddleware, authorization.room.hasAuthorization],
+  roomsController.getMemberOfRoom
+);
 router.delete(
   '/rooms/delete-member',
-  [auth.jwtMiddleware, roomAuthorization.checkAdmin, roomAuthorization.checkDeleteAdmin],
+  [auth.jwtMiddleware, authorization.room.checkAdmin, authorization.room.checkDeleteAdmin],
   roomsController.deleteMember
 );
+
+router.get('/rooms/:roomId', [auth.jwtMiddleware, authorization.room.hasAuthorization], roomsController.getInforOfRoom);
+
+router.get('/rooms/:roomId', auth.jwtMiddleware, roomsController.getInforOfRoom);
 router.get(
-  '/rooms/:roomId',
-  [auth.jwtMiddleware, roomAuthorization.room.hasAuthorization],
-  roomsController.getInforOfRoom
+  '/rooms/:roomId/requests',
+  [auth.jwtMiddleware, authorization.room.checkAdmin],
+  roomsController.getRequestJoinRoom
+);
+router.get(
+  '/rooms/:roomId/total-requests',
+  [auth.jwtMiddleware, authorization.room.checkAdmin],
+  roomsController.totalRequest
+);
+
+router.post(
+  '/rooms/:roomId/reject-requests',
+  [auth.jwtMiddleware, authorization.room.checkAdmin],
+  roomsController.rejectRequests
+);
+router.post(
+  '/rooms/:roomId/accept-requests',
+  [auth.jwtMiddleware, authorization.room.checkAdmin],
+  roomsController.acceptRequests
 );
 
 module.exports = router;

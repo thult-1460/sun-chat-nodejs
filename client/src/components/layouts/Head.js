@@ -36,7 +36,6 @@ class Head extends React.Component {
           <Col span={4}>
             <ModalListContacts />
             <ModalListContactRequest />
-            <ModalListMember />
             <ModalAddContact />
             <CreateRoom />
           </Col>

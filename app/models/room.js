@@ -413,7 +413,7 @@ RoomSchema.statics = {
   },
 
   getRoomInfoByInvitateCode(invitationCode) {
-    return this.findOne({ invitation_code: invitationCode }, 'name avatar');
+    return this.findOne({ invitation_code: invitationCode }, 'name avatar_url');
   },
 
   addJoinRequest(roomId, userId) {
@@ -452,7 +452,7 @@ RoomSchema.statics = {
       {
         _id: roomId,
         deletedAt: null,
-        members: { $elemMatch: { user: memberId } },
+        members: { $elemMatch: { user: memberId, deletedAt: null } },
       },
       { $set: { 'members.$.deletedAt': Date.now() } }
     ).exec();
@@ -490,7 +490,8 @@ RoomSchema.statics = {
           name: 1,
           desc: 1,
           type: 1,
-          avatar: 1,
+          avatar_url: 1,
+          invitation_code: 1,
           'members_info._id': 1,
           'members_info.name': 1,
           'members_info.email': 1,
@@ -501,6 +502,38 @@ RoomSchema.statics = {
         },
       },
     ]);
+  },
+
+  getRequestJoinRoom: function(roomId, options) {
+    let limit = options.limit;
+    const page = options.page || 0;
+
+    return this.find(
+      {
+        _id: roomId,
+      },
+      { name: 1, incoming_requests: { $slice: [limit * page, limit] } }
+    )
+      .populate({
+        path: 'incoming_requests',
+        select: { avatar: 1, name: 1, _id: 1, email: 1 },
+      })
+      .exec();
+  },
+
+  getNumberOfRequest: async function(roomId) {
+    const room = await this.aggregate([
+      { $match: { _id: mongoose.Types.ObjectId(roomId) } },
+      {
+        $project: {
+          number_of_requests: {
+            $cond: { if: { $isArray: '$incoming_requests' }, then: { $size: '$incoming_requests' }, else: 0 },
+          },
+        },
+      },
+    ]);
+
+    return room[0]['number_of_requests'];
   },
 
   checkAdmin: async function(roomId, userId) {
@@ -518,6 +551,61 @@ RoomSchema.statics = {
       });
 
     return isAdmin;
+  },
+
+  rejectRequests: async function(roomId, requestIds) {
+    return this.updateOne(
+      {
+        _id: roomId,
+      },
+      {
+        $pull: {
+          incoming_requests: {
+            $in: requestIds,
+          },
+        },
+      }
+    );
+  },
+
+  acceptRequest: async function(roomId, requestIds) {
+    let members = [];
+    const lastMsgId = await this.getLastMsgId(roomId);
+
+    requestIds.map(id => {
+      members.push({
+        role: config.MEMBER_ROLE.MEMBER,
+        marked: true,
+        deleteAt: null,
+        user: id,
+        last_message_id: lastMsgId,
+      });
+    });
+
+    return this.update(
+      { _id: roomId },
+      {
+        $push: {
+          members: members,
+        },
+        $pull: {
+          incoming_requests: {
+            $in: requestIds,
+          },
+        },
+      }
+    );
+  },
+
+  getLastMsgId: async function(roomId) {
+    const room = await this.findOne(
+      {
+        _id: roomId,
+      },
+      { messages: { $slice: -1 }, invitation_type: 1 }
+    );
+
+    return room.messages[0]._id;
   },
 };
 

@@ -80,10 +80,11 @@ section.ant-layout {
   }
 }
 
-.ant-row-flex > div:first-child {
+.ant-layout-header > .ant-row-flex-middle > div:first-child {
   margin-right: 50px;
 
   .ant-list-split {
+    z-index: 10;
     position: fixed;
     width: 20pc;
     padding: 0;

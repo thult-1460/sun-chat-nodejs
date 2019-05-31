@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Icon, Badge, Modal } from 'antd';
+import { Icon, Badge, Modal, Avatar } from 'antd';
 import ListMember from './../../../pages/rooms/ListMember';
 
 class ModalListMember extends Component {
@@ -21,12 +21,14 @@ class ModalListMember extends Component {
 
   render() {
     return (
-      <Badge className="header-icon">
-        <Icon type="team" onClick={this.showListMember} />
+      <div>
+        <Avatar className="list-member-chat-room" onClick={this.showListMember}>
+          +{this.props.numRemainMember}
+        </Avatar>
         <Modal visible={this.state.visible} onCancel={this.handleHiddenListMember} footer={null}>
           {this.state.visible === true ? <ListMember /> : ''}
         </Modal>
-      </Badge>
+      </div>
     );
   }
 }

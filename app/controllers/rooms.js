@@ -77,7 +77,7 @@ exports.getQuantityRoomsByUserId = async function(req, res) {
 };
 
 exports.getMemberOfRoom = async function(req, res) {
-  const { roomId } = req.query;
+  const { roomId } = req.params;
   let { _id } = req.decoded;
   let isAdmin = false;
 
@@ -290,6 +290,75 @@ exports.getInforOfRoom = async function(req, res) {
     channel.error(err.toString());
     res.status(500).json({
       err: __('room.get_infor.failed'),
+    });
+  }
+};
+
+exports.getRequestJoinRoom = async (req, res) => {
+  const { roomId } = req.params;
+  const page = (req.query.page > 0 ? req.query.page : 1) - 1;
+  const limit = config.LIMIT_ITEM_SHOW.REQUEST_CONTACT;
+  const options = {
+    limit: limit,
+    page: page,
+  };
+
+  try {
+    const room = await Room.getRequestJoinRoom(roomId, options);
+
+    if (room.length > 0) {
+      return res.status(200).json({ result: room[0]['incoming_requests'] });
+    }
+
+    return res.status(200).json({ result: [] });
+  } catch (err) {
+    channel.error(err.toString());
+
+    res.status(500).json({ error: err.toString() });
+  }
+};
+
+exports.totalRequest = async (req, res) => {
+  let { roomId } = req.params;
+  const numberRequests = await Room.getNumberOfRequest(roomId);
+
+  return res.status(200).json({ result: numberRequests });
+};
+
+exports.rejectRequests = async (req, res) => {
+  let { roomId } = req.params;
+  const { requestIds } = req.body;
+
+  try {
+    await Room.rejectRequests(roomId, requestIds);
+
+    return res.status(200).json({
+      message: __('contact.reject.success'),
+    });
+  } catch (err) {
+    channel.error(err.toString());
+
+    return res.status(500).json({
+      error: __('contact.reject.fail'),
+    });
+  }
+};
+
+exports.acceptRequests = async (req, res) => {
+  const { requestIds } = req.body;
+  const { roomId } = req.params;
+
+  try {
+    await Room.acceptRequest(roomId, requestIds);
+
+    return res.status(200).json({
+      success: __('room.invitation.accept.success'),
+    });
+  } catch (err) {
+    channel.error(err.toString());
+
+    return res.status(500).json({
+      error: __('room.invitation.accept.failed'),
     });
   }
 };

@@ -5,6 +5,9 @@ import { withNamespaces } from 'react-i18next';
 import history from '../../history';
 import { ROOM_TYPE, LIMIT_REPRESENTATIVE_MEMBER } from '../../config/room';
 import { Layout, Menu, Icon, Button, Dropdown, message, Typography, Avatar, Row, Col } from 'antd';
+import ModalListRequest from '../modals/room/ModalListRequest';
+import ModalListMember from '../modals/room/ModalListMember';
+
 const { Header } = Layout;
 
 const { Text } = Typography;
@@ -17,9 +20,9 @@ class HeaderOfRoom extends React.Component {
 
     if (data.type === ROOM_TYPE.GROUP_CHAT) {
       if (data.number_of_members > limitShowMember) {
-        listMember.push(
-          <Avatar className="list-member-chat-room"> +{data.number_of_members - limitShowMember}</Avatar>
-        );
+        listMember.push(<ModalListMember numRemainMember={data.number_of_members - limitShowMember} />);
+      } else {
+        listMember.push(<ModalListMember numRemainMember="" />);
       }
 
       data.members_info.map(member => {
@@ -48,14 +51,20 @@ class HeaderOfRoom extends React.Component {
     return (
       <Header className="header-chat-room">
         <Row type="flex" justify="start">
-          <Col span={4}>
-            <Avatar size={30} src={this.props.data.avatar} className="avatar-room-chat" />
+          <Col span={18}>
+            <Avatar size={30} src={this.props.data.avatar_url} className="avatar-room-chat" />
             <Text strong className="name-chat-room">
               {this.props.data.name}
             </Text>
           </Col>
-
-          <Col span={19}> {this.showRepresentativeMembers()}</Col>
+          <Col span={1}>
+            {this.props.isAdmin && (
+              <div className="icon-request-list">
+                <ModalListRequest />
+              </div>
+            )}
+          </Col>
+          <Col span={4}> {this.showRepresentativeMembers()}</Col>
           <Col span={1}>
             <Dropdown
               overlay={

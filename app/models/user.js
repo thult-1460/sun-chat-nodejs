@@ -295,7 +295,7 @@ UserSchema.statics = {
         });
       }
 
-      return this.update({ _id: userId }, { $pullAll: { requested_in_comming: requestUserIds } });
+      return this.update({ _id: userId }, { $pull: { requested_in_comming: { $in: requestUserIds } } });
     } catch (err) {
       throw new Error(__('contact.accept.failed'));
     }

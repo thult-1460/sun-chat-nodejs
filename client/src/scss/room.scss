@@ -5,6 +5,9 @@
   background-color: #e6e6e6;
   min-width: 406px !important;
 }
+.icon-request-list {
+  margin-top: -5px;
+}
 .icon-setting-room {
   color: black;
   font-size: 17px;
@@ -85,6 +88,16 @@ head .delete-member {
   padding-left: 10px;
   padding-right: 10px;
 }
+
 .content-desc-chat-room {
   color: #000;
+}
+
+.invitation-btn {
+  position: relative;
+  top: 300px;
+}
+
+.copy-btn {
+  margin-top: 10px;
 }

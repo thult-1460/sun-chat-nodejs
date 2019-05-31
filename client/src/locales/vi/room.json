@@ -21,11 +21,19 @@
     "submit": "Tạo",
     "join": "Tham gia phòng",
     "delete-room": "Delete room chat",
-    "left-room": "Left the room chat"
+    "left-room": "Left the room chat",
+    "copy": "Sap chép",
+    "back": "Trở về",
+    "copied": "Đã sao chép"
   },
   "invitation": {
     "joined": "Bạn đã vào phòng này",
     "have_request_before": "Bạn đã gửi yêu cầu vào phòng này",
-    "cant_join": "Bạn không thể gửi yêu cầu vào phòng này"
+    "cant_join": "Bạn không thể gửi yêu cầu vào phòng này",
+    "title": "Đường dẫn mời",
+    "description": "Bạn có thể thêm người khác vào trong nhóm bằng cách gửi cho họ đường dẫn này"
+  },
+  "request": {
+    "title": "Danh sách yêu cầu"
   }
 }

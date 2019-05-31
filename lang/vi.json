@@ -116,7 +116,11 @@
       "in_room": "Bạn đã ở trong phòng này",
       "join_success": "Bạn đã gửi yêu cầu vào phòng thành công",
       "requested": "Bạn đã gửi yêu cầu trước đó",
-      "cant_join": "Không thể gửi yêu cầu vào phòng này"
+      "cant_join": "Không thể gửi yêu cầu vào phòng này",
+      "accept": {
+        "success": "Chấp nhận yêu cầu thành công",
+        "failed": "Chấp nhận yêu cầu thất bại"
+      }
     },
     "delete_member": {
       "success": "Xóa thành viên thành công",

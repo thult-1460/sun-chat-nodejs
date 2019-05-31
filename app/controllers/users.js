@@ -318,7 +318,7 @@ exports.contactRequest = async(function*(req, res) {
     page: page,
   };
   const contact = yield User.getMyContactRequest(_id, options);
-  return res.json({ result: contact[0]['requested_in_comming'] });
+  return res.status(200).json({ result: contact[0]['requested_in_comming'] });
 });
 
 exports.totalContactRequest = async(function*(req, res) {

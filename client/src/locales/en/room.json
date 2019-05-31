@@ -21,12 +21,19 @@
     "submit": "Create",
     "join": "Join",
     "delete-room": "Delete room chat",
-    "left-room": "Left the room chat"
+    "left-room": "Left the room chat",
+    "copy": "Copy",
+    "back": "Back",
+    "copied": "Copied"
   },
-
   "invitation": {
     "joined": "You are in this room",
     "have_request_before": "You requested this room",
-    "cant_join": "You can't join this room"
+    "cant_join": "You can't join this room",
+    "title": "Invitation Link",
+    "description": "Can add users to group chats by sending an invitation link."
+  },
+  "request": {
+    "title": "Request list"
   }
 }

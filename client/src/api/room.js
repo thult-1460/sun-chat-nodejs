@@ -29,7 +29,7 @@ export function sendRequestJoinRoom(data) {
 }
 
 export function getMembersOfRoom(roomId) {
-  return new Http().authenticated().get(`/rooms/members?roomId=${roomId}`);
+  return new Http().authenticated().get(`/rooms/${roomId}/members`);
 }
 
 export function deleteMember(data) {
@@ -38,4 +38,20 @@ export function deleteMember(data) {
 
 export function getInforRoom(roomId) {
   return new Http().authenticated().get('rooms/' + roomId);
+}
+
+export function getRequests(roomId, page) {
+  return new Http().authenticated().get(`/rooms/${roomId}/requests?page=${page}`);
+}
+
+export function getNumberOfRequests(roomId) {
+  return new Http().authenticated().get(`/rooms/${roomId}/total-requests`);
+}
+
+export function acceptRequests(roomId, requestIds) {
+  return new Http().authenticated().post(`/rooms/${roomId}/accept-requests`, requestIds);
+}
+
+export function rejectRequests(roomId, requestIds) {
+  return new Http().authenticated().post(`/rooms/${roomId}/reject-requests`, requestIds);
 }

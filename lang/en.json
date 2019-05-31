@@ -116,7 +116,11 @@
       "in_room": "You are in room",
       "join_success": "You joined this room",
       "requested": "You requested this room",
-      "cant_join": "You can't join this room"
+      "cant_join": "You can't join this room",
+      "accept": {
+        "success": "Accept request successfully",
+        "failed": "Accept request failed"
+      }
     },
     "delete_member": {
       "success": "Delete member successfully",
