@@ -135,7 +135,7 @@ RoomSchema.statics = {
       },
       {
         $addFields: {
-          message_limit: { $slice: ['$message_able', default_quantity_unread] },
+          message_limit: { $slice: ['$message_able', (-1 * default_quantity_unread)] },
         },
       },
       { $unwind: '$members' },
@@ -188,12 +188,6 @@ RoomSchema.statics = {
           type: 1,
           last_created_msg: { $max: '$messages.createdAt' },
           pinned: '$last_msg_id_reserve.pinned',
-          'members.user': 1,
-          'members.user_info._id': 1,
-          'members.user_info.avatar': 1,
-          'members.user_info.name': 1,
-          'members.user_info.username': 1,
-          'members.last_message_id': '$last_msg_id_reserve.last_message_id',
           quantity_unread: {
             $cond: {
               if: {
@@ -202,11 +196,19 @@ RoomSchema.statics = {
                   { $ne: ['$last_msg_id_reserve.last_message_id', null] },
                 ],
               },
-              then: { $indexOfArray: ['$message_limit._id', '$last_msg_id_reserve.last_message_id'] },
+              then: {
+                $size: {
+                  $slice: [
+                    '$message_limit._id',
+                    { $add: [{ $indexOfArray: ['$message_limit._id', '$last_msg_id_reserve.last_message_id'] }, 1] }, 
+                    default_quantity_unread,
+                  ],
+                }
+              },
               else: { $size: '$message_limit' },
             },
-          },
-        },
+          }
+        }
       }
     );
 
