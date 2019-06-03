@@ -1,8 +1,8 @@
 import React from 'react';
-import { Layout, Icon, Menu, Avatar, message, Typography, Dropdown, List } from 'antd';
+import { Layout, Icon, Menu, Avatar, message, Typography, Dropdown, List, Button } from 'antd';
 import InfiniteScroll from 'react-infinite-scroller';
 import { checkExpiredToken } from './../../helpers/common';
-import { getListRoomsByUser, getQuantityRoomsByUserId } from './../../api/room';
+import { getListRoomsByUser, getQuantityRoomsByUserId, togglePinnedRoom } from './../../api/room';
 import { Link } from 'react-router-dom';
 import config from './../../config/listRoom';
 import { withNamespaces } from 'react-i18next';
@@ -80,6 +80,16 @@ class Sidebar extends React.Component {
     });
   };
 
+  handlePinned = e => {
+    const page = 1;
+    const { rooms } = this.state;
+    let roomId = e.target.value;
+
+    togglePinnedRoom(roomId).then(res => {
+      this.fetchData(page);
+    });
+  };
+
   render() {
     const { rooms, loading } = this.state;
     const { t } = this.props;
@@ -116,7 +126,13 @@ class Sidebar extends React.Component {
                 &nbsp;&nbsp;
                 <span className="nav-text">{room.name}</span>
               </div>
-              {room.marked && <Icon type="pushpin" />}
+              <Button
+                className={room.pinned ? 'pin pinned' : 'pin'}
+                onClick={this.handlePinned}
+                value={room._id}
+              >
+                <Icon type="pushpin" />
+              </Button>
               {room.quantity_unread > 0 && <Typography.Text mark>{room.quantity_unread}</Typography.Text>}
             </Link>
           </List.Item>

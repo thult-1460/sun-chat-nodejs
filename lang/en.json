@@ -135,6 +135,10 @@
       "text_search_required": "The key words is required",
       "length_text_search": "Search for at least {{min}} chars"
     },
-    "user_not_in_room": "You haven't member of room"
+    "user_not_in_room": "You haven't member of room",
+    "pinned": {
+      "success": "{{pinned}} successfully",
+      "failed": "{{pinned}} failed"
+    }
   }
 }

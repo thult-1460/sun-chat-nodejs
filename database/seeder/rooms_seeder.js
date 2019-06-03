@@ -91,7 +91,7 @@ function detectRoomByUsers(type, users) {
           : i == 0
           ? configCommon.MEMBER_ROLE.ADMIN
           : faker.random.number({ min: configCommon.MEMBER_ROLE.MEMBER, max: configCommon.MEMBER_ROLE.READ_ONLY }),
-      marked: faker.random.boolean(),
+      pinned: faker.random.boolean(),
       last_message_id: null,
     });
   });

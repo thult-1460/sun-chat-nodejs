@@ -362,3 +362,20 @@ exports.acceptRequests = async (req, res) => {
     });
   }
 };
+
+exports.togglePinnedRoom = async (req, res) => {
+  let { roomId } = req.params;
+  let userId = req.decoded._id;
+  let pinnedRoom = await Room.getPinnedRoom(roomId, userId);
+
+  try {
+    let pinned = !pinnedRoom.members[0].pinned;
+    await Room.pinnedRoom(roomId, userId, pinned);
+
+    return res.status(200).json({ success: __('room.pinned.success', { pinned: pinned ? 'Pin' : 'Unpin' }) });
+  } catch (err) {
+    channel.error(err.toString());
+
+    return res.status(500).json({ error: __('room.pinned.failed', { pinned: pinned ? 'Pin' : 'Unpin' }) });
+  }
+};
