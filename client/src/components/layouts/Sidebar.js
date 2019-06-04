@@ -91,8 +91,8 @@ class Sidebar extends React.Component {
     });
   };
 
-  updateSelectedRoom = roomId => {
-    this.setState({ selected_room: roomId });
+  updateSelectedRoom = e => {
+    this.setState({ selected_room: e.currentTarget.getAttribute('data-roomId') });
   };
 
   render() {
@@ -126,9 +126,9 @@ class Sidebar extends React.Component {
         return (
           <List.Item
             key={key}
-            value={room._id}
             className={room._id == this.state.selected_room ? 'item-active' : ''}
-            onClick={this.updateSelectedRoom.bind(this, room._id)}
+            data-roomId={room._id}
+            onClick={this.updateSelectedRoom}
           >
             <Link to={'/room/' + room._id}>
               <div className="avatar-name">

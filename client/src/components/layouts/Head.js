@@ -12,6 +12,11 @@ import { Link } from 'react-router-dom';
 const { Header } = Layout;
 
 class Head extends React.Component {
+  onLogout = () => {
+    localStorage.removeItem('token');
+    window.location.href = '/login';
+  };
+
   render() {
     const menu = (
       <Menu>
@@ -31,8 +36,7 @@ class Head extends React.Component {
           <Col span={5}>
             <InputSearch />
           </Col>
-          <Col span={7}>
-          </Col>
+          <Col span={7} />
           <Col span={4}>
             <ModalListContacts />
             <ModalListContactRequest />
