@@ -102,23 +102,47 @@ section.ant-layout {
   }
 }
 
-.ant-btn.pin {
-  padding: 4px;
-  height: 30px;
-  border: none;
-  background: none;
-  color: #133b63;
-  &:hover,
-  &.pinned {
-    background: none;
-    color: #40a9ff;
+.ant-menu-dark li.ant-list-item {
+  margin: 0;
+  padding: 12px 15px;
+  &:hover {
+    background-color: #364c5f;
   }
-  &:focus,
-  &:active {
+  a {
+    width: 100%;
+  }
+  &.item-active {
+    background-color: #0a3661;
+  }
+  .ant-btn.pin {
+    padding: 0;
+    height: 35px;
+    border: none;
     background: none;
+    color: #133b63;
+    float: right;
+    &:hover,
+    &.pinned {
+      background: none;
+      color: #40a9ff;
+    }
+    &:focus,
+    &:active {
+      background: none;
+    }
+    .anticon {
+      margin: 0;
+      font-size: 15px;
+    }
+  }
+  .ant-typography {
+    float: left;
+    mark {
+      vertical-align: inherit;
+    }
   }
 }
-.ant-menu-dark li.ant-list-item .pin .anticon {
-  margin: 0;
-  font-size: 15px;
+.avatar-name .ant-avatar {
+  width: 35px;
+  height: 35px;
 }
