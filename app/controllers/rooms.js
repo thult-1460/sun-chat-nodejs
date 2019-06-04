@@ -379,3 +379,18 @@ exports.togglePinnedRoom = async (req, res) => {
     return res.status(500).json({ error: __('room.pinned.failed', { pinned: pinned ? 'Pin' : 'Unpin' }) });
   }
 };
+
+exports.readNextMsg = async function(req, res) {
+  const { _id } = req.decoded;
+  const { roomId } = req.params;
+
+  try {
+    const messages = await Room.readNextMsg(roomId, _id);
+    res.status(200).json({ messages: messages[0]['messages'] });
+  } catch (err) {
+    channel.error(err.toString());
+    res.status(500).json({
+      err: __('room.get_next_message.failed'),
+    });
+  }
+};

@@ -139,6 +139,9 @@
     "pinned": {
       "success": "{{pinned}} successfully",
       "failed": "{{pinned}} failed"
+    },
+    "get_next_message": {
+      "failed": "Get message fail"
     }
   }
 }

@@ -69,7 +69,6 @@ class RoomDetail extends React.Component {
     return (
       <React.Fragment>
         <Layout>
-          <Content />
           <HeaderOfRoom data={roomInfo} isAdmin={isAdmin} />
           <Layout>
             <ChatBox />

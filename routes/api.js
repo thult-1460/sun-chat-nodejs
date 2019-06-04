@@ -109,5 +109,10 @@ router.post(
   [auth.jwtMiddleware, authorization.room.hasAuthorization],
   roomsController.togglePinnedRoom
 );
+router.get(
+  '/rooms/message/:roomId',
+  [auth.jwtMiddleware, authorization.room.hasAuthorization],
+  roomsController.readNextMsg
+);
 
 module.exports = router;

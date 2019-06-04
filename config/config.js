@@ -38,6 +38,7 @@ module.exports = {
   },
   LIMIT_MESSAGE: {
     COUNT_UNREAD: 1000,
+    NEXT_MESSAGE: 10,
   },
   DIR_UPLOAD_FILE: './public/uploads/',
   ROOM: {

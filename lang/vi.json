@@ -139,6 +139,9 @@
     "pinned": {
       "success": "{{pinned}} thành công",
       "failed": "{{pinned}} thất bại"
+    },
+    "get_next_message": {
+      "failed": "Lấy tin nhắn thất bại"
     }
   }
 }

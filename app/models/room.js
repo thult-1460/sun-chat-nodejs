@@ -135,7 +135,7 @@ RoomSchema.statics = {
       },
       {
         $addFields: {
-          message_limit: { $slice: ['$message_able', (-1 * default_quantity_unread)] },
+          message_limit: { $slice: ['$message_able', -1 * default_quantity_unread] },
         },
       },
       { $unwind: '$members' },
@@ -200,15 +200,15 @@ RoomSchema.statics = {
                 $size: {
                   $slice: [
                     '$message_limit._id',
-                    { $add: [{ $indexOfArray: ['$message_limit._id', '$last_msg_id_reserve.last_message_id'] }, 1] }, 
+                    { $add: [{ $indexOfArray: ['$message_limit._id', '$last_msg_id_reserve.last_message_id'] }, 1] },
                     default_quantity_unread,
                   ],
-                }
+                },
               },
               else: { $size: '$message_limit' },
             },
-          }
-        }
+          },
+        },
       }
     );
 
@@ -549,7 +549,7 @@ RoomSchema.statics = {
         if (room != null) isAdmin = true;
       })
       .catch(err => {
-        channel.error(err.toString());
+        channel.error(__('room.not_admin'));
       });
 
     return isAdmin;
@@ -631,6 +631,39 @@ RoomSchema.statics = {
       },
       { $set: { 'members.$.pinned': pinned } }
     ).exec();
+  },
+
+  readNextMsg: async function(roomId, userId) {
+    return this.aggregate([
+      { $match: { _id: mongoose.Types.ObjectId(roomId), deletedAt: null } },
+      { $unwind: '$members' },
+      { $match: { 'members.user': mongoose.Types.ObjectId(userId), 'members.deletedAt': null } },
+      {
+        $addFields: {
+          message_able: {
+            $filter: {
+              input: '$messages',
+              as: 'mes',
+              cond: {
+                $or: [{ $eq: ['$$mes.deletedAt', null] }, { $eq: ['$$mes._id', '$user.last_message_id'] }],
+              },
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          messages: {
+            $slice: [
+              '$message_able',
+              { $add: [{ $indexOfArray: ['$message_able._id', '$members.last_message_id'] }, 1] },
+              config.LIMIT_MESSAGE.NEXT_MESSAGE,
+            ],
+          },
+        },
+      },
+    ]);
   },
 };
 
