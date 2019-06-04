@@ -142,6 +142,10 @@
     },
     "get_next_message": {
       "failed": "Lấy tin nhắn thất bại"
+    },
+    "change_role": {
+      "success": "Thay đổi quyền của thành viên thành công",
+      "failed": "Thay đổi quyền của thành viên thất bại"
     }
   }
 }

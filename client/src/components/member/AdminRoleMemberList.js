@@ -14,7 +14,13 @@ class AdminRoleMemberList extends React.Component {
           itemLayout="horizontal"
           dataSource={members}
           renderItem={member => (
-            <MemberRow key={member._id} member={member} onDeleteMember={this.props.onDeleteRow} userId={userId} />
+            <MemberRow
+              key={member._id}
+              member={member}
+              onDeleteMember={this.props.onDeleteRow}
+              onChangeRoleMember={this.props.onChangeRoleRow}
+              userId={userId}
+            />
           )}
         />
       </div>

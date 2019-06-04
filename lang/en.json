@@ -142,6 +142,10 @@
     },
     "get_next_message": {
       "failed": "Get message fail"
+    },
+    "change_role": {
+      "success": "Change role of members successfully",
+      "failed": "Change role of members failed"
     }
   }
 }

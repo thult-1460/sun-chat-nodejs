@@ -665,6 +665,19 @@ RoomSchema.statics = {
       },
     ]);
   },
+
+  changeRoleMember: function(roomId, members) {
+    return this.findById(roomId).then(function(room) {
+      for (let i in members) {
+        let index = room.members.findIndex(member => member.user == members[i].memberId);
+
+        if (index !== -1) {
+          room.members[index].role = members[i].nextRole;
+        }
+      }
+      room.save();
+    });
+  },
 };
 
 module.exports = mongoose.model('Room', RoomSchema);

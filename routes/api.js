@@ -80,6 +80,12 @@ router.delete(
   roomsController.deleteMember
 );
 
+router.post(
+  '/rooms/change-role-member',
+  [auth.jwtMiddleware, authorization.room.checkAdmin],
+  roomsController.changeRoleMember
+);
+
 router.get('/rooms/:roomId', [auth.jwtMiddleware, authorization.room.hasAuthorization], roomsController.getInforOfRoom);
 
 router.get('/rooms/:roomId', auth.jwtMiddleware, roomsController.getInforOfRoom);

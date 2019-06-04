@@ -1,6 +1,6 @@
 import React from 'react';
 import { Avatar, Tabs, Button, Input, message, Modal } from 'antd';
-import { getMembersOfRoom, deleteMember } from './../../api/room';
+import { getMembersOfRoom, deleteMember, changeRoleMember } from './../../api/room';
 import { withNamespaces } from 'react-i18next';
 import { withRouter } from 'react-router';
 import AdminRoleMemberList from './../../components/member/AdminRoleMemberList';
@@ -19,6 +19,7 @@ class ListMember extends React.Component {
     contactDetail: null,
     visible: false,
     showComponent: false,
+    membersChangeRole: [],
   };
 
   componentDidMount() {
@@ -53,10 +54,40 @@ class ListMember extends React.Component {
     });
   };
 
+  dataListMemberChangeRole = (memberId, nextRole) => {
+    const { membersChangeRole } = this.state;
+
+    let index = membersChangeRole.findIndex(members => members.memberId == memberId);
+
+    if (index !== -1) {
+      membersChangeRole[index] = { memberId, nextRole };
+    } else {
+      membersChangeRole.push({
+        memberId,
+        nextRole,
+      });
+    }
+  };
+
+  submitChangeRoleMember = () => {
+    const data = { members: this.state.membersChangeRole, roomId: this.props.match.params.id };
+
+    if (data.members.length != 0) {
+      changeRoleMember(data)
+        .then(res => {
+          message.success(res.data.success);
+        })
+        .catch(error => {
+          message.error(error.response.data.error);
+        });
+    }
+
+    this.props.handleOk();
+  };
 
   handleDeleteMember = memberId => {
-    const {searchMembers, members} = this.state;
-    const data = {memberId: memberId, roomId: this.props.match.params.id};
+    const { searchMembers, members } = this.state;
+    const data = { memberId: memberId, roomId: this.props.match.params.id };
 
     deleteMember(data)
       .then(res => {
@@ -69,7 +100,7 @@ class ListMember extends React.Component {
       .catch(error => {
         message.error(error.response.data.error);
       });
-  }
+  };
 
   showContactDetail = e => {
     const userId = e.currentTarget.id;
@@ -148,10 +179,17 @@ class ListMember extends React.Component {
           {isAdmin && (
             <TabPane tab={t('action.edit_role')} key="2">
               <Input placeholder="Search" onChange={this.handleSearchMember} />
-              <AdminRoleMemberList members={searchMembers} onDeleteRow={this.handleDeleteMember} userId={userId} />
+              <AdminRoleMemberList
+                members={searchMembers}
+                onDeleteRow={this.handleDeleteMember}
+                onChangeRoleRow={this.dataListMemberChangeRole}
+                userId={userId}
+              />
               <div className="contact-check-all">
                 <Button.Group className="btn-all-accept">
-                  <Button type="primary">{t('button.save')}</Button>
+                  <Button type="primary" onClick={this.submitChangeRoleMember}>
+                    {t('button.save')}
+                  </Button>
                 </Button.Group>
               </div>
             </TabPane>

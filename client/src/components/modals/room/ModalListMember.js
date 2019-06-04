@@ -19,14 +19,22 @@ class ModalListMember extends Component {
     });
   };
 
+  handleOk = e => {
+    this.setState({
+      visible: false,
+    });
+  };
+
   render() {
     return (
       <div>
-        <Avatar className="list-member-chat-room" onClick={this.showListMember}>
-          +{this.props.numRemainMember}
-        </Avatar>
-        <Modal visible={this.state.visible} onCancel={this.handleHiddenListMember} footer={null}>
-          {this.state.visible === true ? <ListMember /> : ''}
+        <a>
+          <Avatar className="list-member-chat-room" onClick={this.showListMember}>
+            +{this.props.numRemainMember}
+          </Avatar>
+        </a>
+        <Modal visible={this.state.visible} onCancel={this.handleHiddenListMember} footer={null} width="550px">
+          {this.state.visible === true ? <ListMember handleOk={this.handleOk} /> : ''}
         </Modal>
       </div>
     );

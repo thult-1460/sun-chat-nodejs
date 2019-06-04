@@ -47,8 +47,7 @@ class RoomDetail extends React.Component {
     });
   };
 
-  componentWillReceiveProps(nextProps) {
-    const roomId = nextProps.match.params.id;
+  fetchData = roomId => {
     getInforRoom(roomId)
       .then(res => {
         this.setState({
@@ -59,6 +58,16 @@ class RoomDetail extends React.Component {
       .catch(error => {
         message.error(error.response.data.err);
       });
+  };
+
+  componentDidMount() {
+    const roomId = this.props.match.params.id;
+    this.fetchData(roomId);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const roomId = nextProps.match.params.id;
+    this.fetchData(roomId);
   }
 
   render() {

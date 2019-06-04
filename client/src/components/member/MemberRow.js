@@ -7,6 +7,11 @@ import { ROLES } from './../../config/member';
 const Option = Select.Option;
 
 class MemberRow extends React.Component {
+  onChangeRoleMember = nextRole => {
+    const { member } = this.props;
+    this.props.onChangeRoleMember(member._id, nextRole);
+  };
+
   handleDeleteMember = () => {
     const { member } = this.props;
     this.props.onDeleteMember(member._id);
@@ -25,28 +30,28 @@ class MemberRow extends React.Component {
     }
 
     return (
-      <List.Item>
+      <List.Item id="list-member-item">
         <List.Item.Meta
           avatar={<Avatar size={35} src={member.avatar} />}
           title={member.name}
           description={member.email}
         />
-        <div>
-          <Select defaultValue={ROLES[member.role].value} style={{ width: 120 }}>
-            {roleRows}
-          </Select>
-        </div>
         {userId != member._id ? (
-          <Popconfirm
-            title={t('delete_member.question_confirm', { name: member.name })}
-            onConfirm={this.handleDeleteMember}
-            okText={t('button.yes')}
-            cancelText={t('button.no')}
-          >
-            <Button className="delete-member">
-              <Icon type="close" />
-            </Button>
-          </Popconfirm>
+          <div>
+            <Select defaultValue={ROLES[member.role].value} style={{ width: 120 }} onChange={this.onChangeRoleMember}>
+              {roleRows}
+            </Select>
+            <Popconfirm
+              title={t('delete_member.question_confirm', { name: member.name })}
+              onConfirm={this.handleDeleteMember}
+              okText={t('button.yes')}
+              cancelText={t('button.no')}
+            >
+              <Button className="delete-member">
+                <Icon type="close" />
+              </Button>
+            </Popconfirm>
+          </div>
         ) : (
           ''
         )}

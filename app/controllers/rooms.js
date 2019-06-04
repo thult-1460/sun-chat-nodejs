@@ -394,3 +394,19 @@ exports.readNextMsg = async function(req, res) {
     });
   }
 };
+
+exports.changeRoleMember = async (req, res) => {
+  const { members, roomId } = req.body;
+
+  try {
+    await Room.changeRoleMember(roomId, members);
+
+    return res.status(200).json({
+      success: __('room.change_role.success'),
+    });
+  } catch (err) {
+    return res.status(500).json({
+      error: __('room.change_role.failed'),
+    });
+  }
+};
