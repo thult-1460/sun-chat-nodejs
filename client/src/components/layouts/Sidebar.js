@@ -7,9 +7,12 @@ import { Link } from 'react-router-dom';
 import config from './../../config/listRoom';
 import { withNamespaces } from 'react-i18next';
 import Loading from '../Loading';
+import { SocketContext } from './../../context/SocketContext';
 const { Sider } = Layout;
 
 class Sidebar extends React.Component {
+  static contextType = SocketContext;
+
   state = {
     rooms: [],
     error: '',
@@ -32,15 +35,23 @@ class Sidebar extends React.Component {
   };
 
   componentDidMount() {
-    const { page } = this.state;
-    const filter_type = config.FILTER_TYPE.LIST_ROOM.ALL.VALUE;
-    this.fetchData({ page, filter_type });
+    if (checkExpiredToken()) {
+      const { page } = this.state;
+      const filter_type = config.FILTER_TYPE.LIST_ROOM.ALL.VALUE;
+      this.fetchData({ page, filter_type });
 
-    getQuantityRoomsByUserId(filter_type).then(res => {
-      this.setState({
-        quantity_chats: res.data.result,
+      getQuantityRoomsByUserId(filter_type).then(res => {
+        this.setState({
+          quantity_chats: res.data.result,
+        });
       });
-    });
+
+      const socket = this.context;
+      socket.on('update_list_room', () => {});
+      socket.on('add_room', () => {});
+      socket.on('edit_room', () => {});
+      socket.on('delete_room', () => {});
+    }
   }
 
   handleInfiniteOnLoad = () => {

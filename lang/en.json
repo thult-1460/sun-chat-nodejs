@@ -147,5 +147,10 @@
       "success": "Change role of members successfully",
       "failed": "Change role of members failed"
     }
+  },
+  "socket": {
+    "room": {
+      "open_room_failed": "open_room_failed"
+    }
   }
 }

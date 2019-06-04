@@ -147,5 +147,10 @@
       "success": "Thay đổi quyền của thành viên thành công",
       "failed": "Thay đổi quyền của thành viên thất bại"
     }
+  },
+  "socket": {
+    "room": {
+      "open_room_failed": "open_room_failed"
+    }
   }
 }

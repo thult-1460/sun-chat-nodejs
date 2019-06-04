@@ -9,9 +9,19 @@ import ModalListMember from '../modals/room/ModalListMember';
 import CreateRoom from '../room/CreateRoom';
 import ChangeLanguage from './../ChangeLanguage';
 import { Link } from 'react-router-dom';
+import { SocketContext } from './../../context/SocketContext';
 const { Header } = Layout;
 
 class Head extends React.Component {
+  static contextType = SocketContext;
+
+  componentDidMount() {
+    if (checkExpiredToken()) {
+      const socket = this.context;
+      socket.on('update_request_friend_count', request_friend_count => {});
+    }
+  }
+
   onLogout = () => {
     localStorage.removeItem('token');
     window.location.href = '/login';

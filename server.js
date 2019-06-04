@@ -16,6 +16,8 @@ const moment = require('moment-timezone');
 const models = join(__dirname, 'app/models');
 const port = process.env.PORT || 3001;
 const app = express();
+const http = require('http');
+
 const { timezone } = require('./config/app.js');
 moment.tz.setDefault(timezone);
 
@@ -34,11 +36,14 @@ require('./config/passport')(passport);
 require('./config/express')(app, passport);
 require('./config/routes')(app, passport);
 
+const server = http.createServer(app);
+require('./app/controllers/socket')(server);
+
 connect();
 
 function listen() {
   if (app.get('env') === 'test') return;
-  app.listen(port);
+  server.listen(port);
   console.log('Express app started on port ' + port);
 }
 

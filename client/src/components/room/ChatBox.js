@@ -1,9 +1,12 @@
 import React from 'react';
 import { withRouter } from 'react-router';
 import { Layout, Input } from 'antd';
+import { SocketContext } from './../../context/SocketContext';
 const { Content } = Layout;
 
 class ChatBox extends React.Component {
+  static contextType = SocketContext;
+
   render() {
     return (
       <Content className="chat-room">
