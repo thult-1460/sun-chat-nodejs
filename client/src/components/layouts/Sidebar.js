@@ -18,6 +18,7 @@ class Sidebar extends React.Component {
     page: 1,
     quantity_chats: 0,
     filter_flag: 0,
+    selected_room: '',
   };
 
   fetchData = param => {
@@ -90,6 +91,10 @@ class Sidebar extends React.Component {
     });
   };
 
+  updateSelectedRoom = roomId => {
+    this.setState({ selected_room: roomId });
+  };
+
   render() {
     const { rooms, loading } = this.state;
     const { t } = this.props;
@@ -119,21 +124,22 @@ class Sidebar extends React.Component {
       rooms.length > 0 &&
       rooms.map((room, key) => {
         return (
-          <List.Item key={key}>
+          <List.Item
+            key={key}
+            value={room._id}
+            className={room._id == this.state.selected_room ? 'item-active' : ''}
+            onClick={this.updateSelectedRoom.bind(this, room._id)}
+          >
             <Link to={'/room/' + room._id}>
               <div className="avatar-name">
                 <Avatar src={room.avatar} />
                 &nbsp;&nbsp;
                 <span className="nav-text">{room.name}</span>
               </div>
-              <Button
-                className={room.pinned ? 'pin pinned' : 'pin'}
-                onClick={this.handlePinned}
-                value={room._id}
-              >
+              {room.quantity_unread > 0 && <Typography.Text mark>{room.quantity_unread}</Typography.Text>}
+              <Button className={room.pinned ? 'pin pinned' : 'pin'} onClick={this.handlePinned} value={room._id}>
                 <Icon type="pushpin" />
               </Button>
-              {room.quantity_unread > 0 && <Typography.Text mark>{room.quantity_unread}</Typography.Text>}
             </Link>
           </List.Item>
         );
