@@ -633,7 +633,7 @@ RoomSchema.statics = {
     ).exec();
   },
 
-  readNextMsg: async function(roomId, userId) {
+  readNextMsg: async function(roomId, userId, page) {
     return this.aggregate([
       { $match: { _id: mongoose.Types.ObjectId(roomId), deletedAt: null } },
       { $unwind: '$members' },
@@ -652,15 +652,70 @@ RoomSchema.statics = {
         },
       },
       {
-        $project: {
-          _id: 0,
-          messages: {
-            $slice: [
-              '$message_able',
-              { $add: [{ $indexOfArray: ['$message_able._id', '$members.last_message_id'] }, 1] },
-              config.LIMIT_MESSAGE.NEXT_MESSAGE,
+        $addFields: {
+          index_of_message: {
+            $add: [
+              { $indexOfArray: ['$message_able._id', '$members.last_message_id'] },
+              page * config.LIMIT_MESSAGE.NEXT_MESSAGE,
             ],
           },
+        },
+      },
+      {
+        $addFields: {
+          messages: {
+            $cond: {
+              if: {
+                $gte: ['$index_of_message', 0],
+              },
+              then: {
+                $slice: ['$message_able', '$index_of_message', config.LIMIT_MESSAGE.NEXT_MESSAGE],
+              },
+              else: {
+                $cond: {
+                  if: {
+                    $lt: [{ $abs: '$index_of_message' }, config.LIMIT_MESSAGE.NEXT_MESSAGE],
+                  },
+                  then: {
+                    $slice: [
+                      '$message_able',
+                      {
+                        $add: ['$index_of_message', config.LIMIT_MESSAGE.NEXT_MESSAGE],
+                      },
+                    ],
+                  },
+                  else: '[]',
+                },
+              },
+            },
+          },
+        },
+      },
+      { $unwind: '$messages' },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'messages.user',
+          foreignField: '_id',
+          as: 'messages.user_info',
+        },
+      },
+      {
+        $addFields: {
+          'messages.user_info': { $arrayElemAt: ['$messages.user_info', 0] },
+        },
+      },
+
+      {
+        $project: {
+          _id: 0,
+          'messages._id': 1,
+          'messages.content': 1,
+          'messages.createdAt': 1,
+          'messages.updatedAt': 1,
+          'messages.user_info._id': 1,
+          'messages.user_info.name': 1,
+          'messages.user_info.avatar': 1,
         },
       },
     ]);
