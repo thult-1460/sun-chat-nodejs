@@ -30,7 +30,7 @@ class ModalListContacts extends Component {
 
   render() {
     return (
-      <Badge className="header-icon" dot>
+      <Badge className="header-icon">
         <Icon type="contacts" onClick={this.showModal} />
         <Modal
           visible={this.state.visible}
