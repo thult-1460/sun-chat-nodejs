@@ -7,11 +7,14 @@ import { getInforRoom } from '../../api/room';
 import ChatBox from '../../components/room/ChatBox';
 import HeaderOfRoom from '../../components/room/HeaderOfRoom';
 import { roomConfig } from '../../config/roomConfig';
+import { SocketContext } from './../../context/SocketContext';
 
 const { Sider, Content } = Layout;
 const { Text } = Typography;
 
 class RoomDetail extends React.Component {
+  static contextType = SocketContext;
+
   state = {
     isAdmin: false,
     roomId: '',
@@ -54,6 +57,9 @@ class RoomDetail extends React.Component {
           roomInfo: res.data.roomInfo,
           isAdmin: res.data.isAdmin,
         });
+
+        const socket = this.context;
+        socket.emit('open_room', roomId);
       })
       .catch(error => {
         message.error(error.response.data.err);

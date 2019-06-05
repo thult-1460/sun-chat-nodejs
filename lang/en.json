@@ -152,5 +152,10 @@
       "success": "Delete message successfully",
       "failed": "Delete message failed"
     }
+  },
+  "socket": {
+    "room": {
+      "open_room_failed": "open_room_failed"
+    }
   }
 }

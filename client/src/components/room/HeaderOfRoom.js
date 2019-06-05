@@ -7,12 +7,21 @@ import { ROOM_TYPE, LIMIT_REPRESENTATIVE_MEMBER } from '../../config/room';
 import { Layout, Menu, Icon, Button, Dropdown, message, Typography, Avatar, Row, Col } from 'antd';
 import ModalListRequest from '../modals/room/ModalListRequest';
 import ModalListMember from '../modals/room/ModalListMember';
+import { SocketContext } from './../../context/SocketContext';
 
 const { Header } = Layout;
 
 const { Text } = Typography;
 
 class HeaderOfRoom extends React.Component {
+  static contextType = SocketContext;
+
+  componentDidMount() {
+    const socket = this.context;
+    socket.on('edit_room', () => {});
+    socket.on('change_member_count', () => {});
+  }
+
   showRepresentativeMembers = () => {
     let listMember = [];
     const data = this.props.data;
