@@ -678,6 +678,17 @@ RoomSchema.statics = {
       room.save();
     });
   },
+
+  deleteMessage: function(messageId, roomId) {
+    return this.findOneAndUpdate(
+      {
+        _id: roomId,
+        deletedAt: null,
+        messages: { $elemMatch: { _id: messageId } },
+      },
+      { $set: { 'messages.$.deletedAt': Date.now() } }
+    ).exec();
+  },
 };
 
 module.exports = mongoose.model('Room', RoomSchema);

@@ -121,4 +121,10 @@ router.get(
   roomsController.readNextMsg
 );
 
+router.delete(
+  '/rooms/:roomId/messages/:messageId',
+  [auth.jwtMiddleware, authorization.room.checkDeleteMessage],
+  roomsController.deleteMessage
+);
+
 module.exports = router;

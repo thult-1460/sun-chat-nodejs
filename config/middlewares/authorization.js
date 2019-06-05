@@ -211,4 +211,32 @@ exports.room = {
 
     next();
   }),
+
+  checkDeleteMessage: async function(req, res, next) {
+    let { roomId, messageId } = req.params;
+    let { _id } = req.decoded;
+
+    try {
+      const room = await Room.findOne({
+        _id: roomId,
+        deletedAt: null,
+        members: { $elemMatch: { user: _id, role: { $ne: config.MEMBER_ROLE.READ_ONLY }, deletedAt: null } },
+        messages: { $elemMatch: { _id: messageId, user: _id, deletedAt: null } },
+      }).exec();
+
+      if (room === null) {
+        return res.status(403).json({
+          error: __('error.403'),
+        });
+      }
+
+      next();
+    } catch (err) {
+      channel.error(err.toString());
+
+      return res.status(500).json({
+        error: __('error.common'),
+      });
+    }
+  },
 };

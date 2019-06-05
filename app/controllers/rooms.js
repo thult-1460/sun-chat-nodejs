@@ -410,3 +410,17 @@ exports.changeRoleMember = async (req, res) => {
     });
   }
 };
+
+exports.deleteMessage = async (req, res) => {
+  const { messageId, roomId } = req.params;
+
+  try {
+    await Room.deleteMessage(messageId, roomId);
+
+    return res.status(200).json({ success: __('room.delete_message.success') });
+  } catch (err) {
+    channel.error(err.toString());
+
+    return res.status(500).json({ error: __('room.delete_message.failed') });
+  }
+};
