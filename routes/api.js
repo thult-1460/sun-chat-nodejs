@@ -121,9 +121,21 @@ router.get(
   roomsController.readNextMsg
 );
 
+// Messages router
+router.post(
+  '/rooms/:roomId/messages',
+  [auth.jwtMiddleware, authorization.room.createMessage],
+  roomsController.storeMessage
+);
+router.post(
+  '/rooms/:roomId/messages/:messageId',
+  [auth.jwtMiddleware, authorization.room.updateMessage],
+  roomsController.updateMessage
+);
+
 router.delete(
   '/rooms/:roomId/messages/:messageId',
-  [auth.jwtMiddleware, authorization.room.checkDeleteMessage],
+  [auth.jwtMiddleware, authorization.room.updateMessage],
   roomsController.deleteMessage
 );
 

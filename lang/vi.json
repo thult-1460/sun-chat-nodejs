@@ -146,6 +146,16 @@
     "change_role": {
       "success": "Thay đổi quyền của thành viên thành công",
       "failed": "Thay đổi quyền của thành viên thất bại"
+    },
+    "message": {
+      "create": {
+        "success": "Gửi tin nhắn thành công",
+        "failed": "Gửi tin nhắn thất bại"
+      },
+      "edit": {
+        "success": "Chỉnh sửa tin nhắn thành công",
+        "failed": "Chỉnh sửa tin nhắn thất bại"
+      }
     }
   },
   "socket": {

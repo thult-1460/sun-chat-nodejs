@@ -91,12 +91,12 @@ exports.comment = {
  */
 
 exports.room = {
-  hasAuthorization: async(function*(req, res, next) {
+  hasAuthorization: async function(req, res, next) {
     const { roomId } = req.params;
     const { _id } = req.decoded;
 
     try {
-      const room = yield Room.findOne({
+      const room = await Room.findOne({
         _id: roomId,
         deletedAt: null,
         members: { $elemMatch: { user: _id, deletedAt: null } },
@@ -116,9 +116,9 @@ exports.room = {
         err: __('error.common'),
       });
     }
-  }),
+  },
 
-  checkAdmin: async(function*(req, res, next) {
+  checkAdmin: async function(req, res, next) {
     let { roomId } = req.body;
     let { _id } = req.decoded;
 
@@ -127,7 +127,7 @@ exports.room = {
     }
 
     try {
-      const room = yield Room.findOne({
+      const room = await Room.findOne({
         _id: roomId,
         deletedAt: null,
         members: { $elemMatch: { user: _id, role: config.MEMBER_ROLE.ADMIN } },
@@ -147,15 +147,15 @@ exports.room = {
         error: __('error.common'),
       });
     }
-  }),
+  },
 
-  checkMemberCanJoinRoom: async(function*(req, res, next) {
+  checkMemberCanJoinRoom: async function(req, res, next) {
     let { invitation_code } = req.params;
     let { _id } = req.decoded;
 
     try {
       let result = [];
-      const roomCheckMember = yield Room.findOne(
+      const roomCheckMember = await Room.findOne(
         {
           $and: [
             { invitation_code: invitation_code, deletedAt: null },
@@ -165,7 +165,7 @@ exports.room = {
         { members: 1 }
       );
 
-      const roomCheckRequest = yield Room.aggregate([
+      const roomCheckRequest = await Room.aggregate([
         {
           $match: {
             invitation_code: invitation_code,
@@ -197,9 +197,9 @@ exports.room = {
         error: __('error.common'),
       });
     }
-  }),
+  },
 
-  checkDeleteAdmin: async(function*(req, res, next) {
+  checkDeleteAdmin: function(req, res, next) {
     const { memberId } = req.body;
     let { _id } = req.decoded;
 
@@ -210,9 +210,9 @@ exports.room = {
     }
 
     next();
-  }),
+  },
 
-  checkDeleteMessage: async function(req, res, next) {
+  updateMessage: async function(req, res, next) {
     let { roomId, messageId } = req.params;
     let { _id } = req.decoded;
 
@@ -225,6 +225,39 @@ exports.room = {
       }).exec();
 
       if (room === null) {
+        return res.status(403).json({
+          error: __('error.403'),
+        });
+      }
+
+      next();
+    } catch (err) {
+      channel.error(err.toString());
+
+      return res.status(500).json({
+        error: __('error.common'),
+      });
+    }
+  },
+
+  createMessage: async function(req, res, next) {
+    const { roomId } = req.params;
+    const { _id: userId } = req.decoded;
+
+    try {
+      const room = await Room.findOne({
+        _id: roomId,
+        deletedAt: null,
+        members: {
+          $elemMatch: {
+            user: userId,
+            deletedAt: null,
+            role: { $ne: config.MEMBER_ROLE.READ_ONLY },
+          },
+        },
+      });
+
+      if (room == null) {
         return res.status(403).json({
           error: __('error.403'),
         });

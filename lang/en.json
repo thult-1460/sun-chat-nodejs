@@ -151,6 +151,16 @@
     "delete_message": {
       "success": "Delete message successfully",
       "failed": "Delete message failed"
+    },
+    "message": {
+      "create": {
+        "success": "Send message successfully",
+        "failed": "Send message failed"
+      },
+      "edit": {
+        "success": "Edit message successfully",
+        "failed": "Edit message failed"
+      }
     }
   },
   "socket": {

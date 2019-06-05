@@ -689,6 +689,34 @@ RoomSchema.statics = {
       { $set: { 'messages.$.deletedAt': Date.now() } }
     ).exec();
   },
+
+  storeMessage: async function(roomId, userId, content) {
+    const msgObject = {
+      content: content,
+      user: userId,
+      deletedAt: null,
+    };
+
+    return this.findOneAndUpdate(
+      { _id: roomId },
+      {
+        $push: {
+          messages: msgObject,
+        },
+      },
+      { new: true }
+    );
+  },
+
+  updateMessage: async function(roomId, userId, msgId, content) {
+    return this.updateOne(
+      {
+        _id: roomId,
+        messages: { $elemMatch: { _id: msgId } },
+      },
+      { $set: { 'messages.$.content': content, updatedAt: Date.now() } }
+    );
+  },
 };
 
 module.exports = mongoose.model('Room', RoomSchema);

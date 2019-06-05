@@ -424,3 +424,45 @@ exports.deleteMessage = async (req, res) => {
     return res.status(500).json({ error: __('room.delete_message.failed') });
   }
 };
+
+exports.storeMessage = async function(req, res) {
+  const { roomId } = req.params;
+  const { _id: userId } = req.decoded;
+  const { content } = req.body;
+
+  try {
+    const room = await Room.storeMessage(roomId, userId, content);
+    const lastMessage = room.messages.pop();
+
+    return res.status(200).json({
+      message_id: lastMessage._id,
+      message: __('room.message.create.success'),
+    });
+  } catch (err) {
+    channel.error(err.toString());
+
+    return res.status(500).json({
+      error: __('room.message.create.failed'),
+    });
+  }
+};
+
+exports.updateMessage = async function(req, res) {
+  const { roomId, messageId } = req.params;
+  const { _id: userId } = req.decoded;
+  const { content } = req.body;
+
+  try {
+    await Room.updateMessage(roomId, userId, messageId, content);
+
+    return res.status(200).json({
+      message: __('room.message.edit.success'),
+    });
+  } catch (err) {
+    channel.error(err.toString());
+
+    return res.status(500).json({
+      error: __('room.message.edit.failed'),
+    });
+  }
+};
