@@ -52,7 +52,7 @@ class HeaderOfRoom extends React.Component {
       <Header className="header-chat-room">
         <Row type="flex" justify="start">
           <Col span={18}>
-            <Avatar size={30} src={this.props.data.avatar_url} className="avatar-room-chat" />
+            <Avatar size={30} src={this.props.data.avatar} className="avatar-room-chat" />
             <Text strong className="name-chat-room">
               {this.props.data.name}
             </Text>
