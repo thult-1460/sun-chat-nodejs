@@ -37,5 +37,8 @@
   },
   "request": {
     "title": "Request list"
-  }
+  },
+  "to": "TO",
+  "send": "Send",
+  "type_msg": "Typing in here !!!"
 }

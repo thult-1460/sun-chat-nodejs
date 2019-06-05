@@ -62,7 +62,12 @@ router.get(
 );
 router.get('/rooms/get-total-rooms-by-user', auth.jwtMiddleware, roomsController.getQuantityRoomsByUserId);
 router.post('/rooms', auth.jwtMiddleware, roomsValidate.validate('create'), roomsController.createRoom);
-router.put('/rooms/:roomId/edit', [auth.jwtMiddleware, authorization.room.checkAdmin], roomsValidate.validate('create'), roomsController.editRoom);
+router.put(
+  '/rooms/:roomId/edit',
+  [auth.jwtMiddleware, authorization.room.checkAdmin],
+  roomsValidate.validate('create'),
+  roomsController.editRoom
+);
 router.delete('/delete-room', [auth.jwtMiddleware, authorization.room.checkAdmin], roomsController.deleteRoom);
 router.get(
   '/r/:invitation_code',
@@ -89,7 +94,6 @@ router.post(
 
 router.get('/rooms/:roomId', [auth.jwtMiddleware, authorization.room.hasAuthorization], roomsController.getInforOfRoom);
 
-router.get('/rooms/:roomId', auth.jwtMiddleware, roomsController.getInforOfRoom);
 router.get(
   '/rooms/:roomId/requests',
   [auth.jwtMiddleware, authorization.room.checkAdmin],
@@ -117,7 +121,7 @@ router.post(
   roomsController.togglePinnedRoom
 );
 router.get(
-  '/rooms/message/:roomId',
+  '/rooms/:roomId/messages',
   [auth.jwtMiddleware, authorization.room.hasAuthorization],
   roomsController.readNextMsg
 );
