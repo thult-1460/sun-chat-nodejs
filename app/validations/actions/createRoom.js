@@ -31,12 +31,16 @@ let checkInvitationCode = () => {
       return req.__('room.format_invitation_code');
     })
     .custom(async (value, { req }) => {
-      let room = await Room.findOne({ invitation_code: value });
+      let room = {};
+
+      if (req.params.roomId === undefined) {
+        room = await Room.findOne({ invitation_code: value });
+      } else {
+        room = await Room.findOne({ _id: { $ne: req.params.roomId }, invitation_code: value });
+      }
 
       if (room) {
         throw new Error(req.__('room.invitation_code_unique'));
-      } else {
-        return value;
       }
     });
 };
@@ -47,7 +51,7 @@ let checkImgFile = () => {
     .custom(async (value, { req }) => {
       if (
         value == null ||
-        value.Length == 0 ||
+        value.length == 0 ||
         value.includes(' ') ||
         value.includes('\t') ||
         value.includes('\r') ||

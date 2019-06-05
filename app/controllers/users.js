@@ -559,17 +559,19 @@ exports.acceptContact = async(function*(req, res) {
 
 exports.listContacts = async(function*(req, res) {
   const { _id } = req.decoded;
-  const page = (req.query.page > 0 ? req.query.page : 1) - 1;
   const searchText = req.query.searchText.trim().replace(/\s+/g, ' ');
   const getListFlag = true;
-
-  const limit = config.LIMIT_ITEM_SHOW.CONTACT;
-  const options = {
+  let options = {
     userId: _id,
-    limit,
-    page,
     searchText,
   };
+
+  if (req.query.limit) {
+    options.limit = parseInt(req.query.limit);
+  } else {
+    options.page = (req.query.page > 0 ? req.query.page : 1) - 1;
+    options.limit = config.LIMIT_ITEM_SHOW.CONTACT;
+  }
 
   try {
     const contacts = yield User.getListContacts(options, getListFlag);

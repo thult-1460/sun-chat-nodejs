@@ -267,10 +267,11 @@ exports.deleteMember = async (req, res) => {
 exports.getInforOfRoom = async function(req, res) {
   const { _id } = req.decoded;
   const { roomId } = req.params;
+  const originURL = req.get('origin');
 
   try {
     const isAdmin = await Room.checkAdmin(roomId, _id);
-    let roomInfo = await Room.getInforOfRoom(roomId);
+    let roomInfo = await Room.getInforOfRoom(roomId, originURL);
 
     if (roomInfo.length == 0) {
       throw new Error(__('room.not_found'));
@@ -464,5 +465,42 @@ exports.updateMessage = async function(req, res) {
     return res.status(500).json({
       error: __('room.message.edit.failed'),
     });
+  }
+};
+
+exports.editRoom = async (req, res) => {
+  const errors = validationResult(req);
+
+  if (errors.array().length > 0) {
+    let customErrors = customMessageValidate(errors);
+
+    return res.status(422).json(customErrors);
+  }
+
+  let { roomId } = req.params;
+  const roomData = req.body;
+
+  try {
+    await Room.findById(roomId)
+      .then(async room => {
+        if (!room) {
+          res.status(404).json({ error: __('room.not_found') });
+        }
+
+        if (roomData.avatar) {
+          await files.saveImage(roomData.avatar, slug(roomData.name, '-'), room.avatar)
+            .then(url => {
+              roomData.avatar = url;
+            })
+        }
+
+        await Room.updateOne({ _id: roomId }, { $set: roomData }).then(result => {
+          res.status(200).json({ message: __('room.edit.success') });
+        });
+      });
+  } catch (err) {
+    channel.error(err.toString());
+
+    return res.status(500).json({ error: __('room.edit.failed') });
   }
 };

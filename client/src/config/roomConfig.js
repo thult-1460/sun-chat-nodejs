@@ -1,5 +1,5 @@
 const roomConfig = {
-  IMG_MAX_SIZE: 5,
+  IMG_MAX_SIZE: 5, // MB
   IMG_TYPES: ['image/png', 'image/jpeg', 'image/gif'],
   INVITATION_URL: window.location.origin + '/r/',
   INVITATION_TYPE: {

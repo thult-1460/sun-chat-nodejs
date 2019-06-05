@@ -82,8 +82,8 @@ module.exports = function(app, passport) {
   });
 
   // bodyParser should be above methodOverride
-  app.use(bodyParser.json());
-  app.use(bodyParser.urlencoded({ extended: true }));
+  app.use(bodyParser.json({limit: config.LIMIT_REQUEST + 'mb'}));
+  app.use(bodyParser.urlencoded({ extended: true, limit: config.LIMIT_REQUEST + 'mb' }));
   app.use(upload.single('image'));
   app.use(
     methodOverride(function(req) {

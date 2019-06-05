@@ -16,8 +16,8 @@ export function getListContacts(page, searchText = '') {
   return new Http().authenticated().get(`/contacts?searchText=${searchText}&page=${page}`);
 }
 
-export function getLimitListContacts(limit) {
-  return new Http().authenticated().get(`/contacts?limit=${limit}`);
+export function getLimitListContacts(limit, searchText = '') {
+  return new Http().authenticated().get(`/contacts?searchText=${searchText}&limit=${limit}`);
 }
 
 export function acceptContact(contactIds) {

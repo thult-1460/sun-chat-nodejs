@@ -99,6 +99,10 @@
       "failed": "Tạo nhóm trò chuyện thất bại",
       "upload_file_failed": "File ảnh phải nhỏ hơn {{max}} MB!"
     },
+    "edit": {
+      "success": "Sửa nhóm trò chuyện thành công",
+      "failed": "Sửa nhóm trò chuyện thất bại"
+    },
     "invitation_code_required": "Link phải điền đầy đủ",
     "invitation_code_length": "Chỉ có thể nhập từ {{min}} đến {{max}} ký tự!",
     "format_invitation_code": "Chỉ có thể sử dụng các kí tự không có dấu, - và _",

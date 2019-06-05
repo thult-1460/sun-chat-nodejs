@@ -99,6 +99,10 @@
       "failed": "Create room failed",
       "upload_file_failed": "Image must smaller than {{max}} MB!"
     },
+    "edit": {
+      "success": "Edit room successfully",
+      "failed": "Edit room failed"
+    },
     "invitation_code_required": "The link is required",
     "invitation_code_length": "The invitation code link must be {{min}} to {{max}} characters",
     "format_invitation_code": "Contains invalid characters, we only accept alphabets, - , and _",

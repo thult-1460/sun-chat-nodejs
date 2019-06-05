@@ -60,7 +60,7 @@ const RoomSchema = new Schema(
     name: { type: String },
     desc: { type: String },
     type: { type: Number, default: config.ROOM_TYPE.GROUP_CHAT }, //0: group chat - 1: direct chat
-    invitation_code: { type: String },
+    invitation_code: { type: String, unique: true, required: true, },
     invitation_type: { type: Number, default: config.INVITATION_TYPE.NOT_NEED_APPROVAL }, //0: don't need admin approves - 1: need admin approves
     avatar: { type: String },
     members: [Members],
@@ -460,7 +460,7 @@ RoomSchema.statics = {
     ).exec();
   },
 
-  getInforOfRoom: function(roomId) {
+  getInforOfRoom: function(roomId, originURL) {
     return this.aggregate([
       { $match: { _id: mongoose.Types.ObjectId(roomId), deletedAt: null } },
       {
@@ -492,8 +492,11 @@ RoomSchema.statics = {
           name: 1,
           desc: 1,
           type: 1,
-          avatar_url: 1,
+          avatar: {
+            $concat: [`${originURL}/${config.DIR_UPLOAD_FILE.split("/").slice(2)[0]}/`, '$avatar']
+          },
           invitation_code: 1,
+          invitation_type: 1,
           'members_info._id': 1,
           'members_info.name': 1,
           'members_info.email': 1,

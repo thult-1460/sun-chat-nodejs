@@ -8,6 +8,7 @@
   "title": {
     "add_contact": "Add contact",
     "create_room": "Create new room",
+    "edit_room": "Edit room",
     "upload": "Upload",
     "link_share": "Link",
     "avatar": "Avatar",
@@ -18,7 +19,8 @@
   },
   "button": {
     "cancel": "Cancel",
-    "submit": "Create",
+    "submit": "Submit",
+    "install-room": "Install room",
     "join": "Join",
     "delete-room": "Delete room chat",
     "left-room": "Left the room chat",

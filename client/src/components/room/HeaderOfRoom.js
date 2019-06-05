@@ -7,6 +7,7 @@ import { ROOM_TYPE, LIMIT_REPRESENTATIVE_MEMBER } from '../../config/room';
 import { Layout, Menu, Icon, Button, Dropdown, message, Typography, Avatar, Row, Col } from 'antd';
 import ModalListRequest from '../modals/room/ModalListRequest';
 import ModalListMember from '../modals/room/ModalListMember';
+import EditRoom from './EditRoom';
 import { SocketContext } from './../../context/SocketContext';
 
 const { Header } = Layout;
@@ -55,7 +56,7 @@ class HeaderOfRoom extends React.Component {
   };
 
   render() {
-    const { t } = this.props;
+    const { t, data } = this.props;
 
     return (
       <Header className="header-chat-room">
@@ -79,6 +80,7 @@ class HeaderOfRoom extends React.Component {
               overlay={
                 <Menu className="menu-detail-room">
                   <Menu.Item className="item-setting">
+                    {this.props.isAdmin && <EditRoom roomInfo={data} />}
                     {this.props.isAdmin && <Button onClick={this.handleDeleteRoom}>{t('button.delete-room')}</Button>}
                     <Button onClick={this.outBox}>{t('button.left-room')}</Button>
                   </Menu.Item>

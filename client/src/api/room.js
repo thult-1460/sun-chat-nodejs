@@ -17,7 +17,11 @@ export function deleteRoom(roomId) {
 }
 
 export function createRoom(data) {
-  return new Http().authenticated().post('/create-room', data);
+  return new Http().authenticated().post('/rooms', data);
+}
+
+export function editRoom(roomId, data) {
+  return new Http().authenticated().put(`/rooms/${roomId}/edit`, data);
 }
 
 export function getInfoRoomWithInvitionCode(code) {

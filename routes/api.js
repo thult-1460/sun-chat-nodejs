@@ -61,7 +61,8 @@ router.get(
   roomsController.getRoomsBySubName
 );
 router.get('/rooms/get-total-rooms-by-user', auth.jwtMiddleware, roomsController.getQuantityRoomsByUserId);
-router.post('/create-room', auth.jwtMiddleware, roomsValidate.validate('create'), roomsController.createRoom);
+router.post('/rooms', auth.jwtMiddleware, roomsValidate.validate('create'), roomsController.createRoom);
+router.put('/rooms/:roomId/edit', [auth.jwtMiddleware, authorization.room.checkAdmin], roomsValidate.validate('create'), roomsController.editRoom);
 router.delete('/delete-room', [auth.jwtMiddleware, authorization.room.checkAdmin], roomsController.deleteRoom);
 router.get(
   '/r/:invitation_code',

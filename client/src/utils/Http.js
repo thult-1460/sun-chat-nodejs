@@ -47,6 +47,10 @@ export default class Http {
     return this.executeRequest(url, { method: 'patch', ...config, data });
   }
 
+  put(url, data, config = {}) {
+    return this.executeRequest(url, { method: 'put', ...config, data });
+  }
+
   delete(url, data, config = {}) {
     return this.executeRequest(url, { method: 'delete', ...config, data });
   }

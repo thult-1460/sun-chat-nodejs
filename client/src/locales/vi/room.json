@@ -8,6 +8,7 @@
   "title": {
     "add_contact": "Thêm liên lạc",
     "create_room": "Tạo nhóm trò chuyện mới",
+    "edit_room": "Chỉnh sửa trò chuyện nhóm",
     "upload": "Tải lên",
     "link_share": "Liên kết",
     "avatar": "Ảnh đại diện",
@@ -18,10 +19,11 @@
   },
   "button": {
     "cancel": "Hủy",
-    "submit": "Tạo",
+    "submit": "Gửi",
+    "install-room": "Cài đặt cuộc trò chuyện",
     "join": "Tham gia phòng",
-    "delete-room": "Delete room chat",
-    "left-room": "Left the room chat",
+    "delete-room": "Xóa cuộc trò chuyện",
+    "left-room": "Rời khỏi  cuộc trò chuyện",
     "copy": "Sap chép",
     "back": "Trở về",
     "copied": "Đã sao chép"

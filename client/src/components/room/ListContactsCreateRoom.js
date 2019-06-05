@@ -12,29 +12,33 @@ const Option = Select.Option;
 const Search = Input.Search;
 
 class ListContactCreateRoom extends Component {
+  static defaultProps = {
+    limit: roomConfig.LIMIT_CONTACT,
+  };
+
   state = {
     contacts: [],
     error: '',
-    limit: roomConfig.LIMIT_CONTACT,
     checkAll: false,
     indeterminate: false,
     allItemId: [],
     checkedList: [],
     role: ROLES.member.value,
+    searchText: '',
   };
 
-  componentDidMount() {
-    const { limit } = this.state;
-
-    getLimitListContacts(limit)
+  fetchData = (searchText) => {
+    getLimitListContacts(this.props.limit, searchText)
       .then(res => {
         const { contacts, allItemId } = this.state;
         res.data.result.map(item => {
           contacts.push(item);
-          allItemId.push(item.members[0].user._id);
+          allItemId.push(item._id);
         });
         this.setState({
-          contacts: contacts
+          contacts,
+          searchText,
+          allItemId,
         });
       })
       .catch(err => {
@@ -44,6 +48,11 @@ class ListContactCreateRoom extends Component {
           });
         }
       });
+  };
+
+  componentDidMount() {
+    const { searchText } = this.state;
+    this.fetchData(searchText);
   }
 
   setAvatar(avatar) {
@@ -52,6 +61,15 @@ class ListContactCreateRoom extends Component {
     }
 
     return <Avatar icon="user" size="large" />;
+  }
+
+  handleSearch(searchText) {
+    this.setState({
+      contacts: [],
+      contactDetail: null,
+    });
+
+    this.fetchData(searchText);
   }
 
   handleCheckBox = checkedList => {
@@ -108,6 +126,8 @@ class ListContactCreateRoom extends Component {
     const { t, form } = this.props;
     const { error, checkedList, indeterminate, checkAll, contacts } = this.state;
 
+    let options = Object.values(ROLES).map(role => <Option value={role.value}>{t('member:' + role.title)}</Option>)
+
     return (
       <React.Fragment>
         {contacts.length > 0 ? (
@@ -117,8 +137,8 @@ class ListContactCreateRoom extends Component {
               {t('button.check_all')}
             </Checkbox>
             <Search
-              placeholder="input search text"
-              onSearch={value => console.log(value)}
+              placeholder={t('contact:list_contact.btn_search_placeholder')}
+              onSearch={searchText => this.handleSearch(searchText)}
               style={{ width: 400, float: 'right' }}
             />
             <div className="infinite-container" style={{ height: '400px', overflow: 'auto'}}>
@@ -130,22 +150,20 @@ class ListContactCreateRoom extends Component {
                     <List.Item key={item._id}>
                       <Checkbox
                         className="item-checkbox"
-                        value={item.members[0].user._id}
-                        key={item.members[0].user._id}
+                        value={item._id}
+                        key={item._id}
                       />
                       <List.Item.Meta
-                        avatar={this.setAvatar(item.members[0].user.avatar)}
-                        title={<a href="https://ant.design">{item.members[0].user.name}</a>}
-                        description={item.members[0].user.email}
+                        avatar={this.setAvatar(item.avatar)}
+                        title={<a href="#">{item.name}</a>}
+                        description={item.email}
                       />
                       <Form.Item>
-                      {form.getFieldDecorator(item.members[0].user._id, {
-                        initialValue: "1",
+                      {form.getFieldDecorator(item._id, {
+                        initialValue: 1,
                       })(
                         <Select style={{ width: 130 }} onBlur={this.handleSelectRole}>
-                          <Option value="0" key={item.members[0].user._id}>Quan tri vien</Option>
-                          <Option value="1" key={item.members[0].user._id}>Thanh vien</Option>
-                          <Option value="2" key={item.members[0].user._id}>Chi doc</Option>
+                          {options}
                         </Select>
                       )}
                       </Form.Item>
@@ -169,4 +187,4 @@ class ListContactCreateRoom extends Component {
 
 ListContactCreateRoom = Form.create()(ListContactCreateRoom);
 
-export default withNamespaces(['user', 'contact'])(withRouter(ListContactCreateRoom));
+export default withNamespaces(['user', 'contact', 'member'])(withRouter(ListContactCreateRoom));

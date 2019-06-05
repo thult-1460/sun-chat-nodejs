@@ -44,4 +44,5 @@ module.exports = {
   ROOM: {
     LIMIT_REPRESENTATIVE_MEMBER: 5,
   },
+  LIMIT_REQUEST: 50,
 };
