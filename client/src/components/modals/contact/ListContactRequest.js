@@ -5,9 +5,12 @@ import { List, Avatar, Button, Checkbox, Spin, message, Alert } from 'antd';
 import { getContactRequest, getNumberContactRequest, rejectContact, acceptContact } from '../../../api/contact';
 import { withNamespaces } from 'react-i18next';
 import { withRouter } from 'react-router';
+import { SocketContext } from './../../../context/SocketContext';
 const CheckboxGroup = Checkbox.Group;
 
 class ListContactRequest extends React.Component {
+  static contextType = SocketContext;
+
   state = {
     data: [],
     error: '',
@@ -85,6 +88,11 @@ class ListContactRequest extends React.Component {
     this.fetchData(newPage);
   };
 
+  updateNumberContactRequest = () => {
+    const socket = this.context;
+    socket.emit('update_request_friend_count');
+  };
+
   handleRejectContact = e => {
     let dataInput = {};
     let newData = [];
@@ -107,6 +115,7 @@ class ListContactRequest extends React.Component {
             }));
           });
           this.setState({ indeterminate: this.state.checkedList.length > 0 });
+          this.updateNumberContactRequest();
         })
         .catch(error => {
           this.setState({
@@ -130,6 +139,7 @@ class ListContactRequest extends React.Component {
           }));
         });
         this.setState({ indeterminate: this.state.checkedList.length > 0 });
+        this.updateNumberContactRequest();
       })
       .catch(error => {
         message.error(error.response.data.error);

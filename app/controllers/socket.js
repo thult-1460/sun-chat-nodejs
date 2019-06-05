@@ -1,5 +1,7 @@
 const jwt = require('jsonwebtoken');
 const jwtSecret = process.env.JWT_SECRET;
+const mongoose = require('mongoose');
+const User = mongoose.model('User');
 
 module.exports = function(server) {
   const io = require('socket.io').listen(server);
@@ -40,9 +42,10 @@ module.exports = function(server) {
       delete socket.roomId;
     });
 
-    socket.on('update_request_friend_count', userId => {
-      let request_friend_count = 0; // get from DB
-      io.to(userId).emit('update_request_friend_count', request_friend_count);
+    socket.on('update_request_friend_count', async function(userId) {
+      userId = userId ? userId : socket.userId;
+      let request_friend_count = await User.getAllContactRequest(userId);
+      io.to(userId).emit('update_request_friend_count', request_friend_count[0].number_of_contact);
     });
 
     socket.on('new_msg', messageContent => {
