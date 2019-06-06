@@ -340,7 +340,7 @@ exports.userSearch = async(function*(req, res) {
   const friendIds = yield User.getListContactIds({ userId }); // made friends
 
   let page = (req.query.page > 0 ? req.query.page : 1) - 1;
-  let limit = config.LIMIT_ITEM_SHOW;
+  let limit = config.LIMIT_ITEM_SHOW.CONTACT;
   let listUserIdsIgnore = [userId];
 
   friendIds.map((item, key) => {

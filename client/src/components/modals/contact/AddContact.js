@@ -6,10 +6,13 @@ import { getSearchContactByName, addContact, rejectContact, acceptContact } from
 import { withNamespaces } from 'react-i18next';
 import { withRouter } from 'react-router';
 import '../../../scss/contact.scss';
+import { SocketContext } from './../../../context/SocketContext';
 const FormItem = Form.Item;
 const TabPane = Tabs.TabPane;
 
 class AddContact extends React.Component {
+  static contextType = SocketContext;
+
   state = {
     data: [],
     error: '',
@@ -68,6 +71,11 @@ class AddContact extends React.Component {
     });
   };
 
+  updateNumberContactRequest = userId => {
+    const socket = this.context;
+    socket.emit('update_request_friend_count', userId);
+  };
+
   addContact = e => {
     const userId = e.target.value;
     const { data } = this.state;
@@ -82,6 +90,7 @@ class AddContact extends React.Component {
         this.setState({
           data: data,
         });
+        this.updateNumberContactRequest(userId);
 
         message.success(res.data.success);
       })
