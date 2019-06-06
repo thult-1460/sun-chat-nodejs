@@ -51,7 +51,7 @@ const routes = [
     component: ListContactRequest,
   },
   {
-    path: '/room/:id',
+    path: '/rooms/:id',
     exact: true,
     auth: true,
     component: RoomDetail,

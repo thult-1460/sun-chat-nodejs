@@ -332,6 +332,7 @@ UserSchema.statics = {
       {
         $project: {
           _id: '$member._id',
+          room_id: '$_id',
           name: '$member.name',
           username: '$member.username',
           email: '$member.email',
