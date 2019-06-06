@@ -141,7 +141,7 @@ class Sidebar extends React.Component {
             data-room-id={room._id}
             onClick={this.updateSelectedRoom}
           >
-            <Link to={'/room/' + room._id}>
+            <Link to={`/rooms/${room._id}`}>
               <div className="avatar-name">
                 <Avatar src={room.avatar} />
                 &nbsp;&nbsp;

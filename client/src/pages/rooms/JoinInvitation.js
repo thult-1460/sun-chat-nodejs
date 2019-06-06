@@ -52,7 +52,7 @@ class JoinInvitation extends React.Component {
 
         switch (status) {
           case INVATATION_STATUS.IN_ROOM:
-            window.location.href = `/room/${room_id}`;
+            window.location.href = `/rooms/${room_id}`;
 
             break;
           case INVATATION_STATUS.HAVE_REQUEST_BEFORE:

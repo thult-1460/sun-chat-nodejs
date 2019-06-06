@@ -122,6 +122,10 @@ class ListContacts extends Component {
     }
   };
 
+  goToChatScreen = e => {
+    this.props.history.push(`/rooms/${e.target.value}`);
+  }
+
   render() {
     const { t } = this.props;
     const { error } = this.state;
@@ -164,7 +168,9 @@ class ListContacts extends Component {
                             />
                           </a>
                           <Button.Group className="btn-accept">
-                            <Button type="primary">{t('contact:list_contact.btn_send_message')}</Button>
+                            <Button value={item.room_id} type="primary" onClick={this.goToChatScreen}>
+                              {t('contact:list_contact.btn_send_message')}
+                            </Button>
                             <Button value={item._id} onClick={this.handleDeteleContact}>
                               {t('button.delete')}
                             </Button>

@@ -70,7 +70,7 @@ export default class InputSearch extends Component {
                   <List.Item.Meta
                     avatar={<Avatar src={item.avatar_url} />}
                     title={
-                      <Link to={`/room/infor-room?roomId=${item._id}`}>
+                      <Link to={`/rooms/${item._id}`}>
                         {name[1]}
                         <span>{name[2]}</span>
                         {name[3]}
