@@ -128,6 +128,10 @@ head .delete-member {
   height: 40px !important;
 }
 
+.list-message .ant-list-item-meta-description {
+  margin-top: -10px;
+}
+
 hr {
   border-top: 1px solid;
   opacity: 0.2;

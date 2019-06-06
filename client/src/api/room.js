@@ -68,6 +68,6 @@ export function changeRoleMember(data) {
   return new Http().authenticated().post('/rooms/change-role-member', data);
 }
 
-export function getLastMessages(roomId) {
+export function loadMessages(roomId) {
   return new Http().authenticated().get(`/rooms/${roomId}/messages`);
 }

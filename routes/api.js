@@ -123,7 +123,7 @@ router.post(
 router.get(
   '/rooms/:roomId/messages',
   [auth.jwtMiddleware, authorization.room.hasAuthorization],
-  roomsController.readNextMsg
+  roomsController.loadMessages
 );
 
 // Messages router

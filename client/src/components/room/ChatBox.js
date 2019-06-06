@@ -1,9 +1,10 @@
 import React from 'react';
 import { withRouter } from 'react-router';
 import { Layout, Input, Button, List, Avatar, Icon, Row, Col } from 'antd';
-import { getLastMessages } from './../../api/room.js';
+import { loadMessages } from './../../api/room.js';
 import { SocketContext } from './../../context/SocketContext';
 import { withNamespaces } from 'react-i18next';
+import moment from 'moment';
 
 const { Content } = Layout;
 
@@ -14,28 +15,31 @@ class ChatBox extends React.Component {
     messages: [],
   };
 
-  componentDidMount = () => {
+  componentDidMount() {
     const roomId = this.props.match.params.id;
 
-    getLastMessages(roomId).then(res => {
-      this.setState({
-        messages: res.data.messages,
-      });
-    });
-  };
-
-  componentWillReceiveProps(nextProps) {
-    getLastMessages(nextProps.roomId).then(res => {
+    loadMessages(roomId).then(res => {
       this.setState({
         messages: res.data.messages,
       });
     });
   }
 
+  componentDidUpdate(prevProps) {
+    if (prevProps.roomId !== this.props.roomId) {
+      loadMessages(this.props.roomId).then(res => {
+        this.setState({
+          messages: res.data.messages,
+        });
+      });
+    }
+  }
+
   formatMsgTime(timeInput) {
+    const { t } = this.props;
     const time = new Date(timeInput);
 
-    return `${parseInt(time.getMonth() + 1)}/${time.getDate()} ${time.getHours()}:${time.getMinutes()}`;
+    return moment(time).format(t('format_time'));
   }
 
   render() {
@@ -76,4 +80,4 @@ class ChatBox extends React.Component {
   }
 }
 
-export default withNamespaces(['room'])(withRouter(ChatBox));
+export default withNamespaces(['message'])(withRouter(ChatBox));

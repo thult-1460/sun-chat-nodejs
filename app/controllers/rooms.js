@@ -381,12 +381,12 @@ exports.togglePinnedRoom = async (req, res) => {
   }
 };
 
-exports.readNextMsg = async function(req, res) {
+exports.loadMessages = async function(req, res) {
   const { _id } = req.decoded;
   const { roomId } = req.params;
-  const page = req.query.page || 1;
+  const page = req.query.page || 0;
   try {
-    const messages = await Room.readNextMsg(roomId, _id, page);
+    const messages = await Room.loadMessages(roomId, _id, page);
     res.status(200).json({ messages });
   } catch (err) {
     channel.error(err.toString());

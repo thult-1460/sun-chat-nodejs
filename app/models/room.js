@@ -636,7 +636,7 @@ RoomSchema.statics = {
     ).exec();
   },
 
-  readNextMsg: async function(roomId, userId, page) {
+  loadMessages: async function(roomId, userId, page) {
     return this.aggregate([
       { $match: { _id: mongoose.Types.ObjectId(roomId), deletedAt: null } },
       { $unwind: '$members' },
