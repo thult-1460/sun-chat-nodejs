@@ -60,7 +60,7 @@ const RoomSchema = new Schema(
     name: { type: String },
     desc: { type: String },
     type: { type: Number, default: config.ROOM_TYPE.GROUP_CHAT }, //0: group chat - 1: direct chat
-    invitation_code: { type: String, unique: true, required: true, },
+    invitation_code: { type: String, unique: true, required: true },
     invitation_type: { type: Number, default: config.INVITATION_TYPE.NOT_NEED_APPROVAL }, //0: don't need admin approves - 1: need admin approves
     avatar: { type: String },
     members: [Members],
@@ -493,7 +493,7 @@ RoomSchema.statics = {
           desc: 1,
           type: 1,
           avatar: {
-            $concat: [`${originURL}/${config.DIR_UPLOAD_FILE.split("/").slice(2)[0]}/`, '$avatar']
+            $concat: [`${originURL}/${config.DIR_UPLOAD_FILE.split('/').slice(2)[0]}/`, '$avatar'],
           },
           invitation_code: 1,
           invitation_type: 1,
@@ -636,7 +636,7 @@ RoomSchema.statics = {
     ).exec();
   },
 
-  readNextMsg: async function(roomId, userId, page) {
+  loadMessages: async function(roomId, userId, page) {
     return this.aggregate([
       { $match: { _id: mongoose.Types.ObjectId(roomId), deletedAt: null } },
       { $unwind: '$members' },
@@ -708,17 +708,18 @@ RoomSchema.statics = {
           'messages.user_info': { $arrayElemAt: ['$messages.user_info', 0] },
         },
       },
-
+      {
+        $replaceRoot: { newRoot: '$messages' },
+      },
       {
         $project: {
-          _id: 0,
-          'messages._id': 1,
-          'messages.content': 1,
-          'messages.createdAt': 1,
-          'messages.updatedAt': 1,
-          'messages.user_info._id': 1,
-          'messages.user_info.name': 1,
-          'messages.user_info.avatar': 1,
+          _id: 1,
+          content: 1,
+          createdAt: 1,
+          updatedAt: 1,
+          'user_info._id': 1,
+          'user_info.name': 1,
+          'user_info.avatar': 1,
         },
       },
     ]);

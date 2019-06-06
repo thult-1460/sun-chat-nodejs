@@ -101,3 +101,38 @@ head .delete-member {
 .copy-btn {
   margin-top: 10px;
 }
+
+.box-button {
+  border-style: ridge;
+  padding: 5px 5px 10px 5px;
+}
+
+.list-message > .ant-list-item {
+  padding: 6px 0px;
+}
+
+.message-time {
+  padding-top: 10px;
+}
+
+.list-message .ant-list-item-meta-title {
+  font-size: 15px;
+}
+
+.list-message .ant-list-item-meta-avatar {
+  margin-right: 0px;
+}
+
+.list-message .ant-avatar {
+  width: 40px !important;
+  height: 40px !important;
+}
+
+.list-message .ant-list-item-meta-description {
+  margin-top: -10px;
+}
+
+hr {
+  border-top: 1px solid;
+  opacity: 0.2;
+}

@@ -381,12 +381,12 @@ exports.togglePinnedRoom = async (req, res) => {
   }
 };
 
-exports.readNextMsg = async function(req, res) {
+exports.loadMessages = async function(req, res) {
   const { _id } = req.decoded;
   const { roomId } = req.params;
-  const page = req.query.page;
+  const page = req.query.page || 0;
   try {
-    const messages = await Room.readNextMsg(roomId, _id, page);
+    const messages = await Room.loadMessages(roomId, _id, page);
     res.status(200).json({ messages });
   } catch (err) {
     channel.error(err.toString());
@@ -481,23 +481,21 @@ exports.editRoom = async (req, res) => {
   const roomData = req.body;
 
   try {
-    await Room.findById(roomId)
-      .then(async room => {
-        if (!room) {
-          res.status(404).json({ error: __('room.not_found') });
-        }
+    await Room.findById(roomId).then(async room => {
+      if (!room) {
+        res.status(404).json({ error: __('room.not_found') });
+      }
 
-        if (roomData.avatar) {
-          await files.saveImage(roomData.avatar, slug(roomData.name, '-'), room.avatar)
-            .then(url => {
-              roomData.avatar = url;
-            })
-        }
-
-        await Room.updateOne({ _id: roomId }, { $set: roomData }).then(result => {
-          res.status(200).json({ message: __('room.edit.success') });
+      if (roomData.avatar) {
+        await files.saveImage(roomData.avatar, slug(roomData.name, '-'), room.avatar).then(url => {
+          roomData.avatar = url;
         });
+      }
+
+      await Room.updateOne({ _id: roomId }, { $set: roomData }).then(result => {
+        res.status(200).json({ message: __('room.edit.success') });
       });
+    });
   } catch (err) {
     channel.error(err.toString());
 

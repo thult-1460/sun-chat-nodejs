@@ -80,13 +80,14 @@ class RoomDetail extends React.Component {
     const { t } = this.props;
     const { roomInfo, isAdmin, isCopy } = this.state;
     const invitationURL = `${roomConfig.INVITATION_URL}${roomInfo.invitation_code}`;
+    const roomId = this.props.match.params.id;
 
     return (
       <React.Fragment>
         <Layout>
           <HeaderOfRoom data={roomInfo} isAdmin={isAdmin} />
           <Layout>
-            <ChatBox />
+            <ChatBox roomId={roomId} />
             <Sider className="sidebar-chat">
               <Row type="flex" justify="start" className="title-desc-chat-room">
                 <Col span={24}>
