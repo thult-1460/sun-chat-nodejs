@@ -401,7 +401,7 @@ UserSchema.statics = {
     let limit = options.limit || '';
     let page = options.page || 0;
 
-    return this.find({ _id: { $nin: options.listUserIdsIgnore } })
+    return this.find({ $and: [{ _id: { $nin: options.listUserIdsIgnore } }, { active: true }, { deletedAt: null }] })
       .or([
         { name: { $regex: regexText, $options: '$xi' } },
         { username: { $regex: regexText, $options: '$xi' } },
@@ -429,7 +429,7 @@ UserSchema.statics = {
    */
   updateRequestFriend: function(userIdReceive, userIdSend) {
     try {
-      return this.update({ _id: userIdReceive }, { $push: { requested_in_comming: userIdSend } });
+      return this.update({ _id: userIdReceive }, { $addToSet: { requested_in_comming: userIdSend } });
     } catch (err) {
       throw new Error(err);
     }

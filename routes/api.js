@@ -36,7 +36,11 @@ router.get('/contacts', auth.jwtMiddleware, users.listContacts);
 router.delete('/delete-contact', auth.jwtMiddleware, users.deleteContact);
 
 router.get('/user-search', auth.jwtMiddleware, contactValidate.validate('addContact'), users.userSearch);
-router.post('/send-request-contact', auth.jwtMiddleware, users.sendRequestContact);
+router.post(
+  '/send-request-contact',
+  [auth.jwtMiddleware, authorization.user.checkUserActivated],
+  users.sendRequestContact
+);
 
 router.post(
   '/send-mail-reset-password',
