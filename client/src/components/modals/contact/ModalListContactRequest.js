@@ -21,7 +21,7 @@ class ModalListContactRequest extends Component {
       });
     });
 
-    const socket = this.context;
+    const socket = this.context.socket;
     socket.on('update_request_friend_count', numberContactRequest => {
       this.setState({
         numberContactRequest: numberContactRequest,

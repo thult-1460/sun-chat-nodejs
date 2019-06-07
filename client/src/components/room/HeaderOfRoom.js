@@ -18,7 +18,7 @@ class HeaderOfRoom extends React.Component {
   static contextType = SocketContext;
 
   componentDidMount() {
-    const socket = this.context;
+    const socket = this.context.socket;
     socket.on('edit_room', () => {});
     socket.on('change_member_count', () => {});
   }

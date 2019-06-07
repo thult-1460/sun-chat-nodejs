@@ -58,8 +58,7 @@ class RoomDetail extends React.Component {
           isAdmin: res.data.isAdmin,
         });
 
-        const socket = this.context;
-        socket.emit('open_room', roomId);
+        this.context.socket.emit('open_room', roomId);
       })
       .catch(error => {
         message.error(error.response.data.err);
@@ -69,11 +68,16 @@ class RoomDetail extends React.Component {
   componentDidMount() {
     const roomId = this.props.match.params.id;
     this.fetchData(roomId);
+    this.context.socket.on('edit_room_successfully', roomInfo => {
+      this.setState({ roomInfo });
+    });
   }
 
   componentWillReceiveProps(nextProps) {
     const roomId = nextProps.match.params.id;
-    this.fetchData(roomId);
+    if (this.props.match.params.id !== roomId) {
+      this.fetchData(roomId);
+    }
   }
 
   render() {

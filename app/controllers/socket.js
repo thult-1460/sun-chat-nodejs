@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken');
 const jwtSecret = process.env.JWT_SECRET;
 const mongoose = require('mongoose');
 const User = mongoose.model('User');
+const Room = mongoose.model('Room');
 
 module.exports = function(server) {
   const io = require('socket.io').listen(server);
@@ -69,9 +70,9 @@ module.exports = function(server) {
       userIds.map(userId => io.to(userId).emit('add_room', {}));
     });
 
-    socket.on('edit_room', new_name => {
-      let room = {}; // get id, name, desc, last_created_at of messages
-      io.to(socket.roomId).emit('edit_room', room);
+    socket.on('edit_room', async function(roomId) {
+      let roomInfo = await Room.getInforOfRoom(roomId);
+      io.to(socket.roomId).emit('edit_room_successfully', roomInfo[0]);
     });
 
     socket.on('delete_room', () => {

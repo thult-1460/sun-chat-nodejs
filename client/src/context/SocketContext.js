@@ -20,13 +20,7 @@ class Provider extends Component {
   }
 
   render() {
-    return (
-      <SocketContext.Provider
-        value={this.state.socket}
-      >
-        {this.props.children}
-      </SocketContext.Provider>
-    );
+    return <SocketContext.Provider value={this.state}>{this.props.children}</SocketContext.Provider>;
   }
 }
 

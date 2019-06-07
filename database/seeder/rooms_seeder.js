@@ -49,6 +49,9 @@ new Promise(resolve => {
         type: type,
         members: members,
         messages: message,
+        invitation_code: Math.random()
+          .toString(36)
+          .substring(2, 35),
       });
     }
 

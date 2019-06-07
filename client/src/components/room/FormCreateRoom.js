@@ -6,12 +6,14 @@ import ListContactCreateRoom from './ListContactsCreateRoom.js';
 import { createRoom, editRoom } from '../../api/room.js';
 import { roomConfig } from '../../config/roomConfig';
 import { Row, Col, Card, Form, Input, Icon, Button, Modal, message, Checkbox, Upload, Typography } from 'antd';
+import { SocketContext } from './../../context/SocketContext';
 
 const FormItem = Form.Item;
 const { TextArea } = Input;
 const { Paragraph } = Typography;
 
 class FormCreateRoom extends PureComponent {
+  static contextType = SocketContext;
   static defaultProps = {
     handleModalVisible: () => {},
     invitationURL: roomConfig.INVITATION_URL,
@@ -79,14 +81,16 @@ class FormCreateRoom extends PureComponent {
 
       if (roomInfo.avatar !== undefined) {
         this.setState({
-          fileList: [{
-            uid: '-1',
-            url: roomInfo.avatar,
-          }]
+          fileList: [
+            {
+              uid: '-1',
+              url: roomInfo.avatar,
+            },
+          ],
         });
       }
     }
-  };
+  }
 
   handleCancelPreview = () => this.setState({ previewVisible: false });
 
@@ -134,7 +138,7 @@ class FormCreateRoom extends PureComponent {
     this.props.handleModalVisible();
   };
 
-  handleError = (err) => {
+  handleError = err => {
     if (err.response.data.error) {
       message.error(err.response.data.error);
     } else {
@@ -148,9 +152,9 @@ class FormCreateRoom extends PureComponent {
         });
       }
     }
-  }
+  };
 
-  handleCreateRoom = (room) => {
+  handleCreateRoom = room => {
     const { form, handleModalVisible } = this.props;
 
     createRoom(room)
@@ -168,17 +172,19 @@ class FormCreateRoom extends PureComponent {
 
   handleEditRoom = (roomId, room) => {
     const { handleModalVisible } = this.props;
+    editRoom(roomId, room)
+      .then(response => {
+        this.setState({
+          isChangeLink: false,
+          invitationCode: room.invitation_code,
+        });
 
-    editRoom(roomId, room).then(response => {
-      this.setState({
-        isChangeLink: false,
-        invitationCode: room.invitation_code,
-      });
-      message.success(response.data.message);
-      handleModalVisible();
-    })
-    .catch(this.handleError);
-  }
+        message.success(response.data.message);
+        handleModalVisible();
+        this.context.socket.emit('edit_room', roomId);
+      })
+      .catch(this.handleError);
+  };
 
   handleSubmit = () => {
     const { form, roomInfo } = this.props;
@@ -197,13 +203,11 @@ class FormCreateRoom extends PureComponent {
         roomVals = { ...roomVals, ...{ avatar: fileList[0].thumbUrl } };
       }
 
-      let handleRoom
-
       if (roomInfo._id === undefined) {
         roomVals = { ...roomVals, ...{ members } };
-        this.handleCreateRoom(roomVals)
+        this.handleCreateRoom(roomVals);
       } else {
-        this.handleEditRoom(roomInfo._id, roomVals)
+        this.handleEditRoom(roomInfo._id, roomVals);
       }
     });
   };
@@ -300,7 +304,7 @@ class FormCreateRoom extends PureComponent {
     return (
       <Modal
         destroyOnClose
-        title={(roomInfo._id === undefined) ? t('title.create_room') : t('title.edit_room') }
+        title={roomInfo._id === undefined ? t('title.create_room') : t('title.edit_room')}
         visible={modalVisible}
         onOk={this.handleSubmit}
         onCancel={this.handleCancelSubmit}
@@ -352,7 +356,7 @@ class FormCreateRoom extends PureComponent {
                 })(<TextArea placeholder={t('title.room_des')} autosize={{ minRows: 2, maxRows: 6 }} />)}
               </FormItem>
             </Col>
-            {(roomInfo._id === undefined) && (
+            {roomInfo._id === undefined && (
               <Col span={24}>
                 <Card title={t('title.add_member')} bordered={false}>
                   <ListContactCreateRoom getMembers={members => this.setState({ members })} />

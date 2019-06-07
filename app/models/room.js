@@ -60,7 +60,7 @@ const RoomSchema = new Schema(
     name: { type: String },
     desc: { type: String },
     type: { type: Number, default: config.ROOM_TYPE.GROUP_CHAT }, //0: group chat - 1: direct chat
-    invitation_code: { type: String, unique: true, required: true },
+    invitation_code: { type: String, unique: true, default: null },
     invitation_type: { type: Number, default: config.INVITATION_TYPE.NOT_NEED_APPROVAL }, //0: don't need admin approves - 1: need admin approves
     avatar: { type: String },
     members: [Members],
@@ -181,7 +181,7 @@ RoomSchema.statics = {
           avatar: {
             $cond: {
               if: { $eq: ['$type', config.ROOM_TYPE.GROUP_CHAT] },
-              then: '$avatar',
+              then: { $concat: [`/${config.DIR_UPLOAD_FILE.split('/').slice(2)[0]}/`, '$avatar'] },
               else: { $arrayElemAt: ['$members.user_info.avatar', 0] },
             },
           },
@@ -460,7 +460,7 @@ RoomSchema.statics = {
     ).exec();
   },
 
-  getInforOfRoom: function(roomId, originURL) {
+  getInforOfRoom: function(roomId) {
     return this.aggregate([
       { $match: { _id: mongoose.Types.ObjectId(roomId), deletedAt: null } },
       {
@@ -493,7 +493,7 @@ RoomSchema.statics = {
           desc: 1,
           type: 1,
           avatar: {
-            $concat: [`${originURL}/${config.DIR_UPLOAD_FILE.split('/').slice(2)[0]}/`, '$avatar'],
+            $concat: [`/${config.DIR_UPLOAD_FILE.split('/').slice(2)[0]}/`, '$avatar'],
           },
           invitation_code: 1,
           invitation_type: 1,

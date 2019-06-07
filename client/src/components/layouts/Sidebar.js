@@ -46,7 +46,7 @@ class Sidebar extends React.Component {
         });
       });
 
-      const socket = this.context;
+      const socket = this.context.socket;
       socket.on('update_list_room', () => {});
       socket.on('add_room', () => {});
       socket.on('edit_room', () => {});

@@ -267,11 +267,10 @@ exports.deleteMember = async (req, res) => {
 exports.getInforOfRoom = async function(req, res) {
   const { _id } = req.decoded;
   const { roomId } = req.params;
-  const originURL = req.get('origin');
 
   try {
     const isAdmin = await Room.checkAdmin(roomId, _id);
-    let roomInfo = await Room.getInforOfRoom(roomId, originURL);
+    let roomInfo = await Room.getInforOfRoom(roomId);
 
     if (roomInfo.length == 0) {
       throw new Error(__('room.not_found'));
