@@ -171,5 +171,8 @@
     "room": {
       "open_room_failed": "open_room_failed"
     }
+  },
+  "user": {
+    "user_not_exist": "User not exist. Could not this user!"
   }
 }

@@ -166,5 +166,8 @@
     "room": {
       "open_room_failed": "open_room_failed"
     }
+  },
+  "user": {
+    "user_not_exist": "Tài khoản này không tồn tại. Không thể thêm liên lạc này!"
   }
 }

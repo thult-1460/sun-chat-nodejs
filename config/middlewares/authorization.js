@@ -3,6 +3,7 @@
 const { wrap: async } = require('co');
 const mongoose = require('mongoose');
 const Room = mongoose.model('Room');
+const User = mongoose.model('User');
 const jwt = require('jsonwebtoken');
 const logger = require('./../../app/logger/winston.js');
 const channel = logger.init('error');
@@ -52,6 +53,28 @@ exports.user = {
     return jwt.sign({ email: user.email, fullName: user.username, _id: user._id }, jwtSecret, {
       expiresIn: expireTokenHour * 60 * 60,
     });
+  },
+
+  checkUserActivated: async function(req, res, next) {
+    let userIdReceive = req.body.userId;
+
+    try {
+      const user = await User.findOne({ $and: [{ _id: userIdReceive }, { active: true }] });
+
+      if (user == null) {
+        return res.status(403).json({
+          error: __('user.user_not_exist'),
+        });
+      }
+
+      next();
+    } catch (err) {
+      channel.error(err.toString());
+
+      return res.status(500).json({
+        error: __('error.common'),
+      });
+    }
   },
 };
 

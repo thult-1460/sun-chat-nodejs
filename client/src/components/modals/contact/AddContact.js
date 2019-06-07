@@ -61,12 +61,12 @@ class AddContact extends React.Component {
     e.preventDefault();
     const page = 1;
     const searchText = this.props.form.getFieldValue('search_text');
+    this.setState({ isLoading: true, data: [] });
     this.props.form.validateFields((err, values) => {
       if (err) {
         return;
       }
 
-      this.setState({ isLoading: true, data: [] });
       this.fetchData(page, searchText);
     });
   };
@@ -183,6 +183,7 @@ class AddContact extends React.Component {
                       prefix={<Icon type="search" className="icon_input" />}
                       type="text"
                       placeholder={t('contact:send_request_contact.input_search')}
+                      onKeyUp={this.onSubmitSearchName}
                     />
                   )}
 
@@ -222,13 +223,7 @@ class AddContact extends React.Component {
                               </Button>
                             </Button.Group>
                           ) : (
-                            <Button
-                              type="primary"
-                              value={item._id}
-                              htmlType="submit"
-                              onClick={this.addContact}
-                              id="user_send_request_contact"
-                            >
+                            <Button type="primary" value={item._id} htmlType="submit" onClick={this.addContact}>
                               {t('contact:send_request_contact.button_add')}
                             </Button>
                           )}
