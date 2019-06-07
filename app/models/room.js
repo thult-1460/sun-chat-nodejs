@@ -88,7 +88,7 @@ RoomSchema.statics = {
       .exec(cb);
   },
 
-  getListRoomByUserId: function({ userId, filter_type, limit, page = 0 }) {
+  getListRoomByUserId: function({ userId, filter_type = 0, limit, page = 0 }) {
     let list_filter_type_chat = [],
       default_quantity_unread = config.LIMIT_MESSAGE.COUNT_UNREAD,
       filter_unread = { $match: { quantity_unread: { $gt: 0 } } },

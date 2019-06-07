@@ -25,7 +25,10 @@ const config = {
   },
   COND_SEARCH_TEXT: {
     MIN_LENGTH: 3,
-  }
+  },
+  LIMIT_ITEM_SHOW: {
+    ROOM: 20,
+  },
 };
 
 export default config;

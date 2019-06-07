@@ -79,7 +79,7 @@ class FormCreateRoom extends PureComponent {
         invitationType: roomInfo.invitation_type,
       });
 
-      if (roomInfo.avatar !== undefined) {
+      if (roomInfo.avatar) {
         this.setState({
           fileList: [
             {

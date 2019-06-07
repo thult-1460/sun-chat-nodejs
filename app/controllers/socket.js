@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken');
 const jwtSecret = process.env.JWT_SECRET;
 const mongoose = require('mongoose');
 const User = mongoose.model('User');
+const Room = mongoose.model('Room');
 
 module.exports = function(io) {
   io.on('connection', socket => {
@@ -96,8 +97,22 @@ module.exports = function(io) {
 
     socket.on('left_room', () => {});
     // action of MEMBER - END
+
+    socket.on('get_list_room', async params => {
+      const options = {
+        userId: socket.userId,
+        filter_type: params.filter_type,
+        limit: params.per_page,
+        page: params.page
+      }
+
+      let rooms = await Room.getListRoomByUserId(options);
+      io.to(socket.userId).emit('update_list_room', rooms);
+    })
   });
 };
+
+
 
 roomAuthorization = (roomId, userId) => {
   return true;

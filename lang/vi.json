@@ -97,7 +97,8 @@
     "create": {
       "success": "Tạo nhóm trò chuyện thành công",
       "failed": "Tạo nhóm trò chuyện thất bại",
-      "upload_file_failed": "File ảnh phải nhỏ hơn {{max}} MB!"
+      "upload_file_failed": "File ảnh phải nhỏ hơn {{max}} MB!",
+      "message_dafault": "Tên cuộc trò chuyện [ {{name}} ] đã được cài đặt."
     },
     "edit": {
       "success": "Sửa nhóm trò chuyện thành công",

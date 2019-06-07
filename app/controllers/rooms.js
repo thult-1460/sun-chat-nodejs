@@ -121,13 +121,16 @@ exports.getMemberOfRoom = async function(req, res) {
 exports.deleteRoom = async function(req, res) {
   const { _id } = req.decoded;
   const { roomId } = req.body;
+  const io = req.app.get('socketIO');
 
   try {
-    const result = await Room.deleteRoom(_id, roomId);
+    await Room.deleteRoom(_id, roomId).then( oldRoomData => {
+      oldRoomData.members.map(async member => {
+        io.to(member.user).emit('action_room');
+      });
 
-    if (!result) throw new Error(__('room.delete_room.failed'));
-
-    return res.status(200).json({ success: __('room.delete_room.success') });
+      return res.status(200).json({ success: __('room.delete_room.success') });
+    });
   } catch (err) {
     channel.error(err.toString());
     res.status(500).json({ error: __('room.delete_room.failed') });
@@ -147,6 +150,8 @@ exports.createRoom = async (req, res) => {
   const room = req.body;
   room.name = room.name ? room.name : fullName;
   room.members.push({ user: _id, role: config.MEMBER_ROLE.ADMIN });
+  room.messages = room.messages ? room.messages : [],
+  room.messages.push({ content: __('room.create.message_dafault', { name: room.name }), user: _id })
 
   if (room.avatar) {
     try {
@@ -160,12 +165,19 @@ exports.createRoom = async (req, res) => {
     }
   }
 
+  const io = req.app.get('socketIO');
   const newRoom = new Room(room);
 
   await newRoom
     .save()
-    .then(result => {
-      if (result) return res.status(200).json({ message: __('room.create.success') });
+    .then( roomData => {
+      if (roomData) {
+        roomData.members.map(async member => {
+          io.to(member.user).emit('action_room');
+        });
+
+        return res.status(200).json({ message: __('room.create.success') });
+      }
     })
     .catch(err => {
       channel.error(err.toString());
@@ -482,6 +494,7 @@ exports.editRoom = async (req, res) => {
 
   let { roomId } = req.params;
   const roomData = req.body;
+  const io = req.app.get('socketIO');
 
   try {
     await Room.findById(roomId).then(async room => {
@@ -490,12 +503,21 @@ exports.editRoom = async (req, res) => {
       }
 
       if (roomData.avatar) {
-        await files.saveImage(roomData.avatar, slug(roomData.name, '-'), room.avatar).then(url => {
+        await files.saveImage(roomData.avatar, slug(roomData.name, '-'), room.avatar)
+        .then(url => {
           roomData.avatar = url;
         });
       }
 
-      await Room.updateOne({ _id: roomId }, { $set: roomData }).then(result => {
+      await Room.findOneAndUpdate(
+        { _id: roomId },
+        { $set: roomData },
+        { new: true },
+      ).then( roomData => {
+        roomData.members.map(async member => {
+          io.to(member.user).emit('action_room');
+        });
+
         res.status(200).json({ message: __('room.edit.success') });
       });
     });
