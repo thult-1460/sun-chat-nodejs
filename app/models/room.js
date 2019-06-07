@@ -216,17 +216,20 @@ RoomSchema.statics = {
       query.push(filter_unread);
     }
 
-    query.push({
-      $sort: {
-        pinned: -1,
-        last_created_msg: -1,
+    query.push(
+      {
+        $sort: {
+          pinned: -1,
+          last_created_msg: -1,
+        },
       },
-    });
+      { $skip: limit * page },
+      {
+        $limit: 20,
+      }
+    );
 
-    return this.aggregate(query)
-      .limit(limit)
-      .skip(limit * page)
-      .exec();
+    return this.aggregate(query).exec();
   },
 
   getQuantityRoomsByUserId: function({ _id, filter_type }) {
@@ -243,6 +246,7 @@ RoomSchema.statics = {
       {
         $match: { deletedAt: null, 'members.user': mongoose.Types.ObjectId(_id) },
       },
+      { $unwind: '$members' },
     ];
 
     if (filter_type === config.FILTER_TYPE.LIST_ROOM.GROUP) {
@@ -306,7 +310,6 @@ RoomSchema.statics = {
 
       query.push(filter_unread);
     }
-
     query.push({
       $count: 'result',
     });

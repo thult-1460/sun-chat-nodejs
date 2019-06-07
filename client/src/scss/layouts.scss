@@ -104,7 +104,7 @@ section.ant-layout {
 
 .ant-menu-dark li.ant-list-item {
   margin: 0;
-  padding: 12px 15px;
+  padding-left: 15px;
   &:hover {
     background-color: #364c5f;
   }
@@ -153,4 +153,8 @@ section.ant-layout {
 
 .ant-badge-count {
   font-size: 11px;
+}
+.sidebar-infinite-container {
+  overflow: auto;
+  height: 1000px;
 }

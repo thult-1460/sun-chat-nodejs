@@ -20,14 +20,18 @@ class Sidebar extends React.Component {
     hasMore: true,
     page: 1,
     quantity_chats: 0,
-    filter_flag: 0,
+    filter_type: config.FILTER_TYPE.LIST_ROOM.ALL.VALUE,
     selected_room: '',
   };
 
   fetchData = param => {
     getListRoomsByUser(param).then(res => {
+      let { rooms } = this.state;
+      res.data.map(item => {
+        rooms.push(item);
+      });
       this.setState({
-        rooms: res.data,
+        rooms,
         page: param.page,
         loading: false,
       });
@@ -36,10 +40,8 @@ class Sidebar extends React.Component {
 
   componentDidMount() {
     if (checkExpiredToken()) {
-      const { page } = this.state;
-      const filter_type = config.FILTER_TYPE.LIST_ROOM.ALL.VALUE;
+      const { page, filter_type } = this.state;
       this.fetchData({ page, filter_type });
-
       getQuantityRoomsByUserId(filter_type).then(res => {
         this.setState({
           quantity_chats: res.data.result,
@@ -55,13 +57,14 @@ class Sidebar extends React.Component {
   }
 
   handleInfiniteOnLoad = () => {
-    let { page, data, quantity_chats } = this.state;
-    const newPage = parseInt(page) + 1;
+    let { page, rooms, quantity_chats, filter_type } = this.state;
+
+    page = parseInt(page) + 1;
     this.setState({
       loading: true,
     });
 
-    if (data.length >= quantity_chats) {
+    if (rooms.length >= quantity_chats) {
       message.warning(this.props.t('notice.action.end_of_list'));
       this.setState({
         hasMore: false,
@@ -70,7 +73,7 @@ class Sidebar extends React.Component {
       return;
     }
 
-    this.fetchData(newPage);
+    this.fetchData({ page, filter_type });
   };
 
   onClick = e => {
@@ -79,7 +82,7 @@ class Sidebar extends React.Component {
     this.setState({
       loading: true,
       page: 1,
-      filter_flag: filter_type,
+      filter_type: filter_type,
     });
 
     const { page } = this.state;
@@ -117,15 +120,15 @@ class Sidebar extends React.Component {
     for (let index in list_flag) {
       condFilter.push(
         <Menu.Item
-          key={list_flag[index].VALUE}
+          key={index}
           flag={list_flag[index].VALUE}
-          className={this.state.filter_flag === list_flag[index].VALUE ? active : ''}
+          className={this.state.filter_type === list_flag[index].VALUE ? active : ''}
         >
           {t(list_flag[index].TITLE)}
         </Menu.Item>
       );
 
-      if (list_flag[index].VALUE == this.state.filter_flag) {
+      if (list_flag[index].VALUE == this.state.filter_type) {
         selected_content = t(list_flag[index].TITLE);
       }
     }
@@ -133,10 +136,10 @@ class Sidebar extends React.Component {
 
     let renderHtml =
       rooms.length > 0 &&
-      rooms.map(room => {
+      rooms.map((room, index) => {
         return (
           <List.Item
-            key={room._id}
+            key={index}
             className={room._id == this.state.selected_room ? 'item-active' : ''}
             data-room-id={room._id}
             onClick={this.updateSelectedRoom}
@@ -169,7 +172,7 @@ class Sidebar extends React.Component {
             </Dropdown>
           </div>
           <Menu theme="dark" mode="inline" defaultSelectedKeys={['1']}>
-            <div>
+            <div className="sidebar-infinite-container">
               <InfiniteScroll
                 initialLoad={false}
                 pageStart={0}
