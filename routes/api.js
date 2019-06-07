@@ -15,6 +15,7 @@ const usersValidate = require('../app/validations/users.js');
 const roomsValidate = require('../app/validations/rooms.js');
 const contactValidate = require('../app/validations/contact.js');
 const searchValidate = require('../app/validations/search.js');
+const messageValidate = require('../app/validations/message.js');
 
 // Change language
 router.get('/language/:lang', (req, res) => {
@@ -134,11 +135,13 @@ router.get(
 router.post(
   '/rooms/:roomId/messages',
   [auth.jwtMiddleware, authorization.room.createMessage],
+  messageValidate.validate('create'),
   roomsController.storeMessage
 );
 router.post(
   '/rooms/:roomId/messages/:messageId',
   [auth.jwtMiddleware, authorization.room.updateMessage],
+  messageValidate.validate('create'),
   roomsController.updateMessage
 );
 

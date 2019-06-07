@@ -164,6 +164,11 @@
       "edit": {
         "success": "Edit message successfully",
         "failed": "Edit message failed"
+      },
+      "validate": {
+        "content": {
+          "empty": "The content is not empty"
+        }
       }
     }
   },

@@ -71,3 +71,7 @@ export function changeRoleMember(data) {
 export function loadMessages(roomId) {
   return new Http().authenticated().get(`/rooms/${roomId}/messages`);
 }
+
+export function sendMessage(roomId, data) {
+  return new Http().authenticated().post(`/rooms/${roomId}/messages`, data);
+}

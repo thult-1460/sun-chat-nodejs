@@ -159,6 +159,11 @@
       "edit": {
         "success": "Chỉnh sửa tin nhắn thành công",
         "failed": "Chỉnh sửa tin nhắn thất bại"
+      },
+      "validate": {
+        "content": {
+          "empty": "Nội dung tin nhắn không được trống"
+        }
       }
     }
   },

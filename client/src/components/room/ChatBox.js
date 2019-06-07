@@ -1,7 +1,7 @@
 import React from 'react';
 import { withRouter } from 'react-router';
 import { Layout, Input, Button, List, Avatar, Icon, Row, Col } from 'antd';
-import { loadMessages } from './../../api/room.js';
+import { loadMessages, sendMessage } from './../../api/room.js';
 import { SocketContext } from './../../context/SocketContext';
 import { withNamespaces } from 'react-i18next';
 import moment from 'moment';
@@ -23,6 +23,17 @@ class ChatBox extends React.Component {
         messages: res.data.messages,
       });
     });
+
+    // Listen 'send_new_msg' event from server
+    const socket = this.context.socket;
+    socket.on('send_new_msg', res => {
+      const messages = this.state.messages;
+      messages.push(res.message);
+
+      this.setState({
+        messages: messages,
+      });
+    });
   }
 
   componentDidUpdate(prevProps) {
@@ -41,6 +52,21 @@ class ChatBox extends React.Component {
 
     return moment(time).format(t('format_time'));
   }
+
+  handleSendMessage = e => {
+    if (e.key == undefined || e.key == 'Enter') {
+      const roomId = this.props.match.params.id;
+      const msgElement = document.getElementById('msg-content');
+      let data = {
+        content: msgElement.value,
+      };
+      if (msgElement.value !== '') {
+        sendMessage(roomId, data).then(res => {
+          msgElement.value = '';
+        });
+      }
+    }
+  };
 
   render() {
     const { t } = this.props;
@@ -70,11 +96,17 @@ class ChatBox extends React.Component {
           <Button type="link" size={'small'}>
             {t('to')}
           </Button>
-          <Button style={{ float: 'right' }} type="primary">
+          <Button style={{ float: 'right' }} type="primary" onClick={this.handleSendMessage}>
             {t('send')}
           </Button>
         </div>
-        <Input.TextArea placeholder={t('type_msg')} rows={4} style={{ resize: 'none' }} />
+        <Input.TextArea
+          placeholder={t('type_msg')}
+          rows={4}
+          style={{ resize: 'none' }}
+          id="msg-content"
+          onKeyDown={this.handleSendMessage}
+        />
       </Content>
     );
   }

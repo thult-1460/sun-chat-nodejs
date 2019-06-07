@@ -2,11 +2,8 @@ const jwt = require('jsonwebtoken');
 const jwtSecret = process.env.JWT_SECRET;
 const mongoose = require('mongoose');
 const User = mongoose.model('User');
-const Room = mongoose.model('Room');
 
-module.exports = function(server) {
-  const io = require('socket.io').listen(server);
-
+module.exports = function(io) {
   io.on('connection', socket => {
     socket.on('disconnect', () => {
       console.log('socket disconnected');
@@ -47,12 +44,6 @@ module.exports = function(server) {
       userId = userId ? userId : socket.userId;
       let request_friend_count = await User.getAllContactRequest(userId);
       io.to(userId).emit('update_request_friend_count', request_friend_count[0].number_of_contact);
-    });
-
-    socket.on('new_msg', messageContent => {
-      let message = { _id: 1, content: messageContent }; // save to DB
-      io.to(socket.roomId).emit('new_msg', message);
-      io.to(socket.roomId).emit('update_list_room', {});
     });
 
     socket.on('update_msg', messageId => {

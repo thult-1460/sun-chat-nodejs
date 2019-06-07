@@ -37,7 +37,9 @@ require('./config/express')(app, passport);
 require('./config/routes')(app, passport);
 
 const server = http.createServer(app);
-require('./app/controllers/socket')(server);
+const io = require('socket.io').listen(server);
+app.set('socketIO', io);
+require('./app/controllers/socket')(io);
 
 connect();
 

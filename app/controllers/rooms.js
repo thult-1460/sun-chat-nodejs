@@ -426,6 +426,7 @@ exports.deleteMessage = async (req, res) => {
 };
 
 exports.storeMessage = async function(req, res) {
+  const io = req.app.get('socketIO');
   const { roomId } = req.params;
   const { _id: userId } = req.decoded;
   const { content } = req.body;
@@ -433,6 +434,9 @@ exports.storeMessage = async function(req, res) {
   try {
     const room = await Room.storeMessage(roomId, userId, content);
     const lastMessage = room.messages.pop();
+    const message = await Room.getMessageInfo(roomId, lastMessage._id);
+
+    io.to(roomId).emit('send_new_msg', { message: message });
 
     return res.status(200).json({
       message_id: lastMessage._id,
