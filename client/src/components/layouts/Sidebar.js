@@ -47,10 +47,17 @@ class Sidebar extends React.Component {
       });
 
       const socket = this.context.socket;
-      socket.on('update_list_room', () => {});
-      socket.on('add_room', () => {});
-      socket.on('edit_room', () => {});
-      socket.on('delete_room', () => {});
+
+      socket.on('action_room', () => {
+        const { filter_flag, page } = this.state;
+        socket.emit('get_list_room', { page: 0, filter_type: filter_flag, per_page: page*config.LIMIT_ITEM_SHOW.ROOM });
+      });
+
+      socket.on('update_list_room', rooms => {
+        this.setState({
+          rooms: rooms,
+        })
+      })
     }
   }
 

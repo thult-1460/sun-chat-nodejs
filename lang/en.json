@@ -97,7 +97,8 @@
     "create": {
       "success": "Create room successfully",
       "failed": "Create room failed",
-      "upload_file_failed": "Image must smaller than {{max}} MB!"
+      "upload_file_failed": "Image must smaller than {{max}} MB!",
+      "message_dafault": "Group name changed to [ {{name}} ]."
     },
     "edit": {
       "success": "Edit room successfully",
