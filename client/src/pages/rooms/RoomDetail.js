@@ -127,4 +127,4 @@ class RoomDetail extends React.Component {
   }
 }
 
-export default withNamespaces(['room'])(withRouter(RoomDetail));
+export default withRouter(withNamespaces(['room'])(RoomDetail));

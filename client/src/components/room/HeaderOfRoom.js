@@ -1,5 +1,4 @@
 import React from 'react';
-import { withRouter } from 'react-router';
 import { deleteRoom } from '../../api/room';
 import { withNamespaces } from 'react-i18next';
 import history from '../../history';
@@ -30,9 +29,9 @@ class HeaderOfRoom extends React.Component {
 
     if (data.type === ROOM_TYPE.GROUP_CHAT) {
       if (data.number_of_members > limitShowMember) {
-        listMember.push(<ModalListMember numRemainMember={data.number_of_members - limitShowMember} />);
+        listMember.push(<ModalListMember key={0} numRemainMember={data.number_of_members - limitShowMember} />);
       } else {
-        listMember.push(<ModalListMember numRemainMember="" />);
+        listMember.push(<ModalListMember key={0} numRemainMember="" />);
       }
 
       data.members_info.map(member => {
@@ -96,4 +95,4 @@ class HeaderOfRoom extends React.Component {
   }
 }
 
-export default withNamespaces(['room'])(withRouter(HeaderOfRoom));
+export default withNamespaces(['room'])(HeaderOfRoom);

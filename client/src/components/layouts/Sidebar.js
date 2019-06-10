@@ -205,4 +205,4 @@ class Sidebar extends React.Component {
   }
 }
 
-export default withNamespaces(['listRoom'])(withRouter(Sidebar));
+export default withRouter(withNamespaces(['listRoom'])(Sidebar));
