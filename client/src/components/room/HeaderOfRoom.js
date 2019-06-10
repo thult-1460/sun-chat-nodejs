@@ -57,7 +57,6 @@ class HeaderOfRoom extends React.Component {
 
   render() {
     const { t, data } = this.props;
-
     return (
       <Header className="header-chat-room">
         <Row type="flex" justify="start">
@@ -70,7 +69,7 @@ class HeaderOfRoom extends React.Component {
           <Col span={1}>
             {this.props.isAdmin && (
               <div className="icon-request-list">
-                <ModalListRequest />
+                <ModalListRequest roomId={data._id} />
               </div>
             )}
           </Col>

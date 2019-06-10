@@ -4,8 +4,11 @@ import { Avatar, Button, Row, Col, Alert } from 'antd';
 import { withNamespaces } from 'react-i18next';
 import { withRouter } from 'react-router';
 import { INVATATION_STATUS } from './../../config/room.js';
+import { SocketContext } from '../../context/SocketContext';
 
 class JoinInvitation extends React.Component {
+  static contextType = SocketContext;
+
   state = {
     room: {},
     isSendRequest: false,
@@ -33,6 +36,9 @@ class JoinInvitation extends React.Component {
             isSendRequest: true,
             message: res.data.message,
           });
+
+          const { socket } = this.context;
+          socket.emit('update_request_join_room', data.roomId);
         }
       })
       .catch(err => {

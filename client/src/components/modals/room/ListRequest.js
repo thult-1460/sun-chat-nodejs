@@ -5,9 +5,12 @@ import { List, Avatar, Button, Checkbox, Spin, message, Alert } from 'antd';
 import { getRequests, getNumberOfRequests, rejectRequests, acceptRequests } from '../../../api/room';
 import { withNamespaces } from 'react-i18next';
 import { withRouter } from 'react-router';
+import { SocketContext } from '../../../context/SocketContext';
 const CheckboxGroup = Checkbox.Group;
 
 class ListRequest extends React.Component {
+  static contextType = SocketContext;
+
   state = {
     data: [],
     error: '',
@@ -51,6 +54,11 @@ class ListRequest extends React.Component {
       });
     });
   }
+
+  updateNumberRequestJoinRooms = roomId => {
+    const { socket } = this.context;
+    socket.emit('update_request_join_room', roomId);
+  };
 
   onChange = checkedList => {
     const { allItem } = this.state;
@@ -112,6 +120,7 @@ class ListRequest extends React.Component {
             }));
           });
           this.setState({ indeterminate: this.state.checkedList.length > 0 });
+          this.updateNumberRequestJoinRooms(roomId);
         })
         .catch(error => {
           this.setState({
@@ -142,6 +151,10 @@ class ListRequest extends React.Component {
           }));
         });
         this.setState({ indeterminate: this.state.checkedList.length > 0 });
+        this.updateNumberRequestJoinRooms(roomId);
+
+        const { socket } = this.context;
+        socket.emit('update_member_of_room', roomId);
       })
       .catch(error => {
         message.error(error.response.data.error);
