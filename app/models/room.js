@@ -145,6 +145,8 @@ RoomSchema.statics = {
       list_filter_type_chat.push(filter_group);
     } else if (filter_type === config.FILTER_TYPE.LIST_ROOM.DIRECT) {
       list_filter_type_chat.push(filter_direct);
+    } else if (filter_type === config.FILTER_TYPE.LIST_ROOM.SELF) {
+      list_filter_type_chat.push(filter_self);
     } else {
       list_filter_type_chat = [filter_group, filter_direct, filter_self];
     }
@@ -232,13 +234,13 @@ RoomSchema.statics = {
     return this.aggregate(query).exec();
   },
 
-  getQuantityRoomsByUserId: function({ _id, filter_type }) {
+  getQuantityRoomsByUserId: function(_id, filter_type = 0) {
     let list_filter_type_chat = [],
       filter_unread = { $match: { quantity_unread: true } },
       filter_pinned = { $match: { 'last_msg_id_reserve.pinned': true } },
-      filter_group = { 'members.user': mongoose.Types.ObjectId(_id), type: config.ROOM_TYPE.GROUP_CHAT },
-      filter_direct = { 'members.user': { $ne: mongoose.Types.ObjectId(_id) }, type: config.ROOM_TYPE.DIRECT_CHAT },
-      filter_self = { 'members.user': mongoose.Types.ObjectId(_id), type: config.ROOM_TYPE.SELF_CHAT };
+      filter_group = { type: config.ROOM_TYPE.GROUP_CHAT },
+      filter_direct = { type: config.ROOM_TYPE.DIRECT_CHAT },
+      filter_self = { type: config.ROOM_TYPE.SELF_CHAT };
 
     filter_type = parseInt(filter_type);
 
@@ -253,12 +255,15 @@ RoomSchema.statics = {
       list_filter_type_chat.push(filter_group);
     } else if (filter_type === config.FILTER_TYPE.LIST_ROOM.DIRECT) {
       list_filter_type_chat.push(filter_direct);
+    } else if (filter_type === config.FILTER_TYPE.LIST_ROOM.SELF) {
+      list_filter_type_chat.push(filter_self);
     } else {
       list_filter_type_chat = [filter_group, filter_direct, filter_self];
     }
 
     query.push({
       $match: {
+        'members.user': mongoose.Types.ObjectId(_id),
         'members.deletedAt': null,
         $or: list_filter_type_chat,
       },
@@ -815,6 +820,28 @@ RoomSchema.statics = {
     ]);
 
     return message.length > 0 ? message[0].messages : {};
+  },
+
+  getRoomMyChatId: function(userId) {
+    return this.find(
+      {
+        'members.user': userId,
+        type: config.ROOM_TYPE.SELF_CHAT,
+      },
+      {
+        _id: 1,
+      }
+    ).exec();
+  },
+
+  createMyChat: function(userId) {
+    return this.insertMany([
+      {
+        name: 'My Chat',
+        type: config.ROOM_TYPE.SELF_CHAT,
+        members: [{ user: userId, role: config.MEMBER_ROLE.MEMBER }],
+      },
+    ]);
   },
 };
 

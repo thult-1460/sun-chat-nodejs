@@ -33,7 +33,7 @@ function customMessageValidate(errors) {
 exports.index = async function(req, res) {
   let { _id } = req.decoded;
   const page = (req.query.page > 0 ? req.query.page : 1) - 1;
-  const filter_type = req.query.filter_type >= 0 ? req.query.filter_type : 0;
+  const filter_type = req.query.filter_type;
   const limit = config.LIMIT_ITEM_SHOW.ROOM;
   const options = {
     userId: _id,
@@ -70,10 +70,10 @@ exports.getRoomsBySubName = async function(req, res) {
 
 exports.getQuantityRoomsByUserId = async function(req, res) {
   const { _id } = req.decoded;
-  const filter_type = req.query.filter_type >= 0 ? req.query.filter_type : 0;
-  const data = await Room.getQuantityRoomsByUserId({ _id, filter_type });
+  const filter_type = req.query.filter_type;
+  const data = await Room.getQuantityRoomsByUserId(_id, filter_type);
 
-  res.json(data.length ? data[0] : { result: 0 });
+  return res.status(200).json(data.length ? data[0] : { result: 0 });
 };
 
 exports.getMemberOfRoom = async function(req, res) {
@@ -124,7 +124,7 @@ exports.deleteRoom = async function(req, res) {
   const io = req.app.get('socketIO');
 
   try {
-    await Room.deleteRoom(_id, roomId).then( oldRoomData => {
+    await Room.deleteRoom(_id, roomId).then(oldRoomData => {
       oldRoomData.members.map(async member => {
         io.to(member.user).emit('action_room');
       });
@@ -150,8 +150,8 @@ exports.createRoom = async (req, res) => {
   const room = req.body;
   room.name = room.name ? room.name : fullName;
   room.members.push({ user: _id, role: config.MEMBER_ROLE.ADMIN });
-  room.messages = room.messages ? room.messages : [],
-  room.messages.push({ content: __('room.create.message_dafault', { name: room.name }), user: _id })
+  room.messages = room.messages ? room.messages : [];
+  room.messages.push({ content: __('room.create.message_dafault', { name: room.name }), user: _id });
 
   if (room.avatar) {
     try {
@@ -170,7 +170,7 @@ exports.createRoom = async (req, res) => {
 
   await newRoom
     .save()
-    .then( roomData => {
+    .then(roomData => {
       if (roomData) {
         roomData.members.map(async member => {
           io.to(member.user).emit('action_room');
@@ -512,13 +512,13 @@ exports.editRoom = async (req, res) => {
       await Room.findOneAndUpdate(
         { _id: roomId },
         { $set: roomData },
-        { new: true },
-      ).then( roomData => {
+        { new: true }
+      ).then(roomData => {
         roomData.members.map(async member => {
           io.to(member.user).emit('action_room');
         });
 
-        res.status(200).json({ message: __('room.edit.success') });
+        return res.status(200).json({ message: __('room.edit.success') });
       });
     });
   } catch (err) {

@@ -144,9 +144,9 @@ class ListContacts extends Component {
               size="large"
               onSearch={searchText => this.handleSearch(searchText)}
             />
-            <div className="infinite-container">
+            <div>
               {this.state.contacts.length > 0 ? (
-                <div>
+                <div className="infinite-container">
                   {error && <Alert message={t('user:error_title')} type="error" description={error} />}
                   <InfiniteScroll
                     initialLoad={false}

@@ -34,6 +34,7 @@ module.exports = {
       PINNED: 2,
       GROUP: 3,
       DIRECT: 4,
+      SELF: 5,
     },
   },
   LIMIT_MESSAGE: {

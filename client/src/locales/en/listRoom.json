@@ -9,6 +9,7 @@
     "un_read": "Unread Chats",
     "pinned": "Pinned Chats",
     "group_chat": "Group Chats",
-    "direct_chat": "Direct Chats"
+    "direct_chat": "Direct Chats",
+    "my_chat": "My Chat"
   }
 }

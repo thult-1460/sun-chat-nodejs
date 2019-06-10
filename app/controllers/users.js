@@ -17,7 +17,7 @@ const moment = require('moment-timezone');
 const logger = require('./../logger/winston');
 const channel = logger.init('error');
 const contact = require('./../services/contactService.js');
-
+const Room = mongoose.model('Room');
 /**
  * Load
  */
@@ -67,7 +67,12 @@ exports.show = async(function*(req, res) {
   const criteria = { _id: _id };
   const option = 'name email username password twitter github google full_address phone_number';
   const user = yield User.load({ select: option, criteria });
-  res.json(user);
+  const roomMyChatId = yield Room.getRoomMyChatId(_id);
+
+  res.status(200).json({
+    user,
+    my_chat_id: roomMyChatId.length != 0 ? roomMyChatId[0]._id : null,
+  });
 });
 
 exports.update = async(function*(req, res) {
@@ -198,6 +203,8 @@ exports.confirmEmail = function(req, res) {
       user.active_token = null;
       user.active_token_expire = null;
       user.save();
+
+      Room.createMyChat(user._id);
 
       res.status(200).json({ msg: __('mail.confirmed') });
     })

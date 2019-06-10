@@ -2,10 +2,10 @@
   "mail": {
     "confirm": "Đã gửi một email, bạn vui lòng kiểm tra trong hòm thư mail!",
     "confirmed": "Email của bạn đã được xác nhận!",
-    "send": "Email xác nhận đã được gửi, nếu không thấy bạn có thể kiểm tra lại trong phần sapm!",
+    "send": "Email xác nhận đã được gửi, nếu không thấy bạn có thể kiểm tra lại trong phần spam!",
     "resend": "Email đã được gửi lại, ",
-    "resend_active_mail": "Email xác nhận đã được gửi lại,nếu không thấy bạn có thể kiểm tra lại trong phần sapm!",
-    "send_active_mail": "mail xác nhận đã được gửi, nếu không thấy bạn có thể kiểm tra lại trong phần sapm!",
+    "resend_active_mail": "Email xác nhận đã được gửi lại,nếu không thấy bạn có thể kiểm tra lại trong phần spam!",
+    "send_active_mail": "Email xác nhận đã được gửi, nếu không thấy bạn có thể kiểm tra lại trong phần spam!",
     "couldNotFind": "Không thể tìm thấy!",
     "alreadyConfirmed": "Email của bạn đã được xác nhận rồi!",
     "confirm_failed": "Xác nhận thất bại",
@@ -166,6 +166,9 @@
           "empty": "Nội dung tin nhắn không được trống"
         }
       }
+    },
+    "my_chat": {
+      "failed": "Lấy ID room MyChat thất bại"
     }
   },
   "socket": {

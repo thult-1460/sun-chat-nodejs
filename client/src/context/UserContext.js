@@ -9,6 +9,7 @@ class Provider extends Component {
 
     this.state = {
       info: {},
+      my_chat_id: {},
     };
   }
 
@@ -16,7 +17,8 @@ class Provider extends Component {
     getUser()
       .then(res => {
         this.setState({
-          info: res.data,
+          info: res.data.user,
+          my_chat_id: res.data.my_chat_id,
         });
       })
       .catch(error => {

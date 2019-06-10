@@ -1,7 +1,7 @@
 import Http from './../utils/Http';
 
-export function getListRoomsByUser({ page, filter_type }) {
-  return new Http().authenticated().get(`/rooms/index?page=${page}&&filter_type=${filter_type}`);
+export function getListRoomsByUser(page, filter_type) {
+  return new Http().authenticated().get(`/rooms/index?page=${page}&filter_type=${filter_type}`);
 }
 
 export function getListRoomsBySubName(text) {

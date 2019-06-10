@@ -171,6 +171,9 @@
           "empty": "The content is not empty"
         }
       }
+    },
+    "my_chat": {
+      "failed": "Get room mychat ID failed"
     }
   },
   "socket": {

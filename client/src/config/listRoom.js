@@ -21,6 +21,10 @@ const config = {
         VALUE: 4,
         TITLE: 'filter.direct_chat',
       },
+      SELF: {
+        VALUE: 5,
+        TITLE: 'filter.my_chat',
+      },
     },
   },
   COND_SEARCH_TEXT: {

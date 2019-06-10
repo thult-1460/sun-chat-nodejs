@@ -1,13 +1,13 @@
 import React from 'react';
-import { Layout, Icon, Menu, Avatar, message, Typography, Dropdown, List, Button } from 'antd';
+import { Layout, Icon, Menu, Avatar, message, Typography, Dropdown, List, Button, Spin } from 'antd';
 import InfiniteScroll from 'react-infinite-scroller';
 import { checkExpiredToken } from './../../helpers/common';
 import { getListRoomsByUser, getQuantityRoomsByUserId, togglePinnedRoom } from './../../api/room';
 import { Link } from 'react-router-dom';
 import config from './../../config/listRoom';
 import { withNamespaces } from 'react-i18next';
-import Loading from '../Loading';
 import { SocketContext } from './../../context/SocketContext';
+import { withRouter } from 'react-router';
 const { Sider } = Layout;
 
 class Sidebar extends React.Component {
@@ -24,15 +24,15 @@ class Sidebar extends React.Component {
     selected_room: '',
   };
 
-  fetchData = param => {
-    getListRoomsByUser(param).then(res => {
+  fetchData = (page, filter_type) => {
+    getListRoomsByUser(page, filter_type).then(res => {
       let { rooms } = this.state;
       res.data.map(item => {
         rooms.push(item);
       });
       this.setState({
         rooms,
-        page: param.page,
+        page,
         loading: false,
       });
     });
@@ -41,7 +41,7 @@ class Sidebar extends React.Component {
   componentDidMount() {
     if (checkExpiredToken()) {
       const { page, filter_type } = this.state;
-      this.fetchData({ page, filter_type });
+      this.fetchData(page, filter_type);
       getQuantityRoomsByUserId(filter_type).then(res => {
         this.setState({
           quantity_chats: res.data.result,
@@ -51,16 +51,28 @@ class Sidebar extends React.Component {
       const socket = this.context.socket;
 
       socket.on('action_room', () => {
-        const { filter_flag, page } = this.state;
-        socket.emit('get_list_room', { page: 0, filter_type: filter_flag, per_page: page*config.LIMIT_ITEM_SHOW.ROOM });
+        const { filter_type, page } = this.state;
+        socket.emit('get_list_room', {
+          page: 0,
+          filter_type,
+          per_page: page * config.LIMIT_ITEM_SHOW.ROOM,
+        });
       });
 
       socket.on('update_list_room', rooms => {
         this.setState({
           rooms: rooms,
-        })
-      })
+        });
+      });
     }
+
+    const roomId = this.props.match.params.id;
+    this.setState({ selected_room: roomId });
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const roomId = nextProps.match.params.id;
+    this.setState({ selected_room: roomId });
   }
 
   handleInfiniteOnLoad = () => {
@@ -80,20 +92,22 @@ class Sidebar extends React.Component {
       return;
     }
 
-    this.fetchData({ page, filter_type });
+    this.fetchData(page, filter_type);
   };
 
   onClick = e => {
     const filter_type = e.item.props.flag;
+    let page = 1;
 
     this.setState({
+      rooms: [],
       loading: true,
-      page: 1,
+      hasMore: true,
+      page,
       filter_type: filter_type,
     });
 
-    const { page } = this.state;
-    this.fetchData({ page, filter_type });
+    this.fetchData(page, filter_type);
 
     getQuantityRoomsByUserId(filter_type).then(res => {
       this.setState({
@@ -104,7 +118,6 @@ class Sidebar extends React.Component {
 
   handlePinned = e => {
     const page = 1;
-    const { rooms } = this.state;
     let roomId = e.target.value;
 
     togglePinnedRoom(roomId).then(res => {
@@ -112,12 +125,8 @@ class Sidebar extends React.Component {
     });
   };
 
-  updateSelectedRoom = e => {
-    this.setState({ selected_room: e.currentTarget.getAttribute('data-room-id') });
-  };
-
   render() {
-    const { rooms, loading } = this.state;
+    const { rooms } = this.state;
     const { t } = this.props;
     const list_flag = config.FILTER_TYPE.LIST_ROOM;
     const active = 'ant-dropdown-menu-item-selected';
@@ -170,7 +179,6 @@ class Sidebar extends React.Component {
       checkExpiredToken() && (
         <Sider>
           <div id="div-filter">
-            {loading && <Loading />}
             <Dropdown overlay={cond_filter}>
               <a className="ant-dropdown-link" href="#">
                 {selected_content}
@@ -197,4 +205,4 @@ class Sidebar extends React.Component {
   }
 }
 
-export default withNamespaces(['listRoom'])(Sidebar);
+export default withNamespaces(['listRoom'])(withRouter(Sidebar));
