@@ -30,6 +30,8 @@ const pkg = require('../package.json');
 const env = process.env.NODE_ENV || 'development';
 const apiRoutes = require('../routes/api');
 
+const path = require('path');
+
 /**
  * Expose
  */
@@ -53,9 +55,6 @@ module.exports = function(app, passport) {
     })
   );
 
-  // Static files middleware
-  app.use(express.static(config.root + '/public'));
-
   // Use winston on production
   let log = 'dev';
   if (env !== 'development') {
@@ -71,8 +70,8 @@ module.exports = function(app, passport) {
   if (env !== 'test') app.use(morgan(log));
 
   // set views path, template engine and default layout
-  app.set('views', config.root + '/app/views');
-  app.set('view engine', 'pug');
+  // app.set('views', config.root + '/app/views');
+  // app.set('view engine', 'pug');
 
   // expose package.json to views
   app.use(function(req, res, next) {
@@ -162,8 +161,15 @@ module.exports = function(app, passport) {
   //   });
   // }
 
-  // API
+  // Routes
+  // Routes - API
   app.use('/api', apiRoutes);
+
+  // Routes - React build
+  app.use(express.static(path.join(config.root, 'client/build')));
+  app.get('/*', function(req, res) {
+    res.sendFile(path.join(config.root, 'client/build', 'index.html'));
+  });
 
   if (env === 'development') {
     app.locals.pretty = true;
