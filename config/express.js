@@ -30,6 +30,8 @@ const pkg = require('../package.json');
 const env = process.env.NODE_ENV || 'development';
 const apiRoutes = require('../routes/api');
 
+const path = require('path');
+
 /**
  * Expose
  */
@@ -47,14 +49,11 @@ module.exports = function(app, passport) {
 
   app.use(
     cors({
-      origin: ['http://localhost:3000'],
+      origin: [process.env.CLIENT_ORIGIN],
       optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
       credentials: true,
     })
   );
-
-  // Static files middleware
-  app.use(express.static(config.root + '/public'));
 
   // Use winston on production
   let log = 'dev';
@@ -71,8 +70,8 @@ module.exports = function(app, passport) {
   if (env !== 'test') app.use(morgan(log));
 
   // set views path, template engine and default layout
-  app.set('views', config.root + '/app/views');
-  app.set('view engine', 'pug');
+  // app.set('views', config.root + '/app/views');
+  // app.set('view engine', 'pug');
 
   // expose package.json to views
   app.use(function(req, res, next) {
@@ -82,7 +81,7 @@ module.exports = function(app, passport) {
   });
 
   // bodyParser should be above methodOverride
-  app.use(bodyParser.json({limit: config.LIMIT_REQUEST + 'mb'}));
+  app.use(bodyParser.json({ limit: config.LIMIT_REQUEST + 'mb' }));
   app.use(bodyParser.urlencoded({ extended: true, limit: config.LIMIT_REQUEST + 'mb' }));
   app.use(upload.single('image'));
   app.use(
@@ -161,9 +160,16 @@ module.exports = function(app, passport) {
   //     next();
   //   });
   // }
-  
-  // API
+
+  // Routes
+  // Routes - API
   app.use('/api', apiRoutes);
+
+  // Routes - React build
+  app.use(express.static(path.join(config.root, 'client/build')));
+  app.get('/*', function(req, res) {
+    res.sendFile(path.join(config.root, 'client/build', 'index.html'));
+  });
 
   if (env === 'development') {
     app.locals.pretty = true;

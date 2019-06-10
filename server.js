@@ -34,7 +34,7 @@ fs.readdirSync(models)
 // Bootstrap routes
 require('./config/passport')(passport);
 require('./config/express')(app, passport);
-require('./config/routes')(app, passport);
+// require('./config/routes')(app, passport);
 
 const server = http.createServer(app);
 const io = require('socket.io').listen(server);

@@ -23,8 +23,8 @@
     "setup": "npm install && cd client && npm install",
     "dev": "concurrently \"npm run client\" \"npm run start\"",
     "client": "npm run start --prefix client",
-    "start": "cross-env NODE_ENV=development nodemon server.js",
-    "debug": "cross-env NODE_ENV=development nodemon --debug server.js",
+    "start": "cross-env NODE_ENV=development nodemon --ignore './client/' server.js",
+    "debug": "cross-env NODE_ENV=development nodemon --ignore './client/' --debug server.js",
     "test": "cross-env NODE_ENV=test babel-tape-runner test/test-*.js",
     "pretest": "eslint .",
     "prod": "pm2-runtime start ecosystem.config.js --env production"

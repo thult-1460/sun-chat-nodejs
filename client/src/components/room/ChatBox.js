@@ -112,4 +112,4 @@ class ChatBox extends React.Component {
   }
 }
 
-export default withNamespaces(['message'])(withRouter(ChatBox));
+export default withRouter(withNamespaces(['message'])(ChatBox));

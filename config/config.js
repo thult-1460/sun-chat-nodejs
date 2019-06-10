@@ -1,5 +1,5 @@
 module.exports = {
-  CLIENT_ORIGIN: process.env.NODE_ENV === 'production' ? process.env.CLIENT_ORIGIN : 'http://localhost:3000',
+  CLIENT_ORIGIN: process.env.CLIENT_ORIGIN,
   LIMIT_ITEM_SHOW: {
     CONTACT: 10,
     REQUEST_CONTACT: 10,
