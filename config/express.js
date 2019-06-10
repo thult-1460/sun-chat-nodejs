@@ -47,7 +47,7 @@ module.exports = function(app, passport) {
 
   app.use(
     cors({
-      origin: ['http://localhost:3000'],
+      origin: [process.env.CLIENT_ORIGIN],
       optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
       credentials: true,
     })
@@ -82,7 +82,7 @@ module.exports = function(app, passport) {
   });
 
   // bodyParser should be above methodOverride
-  app.use(bodyParser.json({limit: config.LIMIT_REQUEST + 'mb'}));
+  app.use(bodyParser.json({ limit: config.LIMIT_REQUEST + 'mb' }));
   app.use(bodyParser.urlencoded({ extended: true, limit: config.LIMIT_REQUEST + 'mb' }));
   app.use(upload.single('image'));
   app.use(
@@ -161,7 +161,7 @@ module.exports = function(app, passport) {
   //     next();
   //   });
   // }
-  
+
   // API
   app.use('/api', apiRoutes);
 
