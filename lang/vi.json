@@ -100,6 +100,10 @@
       "upload_file_failed": "File ảnh phải nhỏ hơn {{max}} MB!",
       "message_dafault": "Tên cuộc trò chuyện [ {{name}} ] đã được cài đặt."
     },
+    "add_member": {
+      "success": "Thêm các thành viên mới hoàn tất",
+      "fail": "Thêm các thành viên mới thất bại"
+    },
     "edit": {
       "success": "Sửa nhóm trò chuyện thành công",
       "failed": "Sửa nhóm trò chuyện thất bại"
@@ -115,6 +119,8 @@
       "failed": "Xóa cuộc trò chuyện thất bại"
     },
     "not_admin": "Bạn không phải là admin. Vì vậy bạn không thể xóa cuộc trò chuyện này ",
+    "not_me": "Bạn không thể xóa chính bạn",
+    "exist_member": "Thành viên đã ở trong nhóm này rồi !",
     "invitation": {
       "get_error": "Nhóm trò chuyện không tồn tại hoặc được cài đặt bí mật",
       "join_request": "Yêu cầu của bạn đã được gửi, làm ơn hãy chờ sự phê duyệt từ người quản trị viên",

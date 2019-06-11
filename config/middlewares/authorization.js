@@ -222,13 +222,13 @@ exports.room = {
     }
   },
 
-  checkDeleteAdmin: function(req, res, next) {
+  checkDeleteSelf: function(req, res, next) {
     const { memberId } = req.body;
     let { _id } = req.decoded;
 
     if (memberId == _id) {
       return res.status(403).json({
-        error: __('room.not_admin'),
+        error: __('room.not_me'),
       });
     }
 
@@ -295,4 +295,36 @@ exports.room = {
       });
     }
   },
+
+  checkExistMember: async function(req, res, next) {
+    let { roomId, users } = req.body;
+
+    try {
+      const listExist = await Room.aggregate([
+        {
+          $match: { _id: mongoose.Types.ObjectId(roomId), deletedAt: null },
+        },
+        {
+          $unwind: '$members',
+        },
+        {
+          $match: { $expr: { $in: ['$members.user', users] }, 'members.deletedAt': null },
+        },
+      ]).exec();
+
+      if (listExist.length) {
+        return res.status(403).json({
+          error: __('room.exist_member'),
+        });
+      }
+
+      next();
+    } catch (err) {
+      channel.error(err.toString());
+
+      return res.status(500).json({
+        error: __('error.common'),
+      });
+    }
+  }
 };

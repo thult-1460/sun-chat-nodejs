@@ -6,6 +6,7 @@ import { ROOM_TYPE, LIMIT_REPRESENTATIVE_MEMBER } from '../../config/room';
 import { Layout, Menu, Icon, Button, Dropdown, message, Typography, Avatar, Row, Col } from 'antd';
 import ModalListRequest from '../modals/room/ModalListRequest';
 import ModalListMember from '../modals/room/ModalListMember';
+import ModalListNotMember from "./ModalListNotMember";
 import EditRoom from './EditRoom';
 import { SocketContext } from './../../context/SocketContext';
 
@@ -60,7 +61,7 @@ class HeaderOfRoom extends React.Component {
     return (
       <Header className="header-chat-room">
         <Row type="flex" justify="start">
-          <Col span={18}>
+          <Col span={17}>
             <Avatar size={30} src={this.props.data.avatar} className="avatar-room-chat" />
             <Text strong className="name-chat-room">
               {this.props.data.name}
@@ -74,6 +75,11 @@ class HeaderOfRoom extends React.Component {
             )}
           </Col>
           <Col span={4}> {this.showRepresentativeMembers()}</Col>
+          <Col span={1}>
+            {this.props.isAdmin && (
+            <ModalListNotMember />
+            )}
+          </Col>
           <Col span={1}>
             <Dropdown
               overlay={

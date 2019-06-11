@@ -40,6 +40,14 @@ export function deleteMember(data) {
   return new Http().authenticated().delete('/rooms/delete-member', data);
 }
 
+export function getListContactNotMember({roomId, subName}) {
+  return new Http().authenticated().get(`/list-contact-not-member?roomId=${roomId}&&subName=${subName}`);
+}
+
+export function addMembers({roomId, users}) {
+  return new Http().authenticated().post(`/rooms/${roomId}/add-member`, users);
+}
+
 export function getInforRoom(roomId) {
   return new Http().authenticated().get('rooms/' + roomId);
 }

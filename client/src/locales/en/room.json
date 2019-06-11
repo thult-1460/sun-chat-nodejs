@@ -22,6 +22,7 @@
     "submit": "Submit",
     "install-room": "Install room",
     "join": "Join",
+    "add_member": "Add",
     "delete-room": "Delete room chat",
     "left-room": "Left the room chat",
     "copy": "Copy",

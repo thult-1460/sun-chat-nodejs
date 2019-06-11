@@ -100,6 +100,10 @@
       "upload_file_failed": "Image must smaller than {{max}} MB!",
       "message_dafault": "Group name changed to [ {{name}} ]."
     },
+    "add_member": {
+      "success": "Add members success",
+      "fail": "Add members failed"
+    },
     "edit": {
       "success": "Edit room successfully",
       "failed": "Edit room failed"
@@ -115,6 +119,8 @@
       "failed": "Delete room failed"
     },
     "not_admin": "You are not  an admin. So you can't delete room.",
+    "not_me": "You can't delete yourself.",
+    "exist_member": "Existed member into this room",
     "invitation": {
       "get_error": "The group chat doesn't exist, or set as private.",
       "join_request": "Your request have just send, please waiting the approved from administrator",

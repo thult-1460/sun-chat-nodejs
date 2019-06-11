@@ -87,10 +87,15 @@ router.get(
 );
 router.delete(
   '/rooms/delete-member',
-  [auth.jwtMiddleware, authorization.room.checkAdmin, authorization.room.checkDeleteAdmin],
+  [auth.jwtMiddleware, authorization.room.checkAdmin, authorization.room.checkDeleteSelf],
   roomsController.deleteMember
 );
-
+router.get('/list-contact-not-member', [auth.jwtMiddleware], roomsController.listContactsNotMember);
+router.post(
+  '/rooms/:roomId/add-member',
+  [auth.jwtMiddleware, authorization.room.checkAdmin, authorization.room.checkExistMember],
+  roomsController.addMembers
+);
 router.post(
   '/rooms/change-role-member',
   [auth.jwtMiddleware, authorization.room.checkAdmin],

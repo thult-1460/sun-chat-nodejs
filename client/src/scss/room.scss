@@ -62,6 +62,9 @@ head .delete-member {
   height: 40px;
   border: none;
   padding: 0px;
+  > div {
+    height: 100%;
+  }
 }
 .ant-avatar.avatar-room-chat {
   margin-left: 10px;
@@ -76,6 +79,10 @@ head .delete-member {
 .list-member-chat-room {
   float: right;
   margin-top: 5px;
+}
+.adding-member-icon {
+  float: right;
+  margin: 10px 0 0 5px;
 }
 .title-desc-chat-room {
   display: flex;
@@ -135,4 +142,10 @@ head .delete-member {
 hr {
   border-top: 1px solid;
   opacity: 0.2;
+}
+
+#no-contact {
+  margin: 75px 0 10px 43%;
+  font-weight: bold;
+  font-size: 17px;
 }

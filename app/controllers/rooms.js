@@ -5,6 +5,7 @@
  */
 
 const Room = require('../models/room.js');
+const User = require('../models/user.js');
 const slug = require('slug');
 const { validationResult } = require('express-validator/check');
 const files = require('../services/files.js');
@@ -273,6 +274,42 @@ exports.deleteMember = async (req, res) => {
   } catch (err) {
     channel.error(err.toString());
     res.status(500).json({ error: __('room.delete_member.failed') });
+  }
+};
+
+exports.listContactsNotMember = async (req, res) => {
+  const { roomId, subName } = req.query;
+  const { _id } = req.decoded;
+
+  try {
+    let listMember = await Room.getListIdMember(roomId);
+    listMember = listMember.length ? listMember[0].member : [];
+    let listContact = await User.getListNotMember({ _id, subName, listMember });
+
+    return res.status(200).json(listContact);
+  } catch (e) {
+    channel.error(e.toString());
+
+    return res.status(500).json({ error: e.toString() });
+  }
+};
+
+exports.addMembers = async (req, res) => {
+  const { users } = req.body;
+  const { roomId } = req.params;
+  try {
+    const last_message_id = await Room.getLastMsgId(roomId);
+    const result = await Room.addMembers({ roomId, users, last_message_id });
+    const response = {
+      success: result ? true : false,
+      message: __(`room.add_member.${result ? 'success' : 'fail'}`),
+    };
+
+    return res.status(200).json(response);
+  } catch (e) {
+    channel.error(e.toString());
+
+    return res.status(500).json({ error: e.toString() });
   }
 };
 

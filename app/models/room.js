@@ -375,7 +375,7 @@ RoomSchema.statics = {
 
   getMembersOfRoom(roomId) {
     return this.aggregate([
-      { $match: { _id: mongoose.Types.ObjectId(roomId) } },
+      { $match: { _id: mongoose.Types.ObjectId(roomId) }, deletedAt: null },
       { $unwind: '$members' },
       { $match: { 'members.deletedAt': null } },
       {
@@ -409,6 +409,28 @@ RoomSchema.statics = {
         },
       },
     ]);
+  },
+
+  getListIdMember: function(roomId) {
+    return this.aggregate([
+      { $match: { _id: mongoose.Types.ObjectId(roomId), deletedAt: null } },
+      {
+        $addFields: {
+          members: {
+            $filter: {
+              input: '$members',
+              as: 'member_able',
+              cond: { $eq: ['$$member_able.deletedAt', null] },
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          member: '$members.user',
+        },
+      },
+    ]).exec();
   },
 
   deleteRoom: function(userId, roomId) {
@@ -466,6 +488,50 @@ RoomSchema.statics = {
       },
       { $set: { 'members.$.deletedAt': Date.now() } }
     ).exec();
+  },
+
+  getLastMsgId: async function ( roomId ) {
+    const room = await this.aggregate([
+      { $match: { _id: mongoose.Types.ObjectId(roomId) } },
+      {
+        $addFields: {
+          last_message: {
+            $slice: ['$messages', -1],
+          },
+        },
+      },
+      {
+        $project: {
+          last_message_id: '$last_message._id',
+        },
+      },
+    ]);
+
+    return room.length ? room[0].last_message_id : null;
+  },
+
+  addMembers({ roomId, users, last_message_id }) {
+    var listUsers = [];
+    users.map(user => {
+      listUsers.push({
+        user: user._id,
+        role: user.role,
+        marked: false,
+        deletedAt: null,
+        last_message_id: last_message_id,
+      });
+    });
+
+    return this.update(
+      { _id: mongoose.Types.ObjectId(roomId) },
+      {
+        $push: {
+          members: {
+            $each: listUsers,
+          },
+        },
+      }
+    );
   },
 
   getInforOfRoom: function(roomId) {
@@ -608,17 +674,6 @@ RoomSchema.statics = {
         },
       }
     );
-  },
-
-  getLastMsgId: async function(roomId) {
-    const room = await this.findOne(
-      {
-        _id: roomId,
-      },
-      { messages: { $slice: -1 }, invitation_type: 1 }
-    );
-
-    return room.messages[0]._id;
   },
 
   getPinnedRoom: function(roomId, userId) {
