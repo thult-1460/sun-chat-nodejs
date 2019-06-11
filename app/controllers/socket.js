@@ -77,16 +77,6 @@ module.exports = function(io) {
       io.to(socket.roomId).emit('delete_room', message);
     });
 
-    socket.on('update_request_join_room', async function(roomId) {
-      let numberRequetsJoinRoom = await Room.getNumberOfRequest(roomId);
-      io.to(roomId).emit('update_request_join_room_successfully', numberRequetsJoinRoom);
-    });
-
-    socket.on('update_member_of_room', async function(roomId) {
-      let roomInfo = await Room.getInforOfRoom(roomId);
-      io.to(socket.roomId).emit('edit_room_successfully', roomInfo[0]);
-    });
-
     socket.on('add_member', (roomId, userIds) => {
       let msg = '[USERNAMEs] joined the group.';
       let message = {}; // add message to room

@@ -212,6 +212,7 @@ exports.checkInvitationCode = async function(req, res) {
 exports.createJoinRequest = async function(req, res) {
   let { _id: userId } = req.decoded;
   let { roomId } = req.body;
+  const io = req.app.get('socketIO');
 
   try {
     const room = await Room.findOne(
@@ -234,6 +235,9 @@ exports.createJoinRequest = async function(req, res) {
       });
     } else if (room.invitation_type == config.INVITATION_TYPE.NEED_APPROVAL) {
       await Room.addJoinRequest(roomId, userId);
+
+      let numberRequetsJoinRoom = await Room.getNumberOfRequest(roomId);
+      io.to(roomId).emit('update_request_join_room_number', numberRequetsJoinRoom);
 
       return res.status(200).json({
         status: config.INVITATION_STATUS.WAITING_APPROVE,
@@ -383,9 +387,14 @@ exports.totalRequest = async (req, res) => {
 exports.rejectRequests = async (req, res) => {
   let { roomId } = req.params;
   const { requestIds } = req.body;
+  const io = req.app.get('socketIO');
 
   try {
     await Room.rejectRequests(roomId, requestIds);
+
+    let numberRequetsJoinRoom = await Room.getNumberOfRequest(roomId);
+    io.to(roomId).emit('update_request_join_room_number', numberRequetsJoinRoom);
+    io.to(roomId).emit('update_popup_list_request_join_room', requestIds);
 
     return res.status(200).json({
       message: __('contact.reject.success'),
@@ -402,9 +411,17 @@ exports.rejectRequests = async (req, res) => {
 exports.acceptRequests = async (req, res) => {
   const { requestIds } = req.body;
   const { roomId } = req.params;
+  const io = req.app.get('socketIO');
 
   try {
     await Room.acceptRequest(roomId, requestIds);
+
+    let numberRequetsJoinRoom = await Room.getNumberOfRequest(roomId);
+    io.to(roomId).emit('update_request_join_room_number', numberRequetsJoinRoom);
+
+    let roomInfo = await Room.getInforOfRoom(roomId);
+    io.to(roomId).emit('update_member_of_room', roomInfo[0].members_info);
+    io.to(roomId).emit('update_popup_list_request_join_room', requestIds);
 
     return res.status(200).json({
       success: __('room.invitation.accept.success'),
@@ -427,11 +444,15 @@ exports.togglePinnedRoom = async (req, res) => {
     let pinned = !pinnedRoom.members[0].pinned;
     await Room.pinnedRoom(roomId, userId, pinned);
 
-    return res.status(200).json({ success: __('room.pinned.success', { pinned: pinned ? 'Pin' : 'Unpin' }) });
+    return res.status(200).json({
+      success: __('room.pinned.success', { pinned: pinned ? 'Pin' : 'Unpin' }),
+    });
   } catch (err) {
     channel.error(err);
 
-    return res.status(500).json({ error: __('room.pinned.failed', { pinned: pinned ? 'Pin' : 'Unpin' }) });
+    return res.status(500).json({
+      error: __('room.pinned.failed', { pinned: pinned ? 'Pin' : 'Unpin' }),
+    });
   }
 };
 

@@ -53,12 +53,25 @@ class ListRequest extends React.Component {
         numberRequests: res.data.result,
       });
     });
-  }
 
-  updateNumberRequestJoinRooms = roomId => {
     const { socket } = this.context;
-    socket.emit('update_request_join_room', roomId);
-  };
+    socket.on('update_request_join_room_number', numberRequests => {
+      this.setState({
+        numberRequests: numberRequests,
+      });
+    });
+
+    socket.on('update_popup_list_request_join_room', requestIds => {
+      requestIds.map(idCheck => {
+        this.setState(prevState => ({
+          data: prevState.data.filter(item => item._id != idCheck),
+          allItem: prevState.allItem.filter(item => item != idCheck),
+          checkedList: prevState.checkedList.filter(item => item != idCheck),
+        }));
+      });
+      this.setState({ indeterminate: this.state.checkedList.length > 0 });
+    });
+  }
 
   onChange = checkedList => {
     const { allItem } = this.state;
@@ -111,16 +124,7 @@ class ListRequest extends React.Component {
     if (dataInput.requestIds.length > 0) {
       rejectRequests(roomId, dataInput)
         .then(res => {
-          dataInput['requestIds'].map(checkedId => {
-            this.setState(prevState => ({
-              data: prevState.data.filter(item => item._id != checkedId),
-              allItem: prevState.allItem.filter(item => item != checkedId),
-              numberRequests: prevState.numberRequests - 1,
-              checkedList: prevState.checkedList.filter(item => item != checkedId),
-            }));
-          });
-          this.setState({ indeterminate: this.state.checkedList.length > 0 });
-          this.updateNumberRequestJoinRooms(roomId);
+          message.success(res.data.message);
         })
         .catch(error => {
           this.setState({
@@ -142,17 +146,6 @@ class ListRequest extends React.Component {
     acceptRequests(roomId, dataInput)
       .then(res => {
         message.success(res.data.success);
-        requestIds.map(idCheck => {
-          this.setState(prevState => ({
-            data: prevState.data.filter(item => item._id != idCheck),
-            allItem: prevState.allItem.filter(item => item != idCheck),
-            numberRequests: prevState.numberRequests - 1,
-            checkedList: prevState.checkedList.filter(item => item != idCheck),
-          }));
-        });
-        this.setState({ indeterminate: this.state.checkedList.length > 0 });
-        this.updateNumberRequestJoinRooms(roomId);
-
         const { socket } = this.context;
         socket.emit('update_member_of_room', roomId);
       })
