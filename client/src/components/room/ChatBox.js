@@ -1,6 +1,6 @@
 import React from 'react';
 import { withRouter } from 'react-router';
-import { Layout, Input, Button, List, Avatar, Icon, Row, Col } from 'antd';
+import { Layout, Input, Button, List, Avatar, Row, Col } from 'antd';
 import { loadMessages, sendMessage } from './../../api/room.js';
 import { SocketContext } from './../../context/SocketContext';
 import { withNamespaces } from 'react-i18next';
@@ -13,20 +13,37 @@ class ChatBox extends React.Component {
 
   state = {
     messages: [],
+    listMsgId: [],
+    currentLastMsgId: this.props.lastMsgId,
   };
+
+  messageRowRefs = [];
+  roomRef = '';
+
+  socket = this.context.socket;
+
+  fetchData (roomId) {
+    loadMessages(roomId).then(res => {
+      let listId = [], messages = res.data.messages;
+
+      messages.map(function (item) {
+        listId.push(item._id);
+      });
+
+      this.setState({
+        messages: messages,
+        listMsgId: listId.reverse(),
+      });
+    });
+  }
 
   componentDidMount() {
     const roomId = this.props.match.params.id;
 
-    loadMessages(roomId).then(res => {
-      this.setState({
-        messages: res.data.messages,
-      });
-    });
+    this.fetchData(roomId);
 
     // Listen 'send_new_msg' event from server
-    const socket = this.context.socket;
-    socket.on('send_new_msg', res => {
+    this.socket.on('send_new_msg', res => {
       const messages = this.state.messages;
       messages.push(res.message);
 
@@ -37,12 +54,10 @@ class ChatBox extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
+    this.checkAndUpdateLastMess();
+
     if (prevProps.roomId !== this.props.roomId) {
-      loadMessages(this.props.roomId).then(res => {
-        this.setState({
-          messages: res.data.messages,
-        });
-      });
+      this.fetchData(this.props.roomId);
     }
   }
 
@@ -54,7 +69,7 @@ class ChatBox extends React.Component {
   }
 
   handleSendMessage = e => {
-    if (e.key == undefined || e.key == 'Enter') {
+    if (e.key === undefined || e.key === 'Enter') {
       const roomId = this.props.match.params.id;
       const msgElement = document.getElementById('msg-content');
       let data = {
@@ -68,28 +83,77 @@ class ChatBox extends React.Component {
     }
   };
 
+  checkInView(message)
+  {
+    var roomChat = this.roomRef.getBoundingClientRect();
+    message = message.getBoundingClientRect();
+    var elemTop = message.top - roomChat.top;
+    var elemBottom = elemTop + message.height;
+
+    return  (elemTop < 0 && elemBottom > 0 ) || (elemTop > 0 && elemTop <= roomChat.height) ;
+  }
+
+  handleScroll = () => {
+    this.checkAndUpdateLastMess();
+  }
+
+  checkAndUpdateLastMess() {
+    var { listMsgId, currentLastMsgId } = this.state;
+    var messageRowRefsReverse = this.messageRowRefs.reverse();
+    var arrCheckEnable = [];
+
+    for (let i in messageRowRefsReverse) {
+      if (listMsgId.indexOf(i) >= 0) {
+        let status = this.checkInView(messageRowRefsReverse[i]);
+        arrCheckEnable.push(status);
+
+        if (status) {
+          break;
+        }
+      }
+    }
+
+    if (arrCheckEnable.length && (listMsgId[arrCheckEnable.length - 1] > currentLastMsgId || currentLastMsgId === null)) {
+      const param = {
+        roomId: this.props.match.params.id,
+        messageId: listMsgId[arrCheckEnable.length - 1]
+      };
+
+      this.socket.emit('update_last_readed_message_result', param);
+      this.socket.on('update_last_readed_message_result', res => {
+        if (res.result) {
+          this.setState({
+            currentLastMsgId: listMsgId[arrCheckEnable.length - 1],
+          });
+        }
+      });
+    }
+  }
+
   render() {
     const { t } = this.props;
 
     return (
       <Content className="chat-room">
-        <div className="list-message">
+        <div className="list-message" ref={element => this.roomRef = element} onScroll={this.handleScroll}>
           {this.state.messages.map(message => (
-            <Row key={message._id}>
-              <Col span={22}>
-                <List.Item>
-                  <List.Item.Meta
-                    avatar={<Avatar src={message.user_info.avatar} />}
-                    title={<p>{message.user_info.name}</p>}
-                    description={message.content}
-                  />
-                </List.Item>
-              </Col>
-              <Col span={2} className="message-time">
-                <h4> {this.formatMsgTime(message.updatedAt)} </h4>
-              </Col>
-              <hr />
-            </Row>
+            <div key={message._id} ref={element => this.messageRowRefs[message._id] = element}>
+              <Row>
+                <Col span={22}>
+                  <List.Item>
+                    <List.Item.Meta
+                      avatar={<Avatar src={message.user_info.avatar} />}
+                      title={<p>{message.user_info.name}</p>}
+                      description={message.content}
+                    />
+                  </List.Item>
+                </Col>
+                <Col span={2} className="message-time">
+                  <h4> {this.formatMsgTime(message.updatedAt)} </h4>
+                </Col>
+                <hr />
+              </Row>
+            </div>
           ))}
         </div>
         <div className="box-button">

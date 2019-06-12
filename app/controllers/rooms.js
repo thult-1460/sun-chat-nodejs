@@ -319,6 +319,7 @@ exports.getInforOfRoom = async function(req, res) {
 
   try {
     const isAdmin = await Room.checkAdmin(roomId, _id);
+    let lastMsgId = await Room.getLastMsgIdReaded(roomId, _id);
     let roomInfo = await Room.getInforOfRoom(roomId);
 
     if (roomInfo.length == 0) {
@@ -333,6 +334,7 @@ exports.getInforOfRoom = async function(req, res) {
 
     return res.status(200).json({
       isAdmin: isAdmin,
+      lastMsgId: lastMsgId,
       roomInfo: roomInfo[0],
     });
   } catch (err) {

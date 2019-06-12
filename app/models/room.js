@@ -490,7 +490,7 @@ RoomSchema.statics = {
     ).exec();
   },
 
-  getLastMsgId: async function ( roomId ) {
+  getLastMsgId: async function( roomId ) {
     const room = await this.aggregate([
       { $match: { _id: mongoose.Types.ObjectId(roomId) } },
       {
@@ -674,6 +674,16 @@ RoomSchema.statics = {
         },
       }
     );
+  },
+
+  getLastMsgIdReaded: async function(roomId, userId) {
+    const room = await this.aggregate([
+      { $match: { _id: mongoose.Types.ObjectId(roomId) } },
+      { $unwind: '$members' },
+      { $match: { 'members.user': mongoose.Types.ObjectId(userId), deletedAt: null } },
+    ]);
+
+    return room.length ? room[0].members.last_message_id : null;
   },
 
   getPinnedRoom: function(roomId, userId) {
@@ -897,6 +907,18 @@ RoomSchema.statics = {
         members: [{ user: userId, role: config.MEMBER_ROLE.MEMBER }],
       },
     ]);
+  },
+
+  updateLastMessageForMember: function(roomId, userId, messageId) {
+    console.log(roomId, userId, messageId);
+    return this.findOneAndUpdate(
+      {
+        _id: roomId,
+        deleteAt: null,
+        members: { $elemMatch: { user: userId, last_message_id: { $lt: messageId }, deletedAt: null } },
+      },
+      { $set: { 'members.$.last_message_id': messageId } }
+    ).exec();
   },
 };
 

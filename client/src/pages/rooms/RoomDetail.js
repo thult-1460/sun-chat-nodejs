@@ -19,6 +19,7 @@ class RoomDetail extends React.Component {
     isAdmin: false,
     roomId: '',
     roomInfo: '',
+    lastMsgId: '',
     isCopy: false,
   };
 
@@ -56,6 +57,7 @@ class RoomDetail extends React.Component {
         this.setState({
           roomInfo: res.data.roomInfo,
           isAdmin: res.data.isAdmin,
+          lastMsgId: res.data.lastMsgId,
         });
 
         this.context.socket.emit('open_room', roomId);
@@ -82,7 +84,7 @@ class RoomDetail extends React.Component {
 
   render() {
     const { t } = this.props;
-    const { roomInfo, isAdmin, isCopy } = this.state;
+    const { roomInfo, isAdmin, isCopy, lastMsgId } = this.state;
     const invitationURL = `${roomConfig.INVITATION_URL}${roomInfo.invitation_code}`;
     const roomId = this.props.match.params.id;
 
@@ -91,7 +93,7 @@ class RoomDetail extends React.Component {
         <Layout>
           <HeaderOfRoom data={roomInfo} isAdmin={isAdmin} />
           <Layout>
-            <ChatBox roomId={roomId} />
+            <ChatBox roomId={roomId} lastMsgId={lastMsgId}/>
             <Sider className="sidebar-chat">
               <Row type="flex" justify="start" className="title-desc-chat-room">
                 <Col span={24}>
