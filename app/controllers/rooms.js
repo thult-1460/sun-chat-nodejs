@@ -319,7 +319,7 @@ exports.getInforOfRoom = async function(req, res) {
 
   try {
     const isAdmin = await Room.checkAdmin(roomId, _id);
-    let lastMsgId = await Room.getLastMsgIdReaded(roomId, _id);
+    let lastMsgId = await Room.getLastMsgIdOfUser(roomId, _id);
     let roomInfo = await Room.getInforOfRoom(roomId);
 
     if (roomInfo.length == 0) {
@@ -434,13 +434,23 @@ exports.togglePinnedRoom = async (req, res) => {
 exports.loadMessages = async function(req, res) {
   const { _id } = req.decoded;
   const { roomId } = req.params;
-  const page = req.query.page || 0;
+  const page = (req.query.page || 1) - 1;
+  const prevMsgFlag = req.query.prevMsgFlag;
+  const currentMsgId = req.query.currentMsgId;
+
   try {
-    const messages = await Room.loadMessages(roomId, _id, page);
-    res.status(200).json({ messages });
+    let messages = [];
+    if (prevMsgFlag == 1) {
+      messages = await Room.loadMessages(roomId, _id, currentMsgId, false);
+    } else {
+      messages = await Room.loadMessages(roomId, _id, currentMsgId);
+    }
+
+    return res.status(200).json({ messages });
   } catch (err) {
     channel.error(err.toString());
-    res.status(500).json({
+
+    return res.status(500).json({
       err: __('room.get_next_message.failed'),
     });
   }
@@ -542,17 +552,12 @@ exports.editRoom = async (req, res) => {
       }
 
       if (roomData.avatar) {
-        await files.saveImage(roomData.avatar, slug(roomData.name, '-'), room.avatar)
-        .then(url => {
+        await files.saveImage(roomData.avatar, slug(roomData.name, '-'), room.avatar).then(url => {
           roomData.avatar = url;
         });
       }
 
-      await Room.findOneAndUpdate(
-        { _id: roomId },
-        { $set: roomData },
-        { new: true }
-      ).then(roomData => {
+      await Room.findOneAndUpdate({ _id: roomId }, { $set: roomData }, { new: true }).then(roomData => {
         roomData.members.map(async member => {
           io.to(member.user).emit('action_room');
         });

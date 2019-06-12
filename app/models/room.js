@@ -490,26 +490,6 @@ RoomSchema.statics = {
     ).exec();
   },
 
-  getLastMsgId: async function( roomId ) {
-    const room = await this.aggregate([
-      { $match: { _id: mongoose.Types.ObjectId(roomId) } },
-      {
-        $addFields: {
-          last_message: {
-            $slice: ['$messages', -1],
-          },
-        },
-      },
-      {
-        $project: {
-          last_message_id: '$last_message._id',
-        },
-      },
-    ]);
-
-    return room.length ? room[0].last_message_id : null;
-  },
-
   addMembers({ roomId, users, last_message_id }) {
     var listUsers = [];
     users.map(user => {
@@ -676,14 +656,24 @@ RoomSchema.statics = {
     );
   },
 
-  getLastMsgIdReaded: async function(roomId, userId) {
+  getLastMsgId: async function(roomId) {
     const room = await this.aggregate([
       { $match: { _id: mongoose.Types.ObjectId(roomId) } },
-      { $unwind: '$members' },
-      { $match: { 'members.user': mongoose.Types.ObjectId(userId), deletedAt: null } },
+      {
+        $addFields: {
+          last_message: {
+            $slice: ['$messages', -1],
+          },
+        },
+      },
+      {
+        $project: {
+          last_message_id: '$last_message._id',
+        },
+      },
     ]);
 
-    return room.length ? room[0].members.last_message_id : null;
+    return room.length ? room[0].last_message_id : null;
   },
 
   getPinnedRoom: function(roomId, userId) {
@@ -698,6 +688,16 @@ RoomSchema.statics = {
     ).exec();
   },
 
+  getLastMsgIdOfUser: async function(roomId, userId) {
+    const room = await this.aggregate([
+      { $match: { _id: mongoose.Types.ObjectId(roomId) } },
+      { $unwind: '$members' },
+      { $match: { 'members.deletedAt': null, 'members.user': mongoose.Types.ObjectId(userId) } },
+    ]);
+
+    return room.length ? room[0].members.last_message_id : null;
+  },
+
   pinnedRoom: function(roomId, userId, pinned) {
     return this.findOneAndUpdate(
       {
@@ -709,7 +709,17 @@ RoomSchema.statics = {
     ).exec();
   },
 
-  loadMessages: async function(roomId, userId, page) {
+  loadMessages: async function(roomId, userId, currentMsgId = 0, getNextMsgFlag = true) {
+    var paddingIndex = getNextMsgFlag ? 1 : -1 * config.LIMIT_MESSAGE.NEXT_MESSAGE;
+
+    if (currentMsgId == 0) {
+      currentMsgId = await this.getLastMsgIdOfUser(roomId, userId);
+
+      if (!getNextMsgFlag) {
+        paddingIndex++;
+      }
+    }
+
     return this.aggregate([
       { $match: { _id: mongoose.Types.ObjectId(roomId), deletedAt: null } },
       { $unwind: '$members' },
@@ -730,13 +740,11 @@ RoomSchema.statics = {
       {
         $addFields: {
           index_of_message: {
-            $add: [
-              { $indexOfArray: ['$message_able._id', '$members.last_message_id'] },
-              page * config.LIMIT_MESSAGE.NEXT_MESSAGE,
-            ],
+            $add: [{ $indexOfArray: ['$message_able._id', mongoose.Types.ObjectId(currentMsgId)] }, paddingIndex],
           },
         },
       },
+
       {
         $addFields: {
           messages: {
@@ -910,7 +918,6 @@ RoomSchema.statics = {
   },
 
   updateLastMessageForMember: function(roomId, userId, messageId) {
-    console.log(roomId, userId, messageId);
     return this.findOneAndUpdate(
       {
         _id: roomId,

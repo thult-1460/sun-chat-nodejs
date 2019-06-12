@@ -40,11 +40,11 @@ export function deleteMember(data) {
   return new Http().authenticated().delete('/rooms/delete-member', data);
 }
 
-export function getListContactNotMember({roomId, subName}) {
+export function getListContactNotMember({ roomId, subName }) {
   return new Http().authenticated().get(`/list-contact-not-member?roomId=${roomId}&&subName=${subName}`);
 }
 
-export function addMembers({roomId, users}) {
+export function addMembers({ roomId, users }) {
   return new Http().authenticated().post(`/rooms/${roomId}/add-member`, users);
 }
 
@@ -78,6 +78,10 @@ export function changeRoleMember(data) {
 
 export function loadMessages(roomId) {
   return new Http().authenticated().get(`/rooms/${roomId}/messages`);
+}
+
+export function loadPrevMessages(roomId, currentMsgId = 0) {
+  return new Http().authenticated().get(`/rooms/${roomId}/messages?prevMsgFlag=1&currentMsgId=${currentMsgId}`);
 }
 
 export function sendMessage(roomId, data) {

@@ -39,6 +39,8 @@ new Promise(resolve => {
         message.push({
           content: faker.lorem.text(),
           user: randomUserForMessage(members).user,
+          createdAt: new Date(j * 60 * 60 * 1000),
+          updatedAt: new Date(j * 60 * 60 * 1000),
         });
       }
 
