@@ -595,21 +595,24 @@ RoomSchema.statics = {
     return room[0]['number_of_requests'];
   },
 
-  checkAdmin: async function(roomId, userId) {
-    let isAdmin = false;
+  getRoleOfUser: async function(roomId, userId) {
+    const role = await this.aggregate([
+      { $match: { _id: roomId, deletedAt: null } },
+      { $unwind: '$members' },
+      { $match: { 'members.user': userId, 'members.deletedAt': null } },
+      {
+        $project: {
+          'members.role': 1,
+          _id: 0,
+        },
+      },
+    ]);
 
-    await this.findOne({
-      _id: roomId,
-      members: { $elemMatch: { user: userId, role: config.MEMBER_ROLE.ADMIN } },
-    })
-      .then(room => {
-        if (room != null) isAdmin = true;
-      })
-      .catch(err => {
-        channel.error(__('room.not_admin'));
-      });
-
-    return isAdmin;
+    if (role.length > 0) {
+      return role[0].members.role;
+    } else {
+      return -1;
+    }
   },
 
   rejectRequests: async function(roomId, requestIds) {
@@ -714,6 +717,10 @@ RoomSchema.statics = {
 
     if (currentMsgId == 0) {
       currentMsgId = await this.getLastMsgIdOfUser(roomId, userId);
+
+      if (currentMsgId == null && getNextMsgFlag == false) {
+        return [];
+      }
 
       if (!getNextMsgFlag) {
         paddingIndex++;

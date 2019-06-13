@@ -1,7 +1,10 @@
 {
   "to": "Gửi đến",
-  "send": "Gửi",
+  "send_button": "Gửi",
   "type_msg": "Nhập tin nhắn tại đây",
   "format_time": "D/M H:mm",
-  "unread_title": "Tin nhắn chưa đọc"
+  "unread_title": "Tin nhắn chưa đọc",
+  "send": {
+    "failed": "Không thể gửi được tin nhắn"
+  }
 }

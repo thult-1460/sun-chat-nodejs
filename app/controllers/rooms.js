@@ -61,7 +61,7 @@ exports.getRoomsBySubName = async function(req, res) {
 
     return res.status(200).json(rooms);
   } catch (err) {
-    channel.error(err.toString());
+    channel.error(err);
 
     return res.status(500).json({
       error: err.toString(),
@@ -110,7 +110,7 @@ exports.getMemberOfRoom = async function(req, res) {
       },
     });
   } catch (err) {
-    channel.error(err.toString());
+    channel.error(err);
 
     res.status(500).json({
       results: [],
@@ -133,7 +133,7 @@ exports.deleteRoom = async function(req, res) {
       return res.status(200).json({ success: __('room.delete_room.success') });
     });
   } catch (err) {
-    channel.error(err.toString());
+    channel.error(err);
     res.status(500).json({ error: __('room.delete_room.failed') });
   }
 };
@@ -160,7 +160,7 @@ exports.createRoom = async (req, res) => {
         room.avatar = url;
       });
     } catch (err) {
-      channel.error(err.toString());
+      channel.error(err);
 
       return res.status(500).json({ error: __('room.create.failed') });
     }
@@ -181,7 +181,7 @@ exports.createRoom = async (req, res) => {
       }
     })
     .catch(err => {
-      channel.error(err.toString());
+      channel.error(err);
 
       return res.status(500).json({ error: __('room.create.failed') });
     });
@@ -201,7 +201,7 @@ exports.checkInvitationCode = async function(req, res) {
       room: room,
     });
   } catch (err) {
-    channel.error(err.toString());
+    channel.error(err);
 
     res.status(500).json({
       error: __('room.invitation.get_error'),
@@ -249,7 +249,7 @@ exports.createJoinRequest = async function(req, res) {
       message: __('room.invitation.join_success'),
     });
   } catch (err) {
-    channel.error(err.toString());
+    channel.error(err);
 
     return res.status(500).json({
       error: err.toString(),
@@ -272,7 +272,7 @@ exports.deleteMember = async (req, res) => {
 
     return res.status(200).json({ success: __('room.delete_member.success') });
   } catch (err) {
-    channel.error(err.toString());
+    channel.error(err);
     res.status(500).json({ error: __('room.delete_member.failed') });
   }
 };
@@ -288,7 +288,7 @@ exports.listContactsNotMember = async (req, res) => {
 
     return res.status(200).json(listContact);
   } catch (e) {
-    channel.error(e.toString());
+    channel.error(e);
 
     return res.status(500).json({ error: e.toString() });
   }
@@ -306,8 +306,8 @@ exports.addMembers = async (req, res) => {
     };
 
     return res.status(200).json(response);
-  } catch (e) {
-    channel.error(e.toString());
+  } catch (err) {
+    channel.error(err);
 
     return res.status(500).json({ error: e.toString() });
   }
@@ -318,7 +318,9 @@ exports.getInforOfRoom = async function(req, res) {
   const { roomId } = req.params;
 
   try {
-    const isAdmin = await Room.checkAdmin(roomId, _id);
+    const role = await Room.getRoleOfUser(roomId, _id);
+    const isAdmin = role === config.MEMBER_ROLE.ADMIN;
+    const isReadOnly = role === config.MEMBER_ROLE.READ_ONLY;
     let lastMsgId = await Room.getLastMsgIdOfUser(roomId, _id);
     let roomInfo = await Room.getInforOfRoom(roomId);
 
@@ -334,11 +336,13 @@ exports.getInforOfRoom = async function(req, res) {
 
     return res.status(200).json({
       isAdmin: isAdmin,
+      isReadOnly: isReadOnly,
       lastMsgId: lastMsgId,
       roomInfo: roomInfo[0],
     });
   } catch (err) {
-    channel.error(err.toString());
+    channel.error(err);
+
     res.status(500).json({
       err: __('room.get_infor.failed'),
     });
@@ -363,7 +367,7 @@ exports.getRequestJoinRoom = async (req, res) => {
 
     return res.status(200).json({ result: [] });
   } catch (err) {
-    channel.error(err.toString());
+    channel.error(err);
 
     res.status(500).json({ error: err.toString() });
   }
@@ -387,7 +391,7 @@ exports.rejectRequests = async (req, res) => {
       message: __('contact.reject.success'),
     });
   } catch (err) {
-    channel.error(err.toString());
+    channel.error(err);
 
     return res.status(500).json({
       error: __('contact.reject.fail'),
@@ -406,7 +410,7 @@ exports.acceptRequests = async (req, res) => {
       success: __('room.invitation.accept.success'),
     });
   } catch (err) {
-    channel.error(err.toString());
+    channel.error(err);
 
     return res.status(500).json({
       error: __('room.invitation.accept.failed'),
@@ -425,7 +429,7 @@ exports.togglePinnedRoom = async (req, res) => {
 
     return res.status(200).json({ success: __('room.pinned.success', { pinned: pinned ? 'Pin' : 'Unpin' }) });
   } catch (err) {
-    channel.error(err.toString());
+    channel.error(err);
 
     return res.status(500).json({ error: __('room.pinned.failed', { pinned: pinned ? 'Pin' : 'Unpin' }) });
   }
@@ -448,7 +452,7 @@ exports.loadMessages = async function(req, res) {
 
     return res.status(200).json({ messages });
   } catch (err) {
-    channel.error(err.toString());
+    channel.error(err);
 
     return res.status(500).json({
       err: __('room.get_next_message.failed'),
@@ -480,7 +484,7 @@ exports.deleteMessage = async (req, res) => {
 
     return res.status(200).json({ success: __('room.delete_message.success') });
   } catch (err) {
-    channel.error(err.toString());
+    channel.error(err);
 
     return res.status(500).json({ error: __('room.delete_message.failed') });
   }
@@ -504,7 +508,7 @@ exports.storeMessage = async function(req, res) {
       message: __('room.message.create.success'),
     });
   } catch (err) {
-    channel.error(err.toString());
+    channel.error(err);
 
     return res.status(500).json({
       error: __('room.message.create.failed'),
@@ -524,7 +528,7 @@ exports.updateMessage = async function(req, res) {
       message: __('room.message.edit.success'),
     });
   } catch (err) {
-    channel.error(err.toString());
+    channel.error(err);
 
     return res.status(500).json({
       error: __('room.message.edit.failed'),
@@ -566,7 +570,7 @@ exports.editRoom = async (req, res) => {
       });
     });
   } catch (err) {
-    channel.error(err.toString());
+    channel.error(err);
 
     return res.status(500).json({ error: __('room.edit.failed') });
   }

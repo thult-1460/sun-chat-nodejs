@@ -1,6 +1,6 @@
 import React from 'react';
 import { withRouter } from 'react-router';
-import { Layout, Input, Button, List, Avatar, Icon, Row, Col } from 'antd';
+import { Layout, Input, Button, List, Avatar, Icon, Row, Col, message } from 'antd';
 import { loadMessages, sendMessage, loadPrevMessages } from './../../api/room.js';
 import { SocketContext } from './../../context/SocketContext';
 import { withNamespaces } from 'react-i18next';
@@ -51,7 +51,8 @@ class ChatBox extends React.Component {
 
       loadPrevMessages(roomId, firstPrevMsgId).then(res => {
         const messages = this.state.messages;
-        firstPrevMsgId = res.data.messages[0]._id;
+
+        if (res.data.messages.length > 0) firstPrevMsgId = res.data.messages[0]._id;
 
         if (res.data.messages.length == MESSAGE_PAGINATE) {
           fourthMsgId = res.data.messages[VISIABLE_MSG_TO_LOAD]._id;
@@ -104,16 +105,24 @@ class ChatBox extends React.Component {
   }
 
   handleSendMessage = e => {
+    const { t } = this.props;
+
     if (e.key === undefined || e.key === 'Enter') {
       const roomId = this.props.match.params.id;
       const msgElement = document.getElementById('msg-content');
       let data = {
         content: msgElement.value,
       };
+
       if (msgElement.value !== '') {
-        sendMessage(roomId, data).then(res => {
-          msgElement.value = '';
-        });
+        sendMessage(roomId, data)
+          .then(res => {
+            msgElement.value = '';
+          })
+          .catch(e => {
+            msgElement.value = '';
+            message.error(t('send.failed'));
+          });
       }
     }
   };
@@ -229,11 +238,11 @@ class ChatBox extends React.Component {
             </div>
           ))}
           {this.state.messages.length > 0 && (
-            <div class="timeLine__unreadLine" ref={element => (this.unReadMsg = element)}>
-              <div class="timeLine__unreadLineBorder">
-                <div class="timeLine__unreadLineContainer">
-                  <div class="timeLine__unreadLineBody">
-                    <span class="timeLine__unreadLineText">{t('unread_title')}</span>
+            <div className="timeLine__unreadLine" ref={element => (this.unReadMsg = element)}>
+              <div className="timeLine__unreadLineBorder">
+                <div className="timeLine__unreadLineContainer">
+                  <div className="timeLine__unreadLineBody">
+                    <span className="timeLine__unreadLineText">{t('unread_title')}</span>
                   </div>
                 </div>
               </div>
@@ -265,8 +274,13 @@ class ChatBox extends React.Component {
           <Button type="link" size={'small'}>
             {t('to')}
           </Button>
-          <Button style={{ float: 'right' }} type="primary" onClick={this.handleSendMessage}>
-            {t('send')}
+          <Button
+            style={{ float: 'right' }}
+            type="primary"
+            onClick={this.handleSendMessage}
+            disabled={this.props.isReadOnly}
+          >
+            {t('send_button')}
           </Button>
         </div>
         <Input.TextArea
@@ -275,6 +289,7 @@ class ChatBox extends React.Component {
           style={{ resize: 'none' }}
           id="msg-content"
           onKeyDown={this.handleSendMessage}
+          disabled={this.props.isReadOnly}
         />
       </Content>
     );
