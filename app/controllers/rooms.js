@@ -438,7 +438,6 @@ exports.togglePinnedRoom = async (req, res) => {
 exports.loadMessages = async function(req, res) {
   const { _id } = req.decoded;
   const { roomId } = req.params;
-  const page = (req.query.page || 1) - 1;
   const prevMsgFlag = req.query.prevMsgFlag;
   const currentMsgId = req.query.currentMsgId;
 

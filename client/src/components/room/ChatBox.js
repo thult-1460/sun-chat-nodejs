@@ -1,18 +1,18 @@
 import React from 'react';
 import { withRouter } from 'react-router';
-import { Layout, Input, Button, List, Avatar, Icon, Row, Col, message } from 'antd';
-import { loadMessages, sendMessage, loadPrevMessages, updateMessage } from './../../api/room.js';
+import { Layout, Input, Button, List, Avatar, Row, Col, message } from 'antd';
+import { loadMessages, sendMessage, loadPrevMessages, loadUnreadNextMessages, updateMessage } from './../../api/room.js';
 import { SocketContext } from './../../context/SocketContext';
 import { withUserContext } from './../../context/withUserContext';
 import { withNamespaces } from 'react-i18next';
-import { ROLES } from './../../config/member';
 import moment from 'moment';
-import { MESSAGE_PAGINATE, VISIABLE_MSG_TO_LOAD } from '../../config/room';
+import { MESSAGE_PAGINATE, VISIABLE_MSG_TO_LOAD, LIMIT_QUANLITY_NEWEST_MSG } from '../../config/room';
 
 const { Content } = Layout;
 let firstScroll = false;
 let fourthMsgId = 0;
-let isLoading = false;
+let isLoadingPrev = false;
+let loadingNew = false;
 let firstPrevMsgId = 0;
 
 class ChatBox extends React.Component {
@@ -21,9 +21,11 @@ class ChatBox extends React.Component {
   state = {
     isEditing: false,
     messages: [],
-    listMsgId: [],
+    listNewLoadedMessage: [],
     currentLastMsgId: this.props.lastMsgId,
     prevMessages: [],
+    hasMsgUnRead: true,
+    scrollTop: 0,
     messageIdHovering: null,
     messageIdEditing: null,
     messageContentEditing: null,
@@ -78,7 +80,7 @@ class ChatBox extends React.Component {
   };
 
   handleUpdateMessage = e => {
-    if (e.key == undefined || e.key == 'Enter') {
+    if (e.key === undefined || e.key === 'Enter') {
       const content = this.state.messageContentEditing;
       const roomId = this.props.roomId;
       const messageId = this.state.messageIdEditing;
@@ -95,15 +97,9 @@ class ChatBox extends React.Component {
   };
 
   prevMessageRowRefs = [];
-
-  setFourthMsgId = elment => {
-    this.fourthMsgId = elment;
-  };
-
   messageRowRefs = [];
   roomRef = '';
   unReadMsg = '';
-
   socket = this.context.socket;
 
   fetchData(roomId) {
@@ -117,15 +113,17 @@ class ChatBox extends React.Component {
 
       this.setState({
         messages: messages,
-        listMsgId: listId.reverse(),
+        listNewLoadedMessage: listId.reverse(),
       });
 
+      this.checkUpdateLastMsgAndLoadNew();
+
       loadPrevMessages(roomId, firstPrevMsgId).then(res => {
-        const messages = this.state.messages;
+        if (res.data.messages.length > 0){
+          firstPrevMsgId = res.data.messages[0]._id;
+        }
 
-        if (res.data.messages.length > 0) firstPrevMsgId = res.data.messages[0]._id;
-
-        if (res.data.messages.length == MESSAGE_PAGINATE) {
+        if (res.data.messages.length === MESSAGE_PAGINATE) {
           fourthMsgId = res.data.messages[VISIABLE_MSG_TO_LOAD]._id;
         } else {
           fourthMsgId = 0;
@@ -153,6 +151,14 @@ class ChatBox extends React.Component {
       });
     });
 
+    this.socket.on('update_last_readed_message', res => {
+      if (res.messageId) {
+        this.setState({
+          currentLastMsgId: res.messageId,
+        });
+      }
+    });
+
     // Listen 'update_msg' event from server
     this.socket.on('update_msg', res => {
       const message = this.getMessageById(this.state.messages, res.message._id);
@@ -164,8 +170,6 @@ class ChatBox extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    this.checkAndUpdateLastMess();
-
     if (prevProps.roomId !== this.props.roomId) {
       this.fetchData(this.props.roomId);
     }
@@ -187,7 +191,7 @@ class ChatBox extends React.Component {
   handleSendMessage = e => {
     const { t } = this.props;
 
-    if (e.key == undefined || e.key == 'Enter') {
+    if (e.key === undefined || e.key === 'Enter') {
       const roomId = this.props.roomId;
       const msgElement = document.getElementById('msg-content');
       let data = {
@@ -219,18 +223,29 @@ class ChatBox extends React.Component {
     return (elemTop < 0 && elemBottom > 0) || (elemTop > 0 && elemTop <= roomChat.height);
   }
 
-  handleScroll = () => {
-    this.checkAndUpdateLastMess();
-  };
+  updateLastMsgId(listNewLoadedMessage, currentLastMsgId, arrCheckEnable) {
+    /* when message_id need update > current last_message_id */
+    if (listNewLoadedMessage[arrCheckEnable.length - 1] > currentLastMsgId || currentLastMsgId === null) {
+      const param = {
+        roomId: this.props.match.params.id,
+        messageId: listNewLoadedMessage[arrCheckEnable.length - 1],
+      };
 
-  checkAndUpdateLastMess() {
-    var { listMsgId, currentLastMsgId } = this.state;
-    var messageRowRefsReverse = this.messageRowRefs.reverse();
-    var arrCheckEnable = [];
+      this.socket.emit('update_last_readed_message', param);
+    }
+  }
 
-    for (let i in messageRowRefsReverse) {
-      if (listMsgId.indexOf(i) >= 0) {
-        let status = this.checkInView(messageRowRefsReverse[i]);
+  checkUpdateLastMsgAndLoadNew() {
+    var { listNewLoadedMessage, currentLastMsgId, messages, prevMessages, hasMsgUnRead } = this.state;
+    var roomId = this.props.match.params.id,
+      messageRowRefs = this.messageRowRefs,
+      messageKeysRowRefs = Object.keys(messageRowRefs),
+      arrCheckEnable = [], listNewId = [];
+
+    /* check from newest message, stop when meet first message be displayed */
+    for (let i = messageKeysRowRefs.length - 1; i >= 0; i--) {
+      if (listNewLoadedMessage.indexOf(messageKeysRowRefs[i]) >= 0) {
+        let status = this.checkInView(messageRowRefs[messageKeysRowRefs[i]]);
         arrCheckEnable.push(status);
 
         if (status) {
@@ -239,48 +254,77 @@ class ChatBox extends React.Component {
       }
     }
 
-    if (
-      arrCheckEnable.length &&
-      (listMsgId[arrCheckEnable.length - 1] > currentLastMsgId || currentLastMsgId === null)
-    ) {
-      const param = {
-        roomId: this.props.roomId,
-        messageId: listMsgId[arrCheckEnable.length - 1],
-      };
+    if (messages.length >= MESSAGE_PAGINATE && !loadingNew) {
+      if (hasMsgUnRead && arrCheckEnable.length <= VISIABLE_MSG_TO_LOAD) {
+        loadingNew = true;
+        loadUnreadNextMessages(roomId, listNewLoadedMessage[0]).then(res => {
+          loadingNew = false;
+          let listNewMsg = res.data.messages;
 
-      this.socket.emit('update_last_readed_message_result', param);
-      this.socket.on('update_last_readed_message_result', res => {
-        if (res.result) {
-          this.setState({
-            currentLastMsgId: listMsgId[arrCheckEnable.length - 1],
+          /* concat current messages and new message */
+          messages = messages.concat(listNewMsg);
+
+          if (listNewMsg.length < MESSAGE_PAGINATE) {
+            this.setState({
+              hasMsgUnRead: false,
+            });
+          }
+
+          listNewMsg.map(function (item) {
+            listNewId.push(item._id);
           });
-        }
-      });
+
+          /* just need LIMIT_QUANLITY_NEWEST_MSG message */
+          if (messages.length > LIMIT_QUANLITY_NEWEST_MSG) {
+            messages = messages.slice(messages.length - LIMIT_QUANLITY_NEWEST_MSG, messages.length);
+            prevMessages = [];
+            firstPrevMsgId = messages[0]._id;
+            fourthMsgId = messages[VISIABLE_MSG_TO_LOAD]._id;
+          } else if (messages.length + prevMessages.length > LIMIT_QUANLITY_NEWEST_MSG) {
+            prevMessages = prevMessages.slice(prevMessages.length - LIMIT_QUANLITY_NEWEST_MSG + messages.length, prevMessages.length);
+            firstPrevMsgId = prevMessages[0]._id;
+            fourthMsgId = prevMessages.length < VISIABLE_MSG_TO_LOAD ? (messages[VISIABLE_MSG_TO_LOAD - prevMessages.length]._id) : prevMessages[VISIABLE_MSG_TO_LOAD]._id;
+          }
+
+          this.setState({
+            listNewLoadedMessage: listNewMsg ? listNewId.reverse() : listNewLoadedMessage,
+            messages: messages,
+          });
+        });
+      }
+    }
+
+    /* check the first view room || loading new message || final message */
+    if (currentLastMsgId === this.props.lastMsgId || loadingNew || (arrCheckEnable.length === 1 && !hasMsgUnRead)) {
+      this.updateLastMsgId(listNewLoadedMessage, currentLastMsgId, arrCheckEnable);
     }
   }
 
-  handleScrollUp = e => {
+  scrollDown() {
+    this.checkUpdateLastMsgAndLoadNew();
+  }
+
+  scrollUp() {
     const roomId = this.props.roomId;
     let { prevMessages } = this.state;
 
-    if (fourthMsgId != 0) {
+    if (fourthMsgId !== 0) {
       let dom = this.prevMessageRowRefs[fourthMsgId].getBoundingClientRect();
 
-      if (dom.top > 0 && isLoading == false) {
+      if (dom.top > 0 && isLoadingPrev === false) {
         // Call next API
         loadPrevMessages(roomId, firstPrevMsgId).then(res => {
-          isLoading = false;
+          isLoadingPrev = false;
 
           if (Object.entries(res.data.messages[0]).length !== 0) {
             firstPrevMsgId = res.data.messages[0]._id;
 
-            if (res.data.messages.length == MESSAGE_PAGINATE) {
+            if (res.data.messages.length === MESSAGE_PAGINATE) {
               fourthMsgId = res.data.messages[VISIABLE_MSG_TO_LOAD]._id;
             } else {
               fourthMsgId = 0;
             }
 
-            const messages = this.state.messages;
             const oldMessages = res.data.messages;
             prevMessages = oldMessages.concat(prevMessages);
 
@@ -290,19 +334,47 @@ class ChatBox extends React.Component {
           }
         });
 
-        isLoading = true;
+        isLoadingPrev = true;
       }
     }
+  }
+
+  handleScroll = e => {
+    let scrollTop = e.currentTarget.scrollTop;
+
+    if (this.state.scrollTop > scrollTop) {
+      this.scrollUp();
+    } else {
+      this.scrollDown();
+    }
+
+    this.setState({
+      scrollTop: scrollTop,
+    });
   };
 
   render() {
     const { t } = this.props;
+    const { prevMessages, messages, currentLastMsgId, listNewLoadedMessage } = this.state;
     const currentUserId = this.props.userContext.info._id;
+
+
+    const redLine = (
+      <div className={'timeLine__unreadLine ' + (loadingNew || currentLastMsgId === this.props.lastMsgId ? 'hide' : '')} ref={element => (this.unReadMsg = element)}>
+        <div className="timeLine__unreadLineBorder">
+          <div className="timeLine__unreadLineContainer">
+            <div className="timeLine__unreadLineBody">
+              <span className="timeLine__unreadLineText">{t('unread_title')}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
 
     return (
       <Content className="chat-room">
-        <div className="list-message" onScroll={this.handleScrollUp}>
-          {this.state.prevMessages.map(message => (
+        <div className="list-message" ref={element => (this.roomRef = element)} onScroll={this.handleScroll}>
+          {prevMessages.map(message => (
             <div key={message._id} ref={element => (this.prevMessageRowRefs[message._id] = element)}>
               <Row>
                 <Col span={22}>
@@ -321,50 +393,38 @@ class ChatBox extends React.Component {
               </Row>
             </div>
           ))}
-          {this.state.messages.length > 0 && (
-            <div className="timeLine__unreadLine" ref={element => (this.unReadMsg = element)}>
-              <div className="timeLine__unreadLineBorder">
-                <div className="timeLine__unreadLineContainer">
-                  <div className="timeLine__unreadLineBody">
-                    <span className="timeLine__unreadLineText">{t('unread_title')}</span>
-                  </div>
-                </div>
-              </div>
+          {messages.map(message => (
+            <div key={message._id} ref={element => (this.messageRowRefs[message._id] = element)}>
+              <Row
+                key={message._id}
+                className={this.state.messageIdEditing === message._id ? 'message-item isEditing' : 'message-item'}
+                onMouseEnter={this.handleMouseEnter}
+                onMouseLeave={this.handleMouseLeave}
+                id={message._id}
+              >
+                <Col span={22}>
+                  <List.Item>
+                    <List.Item.Meta
+                      avatar={<Avatar src={message.user_info.avatar} />}
+                      title={<p>{message.user_info.name}</p>}
+                      description={message.content}
+                    />
+                  </List.Item>
+                </Col>
+                <Col span={2} className="message-time">
+                  <h4> {this.formatMsgTime(message.updatedAt)} </h4>
+                  {this.state.messageIdHovering === message._id &&
+                  currentUserId === message.user_info._id &&
+                  !this.props.isReadOnly && (
+                    <Button type="primary" onClick={this.dataMessageEditing} id={message._id}>
+                      {t('button.edit')}
+                    </Button>
+                  )}
+                </Col>
+              </Row>
+              {message._id === currentLastMsgId && currentLastMsgId !== listNewLoadedMessage[0] ? redLine : ''}
             </div>
-          )}
-          <div ref={element => (this.roomRef = element)} onScroll={this.handleScroll}>
-            {this.state.messages.map(message => (
-              <div key={message._id} ref={element => (this.messageRowRefs[message._id] = element)}>
-                <Row
-                  key={message._id}
-                  className={this.state.messageIdEditing === message._id ? 'message-item isEditing' : 'message-item'}
-                  onMouseEnter={this.handleMouseEnter}
-                  onMouseLeave={this.handleMouseLeave}
-                  id={message._id}
-                >
-                  <Col span={22}>
-                    <List.Item>
-                      <List.Item.Meta
-                        avatar={<Avatar src={message.user_info.avatar} />}
-                        title={<p>{message.user_info.name}</p>}
-                        description={message.content}
-                      />
-                    </List.Item>
-                  </Col>
-                  <Col span={2} className="message-time">
-                    <h4> {this.formatMsgTime(message.updatedAt)} </h4>
-                    {this.state.messageIdHovering === message._id &&
-                      currentUserId === message.user_info._id &&
-                      !this.props.isReadOnly && (
-                        <Button type="primary" onClick={this.dataMessageEditing} id={message._id}>
-                          {t('button.edit')}
-                        </Button>
-                      )}
-                  </Col>
-                </Row>
-              </div>
-            ))}
-          </div>
+          ))}
         </div>
         <div className="box-button">
           {this.state.isEditing ? (

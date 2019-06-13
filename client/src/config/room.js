@@ -13,3 +13,4 @@ export const LIMIT_REPRESENTATIVE_MEMBER = 5;
 
 export const MESSAGE_PAGINATE = 10;
 export const VISIABLE_MSG_TO_LOAD = 4;
+export const LIMIT_QUANLITY_NEWEST_MSG = 200;
