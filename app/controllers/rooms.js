@@ -245,7 +245,7 @@ exports.createJoinRequest = async function(req, res) {
       io.to(roomId).emit('update_request_join_room_number', numberRequetsJoinRoom);
 
       let newRequest = await User.load({ select: option, criteria });
-      io.to(roomId).emit('update_popup_list_request_join_room', newRequest);
+      io.to(roomId).emit('add_to_list_rooms', newRequest);
 
       return res.status(200).json({
         status: config.INVITATION_STATUS.WAITING_APPROVE,
@@ -256,8 +256,8 @@ exports.createJoinRequest = async function(req, res) {
     const lastMsgId = room.messages[0]._id;
     await Room.addNewMember(roomId, userId, lastMsgId);
 
-    const newRoom = await Room.getRoomInfoForUserRequestHaveAccept(roomId, userId);
-    io.to(userId).emit('update_list_room_after_add_member', newRoom[0]);
+    const newRoom = await Room.getRoomInfoForUserRequestHaveAccept(roomId, [userId]);
+    io.to(userId).emit('add_room_to_list', newRoom[0]);
 
     return res.status(200).json({
       status: config.INVITATION_STATUS.JOIN_AS_MEMBER,
@@ -405,7 +405,7 @@ exports.rejectRequests = async (req, res) => {
 
     let numberRequetsJoinRoom = await Room.getNumberOfRequest(roomId);
     io.to(roomId).emit('update_request_join_room_number', numberRequetsJoinRoom);
-    io.to(roomId).emit('remove_representative_request_in_popup', requestIds);
+    io.to(roomId).emit('remove_from_list_request_join_room', requestIds);
 
     return res.status(200).json({
       message: __('contact.reject.success'),
@@ -428,18 +428,18 @@ exports.acceptRequests = async (req, res) => {
     await Room.acceptRequest(roomId, requestIds);
     let numberRequetsJoinRoom = await Room.getNumberOfRequest(roomId);
     let newMemberOfRoom = await Room.getNewMemberOfRoom(roomId, requestIds);
-    requestIds.map(async requestId => {
-      await Room.getRoomInfoForUserRequestHaveAccept(roomId, requestId).then(async room => {
-        io.to(requestId).emit('update_list_room_after_add_member', room[0]);
-      });
+
+    const rooms = await Room.getRoomInfoForUserRequestHaveAccept(roomId, requestIds);
+    rooms.map(room => {
+      io.to(room.user).emit('add_room_to_list', room);
     });
 
     io.to(roomId).emit('update_request_join_room_number', numberRequetsJoinRoom);
 
     let roomInfo = await Room.getInforOfRoom(roomId);
     io.to(roomId).emit('update_member_of_room', roomInfo[0].members_info);
-    io.to(roomId).emit('remove_representative_request_in_popup', requestIds);
-    io.to(roomId).emit('add_member_in_popup_list_member', newMemberOfRoom);
+    io.to(roomId).emit('remove_from_list_request_join_room', requestIds);
+    io.to(roomId).emit('add_to_list_members', newMemberOfRoom);
 
     return res.status(200).json({
       success: __('room.invitation.accept.success'),

@@ -13,6 +13,7 @@ class ModalListRequest extends Component {
     showComponent: false,
     numberRequestJoinRooms: 0,
   };
+
   componentDidMount() {
     const roomId = this.props.roomId;
 

@@ -61,7 +61,7 @@ class ListRequest extends React.Component {
       });
     });
 
-    socket.on('remove_representative_request_in_popup', requestIds => {
+    socket.on('remove_from_list_request_join_room', requestIds => {
       requestIds.map(idCheck => {
         this.setState(prevState => ({
           data: prevState.data.filter(item => item._id != idCheck),
@@ -72,7 +72,7 @@ class ListRequest extends React.Component {
       this.setState({ indeterminate: this.state.checkedList.length > 0 });
     });
 
-    socket.on('update_popup_list_request_join_room', newRequest => {
+    socket.on('add_to_list_rooms', newRequest => {
       this.setState({
         data: [newRequest, ...this.state.data],
         allItem: [newRequest._id, ...this.state.data],

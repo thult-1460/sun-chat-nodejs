@@ -66,9 +66,8 @@ class Sidebar extends React.Component {
         });
       });
 
-      socket.on('update_list_room_after_add_member', newRoom => {
+      socket.on('add_room_to_list', newRoom => {
         let indexUnpinned = -1;
-
         for (var i = 0; i < rooms.length; i++) {
           if (rooms[i].pinned == false) {
             indexUnpinned = i;
@@ -76,8 +75,13 @@ class Sidebar extends React.Component {
           }
         }
 
-        rooms.splice(indexUnpinned, 0, newRoom);
-        this.setState({ rooms });
+        if (
+          filter_type === config.FILTER_TYPE.LIST_ROOM.ALL.VALUE ||
+          filter_type === config.FILTER_TYPE.LIST_ROOM.GROUP.VALUE
+        ) {
+          indexUnpinned === -1 ? rooms.push(newRoom) : rooms.splice(indexUnpinned, 0, newRoom);
+          this.setState({ rooms });
+        }
       });
     }
 

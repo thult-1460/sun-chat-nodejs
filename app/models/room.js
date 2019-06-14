@@ -925,37 +925,30 @@ RoomSchema.statics = {
     return this.aggregate([
       { $match: { _id: mongoose.Types.ObjectId(roomId), deleteAt: null } },
       {
-        $addFields: {
-          newMember: {
-            $filter: {
-              input: '$members',
-              as: 'new_member',
-              cond: {
-                $in: ['$$new_member.user', newMemberIds],
-              },
-            },
-          },
-        },
+        $unwind: '$members',
       },
       {
-        $unwind: '$newMember',
+        $match: {
+          'members.user': { $in: newMemberIds },
+          'members.deletedAt': null,
+        },
       },
       {
         $lookup: {
           from: 'users',
-          localField: 'newMember.user',
+          localField: 'members.user',
           foreignField: '_id',
-          as: 'newMember.user',
+          as: 'members.user',
         },
       },
       {
         $addFields: {
-          'newMember.user': { $arrayElemAt: ['$newMember.user', 0] },
+          'members.user': { $arrayElemAt: ['$members.user', 0] },
         },
       },
 
       {
-        $replaceRoot: { newRoot: '$newMember' },
+        $replaceRoot: { newRoot: '$members' },
       },
       {
         $project: {
@@ -987,11 +980,23 @@ RoomSchema.statics = {
     ]);
   },
 
-  getRoomInfoForUserRequestHaveAccept: function(roomId, requestId) {
+  getRoomInfoForUserRequestHaveAccept: function(roomId, requestIds) {
+    let newMemberIds = [];
+    requestIds.map(requestId => {
+      newMemberIds.push(mongoose.Types.ObjectId(requestId));
+    });
+
     return this.aggregate([
       { $match: { _id: mongoose.Types.ObjectId(roomId), deletedAt: null } },
-      { $unwind: '$members' },
-      { $match: { 'members.user': mongoose.Types.ObjectId(requestId), 'members.deletedAt': null } },
+      {
+        $unwind: '$members',
+      },
+      {
+        $match: {
+          'members.user': { $in: newMemberIds },
+          'members.deletedAt': null,
+        },
+      },
       {
         $addFields: {
           message_able: {
@@ -1037,6 +1042,7 @@ RoomSchema.statics = {
           role: 1,
           pinned: '$members.pinned',
           last_created_msg: { $max: '$messages.createdAt' },
+          user: '$members.user',
         },
       },
     ]);

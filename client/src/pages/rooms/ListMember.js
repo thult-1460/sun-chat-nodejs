@@ -37,7 +37,7 @@ class ListMember extends React.Component {
       });
     });
     const { socket } = this.context;
-    socket.on('add_member_in_popup_list_member', newMember => {
+    socket.on('add_to_list_members', newMember => {
       newMember.map(member => {
         this.setState(prevState => ({
           members: [...prevState.members, member.user],
