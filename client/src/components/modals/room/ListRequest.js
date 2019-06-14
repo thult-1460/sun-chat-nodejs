@@ -61,7 +61,7 @@ class ListRequest extends React.Component {
       });
     });
 
-    socket.on('update_popup_list_request_join_room', requestIds => {
+    socket.on('remove_representative_request_in_popup', requestIds => {
       requestIds.map(idCheck => {
         this.setState(prevState => ({
           data: prevState.data.filter(item => item._id != idCheck),
@@ -70,6 +70,13 @@ class ListRequest extends React.Component {
         }));
       });
       this.setState({ indeterminate: this.state.checkedList.length > 0 });
+    });
+
+    socket.on('update_popup_list_request_join_room', newRequest => {
+      this.setState({
+        data: [newRequest, ...this.state.data],
+        allItem: [newRequest._id, ...this.state.data],
+      });
     });
   }
 
@@ -146,8 +153,6 @@ class ListRequest extends React.Component {
     acceptRequests(roomId, dataInput)
       .then(res => {
         message.success(res.data.success);
-        const { socket } = this.context;
-        socket.emit('update_member_of_room', roomId);
       })
       .catch(error => {
         message.error(error.response.data.error);

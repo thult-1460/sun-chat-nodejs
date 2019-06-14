@@ -915,6 +915,132 @@ RoomSchema.statics = {
       { $set: { 'members.$.last_message_id': messageId } }
     ).exec();
   },
+
+  getNewMemberOfRoom: function(roomId, requestIds) {
+    let newMemberIds = [];
+    requestIds.map(requestId => {
+      newMemberIds.push(mongoose.Types.ObjectId(requestId));
+    });
+
+    return this.aggregate([
+      { $match: { _id: mongoose.Types.ObjectId(roomId), deleteAt: null } },
+      {
+        $addFields: {
+          newMember: {
+            $filter: {
+              input: '$members',
+              as: 'new_member',
+              cond: {
+                $in: ['$$new_member.user', newMemberIds],
+              },
+            },
+          },
+        },
+      },
+      {
+        $unwind: '$newMember',
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'newMember.user',
+          foreignField: '_id',
+          as: 'newMember.user',
+        },
+      },
+      {
+        $addFields: {
+          'newMember.user': { $arrayElemAt: ['$newMember.user', 0] },
+        },
+      },
+
+      {
+        $replaceRoot: { newRoot: '$newMember' },
+      },
+      {
+        $project: {
+          _id: 0,
+          'user.avatar': 1,
+          'user.name': 1,
+          'user.email': 1,
+          'user.full_address': 1,
+          'user.github': 1,
+          'user.google': 1,
+          'user.phone_number': 1,
+          'user.twitter': 1,
+          'user._id': 1,
+          'user.role': {
+            $cond: {
+              if: { $eq: ['$role', config.MEMBER_ROLE.ADMIN] },
+              then: 'admin',
+              else: {
+                $cond: {
+                  if: { $eq: ['$role', config.MEMBER_ROLE.MEMBER] },
+                  then: 'member',
+                  else: 'read_only',
+                },
+              },
+            },
+          },
+        },
+      },
+    ]);
+  },
+
+  getRoomInfoForUserRequestHaveAccept: function(roomId, requestId) {
+    return this.aggregate([
+      { $match: { _id: mongoose.Types.ObjectId(roomId), deletedAt: null } },
+      { $unwind: '$members' },
+      { $match: { 'members.user': mongoose.Types.ObjectId(requestId), 'members.deletedAt': null } },
+      {
+        $addFields: {
+          message_able: {
+            $filter: {
+              input: '$messages',
+              as: 'mes',
+              cond: {
+                $or: [{ $eq: ['$$mes.deletedAt', null] }, { $eq: ['$$mes._id', '$members.last_message_id'] }],
+              },
+            },
+          },
+        },
+      },
+      {
+        $addFields: {
+          message_limit: { $slice: ['$message_able', -1 * config.LIMIT_MESSAGE.COUNT_UNREAD] },
+        },
+      },
+      {
+        $project: {
+          avatar: 1,
+          name: 1,
+          quantity_unread: {
+            $cond: {
+              if: {
+                $and: [
+                  { $gt: [{ $indexOfArray: ['$message_limit._id', '$members.last_message_id'] }, -1] },
+                  { $ne: ['$members.last_message_id', null] },
+                ],
+              },
+              then: {
+                $size: {
+                  $slice: [
+                    '$message_limit._id',
+                    { $add: [{ $indexOfArray: ['$message_limit._id', '$members.last_message_id'] }, 1] },
+                    config.LIMIT_MESSAGE.COUNT_UNREAD,
+                  ],
+                },
+              },
+              else: { $size: '$message_limit' },
+            },
+          },
+          role: 1,
+          pinned: '$members.pinned',
+          last_created_msg: { $max: '$messages.createdAt' },
+        },
+      },
+    ]);
+  },
 };
 
 module.exports = mongoose.model('Room', RoomSchema);

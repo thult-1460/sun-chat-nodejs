@@ -152,7 +152,10 @@ exports.createRoom = async (req, res) => {
   room.name = room.name ? room.name : fullName;
   room.members.push({ user: _id, role: config.MEMBER_ROLE.ADMIN });
   room.messages = room.messages ? room.messages : [];
-  room.messages.push({ content: __('room.create.message_dafault', { name: room.name }), user: _id });
+  room.messages.push({
+    content: __('room.create.message_dafault', { name: room.name }),
+    user: _id,
+  });
 
   if (room.avatar) {
     try {
@@ -213,6 +216,8 @@ exports.createJoinRequest = async function(req, res) {
   let { _id: userId } = req.decoded;
   let { roomId } = req.body;
   const io = req.app.get('socketIO');
+  const criteria = { _id: userId };
+  const option = 'name email username password twitter github google full_address phone_number';
 
   try {
     const room = await Room.findOne(
@@ -239,6 +244,9 @@ exports.createJoinRequest = async function(req, res) {
       let numberRequetsJoinRoom = await Room.getNumberOfRequest(roomId);
       io.to(roomId).emit('update_request_join_room_number', numberRequetsJoinRoom);
 
+      let newRequest = await User.load({ select: option, criteria });
+      io.to(roomId).emit('update_popup_list_request_join_room', newRequest);
+
       return res.status(200).json({
         status: config.INVITATION_STATUS.WAITING_APPROVE,
         message: __('room.invitation.join_request'),
@@ -247,6 +255,9 @@ exports.createJoinRequest = async function(req, res) {
 
     const lastMsgId = room.messages[0]._id;
     await Room.addNewMember(roomId, userId, lastMsgId);
+
+    const newRoom = await Room.getRoomInfoForUserRequestHaveAccept(roomId, userId);
+    io.to(userId).emit('update_list_room_after_add_member', newRoom[0]);
 
     return res.status(200).json({
       status: config.INVITATION_STATUS.JOIN_AS_MEMBER,
@@ -394,7 +405,7 @@ exports.rejectRequests = async (req, res) => {
 
     let numberRequetsJoinRoom = await Room.getNumberOfRequest(roomId);
     io.to(roomId).emit('update_request_join_room_number', numberRequetsJoinRoom);
-    io.to(roomId).emit('update_popup_list_request_join_room', requestIds);
+    io.to(roomId).emit('remove_representative_request_in_popup', requestIds);
 
     return res.status(200).json({
       message: __('contact.reject.success'),
@@ -415,13 +426,20 @@ exports.acceptRequests = async (req, res) => {
 
   try {
     await Room.acceptRequest(roomId, requestIds);
-
     let numberRequetsJoinRoom = await Room.getNumberOfRequest(roomId);
+    let newMemberOfRoom = await Room.getNewMemberOfRoom(roomId, requestIds);
+    requestIds.map(async requestId => {
+      await Room.getRoomInfoForUserRequestHaveAccept(roomId, requestId).then(async room => {
+        io.to(requestId).emit('update_list_room_after_add_member', room[0]);
+      });
+    });
+
     io.to(roomId).emit('update_request_join_room_number', numberRequetsJoinRoom);
 
     let roomInfo = await Room.getInforOfRoom(roomId);
     io.to(roomId).emit('update_member_of_room', roomInfo[0].members_info);
-    io.to(roomId).emit('update_popup_list_request_join_room', requestIds);
+    io.to(roomId).emit('remove_representative_request_in_popup', requestIds);
+    io.to(roomId).emit('add_member_in_popup_list_member', newMemberOfRoom);
 
     return res.status(200).json({
       success: __('room.invitation.accept.success'),
