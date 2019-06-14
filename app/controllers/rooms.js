@@ -517,12 +517,16 @@ exports.storeMessage = async function(req, res) {
 };
 
 exports.updateMessage = async function(req, res) {
+  const io = req.app.get('socketIO');
   const { roomId, messageId } = req.params;
   const { _id: userId } = req.decoded;
   const { content } = req.body;
 
   try {
     await Room.updateMessage(roomId, userId, messageId, content);
+    const message = await Room.getMessageInfo(roomId, messageId);
+
+    io.to(roomId).emit('update_msg', { message: message });
 
     return res.status(200).json({
       message: __('room.message.edit.success'),

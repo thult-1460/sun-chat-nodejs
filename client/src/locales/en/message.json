@@ -1,10 +1,16 @@
 {
   "to": "TO",
-  "send_button": "Send",
   "type_msg": "Typing in here",
   "format_time": "M/D H:mm",
   "unread_title": "Unread Messages",
   "send": {
     "failed": "Can't send messages"
+  },
+  "title_edit": "Edit Message",
+  "button": {
+    "send": "Send",
+    "update": "Update",
+    "cancel": "Cancel",
+    "edit": "Edit"
   }
 }

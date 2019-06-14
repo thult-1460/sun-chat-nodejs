@@ -237,7 +237,7 @@ RoomSchema.statics = {
   getQuantityRoomsByUserId: function(_id, filter_type = 0) {
     let list_filter_type_chat = [],
       filter_unread = { $match: { quantity_unread: true } },
-      filter_pinned = { $match: { 'last_msg_id_reserve.pinned': true } },
+      filter_pinned = { $match: { 'members.pinned': true } },
       filter_group = { type: config.ROOM_TYPE.GROUP_CHAT },
       filter_direct = { type: config.ROOM_TYPE.DIRECT_CHAT },
       filter_self = { type: config.ROOM_TYPE.SELF_CHAT };
@@ -269,27 +269,8 @@ RoomSchema.statics = {
       },
     });
 
-    if ([config.FILTER_TYPE.LIST_ROOM.PINNED, config.FILTER_TYPE.LIST_ROOM.UNREAD].indexOf(filter_type) >= 0) {
-      query.push({
-        $addFields: {
-          last_msg_id_reserve: {
-            $arrayElemAt: [
-              {
-                $filter: {
-                  input: '$members',
-                  as: 'mem',
-                  cond: { $eq: ['$$mem.user', mongoose.Types.ObjectId(_id)] },
-                },
-              },
-              0,
-            ],
-          },
-        },
-      });
-
-      if (filter_type === config.FILTER_TYPE.LIST_ROOM.PINNED) {
-        query.push(filter_pinned);
-      }
+    if (filter_type === config.FILTER_TYPE.LIST_ROOM.PINNED) {
+      query.push(filter_pinned);
     }
 
     if (filter_type === config.FILTER_TYPE.LIST_ROOM.UNREAD) {
@@ -308,7 +289,7 @@ RoomSchema.statics = {
       query.push({
         $addFields: {
           quantity_unread: {
-            $gte: [{ $arrayElemAt: ['$message_able._id', 0] }, '$last_msg_id_reserve.last_message_id'],
+            $gte: [{ $arrayElemAt: ['$message_able._id', 0] }, '$members.last_message_id'],
           },
         },
       });
@@ -375,7 +356,7 @@ RoomSchema.statics = {
 
   getMembersOfRoom(roomId) {
     return this.aggregate([
-      { $match: { _id: mongoose.Types.ObjectId(roomId) }, deletedAt: null },
+      { $match: { _id: mongoose.Types.ObjectId(roomId), deletedAt: null } },
       { $unwind: '$members' },
       { $match: { 'members.deletedAt': null } },
       {
@@ -597,9 +578,9 @@ RoomSchema.statics = {
 
   getRoleOfUser: async function(roomId, userId) {
     const role = await this.aggregate([
-      { $match: { _id: roomId, deletedAt: null } },
+      { $match: { _id: mongoose.Types.ObjectId(roomId), deletedAt: null } },
       { $unwind: '$members' },
-      { $match: { 'members.user': userId, 'members.deletedAt': null } },
+      { $match: { 'members.user': mongoose.Types.ObjectId(userId), 'members.deletedAt': null } },
       {
         $project: {
           'members.role': 1,

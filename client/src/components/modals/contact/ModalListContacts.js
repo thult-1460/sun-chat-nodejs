@@ -39,7 +39,7 @@ class ModalListContacts extends Component {
           footer={null}
           width="900px"
         >
-          {this.state.showComponent === true ? <ListContacts /> : ''}
+          {this.state.showComponent === true ? <ListContacts handleOk={this.handleOk} /> : ''}
         </Modal>
       </Badge>
     );

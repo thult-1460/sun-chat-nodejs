@@ -87,3 +87,7 @@ export function loadPrevMessages(roomId, currentMsgId = 0) {
 export function sendMessage(roomId, data) {
   return new Http().authenticated().post(`/rooms/${roomId}/messages`, data);
 }
+
+export function updateMessage(roomId, messageId, data) {
+  return new Http().authenticated().post(`/rooms/${roomId}/messages/${messageId}`, data);
+}

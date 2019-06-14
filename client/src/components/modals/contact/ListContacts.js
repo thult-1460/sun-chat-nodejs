@@ -124,7 +124,8 @@ class ListContacts extends Component {
 
   goToChatScreen = e => {
     this.props.history.push(`/rooms/${e.target.value}`);
-  }
+    this.props.handleOk();
+  };
 
   render() {
     const { t } = this.props;

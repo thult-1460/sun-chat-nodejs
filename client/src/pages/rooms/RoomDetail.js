@@ -58,6 +58,7 @@ class RoomDetail extends React.Component {
         this.setState({
           roomInfo: res.data.roomInfo,
           isAdmin: res.data.isAdmin,
+          isReadOnly: res.data.isReadOnly,
           lastMsgId: res.data.lastMsgId,
           isReadOnly: res.data.isReadOnly,
         });
