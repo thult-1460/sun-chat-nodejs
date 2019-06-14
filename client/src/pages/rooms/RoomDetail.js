@@ -3,7 +3,7 @@ import 'antd/dist/antd.css';
 import { Layout, Typography, Row, Col, message, Button, Modal, Input } from 'antd';
 import { withNamespaces } from 'react-i18next';
 import { withRouter } from 'react-router';
-import { getInforRoom } from '../../api/room';
+import { getInforRoom, getMembersOfRoom } from '../../api/room';
 import ChatBox from '../../components/room/ChatBox';
 import HeaderOfRoom from '../../components/room/HeaderOfRoom';
 import { roomConfig } from '../../config/roomConfig';
@@ -22,6 +22,7 @@ class RoomDetail extends React.Component {
     roomInfo: '',
     lastMsgId: '',
     isCopy: false,
+    members: [],
   };
 
   showModal = () => {
@@ -70,21 +71,31 @@ class RoomDetail extends React.Component {
       });
   };
 
+  getAllMembersOfRoom = roomId => {
+    getMembersOfRoom(roomId).then(res => {
+      this.setState({
+        members: res.data.results.members,
+      });
+    });
+  }
+
   componentDidMount() {
     const roomId = this.props.match.params.id;
     this.fetchData(roomId);
+    this.getAllMembersOfRoom(roomId);
   }
 
   componentWillReceiveProps(nextProps) {
     const roomId = nextProps.match.params.id;
     if (this.props.match.params.id !== roomId) {
       this.fetchData(roomId);
+      this.getAllMembersOfRoom(roomId);
     }
   }
 
   render() {
     const { t } = this.props;
-    const { roomInfo, isAdmin, isCopy, lastMsgId, isReadOnly } = this.state;
+    const { roomInfo, isAdmin, isCopy, lastMsgId, isReadOnly, members } = this.state;
     const invitationURL = `${roomConfig.INVITATION_URL}${roomInfo.invitation_code}`;
     const roomId = this.props.match.params.id;
 
@@ -93,7 +104,7 @@ class RoomDetail extends React.Component {
         <Layout>
           <HeaderOfRoom data={roomInfo} isAdmin={isAdmin} />
           <Layout>
-            <ChatBox roomId={roomId} lastMsgId={lastMsgId} isReadOnly={isReadOnly} />
+            <ChatBox roomId={roomId} lastMsgId={lastMsgId} isReadOnly={isReadOnly} allMembers={members} roomInfo={roomInfo} />
             <Sider className="sidebar-chat">
               <Row type="flex" justify="start" className="title-desc-chat-room">
                 <Col span={24}>

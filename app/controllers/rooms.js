@@ -564,7 +564,7 @@ exports.updateMessage = async function(req, res) {
     await Room.updateMessage(roomId, userId, messageId, content);
     const message = await Room.getMessageInfo(roomId, messageId);
 
-    io.to(roomId).emit('update_msg', { message: message });
+    io.to(roomId).emit('update_msg', message);
 
     return res.status(200).json({
       message: __('room.message.edit.success'),
