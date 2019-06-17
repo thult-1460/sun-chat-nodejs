@@ -421,7 +421,9 @@ class ChatBox extends React.Component {
                       <List.Item.Meta
                         avatar={<Avatar src={message.user_info.avatar} />}
                         title={<p>{message.user_info.name}</p>}
-                        description={message.content}
+                        description={
+                          <pre className="timelineMessage__message" dangerouslySetInnerHTML={messageHtml} />
+                        }
                       />
                     </List.Item>
                   </Col>
