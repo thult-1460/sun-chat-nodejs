@@ -35,3 +35,15 @@ export function getSearchContactByName(searchText, page) {
 export function addContact(userId) {
   return new Http().authenticated().post('/send-request-contact', userId);
 }
+
+export function getListSentRequestContacts() {
+  return new Http().authenticated().get(`/list-sent-request-contacts`);
+}
+
+export function deleteSentRequestContact(contactId) {
+  return new Http().authenticated().delete('/request-sent-contact', contactId);
+}
+
+export function getRequestSentContactsCount() {
+  return new Http().authenticated().get('/request-sent-contact-count');
+}

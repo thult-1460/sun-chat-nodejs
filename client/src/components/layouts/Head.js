@@ -5,7 +5,6 @@ import InputSearch from './../InputSearch';
 import ModalListContacts from '../modals/contact/ModalListContacts';
 import ModalListContactRequest from '../modals/contact/ModalListContactRequest';
 import ModalAddContact from '../modals/contact/ModalAddContact';
-import ModalListMember from '../modals/room/ModalListMember';
 import CreateRoom from '../room/CreateRoom';
 import ChangeLanguage from './../ChangeLanguage';
 import { Link } from 'react-router-dom';
@@ -18,7 +17,7 @@ class Head extends React.Component {
   componentDidMount() {
     if (checkExpiredToken()) {
       const socket = this.context.socket;
-      socket.on('update_request_friend_count', request_friend_count => {});
+      socket.on('update_received_request_count', request_friend_count => {});
     }
   }
 

@@ -49,6 +49,28 @@ class ListContactRequest extends React.Component {
         numberContacts: res.data.result,
       });
     });
+
+    const { socket } = this.context;
+    socket.on('update_received_request_count', numberContactRequest => {
+      this.setState({
+        numberContacts: numberContactRequest,
+      });
+    });
+
+    socket.on('add_to_list_received_requests', userId => {
+      if (this.state.data.length >= this.state.numberContacts || this.state.hasMore === false) {
+        this.setState(previousState => ({
+          data: [...previousState.data, userId],
+        }));
+      }
+    });
+
+    socket.on('remove_from_list_received_requests', userIds => {
+      this.setState({
+        data: this.state.data.filter(person => userIds.indexOf(person._id) < 0),
+      });
+
+    });
   }
 
   onChange = checkedList => {
@@ -88,11 +110,6 @@ class ListContactRequest extends React.Component {
     this.fetchData(newPage);
   };
 
-  updateNumberContactRequest = () => {
-    const socket = this.context;
-    socket.emit('update_request_friend_count');
-  };
-
   handleRejectContact = e => {
     let dataInput = {};
     let newData = [];
@@ -108,14 +125,12 @@ class ListContactRequest extends React.Component {
         .then(res => {
           dataInput['rejectContactIds'].map(checkedId => {
             this.setState(prevState => ({
-              data: prevState.data.filter(item => item._id != checkedId),
               allItem: prevState.allItem.filter(item => item != checkedId),
-              numberContacts: prevState.numberContacts - 1,
               checkedList: prevState.checkedList.filter(item => item != checkedId),
             }));
           });
           this.setState({ indeterminate: this.state.checkedList.length > 0 });
-          this.updateNumberContactRequest();
+          message.success(res.data.success);
         })
         .catch(error => {
           this.setState({
@@ -132,14 +147,11 @@ class ListContactRequest extends React.Component {
         message.success(res.data.success);
         requestId.map(idCheck => {
           this.setState(prevState => ({
-            data: prevState.data.filter(item => item._id != idCheck),
             allItem: prevState.allItem.filter(item => item != idCheck),
-            numberContacts: prevState.numberContacts - 1,
             checkedList: prevState.checkedList.filter(item => item != idCheck),
           }));
         });
         this.setState({ indeterminate: this.state.checkedList.length > 0 });
-        this.updateNumberContactRequest();
       })
       .catch(error => {
         message.error(error.response.data.error);
@@ -224,4 +236,4 @@ class ListContactRequest extends React.Component {
   }
 }
 
-export default withNamespaces(['user', 'contact'])(withRouter(ListContactRequest));
+export default withRouter(withNamespaces(['auth', 'contact'])(ListContactRequest));

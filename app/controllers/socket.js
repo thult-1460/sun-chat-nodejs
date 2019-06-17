@@ -41,12 +41,6 @@ module.exports = function(io) {
       delete socket.roomId;
     });
 
-    socket.on('update_request_friend_count', async function(userId) {
-      userId = userId ? userId : socket.userId;
-      let request_friend_count = await User.getAllContactRequest(userId);
-      io.to(userId).emit('update_request_friend_count', request_friend_count[0].number_of_contact);
-    });
-
     socket.on('update_msg', messageId => {
       let message = ''; // get from DB
       io.to(socket.roomId).emit('update_msg', { _id: messageId, content: message });

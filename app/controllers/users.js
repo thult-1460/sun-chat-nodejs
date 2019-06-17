@@ -328,10 +328,10 @@ exports.contactRequest = async(function*(req, res) {
   return res.status(200).json({ result: contact[0]['requested_in_comming'] });
 });
 
-exports.totalContactRequest = async(function*(req, res) {
+exports.getReceivedRequestCount = async(function*(req, res) {
   let { _id } = req.decoded;
-  const data = yield User.getAllContactRequest(_id);
-  return res.json({ result: data[0]['number_of_contact'] });
+  const receivedRequestCount = yield User.getReceivedRequestCount(_id);
+  return res.json({ result: receivedRequestCount });
 });
 
 exports.userSearch = async(function*(req, res) {
@@ -366,12 +366,30 @@ exports.userSearch = async(function*(req, res) {
   return res.status(200).json({ result: data });
 });
 
+async function updateSentRequestCount(io, userId) {
+  let sentRequestCount = await User.getRequestSentContactCount(userId);
+  io.to(userId).emit('update_sent_request_count', sentRequestCount);
+}
+
+async function updateReceivedRequestCount(io, userId) {
+  let receivedRequestCount = await User.getReceivedRequestCount(userId);
+  io.to(userId).emit('update_received_request_count', receivedRequestCount);
+}
+
 exports.sendRequestContact = async(function*(req, res) {
   let userIdReceive = req.body.userId;
   let userIdSend = req.decoded._id;
+  const io = req.app.get('socketIO');
 
   try {
     yield User.updateRequestFriend(userIdReceive, userIdSend);
+
+    let userJustAdd = yield User.getInfoUser(userIdReceive);
+    io.to(userIdSend).emit('add_to_list_sent_requests', userJustAdd);
+    let senderRequest = yield User.getInfoUser(userIdSend);
+    io.to(userIdReceive).emit('add_to_list_received_requests', senderRequest);
+    updateSentRequestCount(io, userIdSend);
+    updateReceivedRequestCount(io, userIdReceive);
 
     return res.status(200).json({
       success: __('contact.send_request.success'),
@@ -521,6 +539,7 @@ exports.apiResetPassword = async(function*(req, res) {
 exports.rejectContact = async(function*(req, res) {
   let { _id } = req.decoded;
   const { rejectContactIds } = req.body;
+  const io = req.app.get('socketIO');
 
   try {
     yield User.updateOne(
@@ -536,8 +555,16 @@ exports.rejectContact = async(function*(req, res) {
       }
     );
 
+    updateReceivedRequestCount(io, _id);
+    io.to(_id).emit('remove_from_list_received_requests', rejectContactIds);
+
+    rejectContactIds.forEach(rejectContactId => {
+      io.to(rejectContactId).emit('remove_from_list_sent_requests', _id);
+      updateSentRequestCount(io, rejectContactId);
+    });
+
     return res.status(200).json({
-      message: __('contact.reject.success'),
+      success: __('contact.reject.success'),
     });
   } catch (err) {
     channel.error(err.toString());
@@ -551,8 +578,16 @@ exports.rejectContact = async(function*(req, res) {
 exports.acceptContact = async(function*(req, res) {
   let acceptUserIds = req.body;
   let { _id } = req.decoded;
+  const io = req.app.get('socketIO');
   try {
     yield User.acceptRequest(_id, acceptUserIds);
+
+    updateReceivedRequestCount(io, _id);
+    io.to(_id).emit('remove_from_list_received_requests', acceptUserIds);
+    acceptUserIds.forEach(acceptUserId => {
+      io.to(acceptUserId).emit('remove_from_list_sent_requests', _id);
+      updateSentRequestCount(io, acceptUserId);
+    });
 
     return res.status(200).json({
       success: __('contact.accept.success'),
@@ -658,3 +693,57 @@ exports.deleteContact = async(function*(req, res) {
     });
   }
 });
+
+exports.getListSentRequestContacts = async function(req, res) {
+  const { _id } = req.decoded;
+
+  try {
+    let listSentRequestContacts = await User.getSendRequestMakeFriend(_id);
+    return res.status(200).json({
+      success: __('contact.list-request-sent-contact.success'),
+      result: listSentRequestContacts,
+    });
+  } catch (err) {
+    res.status(500).json({
+      error: __('contact.list-request-sent-contact.failed'),
+    });
+  }
+};
+
+exports.deleteSentRequestContact = async function(req, res) {
+  let { _id } = req.decoded;
+  const { requestSentContactId } = req.body;
+  const io = req.app.get('socketIO');
+
+  try {
+    await User.deleteSentRequestContact(_id, requestSentContactId);
+    io.to(_id).emit('remove_from_list_sent_requests', requestSentContactId);
+    updateSentRequestCount(io, _id);
+    updateReceivedRequestCount(io, requestSentContactId);
+    io.to(requestSentContactId).emit('remove_from_list_received_requests', [_id]);
+
+    return res.status(200).json({
+      success: __('contact.delete-request-sent-contact.success'),
+    });
+  } catch (err) {
+    channel.error(err.toString());
+
+    return res.status(500).json({
+      error: __('contact.delete-request-sent-contact.fail'),
+    });
+  }
+};
+
+exports.getRequestSentContactsCount = async function(req, res) {
+  const { _id } = req.decoded;
+  try {
+    let requestSentContactsCount = await User.getRequestSentContactCount(_id);
+    return res.status(200).json({
+      result: requestSentContactsCount,
+    });
+  } catch (err) {
+    res.status(500).json({
+      error: __('failed'),
+    });
+  }
+};

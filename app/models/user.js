@@ -259,8 +259,8 @@ UserSchema.statics = {
       .exec();
   },
 
-  getAllContactRequest: function(userId) {
-    return this.aggregate([
+  getReceivedRequestCount: async function(userId) {
+    let requestCount = await this.aggregate([
       { $match: { _id: mongoose.Types.ObjectId(userId) } },
       {
         $project: {
@@ -270,6 +270,8 @@ UserSchema.statics = {
         },
       },
     ]);
+
+    return requestCount[0]['number_of_contact'];
   },
 
   updateInfo: function(options) {
@@ -434,8 +436,16 @@ UserSchema.statics = {
     );
   },
 
-  getSendRequestMakeFriend: function(userId) {
-    return this.find({ requested_in_comming: { $in: [userId] } }, { _id: 1 }).exec();
+  getSendRequestMakeFriend: function(userId, options = {}) {
+    let select = typeof options ? { _id: 1, name: 1, username: 1, email: 1, avatar: 1 } : { _id: 1 };
+    let limit = options.limit || '';
+    let page = options.page || 0;
+
+    return this.find({ requested_in_comming: { $in: [userId] } })
+      .limit(limit)
+      .skip(limit * page)
+      .select(select)
+      .exec();
   },
 
   getListRequestedMakeFriend: function(userId) {
@@ -481,6 +491,32 @@ UserSchema.statics = {
     } catch (err) {
       throw new Error(err);
     }
+  },
+
+  deleteSentRequestContact: function(userId, requestSentContactId) {
+    try {
+      return this.updateOne({ _id: requestSentContactId }, { $pull: { requested_in_comming: { $in: userId } } });
+    } catch (err) {
+      throw new Error(err);
+    }
+  },
+
+  getRequestSentContactCount: function(userId) {
+    return this.find({
+      requested_in_comming: { $in: [userId] },
+      deleteAt: null,
+    })
+      .select()
+      .count()
+      .exec();
+  },
+
+  getInfoUser: function(userId) {
+    return this.findOne({
+      _id: userId,
+    })
+      .select('_id name email username avatar')
+      .exec();
   },
 };
 

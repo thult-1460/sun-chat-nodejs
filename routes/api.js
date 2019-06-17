@@ -30,7 +30,7 @@ router.post('/signup', usersValidate.validate('register'), users.apiSignup);
 router.get('/confirm/:userId/:active_token', users.confirmEmail);
 //Contact
 router.get('/my-contact-request', auth.jwtMiddleware, users.contactRequest);
-router.get('/my-contact-request-number', auth.jwtMiddleware, users.totalContactRequest);
+router.get('/my-contact-request-number', auth.jwtMiddleware, users.getReceivedRequestCount);
 router.post('/reject-contact', auth.jwtMiddleware, users.rejectContact);
 router.post('/accept-contact', auth.jwtMiddleware, users.acceptContact);
 router.get('/contacts', auth.jwtMiddleware, users.listContacts);
@@ -155,5 +155,9 @@ router.delete(
   [auth.jwtMiddleware, authorization.room.updateMessage],
   roomsController.deleteMessage
 );
+
+router.get('/list-sent-request-contacts', [auth.jwtMiddleware], users.getListSentRequestContacts);
+router.get('/request-sent-contact-count', auth.jwtMiddleware, users.getRequestSentContactsCount);
+router.delete('/request-sent-contact', auth.jwtMiddleware, users.deleteSentRequestContact);
 
 module.exports = router;

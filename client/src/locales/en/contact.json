@@ -16,12 +16,16 @@
     "loaded_all": "List have loaded all"
   },
   "send_request_contact": {
-    "title": "User Search",
-    "description": "Search by Name or Email address",
+    "search_contact": "Search contact",
     "input_search": "Enter name, Email address here",
     "button_add": "Add",
+    "button_cancel": "Cancel",
     "no_data": "Search for people you may know",
     "required_search_user": "Please enter name or email address to search"
+  },
+  "sent_request_contact": {
+    "list_request_sent_contacts": "Danh sách liên hệ",
+    "no_request_sent_contact": "Bạn chưa gửi yêu cầu liên hệ nào"
   },
   "contact_detail": {
     "title_contact_detail": "Contact detail",

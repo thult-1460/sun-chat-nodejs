@@ -86,6 +86,14 @@
       "success": "Gửi yêu cầu liên hệ thành công",
       "failed": "Gửi yêu cầu liên hệ lỗi",
       "required_input_search": "Vui lòng nhập tên hoặc email để tìm kiếm"
+    },
+    "list-request-sent-contact": {
+      "success": "Lấy danh sách liên hệ thành công",
+      "failed": "Lấy danh sách liên hệ thất bại"
+    },
+    "delete-request-sent-contact": {
+      "success": "Xóa yêu cầu liên hệ thành công",
+      "failed": "Xóa yêu cầu liên hệ thất bại"
     }
   },
   "error": {

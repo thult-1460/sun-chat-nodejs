@@ -16,12 +16,16 @@
     "loaded_all": "Toàn bộ danh bạ đã được tải về"
   },
   "send_request_contact": {
-    "title": "Tìm kiếm liên hệ",
-    "description": "Tìm kiếm theo tên người dùng hoặc địa chỉ email",
+    "search_contact": "Tìm kiếm liên hệ",
     "input_search": "Nhập tên hoặc địa chỉ email tại đây",
     "button_add": "Thêm liên lạc",
+    "button_cancel": "Hủy",
     "no_data": "Tìm kiếm những người bạn có thể biết",
     "required_search_user": "Vui lòng nhập tên hoặc email để tìm kiếm"
+  },
+  "sent_request_contact": {
+    "list_request_sent_contacts": "Danh sách liên hệ",
+    "no_request_sent_contact": "Bạn chưa gửi yêu cầu liên hệ nào"
   },
   "contact_detail": {
     "title_contact_detail": "Thông tin người dùng",

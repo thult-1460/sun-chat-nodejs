@@ -2,10 +2,11 @@ import React from 'react';
 import 'antd/dist/antd.css';
 import InfiniteScroll from 'react-infinite-scroller';
 import { List, Avatar, Button, Form, Icon, Input, Tabs, message, Alert } from 'antd';
-import { getSearchContactByName, addContact, rejectContact, acceptContact } from '../../../api/contact';
+import { getSearchContactByName, addContact, rejectContact, acceptContact, getRequestSentContactsCount } from '../../../api/contact';
 import { withNamespaces } from 'react-i18next';
 import { withRouter } from 'react-router';
 import '../../../scss/contact.scss';
+import ListSentRequestContacts from './ListSentRequestContacts';
 import { SocketContext } from './../../../context/SocketContext';
 const FormItem = Form.Item;
 const TabPane = Tabs.TabPane;
@@ -22,6 +23,7 @@ class AddContact extends React.Component {
     loading: false,
     isLoading: false,
     searchText: '',
+    requestedCount: 0,
   };
 
   rules = {
@@ -30,6 +32,21 @@ class AddContact extends React.Component {
       rules: [{ required: true, message: this.props.t('contact:send_request_contact.required_search_user') }],
     },
   };
+
+  componentDidMount() {
+    getRequestSentContactsCount().then((doc) => {
+      this.setState({
+        requestedCount: doc.data.result
+      })
+    });
+
+    const { socket } = this.context;
+    socket.on('update_sent_request_count', res => {
+      this.setState({
+        requestedCount: res
+      })
+    });
+  }
 
   fetchData = (page, searchText) => {
     getSearchContactByName(searchText, page)
@@ -71,11 +88,6 @@ class AddContact extends React.Component {
     });
   };
 
-  updateNumberContactRequest = userId => {
-    const socket = this.context;
-    socket.emit('update_request_friend_count', userId);
-  };
-
   addContact = e => {
     const userId = e.target.value;
     const { data } = this.state;
@@ -90,8 +102,6 @@ class AddContact extends React.Component {
         this.setState({
           data: data,
         });
-        this.updateNumberContactRequest(userId);
-
         message.success(res.data.success);
       })
       .catch(error => {
@@ -153,13 +163,12 @@ class AddContact extends React.Component {
 
     return (
       <React.Fragment>
-        <h2 className="title-contact">{t('contact:send_request_contact.title')}</h2>
-        <Tabs defaultActiveKey="1">
+        <Tabs>
           <TabPane
             tab={
               <span>
                 <Icon type="user" />
-                {t('contact:send_request_contact.description')}
+                {t('contact:send_request_contact.search_contact')}
               </span>
             }
             key="1"
@@ -236,6 +245,18 @@ class AddContact extends React.Component {
             ) : (
               <div className="title-contact">{t('contact:send_request_contact.no_data')}</div>
             )}
+          </TabPane>
+
+          <TabPane
+             tab={
+            <span>
+              <Icon type="user" />
+              {t('contact:sent_request_contact.list_request_sent_contacts')} {`(${this.state.requestedCount})`}
+            </span>
+            }
+            key="2"
+          >
+            <ListSentRequestContacts />
           </TabPane>
         </Tabs>
       </React.Fragment>

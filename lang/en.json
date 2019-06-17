@@ -86,6 +86,14 @@
       "success": "Send contact request successfully",
       "failed": "Send contact request failed",
       "required_input_search": "Please enter name or email address to search"
+    },
+    "list-request-sent-contact": {
+      "success": "Get list sent contact successfully",
+      "failed": "Get list sent contact failed"
+    },
+    "delete-request-sent-contact": {
+      "success": "Delete request sent contact successfully",
+      "failed": "Delete request sent contact failed"
     }
   },
   "error": {
