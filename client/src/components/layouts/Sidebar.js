@@ -41,6 +41,7 @@ class Sidebar extends React.Component {
   componentDidMount() {
     if (checkExpiredToken()) {
       const { page, filter_type } = this.state;
+      let { rooms } = this.state;
       this.fetchData(page, filter_type);
       getQuantityRoomsByUserId(filter_type).then(res => {
         this.setState({
@@ -48,7 +49,7 @@ class Sidebar extends React.Component {
         });
       });
 
-      const socket = this.context.socket;
+      const { socket } = this.context;
 
       socket.on('action_room', () => {
         const { filter_type, page } = this.state;
@@ -63,6 +64,24 @@ class Sidebar extends React.Component {
         this.setState({
           rooms: rooms,
         });
+      });
+
+      socket.on('add_to_list_rooms', newRoom => {
+        let indexUnpinned = -1;
+        for (var i = 0; i < rooms.length; i++) {
+          if (rooms[i].pinned == false) {
+            indexUnpinned = i;
+            break;
+          }
+        }
+
+        if (
+          filter_type === config.FILTER_TYPE.LIST_ROOM.ALL.VALUE ||
+          filter_type === config.FILTER_TYPE.LIST_ROOM.GROUP.VALUE
+        ) {
+          indexUnpinned === -1 ? rooms.push(newRoom) : rooms.splice(indexUnpinned, 0, newRoom);
+          this.setState({ rooms });
+        }
       });
     }
 

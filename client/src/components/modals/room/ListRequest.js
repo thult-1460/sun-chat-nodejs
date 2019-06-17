@@ -5,9 +5,12 @@ import { List, Avatar, Button, Checkbox, Spin, message, Alert } from 'antd';
 import { getRequests, getNumberOfRequests, rejectRequests, acceptRequests } from '../../../api/room';
 import { withNamespaces } from 'react-i18next';
 import { withRouter } from 'react-router';
+import { SocketContext } from '../../../context/SocketContext';
 const CheckboxGroup = Checkbox.Group;
 
 class ListRequest extends React.Component {
+  static contextType = SocketContext;
+
   state = {
     data: [],
     error: '',
@@ -48,6 +51,31 @@ class ListRequest extends React.Component {
     getNumberOfRequests(roomId).then(res => {
       this.setState({
         numberRequests: res.data.result,
+      });
+    });
+
+    const { socket } = this.context;
+    socket.on('update_request_join_room_number', numberRequests => {
+      this.setState({
+        numberRequests: numberRequests,
+      });
+    });
+
+    socket.on('remove_from_list_request_join_room', requestIds => {
+      requestIds.map(idCheck => {
+        this.setState(prevState => ({
+          data: prevState.data.filter(item => item._id != idCheck),
+          allItem: prevState.allItem.filter(item => item != idCheck),
+          checkedList: prevState.checkedList.filter(item => item != idCheck),
+        }));
+      });
+      this.setState({ indeterminate: this.state.checkedList.length > 0 });
+    });
+
+    socket.on('add_to_list_request_join_room', newRequest => {
+      this.setState({
+        data: [newRequest, ...this.state.data],
+        allItem: [newRequest._id, ...this.state.data],
       });
     });
   }
@@ -103,15 +131,7 @@ class ListRequest extends React.Component {
     if (dataInput.requestIds.length > 0) {
       rejectRequests(roomId, dataInput)
         .then(res => {
-          dataInput['requestIds'].map(checkedId => {
-            this.setState(prevState => ({
-              data: prevState.data.filter(item => item._id != checkedId),
-              allItem: prevState.allItem.filter(item => item != checkedId),
-              numberRequests: prevState.numberRequests - 1,
-              checkedList: prevState.checkedList.filter(item => item != checkedId),
-            }));
-          });
-          this.setState({ indeterminate: this.state.checkedList.length > 0 });
+          message.success(res.data.message);
         })
         .catch(error => {
           this.setState({
@@ -133,15 +153,6 @@ class ListRequest extends React.Component {
     acceptRequests(roomId, dataInput)
       .then(res => {
         message.success(res.data.success);
-        requestIds.map(idCheck => {
-          this.setState(prevState => ({
-            data: prevState.data.filter(item => item._id != idCheck),
-            allItem: prevState.allItem.filter(item => item != idCheck),
-            numberRequests: prevState.numberRequests - 1,
-            checkedList: prevState.checkedList.filter(item => item != idCheck),
-          }));
-        });
-        this.setState({ indeterminate: this.state.checkedList.length > 0 });
       })
       .catch(error => {
         message.error(error.response.data.error);

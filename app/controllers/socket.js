@@ -108,16 +108,14 @@ module.exports = function(io) {
         userId: socket.userId,
         filter_type: params.filter_type,
         limit: params.per_page,
-        page: params.page
-      }
+        page: params.page,
+      };
 
       let rooms = await Room.getListRoomByUserId(options);
       io.to(socket.userId).emit('update_list_room', rooms);
-    })
+    });
   });
 };
-
-
 
 roomAuthorization = (roomId, userId) => {
   return true;

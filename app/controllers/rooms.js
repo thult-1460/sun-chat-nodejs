@@ -152,7 +152,10 @@ exports.createRoom = async (req, res) => {
   room.name = room.name ? room.name : fullName;
   room.members.push({ user: _id, role: config.MEMBER_ROLE.ADMIN });
   room.messages = room.messages ? room.messages : [];
-  room.messages.push({ content: __('room.create.message_dafault', { name: room.name }), user: _id });
+  room.messages.push({
+    content: __('room.create.message_dafault', { name: room.name }),
+    user: _id,
+  });
 
   if (room.avatar) {
     try {
@@ -212,6 +215,9 @@ exports.checkInvitationCode = async function(req, res) {
 exports.createJoinRequest = async function(req, res) {
   let { _id: userId } = req.decoded;
   let { roomId } = req.body;
+  const io = req.app.get('socketIO');
+  const criteria = { _id: userId };
+  const option = 'name email username password twitter github google full_address phone_number';
 
   try {
     const room = await Room.findOne(
@@ -235,6 +241,12 @@ exports.createJoinRequest = async function(req, res) {
     } else if (room.invitation_type == config.INVITATION_TYPE.NEED_APPROVAL) {
       await Room.addJoinRequest(roomId, userId);
 
+      let numberRequetsJoinRoom = await Room.getNumberOfRequest(roomId);
+      io.to(roomId).emit('update_request_join_room_number', numberRequetsJoinRoom);
+
+      let newRequest = await User.load({ select: option, criteria });
+      io.to(roomId).emit('add_to_list_request_join_room', newRequest);
+
       return res.status(200).json({
         status: config.INVITATION_STATUS.WAITING_APPROVE,
         message: __('room.invitation.join_request'),
@@ -243,6 +255,9 @@ exports.createJoinRequest = async function(req, res) {
 
     const lastMsgId = room.messages[0]._id;
     await Room.addNewMember(roomId, userId, lastMsgId);
+
+    const newRoom = await Room.getRoomInfoNewMember(roomId, [userId]);
+    io.to(userId).emit('add_to_list_rooms', newRoom[0]);
 
     return res.status(200).json({
       status: config.INVITATION_STATUS.JOIN_AS_MEMBER,
@@ -383,9 +398,14 @@ exports.totalRequest = async (req, res) => {
 exports.rejectRequests = async (req, res) => {
   let { roomId } = req.params;
   const { requestIds } = req.body;
+  const io = req.app.get('socketIO');
 
   try {
     await Room.rejectRequests(roomId, requestIds);
+
+    let numberRequetsJoinRoom = await Room.getNumberOfRequest(roomId);
+    io.to(roomId).emit('update_request_join_room_number', numberRequetsJoinRoom);
+    io.to(roomId).emit('remove_from_list_request_join_room', requestIds);
 
     return res.status(200).json({
       message: __('contact.reject.success'),
@@ -402,9 +422,24 @@ exports.rejectRequests = async (req, res) => {
 exports.acceptRequests = async (req, res) => {
   const { requestIds } = req.body;
   const { roomId } = req.params;
+  const io = req.app.get('socketIO');
 
   try {
     await Room.acceptRequest(roomId, requestIds);
+    let numberRequetsJoinRoom = await Room.getNumberOfRequest(roomId);
+    let newMemberOfRoom = await Room.getNewMemberOfRoom(roomId, requestIds);
+
+    const rooms = await Room.getRoomInfoNewMember(roomId, requestIds);
+    rooms.map(room => {
+      io.to(room.user).emit('add_room_to_list', room);
+    });
+
+    io.to(roomId).emit('update_request_join_room_number', numberRequetsJoinRoom);
+
+    let roomInfo = await Room.getInforOfRoom(roomId);
+    io.to(roomId).emit('update_member_of_room', roomInfo[0].members_info);
+    io.to(roomId).emit('remove_from_list_request_join_room', requestIds);
+    io.to(roomId).emit('add_to_list_members', newMemberOfRoom);
 
     return res.status(200).json({
       success: __('room.invitation.accept.success'),
@@ -427,11 +462,15 @@ exports.togglePinnedRoom = async (req, res) => {
     let pinned = !pinnedRoom.members[0].pinned;
     await Room.pinnedRoom(roomId, userId, pinned);
 
-    return res.status(200).json({ success: __('room.pinned.success', { pinned: pinned ? 'Pin' : 'Unpin' }) });
+    return res.status(200).json({
+      success: __('room.pinned.success', { pinned: pinned ? 'Pin' : 'Unpin' }),
+    });
   } catch (err) {
     channel.error(err);
 
-    return res.status(500).json({ error: __('room.pinned.failed', { pinned: pinned ? 'Pin' : 'Unpin' }) });
+    return res.status(500).json({
+      error: __('room.pinned.failed', { pinned: pinned ? 'Pin' : 'Unpin' }),
+    });
   }
 };
 

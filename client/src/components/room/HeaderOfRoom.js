@@ -16,11 +16,19 @@ const { Text } = Typography;
 
 class HeaderOfRoom extends React.Component {
   static contextType = SocketContext;
-
+  state = {
+    memberOfRoom: [],
+  };
+  componentWillReceiveProps(nextProps) {
+    this.setState({ memberOfRoom: nextProps.data.members_info });
+  }
   componentDidMount() {
     const socket = this.context.socket;
     socket.on('edit_room', () => {});
     socket.on('change_member_count', () => {});
+    this.context.socket.on('update_member_of_room', memberOfRoom => {
+      this.setState({ memberOfRoom });
+    });
   }
 
   showRepresentativeMembers = () => {
@@ -35,7 +43,7 @@ class HeaderOfRoom extends React.Component {
         listMember.push(<ModalListMember key={0} numRemainMember="" />);
       }
 
-      data.members_info.map(member => {
+      this.state.memberOfRoom.map(member => {
         listMember.push(<Avatar size={30} key={member._id} src={member.avatar} className="list-member-chat-room" />);
       });
     }
@@ -57,7 +65,6 @@ class HeaderOfRoom extends React.Component {
 
   render() {
     const { t, data } = this.props;
-
     return (
       <Header className="header-chat-room">
         <Row type="flex" justify="start">
@@ -70,7 +77,7 @@ class HeaderOfRoom extends React.Component {
           <Col span={1}>
             {this.props.isAdmin && (
               <div className="icon-request-list">
-                <ModalListRequest />
+                <ModalListRequest roomId={data._id} />
               </div>
             )}
           </Col>

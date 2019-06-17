@@ -6,10 +6,13 @@ import { withRouter } from 'react-router';
 import AdminRoleMemberList from './../../components/member/AdminRoleMemberList';
 import OtherRoleMemberList from './../../components/member/OtherRoleMemberList';
 import ContactDetail from './../../components/modals/contact/ContactDetail';
+import { SocketContext } from './../../context/SocketContext';
 
 const TabPane = Tabs.TabPane;
 
 class ListMember extends React.Component {
+  static contextType = SocketContext;
+
   state = {
     members: [],
     searchMembers: [],
@@ -31,6 +34,14 @@ class ListMember extends React.Component {
         searchMembers: res.data.results.members,
         isAdmin: res.data.results.isAdmin,
         userId: res.data.results.userId,
+      });
+    });
+    const { socket } = this.context;
+    socket.on('add_to_list_members', newMember => {
+      newMember.map(member => {
+        this.setState(prevState => ({
+          members: [...prevState.members, member.user],
+        }));
       });
     });
   }
@@ -70,7 +81,10 @@ class ListMember extends React.Component {
   };
 
   submitChangeRoleMember = () => {
-    const data = { members: this.state.membersChangeRole, roomId: this.props.match.params.id };
+    const data = {
+      members: this.state.membersChangeRole,
+      roomId: this.props.match.params.id,
+    };
 
     if (data.members.length != 0) {
       changeRoleMember(data)
