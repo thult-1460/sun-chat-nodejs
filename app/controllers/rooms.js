@@ -245,7 +245,7 @@ exports.createJoinRequest = async function(req, res) {
       io.to(roomId).emit('update_request_join_room_number', numberRequetsJoinRoom);
 
       let newRequest = await User.load({ select: option, criteria });
-      io.to(roomId).emit('add_to_list_rooms', newRequest);
+      io.to(roomId).emit('add_to_list_request_join_room', newRequest);
 
       return res.status(200).json({
         status: config.INVITATION_STATUS.WAITING_APPROVE,
@@ -256,8 +256,8 @@ exports.createJoinRequest = async function(req, res) {
     const lastMsgId = room.messages[0]._id;
     await Room.addNewMember(roomId, userId, lastMsgId);
 
-    const newRoom = await Room.getRoomInfoForUserRequestHaveAccept(roomId, [userId]);
-    io.to(userId).emit('add_room_to_list', newRoom[0]);
+    const newRoom = await Room.getRoomInfoNewMember(roomId, [userId]);
+    io.to(userId).emit('add_to_list_rooms', newRoom[0]);
 
     return res.status(200).json({
       status: config.INVITATION_STATUS.JOIN_AS_MEMBER,
@@ -429,7 +429,7 @@ exports.acceptRequests = async (req, res) => {
     let numberRequetsJoinRoom = await Room.getNumberOfRequest(roomId);
     let newMemberOfRoom = await Room.getNewMemberOfRoom(roomId, requestIds);
 
-    const rooms = await Room.getRoomInfoForUserRequestHaveAccept(roomId, requestIds);
+    const rooms = await Room.getRoomInfoNewMember(roomId, requestIds);
     rooms.map(room => {
       io.to(room.user).emit('add_room_to_list', room);
     });

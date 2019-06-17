@@ -72,7 +72,7 @@ class ListRequest extends React.Component {
       this.setState({ indeterminate: this.state.checkedList.length > 0 });
     });
 
-    socket.on('add_to_list_rooms', newRequest => {
+    socket.on('add_to_list_request_join_room', newRequest => {
       this.setState({
         data: [newRequest, ...this.state.data],
         allItem: [newRequest._id, ...this.state.data],

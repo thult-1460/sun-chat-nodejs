@@ -916,10 +916,10 @@ RoomSchema.statics = {
     ).exec();
   },
 
-  getNewMemberOfRoom: function(roomId, requestIds) {
+  getNewMemberOfRoom: function(roomId, userIds) {
     let newMemberIds = [];
-    requestIds.map(requestId => {
-      newMemberIds.push(mongoose.Types.ObjectId(requestId));
+    userIds.map(userId => {
+      newMemberIds.push(mongoose.Types.ObjectId(userId));
     });
 
     return this.aggregate([
@@ -980,10 +980,10 @@ RoomSchema.statics = {
     ]);
   },
 
-  getRoomInfoForUserRequestHaveAccept: function(roomId, requestIds) {
+  getRoomInfoNewMember: function(roomId, userIds) {
     let newMemberIds = [];
-    requestIds.map(requestId => {
-      newMemberIds.push(mongoose.Types.ObjectId(requestId));
+    userIds.map(userId => {
+      newMemberIds.push(mongoose.Types.ObjectId(userId));
     });
 
     return this.aggregate([

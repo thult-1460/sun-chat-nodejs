@@ -66,7 +66,7 @@ class Sidebar extends React.Component {
         });
       });
 
-      socket.on('add_room_to_list', newRoom => {
+      socket.on('add_to_list_rooms', newRoom => {
         let indexUnpinned = -1;
         for (var i = 0; i < rooms.length; i++) {
           if (rooms[i].pinned == false) {
