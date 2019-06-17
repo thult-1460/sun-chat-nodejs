@@ -80,6 +80,10 @@ export function loadMessages(roomId) {
   return new Http().authenticated().get(`/rooms/${roomId}/messages`);
 }
 
+export function loadUnreadNextMessages(roomId, lastMsgIdOnClient) {
+  return new Http().authenticated().get(`/rooms/${roomId}/messages?currentMsgId=${lastMsgIdOnClient}`);
+}
+
 export function loadPrevMessages(roomId, currentMsgId = 0) {
   return new Http().authenticated().get(`/rooms/${roomId}/messages?prevMsgFlag=1&currentMsgId=${currentMsgId}`);
 }

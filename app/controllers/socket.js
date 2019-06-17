@@ -52,9 +52,9 @@ module.exports = function(io) {
       io.to(socket.roomId).emit('update_msg', { _id: messageId, content: message });
     });
 
-    socket.on('update_last_readed_message_result', async function({ roomId, messageId }) {
+    socket.on('update_last_readed_message', async function({ roomId, messageId }) {
       let result = await Room.updateLastMessageForMember(roomId, socket.userId, messageId);
-      io.to(socket.userId).emit('update_last_readed_message_result', { result: result ? true : false });
+      io.to(socket.userId).emit('update_last_readed_message', { messageId: result ? messageId : false });
     });
 
     socket.on('delete_msg', messageId => {

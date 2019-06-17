@@ -910,7 +910,7 @@ RoomSchema.statics = {
       {
         _id: roomId,
         deleteAt: null,
-        members: { $elemMatch: { user: userId, last_message_id: { $lt: messageId }, deletedAt: null } },
+        members: { $elemMatch: { user: userId, last_message_id: { $lt: messageId }, 'members.deletedAt': null } },
       },
       { $set: { 'members.$.last_message_id': messageId } }
     ).exec();
