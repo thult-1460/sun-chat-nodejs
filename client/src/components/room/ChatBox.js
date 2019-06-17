@@ -1,12 +1,16 @@
 import React from 'react';
 import { withRouter } from 'react-router';
-import { Layout, Input, Button, List, Avatar, Row, Col, message } from 'antd';
+import { Layout, Input, Button, List, Avatar, Icon, Row, Col, Badge, Popover, message, Divider } from 'antd';
 import { loadMessages, sendMessage, loadPrevMessages, loadUnreadNextMessages, updateMessage } from './../../api/room.js';
 import { SocketContext } from './../../context/SocketContext';
 import { withUserContext } from './../../context/withUserContext';
 import { withNamespaces } from 'react-i18next';
 import moment from 'moment';
-import { MESSAGE_PAGINATE, VISIABLE_MSG_TO_LOAD, LIMIT_QUANLITY_NEWEST_MSG } from '../../config/room';
+import { MESSAGE_PAGINATE, VISIABLE_MSG_TO_LOAD, LIMIT_QUANLITY_NEWEST_MSG, ROOM_TYPE } from '../../config/room';
+import { messageConfig } from '../../config/messageConfig';
+import InfiniteScroll from 'react-infinite-scroller';
+import '../../scss/messages.scss';
+import handlersMessage from '../../helpers/handlersMessage';
 
 const { Content } = Layout;
 let firstScroll = false;
@@ -28,72 +32,6 @@ class ChatBox extends React.Component {
     scrollTop: 0,
     messageIdHovering: null,
     messageIdEditing: null,
-    messageContentEditing: null,
-  };
-
-  handleMouseEnter = e => {
-    const messageIdHovering = e.currentTarget.id;
-    this.setState({
-      messageIdHovering,
-    });
-  };
-
-  handleMouseLeave = e => {
-    this.setState({
-      messageIdHovering: null,
-    });
-  };
-
-  dataMessageEditing = e => {
-    const messageId = e.currentTarget.id;
-    const message = this.getMessageById(this.state.messages, messageId);
-
-    if (message !== null) {
-      this.setState({
-        messageIdEditing: message._id,
-        messageContentEditing: message.content,
-        isEditing: true,
-      });
-    }
-  };
-
-  getMessageById(messages, messageId) {
-    for (let i = messages.length - 1; i >= 0; i--) {
-      if (messages[i]._id === messageId) {
-        return messages[i];
-      }
-    }
-
-    return null;
-  }
-
-  handleCancelEdit = () => {
-    this.setState({
-      isEditing: false,
-      messageIdEditing: null,
-      messageContentEditing: null,
-    });
-  };
-
-  handleChangeMessage = e => {
-    this.setState({ messageContentEditing: e.target.value });
-  };
-
-  handleUpdateMessage = e => {
-    if (e.key === undefined || e.key === 'Enter') {
-      const content = this.state.messageContentEditing;
-      const roomId = this.props.roomId;
-      const messageId = this.state.messageIdEditing;
-      let data = {
-        content,
-      };
-
-      if (content !== '') {
-        updateMessage(roomId, messageId, data).then(res => {
-          this.handleCancelEdit();
-        });
-      }
-    }
   };
 
   prevMessageRowRefs = [];
@@ -159,12 +97,13 @@ class ChatBox extends React.Component {
       }
     });
 
-    // Listen 'update_msg' event from server
+    //Listen 'update_msg' event from server
     this.socket.on('update_msg', res => {
-      const message = this.getMessageById(this.state.messages, res.message._id);
+      const message = this.getMessageById(this.state.messages, res._id);
 
       if (message !== null) {
-        message.content = this.state.messageContentEditing;
+        message.content = res.content;
+        this.handleCancelEdit();
       }
     });
   }
@@ -188,29 +127,82 @@ class ChatBox extends React.Component {
     return moment(time).format(t('format_time'));
   }
 
+  handleMouseEnter = e => {
+    const messageIdHovering = e.currentTarget.id;
+    this.setState({
+      messageIdHovering,
+    });
+  };
+
+  handleMouseLeave = e => {
+    this.setState({
+      messageIdHovering: null,
+    });
+  };
+
+  getMessageById(messages, messageId) {
+    for (let i = messages.length - 1; i >= 0; i--) {
+      if (messages[i]._id === messageId) {
+        return messages[i];
+      }
+    }
+
+    return null;
+  }
+
+  handleCancelEdit = () => {
+    this.setState({
+      isEditing: false,
+      messageIdEditing: null,
+    });
+
+    document.getElementById('msg-content').value = '';
+  };
+
+  editMessage = e => {
+    const messageId = e.currentTarget.id;
+    const message = this.getMessageById(this.state.messages, messageId);
+
+    if (message !== null) {
+      this.setState({
+        messageIdEditing: message._id,
+        isEditing: true,
+      });
+
+      document.getElementById('msg-content').value = message.content;
+    }
+  };
+
   handleSendMessage = e => {
-    const { t } = this.props;
+    const { t, roomId } = this.props;
+    const messageId = this.state.messageIdEditing;
 
-    if (e.key === undefined || e.key === 'Enter') {
-      const roomId = this.props.roomId;
-      const msgElement = document.getElementById('msg-content');
-      let data = {
-        content: msgElement.value,
-      };
+    if (e.key === undefined || (e.ctrlKey && e.keyCode == 13)) {
+      let messageContent = document.getElementById('msg-content').value;
 
-      if (msgElement.value !== '') {
-        sendMessage(roomId, data)
-          .then(res => {
-            msgElement.value = '';
-          })
+      if (messageContent.trim() !== '') {
+        let data = {
+          content: messageContent,
+        };
+
+        if (messageId == null) {
+          sendMessage(roomId, data)
           .catch(e => {
-            msgElement.value = '';
             message.error(t('send.failed'));
           });
+        } else {
+          updateMessage(roomId, messageId, data)
+          .catch(e => {
+            message.error(t('edit.failed'));
+          });
+        };
+
+        document.getElementById('msg-content').value = '';
       }
-      this.setState({
-        messageContentEditing: null,
-      });
+    }
+
+    if (e.keyCode == 27) {
+      this.handleCancelEdit();
     }
   };
 
@@ -353,11 +345,53 @@ class ChatBox extends React.Component {
     });
   };
 
-  render() {
-    const { t } = this.props;
-    const { prevMessages, messages, currentLastMsgId, listNewLoadedMessage } = this.state;
-    const currentUserId = this.props.userContext.info._id;
+  handleInfiniteOnLoad = () => {};
 
+  createMarkupMessage = (content) => {
+    const members = this.props.allMembers;
+    let messageContentHtml = handlersMessage.renderMessage(content, members);
+
+    return {__html: messageContentHtml};
+  };
+
+  render() {
+    const { prevMessages, messages, currentLastMsgId, listNewLoadedMessage, isEditing } = this.state;
+    const { t, roomInfo, allMembers } = this.props;
+    const currentUserInfo = this.props.userContext.info;
+
+    const showListMember = (allMembers == []) ? (
+      <span>Not data</span>
+    ) : (
+      <div className="member-infinite-container">
+        {( roomInfo.type == ROOM_TYPE.GROUP_CHAT ) && (
+          <a className="form-control to-all" href="javascript:;" onClick={handlersMessage.actionFunc.toAll}>
+            <span>{t('to_all')}</span>
+          </a>
+        )}
+        <InfiniteScroll
+          initialLoad={false}
+          pageStart={0}
+          loadMore={this.handleInfiniteOnLoad}
+          useWindow={false}
+        >
+          <List
+            dataSource={allMembers}
+            renderItem={member => {
+              return ( member._id != currentUserInfo._id ) ? (
+                <List.Item key={member._id}>
+                  <List.Item.Meta
+                    avatar={
+                      <Avatar src={member.avatar} />
+                    }
+                    title={<a onClick={handlersMessage.actionFunc.toMember} href="javascript:;" data-mid={member._id}>{member.name}</a>}
+                  />
+                </List.Item>
+              ) : (<span></span>)
+            }}
+          />
+        </InfiniteScroll>
+      </div>
+    );
 
     const redLine = (
       <div className={'timeLine__unreadLine ' + (loadingNew || currentLastMsgId === this.props.lastMsgId ? 'hide' : '')} ref={element => (this.unReadMsg = element)}>
@@ -374,65 +408,99 @@ class ChatBox extends React.Component {
     return (
       <Content className="chat-room">
         <div className="list-message" ref={element => (this.roomRef = element)} onScroll={this.handleScroll}>
-          {prevMessages.map(message => (
-            <div key={message._id} ref={element => (this.prevMessageRowRefs[message._id] = element)}>
-              <Row>
-                <Col span={22}>
-                  <List.Item>
-                    <List.Item.Meta
-                      avatar={<Avatar src={message.user_info.avatar} />}
-                      title={<p>{message.user_info.name}</p>}
-                      description={message.content}
-                    />
-                  </List.Item>
-                </Col>
-                <Col span={2} className="message-time">
-                  <h4> {this.formatMsgTime(message.updatedAt)} </h4>
-                </Col>
-                <hr />
-              </Row>
-            </div>
-          ))}
-          {messages.map(message => (
-            <div key={message._id} ref={element => (this.messageRowRefs[message._id] = element)}>
-              <Row
-                key={message._id}
-                className={this.state.messageIdEditing === message._id ? 'message-item isEditing' : 'message-item'}
-                onMouseEnter={this.handleMouseEnter}
-                onMouseLeave={this.handleMouseLeave}
-                id={message._id}
-              >
-                <Col span={22}>
-                  <List.Item>
-                    <List.Item.Meta
-                      avatar={<Avatar src={message.user_info.avatar} />}
-                      title={<p>{message.user_info.name}</p>}
-                      description={message.content}
-                    />
-                  </List.Item>
-                </Col>
-                <Col span={2} className="message-time">
-                  <h4> {this.formatMsgTime(message.updatedAt)} </h4>
-                  {this.state.messageIdHovering === message._id &&
-                  currentUserId === message.user_info._id &&
-                  !this.props.isReadOnly && (
-                    <Button type="primary" onClick={this.dataMessageEditing} id={message._id}>
-                      {t('button.edit')}
-                    </Button>
-                  )}
-                </Col>
-              </Row>
-              {message._id === currentLastMsgId && currentLastMsgId !== listNewLoadedMessage[0] ? redLine : ''}
-            </div>
-          ))}
+          {prevMessages.map(message => {
+            let messageHtml = this.createMarkupMessage(message.content)
+            let isToMe = messageHtml.__html.includes(`data-cwtag="[To:${currentUserInfo._id}]"`) ||
+              messageHtml.__html.includes(messageConfig.SIGN_TO_ALL);
+
+            return (
+              <div key={message._id} ref={element => (this.prevMessageRowRefs[message._id] = element)}>
+                <Row className={isToMe ? 'timelineMessage--mention' : ''}>
+                  <Col span={22}>
+                    <List.Item>
+                      <List.Item.Meta
+                        avatar={<Avatar src={message.user_info.avatar} />}
+                        title={<p>{message.user_info.name}</p>}
+                        description={message.content}
+                      />
+                    </List.Item>
+                  </Col>
+                  <Col span={2} className="message-time">
+                    <h4> {this.formatMsgTime(message.updatedAt)} </h4>
+                  </Col>
+                  <hr />
+                </Row>
+              </div>
+            )
+          })}
+          <div ref={element => (this.roomRef = element)}>
+            {messages.map(message => {
+              let messageHtml = this.createMarkupMessage(message.content)
+              let isToMe = messageHtml.__html.includes(`data-cwtag="[To:${currentUserInfo._id}]"`) ||
+                messageHtml.__html.includes(messageConfig.SIGN_TO_ALL);
+
+              return (
+                <div key={message._id} ref={element => (this.messageRowRefs[message._id] = element)} className='wrap-message'>
+                  <Row
+                    key={message._id}
+                    className={this.state.messageIdEditing === message._id ? 'message-item isEditing' : 'message-item', isToMe ? 'timelineMessage--mention' : '' }
+                    onMouseEnter={this.handleMouseEnter}
+                    onMouseLeave={this.handleMouseLeave}
+                    id={message._id}
+                  >
+                    <Col span={22}>
+                      <List.Item>
+                        <List.Item.Meta
+                          avatar={<Avatar src={message.user_info.avatar} />}
+                          title={<p>{message.user_info.name}</p>}
+                          description={
+                            <pre className="timelineMessage__message" dangerouslySetInnerHTML={messageHtml} />
+                          }
+                        />
+                      </List.Item>
+                    </Col>
+                    <Col span={2} className="message-time">
+                      <h4> {this.formatMsgTime(message.updatedAt)} </h4>
+                    </Col>
+                    <Col span={24} style={{ position: 'relative' }}>
+                      {this.state.messageIdHovering === message._id &&
+                        <div style={{ textAlign: 'right', position: 'absolute', bottom: '0', right: '0' }}>
+                          {currentUserInfo._id === message.user_info._id &&
+                            !this.props.isReadOnly && (
+                              <Button type="link" onClick={this.editMessage} id={message._id}>
+                                <Icon type="edit" /> {t('button.edit')}
+                              </Button>
+                            )
+                          }
+                          <Divider type="vertical" />
+                          <Button type="link" onClick={handlersMessage.actionFunc.replyMember} id={currentUserInfo._id + '-' + message._id} data-mid={message.user_info._id}>
+                            <Icon type="enter" /> {t('button.reply')}
+                          </Button>
+                          <Divider type="vertical" />
+                          <Button type="link" onClick={this.quoteMessage} id={message._id}>
+                            <Icon type="rollback" /> {t('button.quote')}
+                          </Button>
+                        </div>
+                      }
+                    </Col>
+                  </Row>
+                  {message._id === currentLastMsgId && currentLastMsgId !== listNewLoadedMessage[0] ? redLine : ''}
+                </div>
+              )
+            })}
+          </div>
         </div>
         <div className="box-button">
-          {this.state.isEditing ? (
+          <Popover content={showListMember}>
+            <Badge className="header-icon" type="primary">
+              <a href="javascript:;">
+                <strong>{t('to')}</strong>
+              </a>
+            </Badge>
+          </Popover>
+          {isEditing ? (
             <React.Fragment>
-              <span>
-                <b>{t('title_edit')}</b>
-              </span>
-              <Button style={{ float: 'right' }} type="primary" onClick={this.handleUpdateMessage}>
+              <Button style={{ float: 'right' }} type="primary" onClick={this.handleSendMessage}>
                 {t('button.update')}
               </Button>
               <Button style={{ float: 'right' }} type="default" onClick={this.handleCancelEdit}>
@@ -441,9 +509,6 @@ class ChatBox extends React.Component {
             </React.Fragment>
           ) : (
             <React.Fragment>
-              <Button type="link" size={'small'}>
-                {t('to')}
-              </Button>
               <Button
                 style={{ float: 'right' }}
                 type="primary"
@@ -461,9 +526,7 @@ class ChatBox extends React.Component {
           style={{ resize: 'none' }}
           id="msg-content"
           disabled={this.props.isReadOnly}
-          onKeyDown={this.state.isEditing ? this.handleUpdateMessage : this.handleSendMessage}
-          value={this.state.messageContentEditing}
-          onChange={this.handleChangeMessage}
+          onKeyDown={this.handleSendMessage}
         />
       </Content>
     );

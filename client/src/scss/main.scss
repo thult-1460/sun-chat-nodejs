@@ -7,6 +7,8 @@
 @import 'filter.scss';
 @import 'list_member.scss';
 @import 'room.scss';
+@import '~highlight.js/styles/monokai-sublime.css';
+
 .error-message-from-server {
   color: #f5222d;
   font-size: 14px;

@@ -1,5 +1,7 @@
 {
   "to": "TO",
+  "to_all": "TO ALL",
+  "send_button": "Send",
   "type_msg": "Typing in here",
   "format_time": "M/D H:mm",
   "unread_title": "Unread Messages",
@@ -11,6 +13,8 @@
     "send": "Send",
     "update": "Update",
     "cancel": "Cancel",
-    "edit": "Edit"
+    "edit": "Edit",
+    "reply": "Reply",
+    "quote": "Quote"
   }
 }
