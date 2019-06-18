@@ -6,6 +6,7 @@ import { PrivateIcon } from './../../components/PrivateIcon';
 import { withNamespaces } from 'react-i18next';
 import { withRouter } from 'react-router';
 import { authValidate } from './../../config/validate';
+import Loading from './../../components/Loading';
 
 class ForgotPassword extends React.Component {
   // State and props in properties
@@ -13,6 +14,7 @@ class ForgotPassword extends React.Component {
     is_reset: false,
     error: '',
     errors: {},
+    isLoading: false,
   };
 
   rules = {
@@ -21,7 +23,7 @@ class ForgotPassword extends React.Component {
       rules: [
         { required: true, message: this.props.t('validate.email.required') },
         {
-          pattern: '^[a-zA-Z0-9_.+-]+@(?:(?:[a-zA-Z0-9-]+.)?[a-zA-Z]+.)?(sun-asterisk).com$',
+          pattern: '^[a-zA-Z0-9_.+-]+@(?:(?:[a-zA-Z0-9-]+.)?[a-zA-Z]+.)?(sun-asterisk)\\.com$',
           message: this.props.t('validate.email.regex'),
         },
         {
@@ -33,6 +35,10 @@ class ForgotPassword extends React.Component {
   };
 
   handleResetPassword = e => {
+    this.setState({
+      isLoading: true,
+    });
+
     const { email } = this.props.form.getFieldsValue();
 
     this.props.form.validateFields((err, values) => {
@@ -56,7 +62,7 @@ class ForgotPassword extends React.Component {
   };
 
   render() {
-    let { is_reset, error, errors } = this.state;
+    let { is_reset, error, errors, isLoading } = this.state;
     const { form, t } = this.props;
     let contentHTML = '';
 
@@ -64,6 +70,7 @@ class ForgotPassword extends React.Component {
       contentHTML = (
         <div className="form">
           <Form className="login-form">
+            {isLoading && <Loading />}
             <h2 className="logo">
               <Icon style={{ fontSize: 100, color: '#40A9FF' }} theme="outlined" component={PrivateIcon} />
             </h2>

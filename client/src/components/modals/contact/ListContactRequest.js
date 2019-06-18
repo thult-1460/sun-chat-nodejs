@@ -69,7 +69,6 @@ class ListContactRequest extends React.Component {
       this.setState({
         data: this.state.data.filter(person => userIds.indexOf(person._id) < 0),
       });
-
     });
   }
 

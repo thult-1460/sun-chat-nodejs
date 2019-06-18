@@ -54,7 +54,7 @@ class Head extends React.Component {
           </Col>
           <Col span={4}>
             <Dropdown overlay={menu}>
-              <a className="ant-dropdown-link" href="#">
+              <a className="ant-dropdown-link">
                 <Avatar style={{ verticalAlign: 'middle' }}>User</Avatar>
                 <Icon type="down" />
               </a>

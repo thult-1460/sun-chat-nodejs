@@ -381,7 +381,11 @@ UserSchema.statics = {
 
     query.push(
       {
-        $match: { type: config.ROOM_TYPE.DIRECT_CHAT, deletedAt: null, $expr: { $in: [mongoose.Types.ObjectId(_id), '$members.user'] } },
+        $match: {
+          type: config.ROOM_TYPE.DIRECT_CHAT,
+          deletedAt: null,
+          $expr: { $in: [mongoose.Types.ObjectId(_id), '$members.user'] },
+        },
       },
       {
         $unwind: '$members',
