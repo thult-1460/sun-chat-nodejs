@@ -24,8 +24,8 @@
     "required_search_user": "Please enter name or email address to search"
   },
   "sent_request_contact": {
-    "list_request_sent_contacts": "Danh sách liên hệ",
-    "no_request_sent_contact": "Bạn chưa gửi yêu cầu liên hệ nào"
+    "list_request_sent_contacts": "List sent request",
+    "no_request_sent_contact": "You have not submitted any request contact"
   },
   "contact_detail": {
     "title_contact_detail": "Contact detail",
@@ -37,5 +37,10 @@
     "twitter": "Twitter",
     "github": "Github",
     "google": "Google"
+  },
+  "button": {
+    "delete": "Delete",
+    "accept": "Accept",
+    "check_all": "Check all"
   }
 }
