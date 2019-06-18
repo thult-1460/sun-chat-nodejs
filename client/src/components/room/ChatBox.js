@@ -18,6 +18,7 @@ let fourthMsgId = 0;
 let isLoadingPrev = false;
 let loadingNew = false;
 let firstPrevMsgId = 0;
+let isSender = false;
 
 class ChatBox extends React.Component {
   static contextType = SocketContext;
@@ -81,11 +82,21 @@ class ChatBox extends React.Component {
 
     // Listen 'send_new_msg' event from server
     this.socket.on('send_new_msg', res => {
-      const messages = this.state.messages;
+      var {messages, listNewLoadedMessage } = this.state;
+      var lastMessageId = (Object.keys(this.messageRowRefs).reverse())[0];
       messages.push(res.message);
+      listNewLoadedMessage.unshift(res.message._id);
 
       this.setState({
         messages: messages,
+        listNewLoadedMessage: listNewLoadedMessage,
+      }, () => {
+        if (isSender || (lastMessageId && this.checkInView(this.messageRowRefs[lastMessageId]))) {
+          this.updateLastMsgId([res.message._id], this.state.currentLastMsgId, 0);
+          this.messageRowRefs[res.message._id].scrollIntoView();
+          window.scrollTo(0, 0);
+          isSender = false;
+        }
       });
     });
 
@@ -186,6 +197,7 @@ class ChatBox extends React.Component {
         };
 
         if (messageId == null) {
+          isSender = true;
           sendMessage(roomId, data)
           .catch(e => {
             message.error(t('send.failed'));
@@ -215,12 +227,12 @@ class ChatBox extends React.Component {
     return (elemTop < 0 && elemBottom > 0) || (elemTop > 0 && elemTop <= roomChat.height);
   }
 
-  updateLastMsgId(listNewLoadedMessage, currentLastMsgId, arrCheckEnable) {
+  updateLastMsgId(listNewLoadedMessage, currentLastMsgId, indexMsgBeUpdated) {
     /* when message_id need update > current last_message_id */
-    if (listNewLoadedMessage[arrCheckEnable.length - 1] > currentLastMsgId || currentLastMsgId === null) {
+    if (listNewLoadedMessage[indexMsgBeUpdated] > currentLastMsgId || currentLastMsgId === null) {
       const param = {
-        roomId: this.props.match.params.id,
-        messageId: listNewLoadedMessage[arrCheckEnable.length - 1],
+        roomId: this.props.roomId,
+        messageId: listNewLoadedMessage[indexMsgBeUpdated],
       };
 
       this.socket.emit('update_last_readed_message', param);
@@ -288,7 +300,7 @@ class ChatBox extends React.Component {
 
     /* check the first view room || loading new message || final message */
     if (currentLastMsgId === this.props.lastMsgId || loadingNew || (arrCheckEnable.length === 1 && !hasMsgUnRead)) {
-      this.updateLastMsgId(listNewLoadedMessage, currentLastMsgId, arrCheckEnable);
+      this.updateLastMsgId(listNewLoadedMessage, currentLastMsgId, arrCheckEnable.length - 1);
     }
   }
 

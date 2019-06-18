@@ -90,13 +90,17 @@ class LoginPage extends React.Component {
             </Form.Item>
             <Form.Item>
               <Checkbox>{t('remember_me')}</Checkbox>
-              <a className="login-form-forgot" href="/forgot-password">
-                {t('forgot_password')}
-              </a>
               <Button type="primary" htmlType="submit" className="login-form-button" onClick={this.handleCheckLogin}>
                 {t('login')}
               </Button>
-              {t('or')} <a href="/register">{t('register')}</a>
+              <div>
+                <a className="login-form-forgot" href="/forgot-password">
+                  {t('forgot_password')}
+                </a>
+                <a style={{ float: 'right' }} href="/register">
+                  {t('register')}
+                </a>
+              </div>
             </Form.Item>
           </Form>
         </div>

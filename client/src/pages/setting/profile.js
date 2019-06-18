@@ -54,7 +54,7 @@ class Profile extends React.Component {
       rules: [
         { required: true, message: this.props.t('auth:validate.email.required') },
         {
-          pattern: '^[a-zA-Z0-9_.+-]+@(?:(?:[a-zA-Z0-9-]+.)?[a-zA-Z]+.)?(sun-asterisk).com$',
+          pattern: '^[a-zA-Z0-9_.+-]+@(?:(?:[a-zA-Z0-9-]+.)?[a-zA-Z]+.)?(sun-asterisk)\\.com$',
           message: this.props.t('auth:validate.email.regex'),
         },
         {
@@ -100,7 +100,7 @@ class Profile extends React.Component {
           success: false,
         });
 
-        this.setValueFormItem(res.data);
+        this.setValueFormItem(res.data.user);
       })
       .catch(error => {
         this.setState({

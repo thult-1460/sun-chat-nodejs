@@ -199,7 +199,7 @@ class Sidebar extends React.Component {
         <Sider>
           <div id="div-filter">
             <Dropdown overlay={cond_filter}>
-              <a className="ant-dropdown-link" href="#">
+              <a className="ant-dropdown-link">
                 {selected_content}
                 <Icon type="filter" />
               </a>

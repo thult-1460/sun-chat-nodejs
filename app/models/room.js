@@ -60,7 +60,14 @@ const RoomSchema = new Schema(
     name: { type: String },
     desc: { type: String },
     type: { type: Number, default: config.ROOM_TYPE.GROUP_CHAT }, //0: group chat - 1: direct chat
-    invitation_code: { type: String, unique: true, default: null },
+    invitation_code: {
+      type: String,
+      unique: true,
+      default:
+        Math.random()
+          .toString(36)
+          .substring(2, 35) + new Date().getTime(),
+    },
     invitation_type: { type: Number, default: config.INVITATION_TYPE.NOT_NEED_APPROVAL }, //0: don't need admin approves - 1: need admin approves
     avatar: { type: String },
     members: [Members],

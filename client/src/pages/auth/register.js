@@ -82,7 +82,7 @@ class RegisterPage extends React.Component {
       rules: [
         { required: true, message: this.props.t('validate.email.required') },
         {
-          pattern: '^[a-zA-Z0-9_.+-]+@(?:(?:[a-zA-Z0-9-]+.)?[a-zA-Z]+.)?(sun-asterisk).com$',
+          pattern: '^[a-zA-Z0-9_.+-]+@(?:(?:[a-zA-Z0-9-]+.)?[a-zA-Z]+.)?(sun-asterisk)\\.com$',
           message: this.props.t('validate.email.regex'),
         },
         {
@@ -124,6 +124,16 @@ class RegisterPage extends React.Component {
   handleConfirmBlur = e => {
     const value = e.target.value;
     this.setState({ confirmDirty: this.state.confirmDirty || !!value });
+  };
+
+  onChange = e => {
+    const fieldName = e.target.id;
+    let { errors } = this.state;
+
+    if (fieldName in errors) {
+      errors[fieldName] = '';
+      this.setState({ errors });
+    }
   };
 
   onSubmit = e => {
@@ -175,7 +185,7 @@ class RegisterPage extends React.Component {
         <div className="form" style={{ height: 560 }}>
           {isLoading && <Loading />}
           {error && <Alert message="Error" type="error" description={error} closable />}
-          <Form layout="horizontal" onSubmit={this.onSubmit}>
+          <Form layout="horizontal" onSubmit={this.onSubmit} onChange={this.onChange}>
             <h2 className="logo">
               <Icon style={{ fontSize: 100, color: '#40A9FF' }} theme="outlined" component={PrivateIcon} />
             </h2>

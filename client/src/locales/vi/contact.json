@@ -24,18 +24,23 @@
     "required_search_user": "Vui lòng nhập tên hoặc email để tìm kiếm"
   },
   "sent_request_contact": {
-    "list_request_sent_contacts": "Danh sách liên hệ",
-    "no_request_sent_contact": "Bạn chưa gửi yêu cầu liên hệ nào"
+    "list_request_sent_contacts": "Danh sách đã gửi kết bạn",
+    "no_request_sent_contact": "Bạn chưa gửi yêu cầu kết bạn nào"
   },
   "contact_detail": {
     "title_contact_detail": "Thông tin người dùng",
     "title_contact_empty": "Chọn liên lạc để xem chi tiết",
-    "username": "Username",
+    "username": "Tên đăng nhập",
     "email": "Email",
     "full_address": "Địa chỉ",
     "phone_number": "Số điện thoại",
     "twitter": "Twitter",
     "github": "Github",
     "google": "Google"
+  },
+  "button": {
+    "delete": "Xóa",
+    "accept": "Đồng ý",
+    "check_all": "Chọn tất cả"
   }
 }
