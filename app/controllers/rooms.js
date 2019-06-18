@@ -299,7 +299,7 @@ exports.listContactsNotMember = async (req, res) => {
   try {
     let listMember = await Room.getListIdMember(roomId);
     listMember = listMember.length ? listMember[0].member : [];
-    let listContact = await User.getListNotMember({ _id, subName, listMember });
+    let listContact = await Room.getListNotMember({ _id, subName, listMember });
 
     return res.status(200).json(listContact);
   } catch (e) {

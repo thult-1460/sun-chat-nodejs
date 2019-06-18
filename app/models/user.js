@@ -376,54 +376,6 @@ UserSchema.statics = {
     return Room.aggregate(query);
   },
 
-  getListNotMember: function({ _id, subName, listMember }) {
-    var query = [];
-
-    query.push(
-      {
-        $match: { type: config.ROOM_TYPE.DIRECT_CHAT, deletedAt: null, $expr: { $in: [mongoose.Types.ObjectId(_id), '$members.user'] } },
-      },
-      {
-        $unwind: '$members',
-      },
-      {
-        $match: {
-          $expr: {
-            $and: [{ $not: [{ $eq: [_id, '$members.user'] }] }, { $not: [{ $in: ['$members.user', listMember] }] }],
-          },
-        },
-      },
-      {
-        $lookup: {
-          from: 'users',
-          localField: 'members.user',
-          foreignField: '_id',
-          as: 'members.user_info',
-        },
-      }
-    );
-
-    if (subName) {
-      query.push({
-        $match: {
-          $or: [
-            { 'members.user_info.name': { $regex: '^.*' + subName + '.*$', $options: 'i' } },
-            { 'members.user_info.email': { $regex: '^.*' + subName + '.*$', $options: 'i' } },
-          ],
-        },
-      });
-    }
-
-    query.push({
-      $project: {
-        name: '$members.user_info.name',
-        avatar: '$members.user_info.avatar',
-        email: '$members.user_info.email',
-      },
-    });
-    return Room.aggregate(query);
-  },
-
   deleteContact: function(userId, contactId) {
     return Room.findOneAndUpdate(
       {
