@@ -45,7 +45,7 @@ export function getListContactNotMember({ roomId, subName }) {
 }
 
 export function addMembers({ roomId, users }) {
-  return new Http().authenticated().post(`/rooms/${roomId}/add-member`, users);
+  return new Http().authenticated().post(`/rooms/${roomId}/add-member`, {users: users});
 }
 
 export function getInforRoom(roomId) {

@@ -399,6 +399,65 @@ RoomSchema.statics = {
     ]);
   },
 
+  getListNotMember: function({ _id, subName, listMember }) {
+    var query = [];
+
+    query.push(
+      {
+        $match: {
+          type: config.ROOM_TYPE.DIRECT_CHAT,
+          deletedAt: null,
+          $expr: { $in: [mongoose.Types.ObjectId(_id), '$members.user'] },
+        },
+      },
+      {
+        $unwind: '$members',
+      },
+      {
+        $match: {
+          $expr: {
+            $and: [{ $not: [{ $eq: [_id, '$members.user'] }] }, { $not: [{ $in: ['$members.user', listMember] }] }],
+          },
+        },
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'members.user',
+          foreignField: '_id',
+          as: 'members.user_info',
+        },
+      }
+    );
+
+    if (subName) {
+      query.push({
+        $match: {
+          $or: [
+            { 'members.user_info.name': { $regex: '^.*' + subName + '.*$', $options: 'i' } },
+            { 'members.user_info.email': { $regex: '^.*' + subName + '.*$', $options: 'i' } },
+          ],
+        },
+      });
+    }
+
+    query.push(
+      {
+        $replaceRoot: { newRoot: { $arrayElemAt: ['$members.user_info', 0] } },
+      },
+      {
+        $project: {
+          _id: 1,
+          name: 1,
+          avatar: 1,
+          email: 1,
+        },
+      }
+    );
+
+    return this.aggregate(query);
+  },
+
   getListIdMember: function(roomId) {
     return this.aggregate([
       { $match: { _id: mongoose.Types.ObjectId(roomId), deletedAt: null } },
