@@ -191,10 +191,10 @@ class ListContactRequest extends React.Component {
 
                         <Button.Group className="btn-accept">
                           <Button value={item._id} onClick={this.handleRejectContact}>
-                            {t('button.delete')}
+                            {t('contact:button.delete')}
                           </Button>
                           <Button type="primary" value={item._id} onClick={this.acceptContact}>
-                            {t('button.accept')}
+                            {t('contact:button.accept')}
                           </Button>
                         </Button.Group>
                       </List.Item>
@@ -215,14 +215,14 @@ class ListContactRequest extends React.Component {
                 onChange={this.onCheckAllChange}
                 checked={this.state.checkAll}
               >
-                {t('button.check_all')}
+                {t('contact:button.check_all')}
               </Checkbox>
               <Button.Group className="btn-all-accept">
                 <Button value="0" onClick={this.handleRejectContact}>
-                  {t('button.delete')}
+                  {t('contact:button.delete')}
                 </Button>
                 <Button type="primary" onClick={this.acceptContact}>
-                  {t('button.accept')}
+                  {t('contact:button.accept')}
                 </Button>
               </Button.Group>
             </div>
