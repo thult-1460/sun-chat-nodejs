@@ -178,10 +178,8 @@ class FormCreateRoom extends PureComponent {
           isChangeLink: false,
           invitationCode: room.invitation_code,
         });
-
         message.success(response.data.message);
         handleModalVisible();
-        this.context.socket.emit('edit_room', roomId);
       })
       .catch(this.handleError);
   };

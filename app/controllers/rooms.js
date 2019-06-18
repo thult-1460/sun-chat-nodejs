@@ -603,10 +603,13 @@ exports.editRoom = async (req, res) => {
         });
       }
 
-      await Room.findOneAndUpdate({ _id: roomId }, { $set: roomData }, { new: true }).then(roomData => {
-        roomData.members.map(async member => {
+      await Room.findOneAndUpdate({ _id: roomId }, { $set: roomData }, { new: true }).then(async roomData => {
+        roomData.members.map(member => {
           io.to(member.user).emit('action_room');
         });
+
+        let roomInfo = await Room.getInforOfRoom(roomId);
+        io.to(roomId).emit('edit_room_successfully', roomInfo[0]);
 
         return res.status(200).json({ message: __('room.edit.success') });
       });
