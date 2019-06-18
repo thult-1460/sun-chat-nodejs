@@ -10,7 +10,7 @@ class CreateRoom extends PureComponent {
     super(props);
 
     this.state = {
-      modalVisible: false
+      modalVisible: false,
     };
   }
 
@@ -24,7 +24,7 @@ class CreateRoom extends PureComponent {
     const { t } = this.props;
     const { modalVisible } = this.state;
     const parentMethods = {
-      handleModalVisible: this.handleModalVisible
+      handleModalVisible: this.handleModalVisible,
     };
 
     const content = (
@@ -46,7 +46,7 @@ class CreateRoom extends PureComponent {
       <React.Fragment>
         <Popover content={content}>
           <Badge className="header-icon" type="primary">
-            <a href="#">
+            <a>
               <Icon type="plus-circle" />
             </a>
           </Badge>
