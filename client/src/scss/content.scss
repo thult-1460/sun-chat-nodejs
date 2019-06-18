@@ -1,14 +1,17 @@
 .list-message {
   padding: 24px;
   background: #fff;
-  overflow: auto;
+  height: 78vh;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 @media screen and (min-width: 1500px) {
   .list-message {
     padding: 24px;
     background: #fff;
-    overflow: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
     height: 68vh;
   }
 }
@@ -17,7 +20,8 @@
   .list-message {
     padding: 24px;
     background: #fff;
-    overflow: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
     height: 73vh;
   }
 }
