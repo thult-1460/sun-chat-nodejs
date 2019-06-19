@@ -234,7 +234,15 @@ UserSchema.statics = {
    * @api private
    */
 
-  load: function(userId, flagProfile = false) {
+  load: function(options, cb) {
+    options.select = options.select || 'name username hashed_password salt reset_token_expire email active';
+
+    return this.findOne(options.criteria)
+      .select(options.select)
+      .exec(cb);
+  },
+
+  loadForEdit: function(userId, flagProfile = false) {
     const query = [
       {
         $match: { _id: mongoose.Types.ObjectId(userId) },

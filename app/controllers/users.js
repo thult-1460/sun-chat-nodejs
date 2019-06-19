@@ -68,7 +68,7 @@ exports.create = async(function*(req, res) {
 exports.show = async(function*(req, res) {
   const { _id } = req.decoded;
   const flagProfile = true;
-  const user = yield User.load(_id, flagProfile);
+  const user = yield User.loadForEdit(_id, flagProfile);
   const roomMyChatId = yield Room.getRoomMyChatId(_id);
 
   res.status(200).json({
