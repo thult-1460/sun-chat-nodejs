@@ -3,8 +3,7 @@
 }
 
 .area-edit-profile {
-  width: 40%;
-  margin: 100px 0 0 25%;
+  margin: 100px 20% 0 10%;
 
   > div {
     margin-top: 25px;
@@ -17,7 +16,8 @@
     width: 20%;
   }
 
-  input, .ant-form-item {
+  input,
+  .ant-form-item {
     float: left;
     width: 80%;
   }
@@ -37,12 +37,13 @@
   margin-bottom: -27px;
 }
 
-#password, .ant-input {
+#password,
+.ant-input {
   width: 100% !important;
 }
 
 .button-submit {
-  float: right;
+  float: left;
   margin-top: 25px;
   background-color: #eb4e10;
   color: white;
@@ -65,4 +66,19 @@ section.ant-layout {
 
 .nav-text a {
   color: white;
+}
+
+.ant-upload-select-picture-card i {
+  font-size: 32px;
+  color: #999;
+}
+
+.ant-upload-select-picture-card .ant-upload-text {
+  margin-top: 8px;
+  color: #666;
+}
+
+.profile-avatar {
+  width: 225px;
+  height: 225px;
 }

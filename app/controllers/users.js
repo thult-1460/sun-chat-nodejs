@@ -18,6 +18,9 @@ const logger = require('./../logger/winston');
 const channel = logger.init('error');
 const contact = require('./../services/contactService.js');
 const Room = mongoose.model('Room');
+const files = require('../services/files.js');
+const slug = require('slug');
+
 /**
  * Load
  */
@@ -64,13 +67,12 @@ exports.create = async(function*(req, res) {
 
 exports.show = async(function*(req, res) {
   const { _id } = req.decoded;
-  const criteria = { _id: _id };
-  const option = 'name email username password twitter github google full_address phone_number';
-  const user = yield User.load({ select: option, criteria });
+  const flagProfile = true;
+  const user = yield User.load(_id, flagProfile);
   const roomMyChatId = yield Room.getRoomMyChatId(_id);
 
   res.status(200).json({
-    user,
+    user: user.length != 0 ? user[0] : null,
     my_chat_id: roomMyChatId.length != 0 ? roomMyChatId[0]._id : null,
   });
 });
@@ -98,10 +100,25 @@ exports.update = async(function*(req, res) {
         google: req.body.google,
         full_address: req.body.address,
         phone_number: req.body.phone,
+        avatar: req.body.avatar,
       },
     };
 
-    if (!User.updateInfo(data_changed)) {
+    if (data_changed.data.avatar) {
+      try {
+        yield files.saveImage(data_changed.data.avatar, slug(data_changed.data.name, '-')).then(url => {
+          data_changed.data.avatar = url;
+        });
+      } catch (err) {
+        channel.error(err);
+
+        return res.status(500).json({ error: __('update_to_fail_user') });
+      }
+    }
+
+    const user = yield User.updateInfo(data_changed);
+
+    if (!user) {
       throw new Error(__('update_to_fail_user'));
     }
 

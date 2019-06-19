@@ -14,7 +14,9 @@
     "google": "Google Account",
     "address": "Address",
     "phone": "Phone Number",
-    "title_update_info": "Setting Information"
+    "title_update_info": "Setting Information",
+    "upload": "Upload",
+    "avatar": "Avatar"
   },
   "button": {
     "update_info": "Update Information",
@@ -22,5 +24,9 @@
     "accept": "Accept",
     "check_all": "Check all"
   },
-  "error_title": "Error"
+  "error_title": "Error",
+  "validate": {
+    "img_type": "You can only upload {{types}} file!",
+    "img_size": "Image must smaller than {{max}} MB!"
+  }
 }

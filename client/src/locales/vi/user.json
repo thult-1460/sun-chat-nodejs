@@ -14,7 +14,9 @@
     "google": "Tài khoản Google",
     "address": "Địa chỉ",
     "phone": "Số điện thoại",
-    "title_update_info": "Chỉnh sửa thông tin"
+    "title_update_info": "Chỉnh sửa thông tin",
+    "upload": "Tải lên",
+    "avatar": "Ảnh đại diện"
   },
   "button": {
     "update_info": "Cập nhật thông tin",
@@ -22,5 +24,9 @@
     "accept": "Chấp nhận",
     "check_all": "Chọn tất cả"
   },
-  "error_title": "Lỗi"
+  "error_title": "Lỗi",
+  "validate": {
+    "img_type": "Bạn chỉ có thể tải lên tệp {{types}} !",
+    "img_size": "File ảnh phải nhỏ hơn {{max}} MB!"
+  }
 }
