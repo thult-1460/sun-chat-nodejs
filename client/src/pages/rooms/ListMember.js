@@ -7,6 +7,7 @@ import AdminRoleMemberList from './../../components/member/AdminRoleMemberList';
 import OtherRoleMemberList from './../../components/member/OtherRoleMemberList';
 import ContactDetail from './../../components/modals/contact/ContactDetail';
 import { SocketContext } from './../../context/SocketContext';
+import { getUserAvatarUrl } from './../../helpers/common';
 
 const TabPane = Tabs.TabPane;
 
@@ -155,19 +156,19 @@ class ListMember extends React.Component {
       if (member.role == 'admin') {
         adminRows.push(
           <a onClick={this.showContactDetail} id={member._id}>
-            <Avatar size={30} key={member._id} src={member.avatar} />
+            <Avatar size={30} key={member._id} src={getUserAvatarUrl(member.avatar)} />
           </a>
         );
       } else if (member.role == 'member') {
         memberRows.push(
           <a onClick={this.showContactDetail} id={member._id}>
-            <Avatar size={30} key={member._id} src={member.avatar} />
+            <Avatar size={30} key={member._id} src={getUserAvatarUrl(member.avatar)} />
           </a>
         );
       } else {
         readOnlyRows.push(
           <a onClick={this.showContactDetail} id={member._id}>
-            <Avatar size={30} key={member._id} src={member.avatar} />
+            <Avatar size={30} key={member._id} src={getUserAvatarUrl(member.avatar)} />
           </a>
         );
       }

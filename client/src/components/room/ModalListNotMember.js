@@ -5,6 +5,7 @@ import 'antd/dist/antd.css';
 import {getListContactNotMember, loadMessages} from '../../api/room';
 import { addMembers } from '../../api/room';
 import {Form, Input, Modal, Checkbox, Select, Avatar, List, message, Badge, Icon} from 'antd';
+import { getUserAvatarUrl } from './../../helpers/common';
 
 class ModalListNotMember extends PureComponent {
   data = [];
@@ -184,7 +185,7 @@ class ModalListNotMember extends PureComponent {
                       <List.Item key={item._id}>
                         <Checkbox className="item-checkbox" value={item._id} key={item._id} />
                         <List.Item.Meta
-                          avatar={<Avatar src={item.avatar} />}
+                          avatar={<Avatar src={getUserAvatarUrl(item.avatar)} />}
                           title={<a href="https://ant.design">{item.name}</a>}
                           description={item.email}
                         />

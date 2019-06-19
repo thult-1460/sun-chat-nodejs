@@ -12,6 +12,7 @@ import { deleteContact } from '../../api/contact';
 import { SocketContext } from './../../context/SocketContext';
 import { withUserContext } from './../../context/withUserContext';
 import { withRouter } from 'react-router';
+import { getUserAvatarUrl, getRoomAvatarUrl } from './../../helpers/common';
 
 const { Header } = Layout;
 
@@ -47,7 +48,7 @@ class HeaderOfRoom extends React.Component {
       }
 
       this.state.memberOfRoom.map(member => {
-        listMember.push(<Avatar size={30} key={member._id} src={member.avatar} className="list-member-chat-room" />);
+        listMember.push(<Avatar size={30} key={member._id} src={getUserAvatarUrl(member.avatar)} className="list-member-chat-room" />);
       });
     }
 
@@ -121,7 +122,7 @@ class HeaderOfRoom extends React.Component {
       <Header className="header-chat-room">
         <Row type="flex" justify="start">
           <Col span={17}>
-            <Avatar size={30} src={this.props.data.avatar} className="avatar-room-chat" />
+            <Avatar size={30} src={getRoomAvatarUrl(this.props.data.avatar)} className="avatar-room-chat" />
             <Text strong className="name-chat-room">
               {this.props.data.name}
             </Text>

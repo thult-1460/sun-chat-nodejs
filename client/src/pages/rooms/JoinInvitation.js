@@ -5,6 +5,7 @@ import { withNamespaces } from 'react-i18next';
 import { withRouter } from 'react-router';
 import { INVATATION_STATUS } from './../../config/room.js';
 import { SocketContext } from '../../context/SocketContext';
+import { getRoomAvatarUrl } from './../../helpers/common';
 
 class JoinInvitation extends React.Component {
   static contextType = SocketContext;
@@ -86,7 +87,7 @@ class JoinInvitation extends React.Component {
   };
 
   render() {
-    const { name, avatar_url } = this.state.room;
+    const { name, avatar } = this.state.room;
     const { isSendRequest, error, message } = this.state;
     const { t } = this.props;
 
@@ -100,7 +101,7 @@ class JoinInvitation extends React.Component {
               <Alert className="btn-join-room" description={message} type="success" showIcon />
             ) : (
               <div>
-                <Avatar src={avatar_url} shape="square" size={64} />
+                <Avatar src={getRoomAvatarUrl(avatar)} shape="square" size={64} />
                 <span> {name} </span>
                 <div className="btn-join-room">
                   <Button type="primary" onClick={this.handleJoinRoomRequest}>

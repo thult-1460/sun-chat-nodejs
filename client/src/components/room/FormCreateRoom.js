@@ -7,6 +7,7 @@ import { createRoom, editRoom } from '../../api/room.js';
 import { roomConfig } from '../../config/roomConfig';
 import { Row, Col, Card, Form, Input, Icon, Button, Modal, message, Checkbox, Upload, Typography } from 'antd';
 import { SocketContext } from './../../context/SocketContext';
+import { getRoomAvatarUrl } from './../../helpers/common';
 
 const FormItem = Form.Item;
 const { TextArea } = Input;
@@ -84,7 +85,7 @@ class FormCreateRoom extends PureComponent {
           fileList: [
             {
               uid: '-1',
-              url: roomInfo.avatar,
+              url: getRoomAvatarUrl(roomInfo.avatar),
             },
           ],
         });

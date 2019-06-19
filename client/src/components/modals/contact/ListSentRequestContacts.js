@@ -7,6 +7,7 @@ import { withNamespaces } from 'react-i18next';
 import { withRouter } from 'react-router';
 import '../../../scss/contact.scss';
 import { SocketContext } from './../../../context/SocketContext';
+import { getUserAvatarUrl } from './../../../helpers/common';
 
 class ListSentRequestContacts extends React.Component {
   static contextType = SocketContext;
@@ -76,7 +77,7 @@ class ListSentRequestContacts extends React.Component {
                   renderItem={item => (
                     <List.Item key={item._id}>
                       <List.Item.Meta
-                        avatar={<Avatar src={item.avatar} />}
+                        avatar={<Avatar src={getUserAvatarUrl(item.avatar)} />}
                         title={item.name}
                         description={item.email}
                       />

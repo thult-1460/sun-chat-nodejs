@@ -260,9 +260,7 @@ UserSchema.statics = {
           google: 1,
           full_address: 1,
           phone_number: 1,
-          avatar: {
-            $concat: [`/${config.DIR_UPLOAD_FILE.split('/').slice(2)[0]}/`, '$avatar'],
-          },
+          avatar: 1,
         },
       });
     } else {

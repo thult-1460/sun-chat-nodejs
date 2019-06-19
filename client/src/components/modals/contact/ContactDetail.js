@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Avatar } from 'antd';
 import { withNamespaces } from 'react-i18next';
 import { withRouter } from 'react-router';
+import { getUserAvatarUrl } from './../../../helpers/common';
 
 class ContactDetail extends Component {
   constructor(props) {
@@ -21,7 +22,7 @@ class ContactDetail extends Component {
             <div>
               <div className="contact-detail-avatar">
                 {this.props.contactDetail.avatar != null ? (
-                  <Avatar size={120} src={this.props.contactDetail.avatar} />
+                  <Avatar size={120} src={getUserAvatarUrl(this.props.contactDetail.avatar)} />
                 ) : (
                   <Avatar size={120} icon="user" />
                 )}

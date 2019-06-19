@@ -3,6 +3,7 @@ import { Input, List, Avatar } from 'antd';
 import { Link } from 'react-router-dom';
 import config from './../config/listRoom';
 import { getListRoomsBySubName } from './../api/room';
+import { getRoomAvatarUrl } from './../helpers/common';
 
 export default class InputSearch extends Component {
   data = [];
@@ -68,7 +69,7 @@ export default class InputSearch extends Component {
               (name = item.name.match(regex)) && (
                 <List.Item>
                   <List.Item.Meta
-                    avatar={<Avatar src={item.avatar_url} />}
+                    avatar={<Avatar src={getRoomAvatarUrl(item.avatar)} />}
                     title={
                       <Link to={`/rooms/${item._id}`}>
                         {name[1]}

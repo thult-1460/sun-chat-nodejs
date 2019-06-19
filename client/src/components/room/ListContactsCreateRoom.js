@@ -6,6 +6,7 @@ import { List, Avatar, Button, message, Spin, Alert, Checkbox, Select, Form, Inp
 import { getLimitListContacts } from '../../api/contact';
 import { ROLES } from '../../config/member';
 import { roomConfig } from '../../config/roomConfig';
+import { getUserAvatarUrl } from './../../helpers/common';
 
 const CheckboxGroup = Checkbox.Group;
 const Option = Select.Option;
@@ -57,7 +58,7 @@ class ListContactCreateRoom extends Component {
 
   setAvatar(avatar) {
     if (avatar) {
-      return <Avatar src={avatar} />;
+      return <Avatar src={getUserAvatarUrl(avatar)} />;
     }
 
     return <Avatar icon="user" size="large" />;

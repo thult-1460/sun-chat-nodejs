@@ -191,7 +191,7 @@ RoomSchema.statics = {
           avatar: {
             $cond: {
               if: { $eq: ['$type', config.ROOM_TYPE.GROUP_CHAT] },
-              then: { $concat: [`/${config.DIR_UPLOAD_FILE.split('/').slice(2)[0]}/`, '$avatar'] },
+              then: '$avatar',
               else: { $arrayElemAt: ['$members.user_info.avatar', 0] },
             },
           },
@@ -341,10 +341,10 @@ RoomSchema.statics = {
               else: { $arrayElemAt: ['$members.user_info.name', 0] },
             },
           },
-          avatar_url: {
+          avatar: {
             $cond: {
               if: { $eq: ['$type', config.ROOM_TYPE.GROUP_CHAT] },
-              then: '$avatar_url',
+              then: '$avatar',
               else: { $arrayElemAt: ['$members.user_info.avatar', 0] },
             },
           },
@@ -356,7 +356,7 @@ RoomSchema.statics = {
       {
         $project: {
           name: 1,
-          avatar_url: 1,
+          avatar: 1,
         },
       },
     ]);
@@ -493,7 +493,7 @@ RoomSchema.statics = {
   },
 
   getRoomInfoByInvitateCode(invitationCode) {
-    return this.findOne({ invitation_code: invitationCode }, 'name avatar_url');
+    return this.findOne({ invitation_code: invitationCode }, 'name avatar');
   },
 
   addJoinRequest(roomId, userId) {
@@ -594,9 +594,7 @@ RoomSchema.statics = {
           name: 1,
           desc: 1,
           type: 1,
-          avatar: {
-            $concat: [`/${config.DIR_UPLOAD_FILE.split('/').slice(2)[0]}/`, '$avatar'],
-          },
+          avatar: 1,
           invitation_code: 1,
           invitation_type: 1,
           'members_info._id': 1,
