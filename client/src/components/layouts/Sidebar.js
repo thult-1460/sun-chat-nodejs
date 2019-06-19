@@ -38,6 +38,16 @@ class Sidebar extends React.Component {
     });
   };
 
+  getListRoom() {
+    const { socket } = this.context;
+    const { filter_type, page } = this.state;
+    socket.emit('get_list_room', {
+      page: 0,
+      filter_type,
+      per_page: page * config.LIMIT_ITEM_SHOW.ROOM,
+    });
+  }
+
   componentDidMount() {
     if (checkExpiredToken()) {
       const { page, filter_type } = this.state;
@@ -52,12 +62,7 @@ class Sidebar extends React.Component {
       const { socket } = this.context;
 
       socket.on('action_room', () => {
-        const { filter_type, page } = this.state;
-        socket.emit('get_list_room', {
-          page: 0,
-          filter_type,
-          per_page: page * config.LIMIT_ITEM_SHOW.ROOM,
-        });
+        this.getListRoom();
       });
 
       socket.on('update_list_room', rooms => {
@@ -88,7 +93,7 @@ class Sidebar extends React.Component {
         this.setState({
           rooms: this.state.rooms.filter(function(value, index, arr) {
             return value._id != res.roomId;
-          })
+          }),
         });
       });
     }
@@ -144,11 +149,10 @@ class Sidebar extends React.Component {
   };
 
   handlePinned = e => {
-    const page = 1;
     let roomId = e.target.value;
 
     togglePinnedRoom(roomId).then(res => {
-      this.fetchData(page);
+      this.getListRoom();
     });
   };
 
