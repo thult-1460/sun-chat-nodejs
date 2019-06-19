@@ -179,6 +179,7 @@ exports.createRoom = async (req, res) => {
         roomData.members.map(async member => {
           io.to(member.user).emit('action_room');
         });
+        io.to(_id).emit('create_room_success', roomData._id);
 
         return res.status(200).json({ message: __('room.create.success') });
       }

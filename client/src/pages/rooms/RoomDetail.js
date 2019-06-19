@@ -8,6 +8,7 @@ import ChatBox from '../../components/room/ChatBox';
 import HeaderOfRoom from '../../components/room/HeaderOfRoom';
 import { roomConfig } from '../../config/roomConfig';
 import { SocketContext } from './../../context/SocketContext';
+import Loading from '../../components/Loading';
 
 const { Sider, Content } = Layout;
 const { Text } = Typography;
@@ -22,6 +23,7 @@ class RoomDetail extends React.Component {
     roomInfo: '',
     lastMsgId: '',
     isCopy: false,
+    isLoading: true,
     members: [],
   };
 
@@ -61,6 +63,7 @@ class RoomDetail extends React.Component {
           isAdmin: res.data.isAdmin,
           lastMsgId: res.data.lastMsgId,
           isReadOnly: res.data.isReadOnly,
+          isLoading: false,
         });
 
         this.context.socket.emit('open_room', roomId);
@@ -88,6 +91,9 @@ class RoomDetail extends React.Component {
     this.context.socket.on('edit_room_successfully', roomInfo => {
       this.setState({ roomInfo });
     });
+    this.context.socket.on('create_room_success', roomId => {
+      this.props.history.push(`/rooms/${roomId}`);
+    });
   }
 
   componentWillReceiveProps(nextProps) {
@@ -100,12 +106,13 @@ class RoomDetail extends React.Component {
 
   render() {
     const { t } = this.props;
-    const { roomInfo, isAdmin, isCopy, lastMsgId, isReadOnly, members } = this.state;
+    const { roomInfo, isAdmin, isCopy, lastMsgId, isReadOnly, members, isLoading } = this.state;
     const invitationURL = `${roomConfig.INVITATION_URL}${roomInfo.invitation_code}`;
     const roomId = this.props.match.params.id;
 
     return (
       <React.Fragment>
+        {isLoading && <Loading />}
         <Layout>
           <HeaderOfRoom data={roomInfo} isAdmin={isAdmin} />
           <Layout>
