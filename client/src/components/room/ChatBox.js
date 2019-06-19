@@ -564,7 +564,6 @@ class ChatBox extends React.Component {
                         )}
                     </h4>
                   </Col>
-                  <hr />
                 </Row>
               </div>
             );
