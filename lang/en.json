@@ -188,6 +188,9 @@
     },
     "my_chat": {
       "failed": "Get room mychat ID failed"
+    },
+    "get_room_id": {
+      "failed": "Get room id failed"
     }
   },
   "socket": {

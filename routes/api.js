@@ -155,6 +155,7 @@ router.delete(
   [auth.jwtMiddleware, authorization.room.updateMessage],
   roomsController.deleteMessage
 );
+router.get('/get-direct-room-id/:userId', [auth.jwtMiddleware], roomsController.getDirectRoomId);
 
 router.get('/list-sent-request-contacts', [auth.jwtMiddleware], users.getListSentRequestContacts);
 router.get('/request-sent-contact-count', auth.jwtMiddleware, users.getRequestSentContactsCount);
