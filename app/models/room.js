@@ -686,7 +686,7 @@ RoomSchema.statics = {
       members.push({
         role: config.MEMBER_ROLE.MEMBER,
         marked: true,
-        deleteAt: null,
+        deletedAt: null,
         user: id,
         last_message_id: lastMsgId,
       });
@@ -1008,6 +1008,77 @@ RoomSchema.statics = {
     ).exec();
   },
 
+  getDirectRoomInfo: function(userId, acceptUserIds) {
+    let memberIds = [];
+    acceptUserIds.map(acceptUserId => {
+      memberIds.push(mongoose.Types.ObjectId(acceptUserId));
+    });
+
+    return this.aggregate([
+      {
+        $match: {
+          deletedAt: null,
+          'members.user': mongoose.Types.ObjectId(userId),
+          type: config.ROOM_TYPE.DIRECT_CHAT,
+        },
+      },
+      {
+        $addFields: {
+          'receiver': mongoose.Types.ObjectId(userId),
+        },
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'receiver',
+          foreignField: '_id',
+          as: 'receiver',
+        },
+      },
+      {
+        $addFields: {
+          'receiver': { $arrayElemAt: ['$receiver', 0] },
+        },
+      },
+      { $unwind: '$members' },
+      {
+        $match: {
+          'members.user': { $in: memberIds },
+          'members.deletedAt': null,
+        },
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'members.user',
+          foreignField: '_id',
+          as: 'members.user',
+        },
+      },
+      {
+        $addFields: {
+          'members.user': { $arrayElemAt: ['$members.user', 0] },
+        },
+      },
+      {
+        $project: {
+          'sender_id': '$members.user._id',
+          'receiver_id': "$receiver._id",
+          'sender._id': '$_id',
+          'sender.name': '$members.user.name',
+          'sender.avatar': '$members.user.avatar',
+          'sender.pinned': {$toBool: false},
+          'sender.type': "$type",
+          'receiver._id': '$_id',
+          'receiver.name': 1,
+          'receiver.avatar': 1,
+          'receiver.pinned': {$toBool: false},
+          'receiver.type': "$type",
+        },
+      },
+    ]);
+  },
+
   getNewMemberOfRoom: function(roomId, userIds) {
     let newMemberIds = [];
     userIds.map(userId => {
@@ -1015,7 +1086,7 @@ RoomSchema.statics = {
     });
 
     return this.aggregate([
-      { $match: { _id: mongoose.Types.ObjectId(roomId), deleteAt: null } },
+      { $match: { _id: mongoose.Types.ObjectId(roomId), deletedAt: null } },
       {
         $unwind: '$members',
       },

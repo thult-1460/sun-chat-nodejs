@@ -454,7 +454,7 @@ UserSchema.statics = {
       {
         type: config.ROOM_TYPE.DIRECT_CHAT,
         'members.user': userId,
-        deleteAt: null,
+        deletedAt: null,
       },
       { members: { $elemMatch: { user: { $ne: userId } } }, _id: 0 }
     ).exec();
@@ -482,7 +482,7 @@ UserSchema.statics = {
   getRequestSentContactCount: function(userId) {
     return this.find({
       requested_in_comming: { $in: [userId] },
-      deleteAt: null,
+      deletedAt: null,
     })
       .select()
       .count()

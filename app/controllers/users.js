@@ -606,6 +606,12 @@ exports.acceptContact = async(function*(req, res) {
       updateSentRequestCount(io, acceptUserId);
     });
 
+    let roomInfos = yield Room.getDirectRoomInfo(_id, acceptUserIds);
+    roomInfos.forEach(roomInfo => {
+      io.to(roomInfo.receiver_id).emit('add_to_list_rooms', roomInfo.sender);
+      io.to(roomInfo.sender_id).emit('add_to_list_rooms', roomInfo.receiver);
+    });
+
     return res.status(200).json({
       success: __('contact.accept.success'),
     });

@@ -310,7 +310,7 @@ class ChatBox extends React.Component {
     }
 
     /* check the first view room || loading new message || final message */
-    if (currentLastMsgId === this.props.lastMsgId || loadingNew || (arrCheckEnable.length === 1 && !hasMsgUnRead)) {
+    if (currentLastMsgId === null || currentLastMsgId === this.props.lastMsgId || loadingNew || (arrCheckEnable.length === 1 && !hasMsgUnRead)) {
       this.updateLastMsgId(listNewLoadedMessage, currentLastMsgId, arrCheckEnable.length - 1);
     }
   }
