@@ -8,6 +8,7 @@ import config from './../../config/listRoom';
 import { withNamespaces } from 'react-i18next';
 import { SocketContext } from './../../context/SocketContext';
 import { withRouter } from 'react-router';
+import Loading from '../../components/Loading';
 const { Sider } = Layout;
 
 class Sidebar extends React.Component {
@@ -22,6 +23,7 @@ class Sidebar extends React.Component {
     quantity_chats: 0,
     filter_type: config.FILTER_TYPE.LIST_ROOM.ALL.VALUE,
     selected_room: '',
+    isLoading: true,
   };
 
   fetchData = (page, filter_type) => {
@@ -56,6 +58,7 @@ class Sidebar extends React.Component {
       getQuantityRoomsByUserId(filter_type).then(res => {
         this.setState({
           quantity_chats: res.data.result,
+          isLoading: false,
         });
       });
 
@@ -91,7 +94,7 @@ class Sidebar extends React.Component {
 
       socket.on('remove_from_list_rooms', res => {
         this.setState({
-          rooms: this.state.rooms.filter(function(value, index, arr) {
+          rooms: this.state.rooms.filter(function (value, index, arr) {
             return value._id != res.roomId;
           }),
         });
@@ -157,7 +160,7 @@ class Sidebar extends React.Component {
   };
 
   render() {
-    const { rooms } = this.state;
+    const { rooms, isLoading } = this.state;
     const { t } = this.props;
     const list_flag = config.FILTER_TYPE.LIST_ROOM;
     const active = 'ant-dropdown-menu-item-selected';
@@ -218,6 +221,7 @@ class Sidebar extends React.Component {
             </Dropdown>
           </div>
           <Menu theme="dark" mode="inline" defaultSelectedKeys={['1']}>
+            {isLoading && <Loading />}
             <div className="sidebar-infinite-container">
               <InfiniteScroll
                 initialLoad={false}

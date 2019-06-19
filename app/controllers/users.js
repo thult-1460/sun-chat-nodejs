@@ -705,8 +705,11 @@ exports.resendActiveEmail = async(function*(req, res) {
 exports.deleteContact = async(function*(req, res) {
   const { contactId } = req.body;
   const { _id } = req.decoded;
+  const io = req.app.get('socketIO');
   try {
-    yield User.deleteContact(_id, contactId);
+    let room = yield User.deleteContact(_id, contactId);
+
+    io.to(_id).emit('remove_from_list_rooms', { roomId: room._id });
     return res.status(200).json({
       success: __('contact.delete_contact.success'),
     });
