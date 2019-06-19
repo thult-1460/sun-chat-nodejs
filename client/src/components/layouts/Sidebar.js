@@ -83,6 +83,14 @@ class Sidebar extends React.Component {
           this.setState({ rooms });
         }
       });
+
+      socket.on('remove_from_list_rooms', res => {
+        this.setState({
+          rooms: this.state.rooms.filter(function(value, index, arr) {
+            return value._id != res.roomId;
+          })
+        });
+      });
     }
 
     const roomId = this.props.match.params.id;

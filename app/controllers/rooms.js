@@ -275,13 +275,26 @@ exports.createJoinRequest = async function(req, res) {
 exports.deleteMember = async (req, res) => {
   const { memberId, roomId } = req.body;
   let { _id: userId } = req.decoded;
+  const criteria = { _id: memberId };
+  const io = req.app.get('socketIO');
 
   try {
     if (memberId == userId) {
       throw new Error(__('room.delete_member.myself'));
     }
 
+    const user = await User.load({ criteria });
     const result = await Room.deleteMember(memberId, roomId);
+
+    const content = user.name + ' have been kicked out by admin';
+    const room = await Room.storeMessage(roomId, userId, content, true);
+    const lastMessage = room.messages.pop();
+    const message = await Room.getMessageInfo(roomId, lastMessage._id);
+    const roomInfo = await Room.getInforOfRoom(roomId);
+
+    io.to(roomId).emit('update_member_of_room', roomInfo[0].members_info);
+    io.to(roomId).emit('send_new_msg', { message: message });
+    io.to(memberId).emit('remove_from_list_rooms', { roomId: roomId });
 
     if (!result) throw new Error(__('room.delete_member.failed'));
 
@@ -635,5 +648,36 @@ exports.getDirectRoomId = async (req, res) => {
     return res.status(500).json({
       error: __('room.get_room_id.failed'),
     });
+  }
+};
+
+exports.handleMemberLeaveTheRoom = async (req, res) => {
+  const io = req.app.get('socketIO');
+  const { roomId } = req.params;
+  const { _id: userId } = req.decoded;
+  const criteria = { _id: userId };
+
+  try {
+    const user = await User.load({ criteria });
+    await Room.deleteMember(userId, roomId);
+
+    const content = user.name + ' has left the chat box';
+    const room = await Room.storeMessage(roomId, userId, content, true);
+    const lastMessage = room.messages.pop();
+    const message = await Room.getMessageInfo(roomId, lastMessage._id);
+    const roomInfo = await Room.getInforOfRoom(roomId);
+
+    io.to(roomId).emit('update_member_of_room', roomInfo[0].members_info);
+    io.to(roomId).emit('send_new_msg', { message: message });
+    io.to(userId).emit('remove_from_list_rooms', { roomId: roomId });
+
+    return res.status(200).json({
+      message_id: lastMessage._id,
+      message: __('room.message.create.success'),
+    });
+  } catch (err) {
+    channel.error(err);
+
+    return res.status(500).json({ error: __('room.remove_from_list_rooms.failed') });
   }
 };

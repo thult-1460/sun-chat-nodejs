@@ -160,5 +160,10 @@ router.get('/get-direct-room-id/:userId', [auth.jwtMiddleware], roomsController.
 router.get('/list-sent-request-contacts', [auth.jwtMiddleware], users.getListSentRequestContacts);
 router.get('/request-sent-contact-count', auth.jwtMiddleware, users.getRequestSentContactsCount);
 router.delete('/request-sent-contact', auth.jwtMiddleware, users.deleteSentRequestContact);
+router.post(
+  '/rooms/:roomId/leave-room',
+  [auth.jwtMiddleware, authorization.room.hasAuthorization, authorization.room.leaveRoom],
+  roomsController.handleMemberLeaveTheRoom
+);
 
 module.exports = router;

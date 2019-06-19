@@ -182,7 +182,8 @@
       }
     },
     "my_chat": {
-      "failed": "Lấy ID room MyChat thất bại"
+      "failed": "Lấy ID room MyChat thất bại",
+      "cant_leave": "Bạn không thể rời my chat"
     },
     "get_room_id": {
       "failed": "Lấy ID room cuộc trò chuyện thất bại"

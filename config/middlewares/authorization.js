@@ -326,5 +326,29 @@ exports.room = {
         error: __('error.common'),
       });
     }
-  }
+  },
+
+  leaveRoom: async function(req, res, next) {
+    const { _id: userId } = req.decoded;
+    const { roomId } = req.params;
+
+    try {
+      const myChatRoomId = await Room.getRoomMyChatId(userId);
+
+      console.log(myChatRoomId[0]._id, roomId);
+      if (roomId == myChatRoomId[0]._id) {
+        return res.status(403).json({
+          error: __('room.my_chat.cant_leave'),
+        });
+      }
+
+      next();
+    } catch (err) {
+      channel.error(err.toString());
+
+      return res.status(500).json({
+        error: __('error.common'),
+      });
+    }
+  },
 };
