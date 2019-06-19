@@ -55,6 +55,9 @@ module.exports = function(app, passport) {
     })
   );
 
+  // Static files middleware
+  app.use(express.static(config.root + '/public'));
+
   // Use winston on production
   let log = 'dev';
   if (env !== 'development') {
