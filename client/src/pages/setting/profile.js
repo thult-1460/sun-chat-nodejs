@@ -59,7 +59,7 @@ class Profile extends React.Component {
     email: {
       validateFirst: true,
       rules: [
-        { required: true, message: this.props.t('auth:validate.email.required') },
+        { message: this.props.t('auth:validate.email.required') },
         {
           pattern: '^[a-zA-Z0-9_.+-]+@(?:(?:[a-zA-Z0-9-]+.)?[a-zA-Z]+.)?(sun-asterisk)\\.com$',
           message: this.props.t('auth:validate.email.regex'),
@@ -269,7 +269,7 @@ class Profile extends React.Component {
                   }
                 >
                   {form.getFieldDecorator('email', this.rules.email)(
-                    <Input prefix={<Icon type="user" style={{ fontSize: 13 }} />} placeholder={t('email')} disabled />
+                    <Input prefix={<Icon type="user" style={{ fontSize: 13 }} />} placeholder={t('email')} />
                   )}
                 </FormItem>
               </div>
