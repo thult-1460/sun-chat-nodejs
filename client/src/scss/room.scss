@@ -138,11 +138,6 @@ head .delete-member {
   margin-top: -10px;
 }
 
-hr {
-  border-top: 1px solid;
-  opacity: 0.2;
-}
-
 #no-contact {
   margin: 75px 0 10px 43%;
   font-weight: bold;
@@ -286,4 +281,22 @@ hr {
 .msg-notification {
   padding: 5px;
   background-color: #f1f1f1;
+}
+
+pre {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  font-family: sans-serif !important;
+}
+
+.timelineMessage__message {
+  margin-top: -16px;
+}
+
+.list-message .ant-row {
+  border-bottom: 1px solid rgba(24, 24, 24, 0.2);
+}
+
+.pre-notification {
+  margin-right: -10%;
 }

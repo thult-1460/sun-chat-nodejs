@@ -126,7 +126,10 @@ class ChatBox extends React.Component {
 
     //Listen 'update_msg' event from server
     this.socket.on('update_msg', res => {
-      const message = this.getMessageById(this.state.messages, res._id);
+      const { messages, prevMessages } = this.state;
+      const allMessages = messages.concat(prevMessages);
+
+      const message = this.getMessageById(allMessages, res._id);
 
       if (message !== null) {
         message.content = res.content;
@@ -138,6 +141,7 @@ class ChatBox extends React.Component {
   componentDidUpdate(prevProps) {
     if (prevProps.roomId !== this.props.roomId) {
       firstPrevMsgId = 0;
+      document.getElementById('msg-content').value = '';
       this.fetchData(this.props.roomId);
     }
 
@@ -189,7 +193,10 @@ class ChatBox extends React.Component {
 
   editMessage = e => {
     const messageId = e.currentTarget.id;
-    const message = this.getMessageById(this.state.messages, messageId);
+    const oldMsgFlag = e.currentTarget.getAttribute('old-msg-flag');
+
+    const message = (oldMsgFlag == 1) ? this.getMessageById(this.state.prevMessages, messageId) 
+      : this.getMessageById(this.state.messages, messageId);
 
     if (message !== null) {
       this.setState({
@@ -522,14 +529,20 @@ class ChatBox extends React.Component {
         <div className="list-message" ref={element => (this.roomRef = element)} onScroll={this.handleScroll}>
           {(isLoadingPrev || isLoadingMes) && <Loading />}
           {prevMessages.map(message => {
-            let messageHtml = this.createMarkupMessage(message);
-            let isToMe =
-              messageHtml.__html.includes(`data-cwtag="[To:${currentUserInfo._id}]"`) ||
+            let messageHtml = this.createMarkupMessage(message)
+            let notificationClass = message.is_notification ? 'pre-notification' : '';
+            let isToMe = messageHtml.__html.includes(`data-cwtag="[To:${currentUserInfo._id}]"`) ||
               messageHtml.__html.includes(messageConfig.SIGN_TO_ALL);
 
             return (
               <div key={message._id} ref={element => (this.prevMessageRowRefs[message._id] = element)}>
-                <Row className={isToMe ? 'timelineMessage--mention' : ''}>
+                <Row
+                  key={message._id}
+                  className={this.state.messageIdEditing === message._id ? 'message-item isEditing' : 'message-item', isToMe ? 'timelineMessage--mention' : '' }
+                  onMouseEnter={this.handleMouseEnter}
+                  onMouseLeave={this.handleMouseLeave}
+                  id={message._id}
+                >
                   <Col span={22}>
                     <List.Item className="li-message">
                       <Popover
@@ -549,7 +562,7 @@ class ChatBox extends React.Component {
                       </Popover>
                     </List.Item>
                     <div className="infor-content">
-                      <pre className="timelineMessage__message" dangerouslySetInnerHTML={messageHtml} />
+                      <pre className={"timelineMessage__message " + notificationClass} dangerouslySetInnerHTML={messageHtml} />
                     </div>
                   </Col>
                   <Col span={2} className="message-time">
@@ -564,7 +577,27 @@ class ChatBox extends React.Component {
                         )}
                     </h4>
                   </Col>
-                  <hr />
+                  <Col span={24} style={{ position: 'relative' }}>
+                    {this.state.messageIdHovering === message._id && message.is_notification == false &&
+                      <div style={{ textAlign: 'right', position: 'absolute', bottom: '0', right: '0' }}>
+                        {currentUserInfo._id === message.user_info._id &&  
+                          !this.props.isReadOnly && (
+                            <Button type="link" onClick={this.editMessage} id={message._id} old-msg-flag="1">
+                              <Icon type="edit" /> {t('button.edit')}
+                            </Button>
+                          )
+                        }
+                        <Divider type="vertical" />
+                        <Button type="link" onClick={handlersMessage.actionFunc.replyMember} id={currentUserInfo._id + '-' + message._id} data-mid={message.user_info._id}>
+                          <Icon type="enter" /> {t('button.reply')}
+                        </Button>
+                        <Divider type="vertical" />
+                        <Button type="link" onClick={this.quoteMessage} id={message._id}>
+                          <Icon type="rollback" /> {t('button.quote')}
+                        </Button>
+                      </div>
+                    }
+                  </Col>
                 </Row>
               </div>
             );
@@ -572,9 +605,9 @@ class ChatBox extends React.Component {
           <div ref={element => (this.roomRef = element)}>
             {loadingNew && <Loading />}
             {messages.map(message => {
-              let messageHtml = this.createMarkupMessage(message);
-              let isToMe =
-                messageHtml.__html.includes(`data-cwtag="[To:${currentUserInfo._id}]"`) ||
+              let messageHtml = this.createMarkupMessage(message)
+              let notificationClass = message.is_notification ? 'pre-notification' : '';
+              let isToMe = messageHtml.__html.includes(`data-cwtag="[To:${currentUserInfo._id}]"`) ||
                 messageHtml.__html.includes(messageConfig.SIGN_TO_ALL);
 
               return (
@@ -612,7 +645,7 @@ class ChatBox extends React.Component {
                         </Popover>
                       </List.Item>
                       <div className="infor-content">
-                        <pre className="timelineMessage__message" dangerouslySetInnerHTML={messageHtml} />
+                        <pre className={"timelineMessage__message " + notificationClass} dangerouslySetInnerHTML={messageHtml} />
                       </div>
                     </Col>
                     <Col span={2} className="message-time">
@@ -628,13 +661,15 @@ class ChatBox extends React.Component {
                       </h4>
                     </Col>
                     <Col span={24} style={{ position: 'relative' }}>
-                      {this.state.messageIdHovering === message._id && (
+                      {this.state.messageIdHovering === message._id && message.is_notification == false &&
                         <div style={{ textAlign: 'right', position: 'absolute', bottom: '0', right: '0' }}>
-                          {currentUserInfo._id === message.user_info._id && !this.props.isReadOnly && (
-                            <Button type="link" onClick={this.editMessage} id={message._id}>
-                              <Icon type="edit" /> {t('button.edit')}
-                            </Button>
-                          )}
+                          {currentUserInfo._id === message.user_info._id && 
+                            !this.props.isReadOnly && (
+                              <Button type="link" onClick={this.editMessage} id={message._id}>
+                                <Icon type="edit" /> {t('button.edit')}
+                              </Button>
+                            )
+                          }
                           <Divider type="vertical" />
                           <Button
                             type="link"

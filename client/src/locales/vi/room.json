@@ -27,7 +27,8 @@
     "left-room": "Rời khỏi  cuộc trò chuyện",
     "copy": "Sap chép",
     "back": "Trở về",
-    "copied": "Đã sao chép"
+    "copied": "Đã sao chép",
+    "remove_contact": "Xóa liên hệ này"
   },
   "invitation": {
     "joined": "Bạn đã vào phòng này",
