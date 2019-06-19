@@ -22,7 +22,7 @@ const Members = new Schema(
   {
     user: { type: Schema.ObjectId, ref: 'User' },
     role: { type: Number, default: config.MEMBER_ROLE.MEMBER }, //0: admin - 1: member - 2: read-only
-    last_message_id: { type: Schema.ObjectId, ref: 'Messages' },
+    last_message_id: { type: Schema.ObjectId, ref: 'Messages', default: null },
     pinned: { type: Boolean, default: false },
     room_group: { type: Schema.ObjectId, ref: 'Room_group' },
     deletedAt: { type: Date, default: null },
@@ -982,7 +982,13 @@ RoomSchema.statics = {
       {
         _id: roomId,
         deleteAt: null,
-        members: { $elemMatch: { user: userId, last_message_id: { $lt: messageId }, 'members.deletedAt': null } },
+        members: {
+          $elemMatch: {
+            user: userId,
+            $or: [{ last_message_id: { $lt: messageId } }, { last_message_id: null }],
+            deletedAt: null,
+          },
+        },
       },
       { $set: { 'members.$.last_message_id': messageId } }
     );
