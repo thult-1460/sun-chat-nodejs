@@ -7,6 +7,8 @@ export const INVATATION_STATUS = {
 
 export const ROOM_TYPE = {
   GROUP_CHAT: 0,
+  DIRECT_CHAT: 1,
+  MY_CHAT: 2,
 };
 
 export const LIMIT_REPRESENTATIVE_MEMBER = 5;

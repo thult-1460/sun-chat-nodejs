@@ -27,7 +27,8 @@
     "left-room": "Left the room chat",
     "copy": "Copy",
     "back": "Back",
-    "copied": "Copied"
+    "copied": "Copied",
+    "remove_contact": "Remove this contact"
   },
   "invitation": {
     "joined": "You are in this room",

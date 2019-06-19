@@ -8,6 +8,7 @@ import ModalListRequest from '../modals/room/ModalListRequest';
 import ModalListMember from '../modals/room/ModalListMember';
 import ModalListNotMember from './ModalListNotMember';
 import EditRoom from './EditRoom';
+import { deleteContact } from '../../api/contact';
 import { SocketContext } from './../../context/SocketContext';
 import { withUserContext } from './../../context/withUserContext';
 import { withRouter } from 'react-router';
@@ -66,21 +67,56 @@ class HeaderOfRoom extends React.Component {
   };
 
   handleLeaveTheRoom = e => {
-  const myChatId = this.props.userContext.my_chat_id;
-  const roomId = this.props.data._id;
-  let historyProp = this.props.history;
+    const myChatId = this.props.userContext.my_chat_id;
+    const roomId = this.props.data._id;
+    let historyProp = this.props.history;
 
-   leaveRoom(roomId)
-    .then(res => {
-      historyProp.push('/rooms/' + myChatId);
-    })
-    .catch(error => {
-      message.error(error.response.data.error);
-    });
+    leaveRoom(roomId)
+      .then(res => {
+        historyProp.push('/rooms/' + myChatId);
+      })
+      .catch(error => {
+        message.error(error.response.data.error);
+      });
+  };
+
+  handleDeteleContact = e => {
+    const contactId = e.target.value;
+    const myChatId = this.props.userContext.my_chat_id;
+
+    deleteContact({ contactId })
+      .then(res => {
+        this.props.history.push('/rooms/' + myChatId);
+      })
+      .catch(error => {
+        message.error(error.response.data.error);
+      });
   };
 
   render() {
     const { t, data } = this.props;
+    let buttonLeaveRoom = '';
+    let directChatId = 0;
+
+    if (typeof data == 'object') {
+      for (let i = 0; i < data.members_info.length; i++) {
+        if (data.members_info[i] != this.props.userContext.info._id) {
+          directChatId = data.members_info[i]._id;
+          break;
+        }
+      }
+    }
+
+    if (data.type === ROOM_TYPE.DIRECT_CHAT) {
+      buttonLeaveRoom = (
+        <Button value={directChatId} onClick={this.handleDeteleContact}>
+          {t('button.remove_contact')}
+        </Button>
+      );
+    } else {
+      buttonLeaveRoom = <Button onClick={this.handleLeaveTheRoom}>{t('button.left-room')}</Button>;
+    }
+
     return (
       <Header className="header-chat-room">
         <Row type="flex" justify="start">
@@ -99,21 +135,23 @@ class HeaderOfRoom extends React.Component {
           </Col>
           <Col span={4}> {this.showRepresentativeMembers()}</Col>
           <Col span={1}>{this.props.isAdmin && <ModalListNotMember />}</Col>
-          <Col span={1}>
-            <Dropdown
-              overlay={
-                <Menu className="menu-detail-room">
-                  <Menu.Item className="item-setting">
-                    {this.props.isAdmin && <EditRoom roomInfo={data} />}
-                    {this.props.isAdmin && <Button onClick={this.handleDeleteRoom}>{t('button.delete-room')}</Button>}
-                    <Button onClick={this.handleLeaveTheRoom}>{t('button.left-room')}</Button>
-                  </Menu.Item>
-                </Menu>
-              }
-            >
-              <Icon type="setting" className="icon-setting-room" theme="outlined" />
-            </Dropdown>
-          </Col>
+          {data.type !== ROOM_TYPE.MY_CHAT && (
+            <Col span={1}>
+              <Dropdown
+                overlay={
+                  <Menu className="menu-detail-room">
+                    <Menu.Item className="item-setting">
+                      {this.props.isAdmin && <EditRoom roomInfo={data} />}
+                      {this.props.isAdmin && <Button onClick={this.handleDeleteRoom}>{t('button.delete-room')}</Button>}
+                      {buttonLeaveRoom}
+                    </Menu.Item>
+                  </Menu>
+                }
+              >
+                <Icon type="setting" className="icon-setting-room" theme="outlined" />
+              </Dropdown>
+            </Col>
+          )}
         </Row>
       </Header>
     );
