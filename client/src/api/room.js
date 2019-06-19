@@ -95,3 +95,7 @@ export function sendMessage(roomId, data) {
 export function updateMessage(roomId, messageId, data) {
   return new Http().authenticated().post(`/rooms/${roomId}/messages/${messageId}`, data);
 }
+
+export function getDirectRoomId(userId) {
+  return new Http().authenticated().get(`/get-direct-room-id/${userId}`);
+}

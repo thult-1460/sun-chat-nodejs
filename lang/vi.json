@@ -183,6 +183,9 @@
     },
     "my_chat": {
       "failed": "Lấy ID room MyChat thất bại"
+    },
+    "get_room_id": {
+      "failed": "Lấy ID room cuộc trò chuyện thất bại"
     }
   },
   "socket": {

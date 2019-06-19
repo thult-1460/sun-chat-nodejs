@@ -1,7 +1,16 @@
 import React from 'react';
 import { withRouter } from 'react-router';
-import { Layout, Input, Button, List, Avatar, Icon, Row, Col, Badge, Popover, message, Divider } from 'antd';
-import { loadMessages, sendMessage, loadPrevMessages, loadUnreadNextMessages, updateMessage } from './../../api/room.js';
+import { Layout, Input, Button, List, Avatar, Icon, Row, Col, Badge, Popover, message, Divider, Spin } from 'antd';
+import {
+  loadMessages,
+  sendMessage,
+  loadPrevMessages,
+  loadUnreadNextMessages,
+  updateMessage,
+  getDirectRoomId,
+} from './../../api/room.js';
+import { Link } from 'react-router-dom';
+import { addContact } from './../../api/contact';
 import { SocketContext } from './../../context/SocketContext';
 import { withUserContext } from './../../context/withUserContext';
 import { withNamespaces } from 'react-i18next';
@@ -33,6 +42,7 @@ class ChatBox extends React.Component {
     scrollTop: 0,
     messageIdHovering: null,
     messageIdEditing: null,
+    mapUserIdRoomIds: [],
   };
 
   prevMessageRowRefs = [];
@@ -363,7 +373,73 @@ class ChatBox extends React.Component {
     const members = this.props.allMembers;
     let messageContentHtml = handlersMessage.renderMessage(content, members);
 
-    return {__html: messageContentHtml};
+    return { __html: messageContentHtml };
+  };
+
+  handleSendRequestContact = e => {
+    const userId = e.target.value;
+
+    addContact({ userId })
+      .then(res => {
+        message.success(res.data.success);
+      })
+      .catch(error => {
+        message.error(error.response.data.error);
+      });
+  };
+
+  handleVisibleChange = userId => visible => {
+    if (visible && this.state.mapUserIdRoomIds[userId] === undefined) {
+      getDirectRoomId(userId).then(res => {
+        let roomId = res.data;
+        this.setState(prevState => ({
+          mapUserIdRoomIds: {
+            ...prevState.mapUserIdRoomIds,
+            [userId]: roomId._id !== undefined ? roomId._id : null,
+          },
+        }));
+      });
+    }
+  };
+
+  returnContent = message => {
+    const currentUserChatRoom = this.props.userContext.my_chat_id;
+    const currentuserId = this.props.userContext.info._id;
+    const directRoomId = this.state.mapUserIdRoomIds[message.user_info._id];
+
+    let button = '';
+    if (message.user_info._id == currentuserId) {
+      button = (
+        <Link to={`/rooms/${currentUserChatRoom}`}>
+          <Button>{this.props.t('title.my_chat')}</Button>
+        </Link>
+      );
+    } else if (directRoomId === undefined) {
+      button = <Spin />;
+    } else {
+      button = !directRoomId ? (
+        <Button value={message.user_info._id} onClick={this.handleSendRequestContact}>
+          {this.props.t('title.add_contact')}
+        </Button>
+      ) : (
+        <Link to={`/rooms/${directRoomId}`}>
+          <Button>{this.props.t('title.direct_chat')}</Button>
+        </Link>
+      );
+    }
+
+    return (
+      <div className="popover-infor">
+        <div className="infor-bg">
+          <Avatar src={message.user_info.avatar} className="infor-avatar" />
+        </div>
+        <p className="infor-name">{message.user_info.name}</p>
+        <p>{message.user_info.email}</p>
+        <div className="infor-footer">
+          <div>{<List.Item>{button}</List.Item>}</div>
+        </div>
+      </div>
+    );
   };
 
   render() {
@@ -429,18 +505,36 @@ class ChatBox extends React.Component {
               <div key={message._id} ref={element => (this.prevMessageRowRefs[message._id] = element)}>
                 <Row className={isToMe ? 'timelineMessage--mention' : ''}>
                   <Col span={22}>
-                    <List.Item>
-                      <List.Item.Meta
-                        avatar={<Avatar src={message.user_info.avatar} />}
-                        title={<p>{message.user_info.name}</p>}
-                        description={
-                          <pre className="timelineMessage__message" dangerouslySetInnerHTML={messageHtml} />
-                        }
-                      />
+                    <List.Item className="li-message">
+                      <Popover
+                        placement="topLeft"
+                        trigger="click"
+                        text={message.user_info.name}
+                        content={this.returnContent(message)}
+                        onVisibleChange={this.handleVisibleChange(message.user_info._id)}
+                      >
+                        <div data-user-id={message.user_info._id}>
+                          <List.Item.Meta
+                            className="show-infor"
+                            avatar={<Avatar src={message.user_info.avatar} />}
+                            title={<p>{message.user_info.name}</p>}
+                          />
+                        </div>
+                      </Popover>
                     </List.Item>
+                    <div className="infor-content">{message.content}</div>
                   </Col>
                   <Col span={2} className="message-time">
-                    <h4> {this.formatMsgTime(message.updatedAt)} </h4>
+                    <h4>
+                      {this.formatMsgTime(message.updatedAt)}{' '}
+                      {message.updatedAt !== message.createdAt ? (
+                        <span>
+                          <Icon type="edit" />
+                        </span>
+                      ) : (
+                        ''
+                      )}
+                    </h4>
                   </Col>
                   <hr />
                 </Row>
@@ -463,18 +557,38 @@ class ChatBox extends React.Component {
                     id={message._id}
                   >
                     <Col span={22}>
-                      <List.Item>
-                        <List.Item.Meta
-                          avatar={<Avatar src={message.user_info.avatar} />}
-                          title={<p>{message.user_info.name}</p>}
-                          description={
-                            <pre className="timelineMessage__message" dangerouslySetInnerHTML={messageHtml} />
-                          }
-                        />
+                      <List.Item className="li-message">
+                        <Popover
+                          placement="topLeft"
+                          trigger="click"
+                          text={message.user_info.name}
+                          content={this.returnContent(message)}
+                          onVisibleChange={this.handleVisibleChange(message.user_info._id)}
+                        >
+                          <div data-user-id={message.user_info._id}>
+                            <List.Item.Meta
+                              className="show-infor"
+                              avatar={<Avatar src={message.user_info.avatar} />}
+                              title={<p>{message.user_info.name}</p>}
+                            />
+                          </div>
+                        </Popover>
                       </List.Item>
+                      <div className="infor-content">
+                        <pre className="timelineMessage__message" dangerouslySetInnerHTML={messageHtml} />
+                      </div>
                     </Col>
                     <Col span={2} className="message-time">
-                      <h4> {this.formatMsgTime(message.updatedAt)} </h4>
+                      <h4>
+                        {this.formatMsgTime(message.updatedAt)}{' '}
+                        {message.updatedAt !== message.createdAt ? (
+                          <span>
+                            <Icon type="edit" />
+                          </span>
+                        ) : (
+                          ''
+                        )}
+                      </h4>
                     </Col>
                     <Col span={24} style={{ position: 'relative' }}>
                       {this.state.messageIdHovering === message._id &&

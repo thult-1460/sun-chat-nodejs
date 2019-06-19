@@ -67,7 +67,9 @@ class RoomDetail extends React.Component {
         this.context.socket.emit('open_room', roomId);
       })
       .catch(error => {
-        message.error(error.response.data.err);
+        if (error.response) {
+          message.error(error.response.data.err);
+        }
       });
   };
 

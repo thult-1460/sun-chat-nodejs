@@ -16,5 +16,10 @@
     "edit": "Edit",
     "reply": "Reply",
     "quote": "Quote"
+  },
+  "title": {
+    "my_chat": "My chat",
+    "direct_chat": "Direct chat",
+    "add_contact": "Add Contact"
   }
 }

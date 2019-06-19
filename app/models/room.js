@@ -849,12 +849,14 @@ RoomSchema.statics = {
       {
         $project: {
           _id: 1,
+          user: 1,
           content: 1,
           createdAt: 1,
           updatedAt: 1,
           'user_info._id': 1,
           'user_info.name': 1,
           'user_info.avatar': 1,
+          'user_info.email': 1,
         },
       },
     ]);
@@ -979,6 +981,20 @@ RoomSchema.statics = {
         members: { $elemMatch: { user: userId, last_message_id: { $lt: messageId }, 'members.deletedAt': null } },
       },
       { $set: { 'members.$.last_message_id': messageId } }
+    );
+  },
+
+  getDirectRoomId: async function(userId, friendId) {
+    let type = userId == friendId ? config.ROOM_TYPE.SELF_CHAT : config.ROOM_TYPE.DIRECT_CHAT;
+
+    return this.find(
+      {
+        type: type,
+        deletedAt: null,
+        'members.user': userId,
+        members: { $elemMatch: { user: [friendId] } },
+      },
+      { _id: 1 }
     ).exec();
   },
 

@@ -16,5 +16,10 @@
     "edit": "Sửa",
     "reply": "Trả lời",
     "quote": "Trích dẫn"
+  },
+  "title": {
+    "my_chat": "Trò chuyện của tôi",
+    "direct_chat": "Trò chuyện trực tiếp",
+    "add_contact": "Thêm liên lạc"
   }
 }

@@ -5,7 +5,6 @@ import Loading from './../../components/Loading';
 import { withRouter } from 'react-router';
 import { authValidate } from './../../config/validate';
 import { withNamespaces } from 'react-i18next';
-import './../../css/changePassword.css';
 const FormItem = Form.Item;
 
 class ChangePasswordForm extends React.Component {

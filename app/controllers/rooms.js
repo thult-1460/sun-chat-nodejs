@@ -274,7 +274,7 @@ exports.createJoinRequest = async function(req, res) {
 
 exports.deleteMember = async (req, res) => {
   const { memberId, roomId } = req.body;
-  const userId = req.decoded._id;
+  let { _id: userId } = req.decoded;
 
   try {
     if (memberId == userId) {
@@ -455,7 +455,7 @@ exports.acceptRequests = async (req, res) => {
 
 exports.togglePinnedRoom = async (req, res) => {
   let { roomId } = req.params;
-  let userId = req.decoded._id;
+  let { _id: userId } = req.decoded;
   let pinnedRoom = await Room.getPinnedRoom(roomId, userId);
 
   try {
@@ -615,5 +615,22 @@ exports.editRoom = async (req, res) => {
     channel.error(err);
 
     return res.status(500).json({ error: __('room.edit.failed') });
+  }
+};
+
+exports.getDirectRoomId = async (req, res) => {
+  let friendId = req.params.userId;
+  let { _id: userId } = req.decoded;
+
+  try {
+    let roomId = await Room.getDirectRoomId(userId, friendId);
+
+    return res.status(200).json(...roomId);
+  } catch (err) {
+    channel.error(err);
+
+    return res.status(500).json({
+      error: __('room.get_room_id.failed'),
+    });
   }
 };
