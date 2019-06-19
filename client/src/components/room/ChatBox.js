@@ -684,7 +684,7 @@ class ChatBox extends React.Component {
                             <Icon type="rollback" /> {t('button.quote')}
                           </Button>
                         </div>
-                      )}
+                      }
                     </Col>
                   </Row>
                   {message._id === currentLastMsgId && currentLastMsgId !== listNewLoadedMessage[0] ? redLine : ''}
