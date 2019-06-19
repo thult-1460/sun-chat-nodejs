@@ -7,6 +7,7 @@ import { Link } from 'react-router-dom';
 import config from './../../config/listRoom';
 import { withNamespaces } from 'react-i18next';
 import { SocketContext } from './../../context/SocketContext';
+import { withUserContext } from './../../context/withUserContext';
 import { withRouter } from 'react-router';
 import Loading from '../../components/Loading';
 const { Sider } = Layout;
@@ -98,6 +99,8 @@ class Sidebar extends React.Component {
             return value._id != res.roomId;
           }),
         });
+
+        this.props.history.push(`/rooms/${this.props.userContext.my_chat_id}`);
       });
     }
 
@@ -240,4 +243,4 @@ class Sidebar extends React.Component {
   }
 }
 
-export default withRouter(withNamespaces(['listRoom'])(Sidebar));
+export default withRouter(withNamespaces(['listRoom'])(withUserContext(Sidebar)));
