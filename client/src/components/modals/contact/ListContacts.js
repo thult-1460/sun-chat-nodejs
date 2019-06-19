@@ -6,6 +6,7 @@ import InfiniteScroll from 'react-infinite-scroller';
 import { List, Avatar, Button, message, Spin, Alert, Input, Row, Col } from 'antd';
 import { getListContacts, deleteContact } from '../../../api/contact';
 import ContactDetail from './ContactDetail';
+import { getUserAvatarUrl } from './../../../helpers/common';
 
 class ListContacts extends Component {
   constructor(props) {
@@ -76,7 +77,7 @@ class ListContacts extends Component {
 
   setAvatar(avatar) {
     if (avatar) {
-      return <Avatar src={avatar} />;
+      return <Avatar src={getUserAvatarUrl(avatar)} />;
     }
 
     return <Avatar icon="user" size="large" />;

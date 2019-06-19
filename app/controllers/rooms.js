@@ -361,6 +361,8 @@ exports.getInforOfRoom = async function(req, res) {
       let member = roomInfo[0].members_info.filter(item => item._id != _id);
       roomInfo[0].name = member[0].name;
       roomInfo[0].avatar = member[0].avatar;
+    } else if (roomInfo[0].type == config.ROOM_TYPE.SELF_CHAT) {
+      roomInfo[0].avatar = roomInfo[0].members_info[0].avatar;
     }
 
     return res.status(200).json({

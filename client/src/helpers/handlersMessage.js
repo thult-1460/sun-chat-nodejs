@@ -2,6 +2,7 @@
 
 import hljs from "highlight.js";
 import { messageConfig } from '../config/messageConfig';
+import { getUserAvatarUrl } from './common';
 const _ = require('lodash');
 
 
@@ -41,7 +42,7 @@ const actionFunc = {
 
 const getAvatarByID = (id) => {
   let member = listMembers.find(member => member._id == id);
-  let avatar = (member) ? member.avatar : messageConfig.ICO_AVATAR_NOTFOUND;
+  let avatar = (member) ? getUserAvatarUrl(member.avatar) : messageConfig.ICO_AVATAR_NOTFOUND;
 
   return `<img src="${ avatar }" />`;
 };

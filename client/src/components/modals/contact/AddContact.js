@@ -8,6 +8,7 @@ import { withRouter } from 'react-router';
 import '../../../scss/contact.scss';
 import ListSentRequestContacts from './ListSentRequestContacts';
 import { SocketContext } from './../../../context/SocketContext';
+import { getUserAvatarUrl } from './../../../helpers/common';
 const FormItem = Form.Item;
 const TabPane = Tabs.TabPane;
 
@@ -216,7 +217,7 @@ class AddContact extends React.Component {
                       renderItem={item => (
                         <List.Item key={item._id}>
                           <List.Item.Meta
-                            avatar={<Avatar src={item.avatar} />}
+                            avatar={<Avatar src={getUserAvatarUrl(item.avatar)} />}
                             title={item.name}
                             description={item.email}
                           />

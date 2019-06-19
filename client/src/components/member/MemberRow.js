@@ -4,6 +4,7 @@ import { Select } from 'antd';
 import { withNamespaces } from 'react-i18next';
 import { withRouter } from 'react-router';
 import { ROLES } from './../../config/member';
+import { getUserAvatarUrl } from './../../helpers/common';
 const Option = Select.Option;
 
 class MemberRow extends React.Component {
@@ -32,7 +33,7 @@ class MemberRow extends React.Component {
     return (
       <List.Item id="list-member-item">
         <List.Item.Meta
-          avatar={<Avatar size={35} src={member.avatar} />}
+          avatar={<Avatar size={35} src={getUserAvatarUrl(member.avatar)} />}
           title={member.name}
           description={member.email}
         />

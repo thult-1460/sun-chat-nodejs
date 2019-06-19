@@ -5,6 +5,7 @@ import { getUser, updateUser } from './../../api/user';
 import { authValidate } from './../../config/validate';
 import { withNamespaces } from 'react-i18next';
 import { avatarValidate } from '../../config/validate';
+import { getUserAvatarUrl } from './../../helpers/common';
 
 const FormItem = Form.Item;
 
@@ -84,6 +85,7 @@ class Profile extends React.Component {
     errors: {},
     update: false,
     success: false,
+    changedAvatar: false,
   };
 
   setValueFormItem = async res => {
@@ -185,14 +187,14 @@ class Profile extends React.Component {
     getBase64(info.fileList[info.fileList.length - 1].originFileObj, imageUrl =>
       this.setState({
         imageUrl,
+        changedAvatar: true,
       })
     );
   };
 
   render() {
-    const { errors } = this.state;
+    const { errors, imageUrl, changedAvatar } = this.state;
     const { form, t } = this.props;
-    const imageUrl = this.state.imageUrl;
     const uploadButton = (
       <div>
         <Icon type="plus" />
@@ -229,7 +231,7 @@ class Profile extends React.Component {
                     beforeUpload={() => false}
                     onChange={this.handleChange}
                   >
-                    {imageUrl ? <img src={imageUrl} alt="avatar" className="profile-avatar" /> : uploadButton}
+                    {imageUrl ? <img src={changedAvatar ? imageUrl : getUserAvatarUrl(imageUrl)} alt="avatar" className="profile-avatar" /> : uploadButton}
                   </Upload>
                 )}
               </FormItem>

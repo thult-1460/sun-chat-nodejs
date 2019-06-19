@@ -10,6 +10,7 @@ import { SocketContext } from './../../context/SocketContext';
 import { withUserContext } from './../../context/withUserContext';
 import { withRouter } from 'react-router';
 import Loading from '../../components/Loading';
+import { getRoomAvatarUrl } from './../../helpers/common';
 const { Sider } = Layout;
 
 class Sidebar extends React.Component {
@@ -199,7 +200,7 @@ class Sidebar extends React.Component {
           >
             <Link to={`/rooms/${room._id}`}>
               <div className="avatar-name">
-                <Avatar src={room.avatar} />
+                <Avatar src={getRoomAvatarUrl(room.avatar)} />
                 &nbsp;&nbsp;
                 <span className="nav-text">{room.name}</span>
               </div>

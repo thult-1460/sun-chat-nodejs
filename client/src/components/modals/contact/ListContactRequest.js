@@ -6,6 +6,7 @@ import { getContactRequest, getNumberContactRequest, rejectContact, acceptContac
 import { withNamespaces } from 'react-i18next';
 import { withRouter } from 'react-router';
 import { SocketContext } from './../../../context/SocketContext';
+import { getUserAvatarUrl } from './../../../helpers/common';
 const CheckboxGroup = Checkbox.Group;
 
 class ListContactRequest extends React.Component {
@@ -184,7 +185,7 @@ class ListContactRequest extends React.Component {
                       <List.Item key={item._id}>
                         <Checkbox value={item._id} className="item-checkbox" key={item._id} />
                         <List.Item.Meta
-                          avatar={<Avatar src={item.avatar} />}
+                          avatar={<Avatar src={getUserAvatarUrl(item.avatar)} />}
                           title={<a href="https://ant.design">{item.name}</a>}
                           description={item.email}
                         />

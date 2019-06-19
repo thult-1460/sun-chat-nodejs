@@ -21,6 +21,7 @@ import InfiniteScroll from 'react-infinite-scroller';
 import '../../scss/messages.scss';
 import handlersMessage from '../../helpers/handlersMessage';
 import Loading from '../Loading';
+import { getUserAvatarUrl } from './../../helpers/common';
 
 const { Content } = Layout;
 let firstScroll = false;
@@ -450,7 +451,7 @@ class ChatBox extends React.Component {
     return (
       <div className="popover-infor">
         <div className="infor-bg">
-          <Avatar src={message.user_info.avatar} className="infor-avatar" />
+          <Avatar src={getUserAvatarUrl(message.user_info.avatar)} className="infor-avatar" />
         </div>
         <p className="infor-name">{message.user_info.name}</p>
         <p>{message.user_info.email}</p>
@@ -492,7 +493,7 @@ class ChatBox extends React.Component {
                   return member._id != currentUserInfo._id ? (
                     <List.Item key={member._id}>
                       <List.Item.Meta
-                        avatar={<Avatar src={member.avatar} />}
+                        avatar={<Avatar src={getUserAvatarUrl(member.avatar)} />}
                         title={
                           <a onClick={handlersMessage.actionFunc.toMember} href="javascript:;" data-mid={member._id}>
                             {member.name}
@@ -555,7 +556,7 @@ class ChatBox extends React.Component {
                         <div data-user-id={message.user_info._id}>
                           <List.Item.Meta
                             className="show-infor"
-                            avatar={<Avatar src={message.user_info.avatar} />}
+                            avatar={<Avatar src={getUserAvatarUrl(message.user_info.avatar)} />}
                             title={<p>{message.user_info.name}</p>}
                           />
                         </div>
@@ -638,7 +639,7 @@ class ChatBox extends React.Component {
                           <div data-user-id={message.user_info._id}>
                             <List.Item.Meta
                               className="show-infor"
-                              avatar={<Avatar src={message.user_info.avatar} />}
+                              avatar={<Avatar src={getUserAvatarUrl(message.user_info.avatar)} />}
                               title={<p>{message.user_info.name}</p>}
                             />
                           </div>
