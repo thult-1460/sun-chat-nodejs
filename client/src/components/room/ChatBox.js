@@ -131,6 +131,7 @@ class ChatBox extends React.Component {
 
   componentDidUpdate(prevProps) {
     if (prevProps.roomId !== this.props.roomId) {
+      firstPrevMsgId = 0;
       this.fetchData(this.props.roomId);
     }
 
@@ -369,9 +370,9 @@ class ChatBox extends React.Component {
 
   handleInfiniteOnLoad = () => {};
 
-  createMarkupMessage = (content) => {
+  createMarkupMessage = (message) => {
     const members = this.props.allMembers;
-    let messageContentHtml = handlersMessage.renderMessage(content, members);
+    let messageContentHtml = handlersMessage.renderMessage(message, members);
 
     return { __html: messageContentHtml };
   };
@@ -497,7 +498,7 @@ class ChatBox extends React.Component {
       <Content className="chat-room">
         <div className="list-message" ref={element => (this.roomRef = element)} onScroll={this.handleScroll}>
           {prevMessages.map(message => {
-            let messageHtml = this.createMarkupMessage(message.content)
+            let messageHtml = this.createMarkupMessage(message)
             let isToMe = messageHtml.__html.includes(`data-cwtag="[To:${currentUserInfo._id}]"`) ||
               messageHtml.__html.includes(messageConfig.SIGN_TO_ALL);
 
@@ -522,7 +523,9 @@ class ChatBox extends React.Component {
                         </div>
                       </Popover>
                     </List.Item>
-                    <div className="infor-content">{message.content}</div>
+                    <div className="infor-content">
+                      <pre className="timelineMessage__message" dangerouslySetInnerHTML={messageHtml} />
+                    </div>
                   </Col>
                   <Col span={2} className="message-time">
                     <h4>
@@ -543,7 +546,7 @@ class ChatBox extends React.Component {
           })}
           <div ref={element => (this.roomRef = element)}>
             {messages.map(message => {
-              let messageHtml = this.createMarkupMessage(message.content)
+              let messageHtml = this.createMarkupMessage(message)
               let isToMe = messageHtml.__html.includes(`data-cwtag="[To:${currentUserInfo._id}]"`) ||
                 messageHtml.__html.includes(messageConfig.SIGN_TO_ALL);
 

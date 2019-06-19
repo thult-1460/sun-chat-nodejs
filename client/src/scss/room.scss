@@ -270,3 +270,20 @@ hr {
 .message-time h4 {
   font-size: 12px;
 }
+
+.message-item {
+  border-top-style: solid;
+  border-width: 0.2px;
+  &:hover {
+    background-color: #dcdcdc;
+  }
+}
+
+.isEditing {
+  background-color: #b3daff;
+}
+
+.msg-notification {
+  padding: 5px;
+  background-color: #f1f1f1;
+}

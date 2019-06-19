@@ -187,7 +187,8 @@
       }
     },
     "my_chat": {
-      "failed": "Get room mychat ID failed"
+      "failed": "Get room mychat ID failed",
+      "cant_leave": "You can't leave my chat"
     },
     "get_room_id": {
       "failed": "Get room id failed"

@@ -113,7 +113,13 @@ const handlesBlockCode = (content) => {
   return tmpContent;
 }
 
-const renderMessage = (content, members) => {
+const renderMessage = (message, members) => {
+  let content = message.content;
+
+  if (message.is_notification) {
+    return `<div class="msg-notification"> ${content} </div>`;
+  }
+
   listMembers = members;
   contentHtml = content = _.escape(handlesBlockCode(content));
 

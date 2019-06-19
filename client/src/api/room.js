@@ -45,7 +45,7 @@ export function getListContactNotMember({ roomId, subName }) {
 }
 
 export function addMembers({ roomId, users }) {
-  return new Http().authenticated().post(`/rooms/${roomId}/add-member`, {users: users});
+  return new Http().authenticated().post(`/rooms/${roomId}/add-member`, { users: users });
 }
 
 export function getInforRoom(roomId) {
@@ -98,4 +98,8 @@ export function updateMessage(roomId, messageId, data) {
 
 export function getDirectRoomId(userId) {
   return new Http().authenticated().get(`/get-direct-room-id/${userId}`);
+}
+
+export function leaveRoom(roomId) {
+  return new Http().authenticated().post(`rooms/${roomId}/leave-room`);
 }

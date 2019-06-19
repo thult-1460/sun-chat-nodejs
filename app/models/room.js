@@ -9,6 +9,7 @@ const Schema = mongoose.Schema;
 const Messages = new Schema(
   {
     content: { type: String },
+    is_notification: { type: Boolean, default: false },
     user: { type: Schema.ObjectId, ref: 'User' },
     deletedAt: { type: Date, default: null },
   },
@@ -857,6 +858,7 @@ RoomSchema.statics = {
           'user_info.name': 1,
           'user_info.avatar': 1,
           'user_info.email': 1,
+          is_notification: 1,
         },
       },
     ]);
@@ -886,11 +888,12 @@ RoomSchema.statics = {
     ).exec();
   },
 
-  storeMessage: async function(roomId, userId, content) {
+  storeMessage: async function(roomId, userId, content, isNotification = false) {
     const msgObject = {
       content: content,
       user: userId,
       deletedAt: null,
+      is_notification: isNotification,
     };
 
     return this.findOneAndUpdate(
@@ -944,6 +947,7 @@ RoomSchema.statics = {
           'messages.user_info._id': 1,
           'messages.user_info.name': 1,
           'messages.user_info.avatar': 1,
+          'messages.is_notification': 1,
         },
       },
     ]);

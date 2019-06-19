@@ -1,5 +1,5 @@
 import React from 'react';
-import { deleteRoom } from '../../api/room';
+import { deleteRoom, leaveRoom } from '../../api/room';
 import { withNamespaces } from 'react-i18next';
 import history from '../../history';
 import { ROOM_TYPE, LIMIT_REPRESENTATIVE_MEMBER } from '../../config/room';
@@ -9,6 +9,8 @@ import ModalListMember from '../modals/room/ModalListMember';
 import ModalListNotMember from "./ModalListNotMember";
 import EditRoom from './EditRoom';
 import { SocketContext } from './../../context/SocketContext';
+import { withUserContext } from './../../context/withUserContext';
+import { withRouter } from 'react-router';
 
 const { Header } = Layout;
 
@@ -63,6 +65,20 @@ class HeaderOfRoom extends React.Component {
       });
   };
 
+  handleLeaveTheRoom = e => {
+  const myChatId = this.props.userContext.my_chat_id;
+  const roomId = this.props.data._id;
+  let historyProp = this.props.history;
+
+   leaveRoom(roomId)
+    .then(res => {
+      historyProp.push('/rooms/' + myChatId);
+    })
+    .catch(error => {
+      message.error(error.response.data.error);
+    });
+  };
+
   render() {
     const { t, data } = this.props;
     return (
@@ -94,7 +110,7 @@ class HeaderOfRoom extends React.Component {
                   <Menu.Item className="item-setting">
                     {this.props.isAdmin && <EditRoom roomInfo={data} />}
                     {this.props.isAdmin && <Button onClick={this.handleDeleteRoom}>{t('button.delete-room')}</Button>}
-                    <Button onClick={this.outBox}>{t('button.left-room')}</Button>
+                    <Button onClick={this.handleLeaveTheRoom}>{t('button.left-room')}</Button>
                   </Menu.Item>
                 </Menu>
               }
@@ -108,4 +124,4 @@ class HeaderOfRoom extends React.Component {
   }
 }
 
-export default withNamespaces(['room'])(HeaderOfRoom);
+export default withRouter(withNamespaces(['room'])(withUserContext(HeaderOfRoom)));
