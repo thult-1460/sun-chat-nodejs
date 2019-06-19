@@ -9,6 +9,9 @@ import CreateRoom from '../room/CreateRoom';
 import ChangeLanguage from './../ChangeLanguage';
 import { Link } from 'react-router-dom';
 import { SocketContext } from './../../context/SocketContext';
+import { withUserContext } from './../../context/withUserContext';
+import { withRouter } from 'react-router';
+import { getUserAvatarUrl } from './../../helpers/common';
 const { Header } = Layout;
 
 class Head extends React.Component {
@@ -55,7 +58,7 @@ class Head extends React.Component {
           <Col span={4}>
             <Dropdown overlay={menu}>
               <a className="ant-dropdown-link">
-                <Avatar style={{ verticalAlign: 'middle' }}>User</Avatar>
+                <Avatar src={getUserAvatarUrl(this.props.userContext.info.avatar)} />
                 <Icon type="down" />
               </a>
             </Dropdown>
@@ -77,4 +80,4 @@ class Head extends React.Component {
   }
 }
 
-export default Head;
+export default withRouter(withUserContext(Head));
