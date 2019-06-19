@@ -61,11 +61,6 @@ module.exports = function(io) {
       userIds.map(userId => io.to(userId).emit('add_room', {}));
     });
 
-    socket.on('edit_room', async function(roomId) {
-      let roomInfo = await Room.getInforOfRoom(roomId);
-      io.to(socket.roomId).emit('edit_room_successfully', roomInfo[0]);
-    });
-
     socket.on('delete_room', () => {
       let message = '[ROOM_NAME] has been deleted.';
       io.to(socket.roomId).emit('delete_room', message);

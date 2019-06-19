@@ -6,7 +6,7 @@ import { ROOM_TYPE, LIMIT_REPRESENTATIVE_MEMBER } from '../../config/room';
 import { Layout, Menu, Icon, Button, Dropdown, message, Typography, Avatar, Row, Col } from 'antd';
 import ModalListRequest from '../modals/room/ModalListRequest';
 import ModalListMember from '../modals/room/ModalListMember';
-import ModalListNotMember from "./ModalListNotMember";
+import ModalListNotMember from './ModalListNotMember';
 import EditRoom from './EditRoom';
 import { SocketContext } from './../../context/SocketContext';
 
@@ -82,11 +82,7 @@ class HeaderOfRoom extends React.Component {
             )}
           </Col>
           <Col span={4}> {this.showRepresentativeMembers()}</Col>
-          <Col span={1}>
-            {this.props.isAdmin && (
-            <ModalListNotMember />
-            )}
-          </Col>
+          <Col span={1}>{this.props.isAdmin && <ModalListNotMember />}</Col>
           <Col span={1}>
             <Dropdown
               overlay={
