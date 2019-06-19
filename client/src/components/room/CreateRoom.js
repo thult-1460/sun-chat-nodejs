@@ -34,11 +34,6 @@ class CreateRoom extends PureComponent {
             <Icon type="setting" /> {t('title.create_room')}
           </a>
         </p>
-        <p>
-          <a href="javascript:;">
-            <Icon type="home" /> {t('title.add_contact')}
-          </a>
-        </p>
       </div>
     );
 
