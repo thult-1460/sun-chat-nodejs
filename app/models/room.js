@@ -1008,6 +1008,37 @@ RoomSchema.statics = {
     ).exec();
   },
 
+  getRoomId: function(acceptUserIds, userId) {
+    let memberIds = [];
+    acceptUserIds.map(acceptUserId => {
+      memberIds.push(mongoose.Types.ObjectId(acceptUserId));
+    });
+
+    return this.aggregate([
+      {
+        $match: {
+          deletedAt: null,
+          'members.user': mongoose.Types.ObjectId(userId),
+          type: config.ROOM_TYPE.DIRECT_CHAT,
+        },
+      },
+      { $unwind: '$members' },
+      {
+        $match: {
+          'members.user': { $in: memberIds },
+          'members.deletedAt': null,
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          'members.user': 1,
+          'userId': userId,
+        },
+      },
+    ]);
+  },
+
   getNewMemberOfRoom: function(roomId, userIds) {
     let newMemberIds = [];
     userIds.map(userId => {

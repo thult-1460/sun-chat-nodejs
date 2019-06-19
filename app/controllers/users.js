@@ -592,6 +592,18 @@ exports.rejectContact = async(function*(req, res) {
   }
 });
 
+async function getDirectRoomInfo(roomId, userId) {
+  let userInfo = await User.getInfoUser(userId);
+  let objRoom = {
+    _id: roomId,
+    avatar: userInfo.avatar,
+    name: userInfo.name,
+    pinned: false,
+    type: config.ROOM_TYPE.DIRECT_CHAT,
+  };
+  return objRoom;
+}
+
 exports.acceptContact = async(function*(req, res) {
   let acceptUserIds = req.body;
   let { _id } = req.decoded;
@@ -604,6 +616,17 @@ exports.acceptContact = async(function*(req, res) {
     acceptUserIds.forEach(acceptUserId => {
       io.to(acceptUserId).emit('remove_from_list_sent_requests', _id);
       updateSentRequestCount(io, acceptUserId);
+    });
+
+    let roomInfos;
+    roomInfos = yield Room.getRoomId(acceptUserIds, _id);
+    roomInfos.forEach(roomInfo => {
+      getDirectRoomInfo(roomInfo._id, roomInfo.members.user).then(userSent => {
+        io.to(roomInfo.userId).emit('add_to_list_rooms', userSent);
+      });
+      getDirectRoomInfo(roomInfo._id, roomInfo.userId).then(userReceive => {
+        io.to(roomInfo.members.user).emit('add_to_list_rooms', userReceive);
+      });
     });
 
     return res.status(200).json({
