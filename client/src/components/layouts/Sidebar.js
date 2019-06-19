@@ -94,7 +94,7 @@ class Sidebar extends React.Component {
 
       socket.on('remove_from_list_rooms', res => {
         this.setState({
-          rooms: this.state.rooms.filter(function(value, index, arr) {
+          rooms: this.state.rooms.filter(function (value, index, arr) {
             return value._id != res.roomId;
           }),
         });
