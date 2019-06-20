@@ -326,13 +326,31 @@ exports.listContactsNotMember = async (req, res) => {
 exports.addMembers = async (req, res) => {
   const { users } = req.body;
   const { roomId } = req.params;
+  const io = req.app.get('socketIO');
+
   try {
+    let userIds = [];
+    users.map(user => {
+      userIds.push(user._id);
+    })
+
     const last_message_id = await Room.getLastMsgId(roomId);
     const result = await Room.addMembers({ roomId, users, last_message_id });
+    let newMemberOfRoom = await Room.getNewMemberOfRoom(roomId, userIds);
+    let roomInfo = await Room.getInforOfRoom(roomId);
+
     const response = {
       success: result ? true : false,
       message: __(`room.add_member.${result ? 'success' : 'fail'}`),
     };
+
+    const rooms = await Room.getRoomInfoNewMember(roomId, userIds);
+    rooms.map(room => {
+      io.to(room.user).emit('add_to_list_rooms', room);
+    });
+
+    io.to(roomId).emit('add_to_list_members', newMemberOfRoom);
+    io.to(roomId).emit('update_member_of_room', roomInfo[0].members_info);
 
     return res.status(200).json(response);
   } catch (err) {
@@ -447,7 +465,7 @@ exports.acceptRequests = async (req, res) => {
 
     const rooms = await Room.getRoomInfoNewMember(roomId, requestIds);
     rooms.map(room => {
-      io.to(room.user).emit('add_room_to_list', room);
+      io.to(room.user).emit('add_to_list_rooms', room);
     });
 
     io.to(roomId).emit('update_request_join_room_number', numberRequetsJoinRoom);
