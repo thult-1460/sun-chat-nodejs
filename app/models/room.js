@@ -63,7 +63,7 @@ const RoomSchema = new Schema(
     type: { type: Number, default: config.ROOM_TYPE.GROUP_CHAT }, //0: group chat - 1: direct chat
     invitation_code: {
       type: String,
-      unique: true,
+      // unique: true,
       default:
         Math.random()
           .toString(36)
