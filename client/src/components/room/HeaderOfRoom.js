@@ -101,7 +101,7 @@ class HeaderOfRoom extends React.Component {
 
     if (typeof data == 'object') {
       for (let i = 0; i < data.members_info.length; i++) {
-        if (data.members_info[i] != this.props.userContext.info._id) {
+        if (data.members_info[i]._id !== this.props.userContext.info._id) {
           directChatId = data.members_info[i]._id;
           break;
         }
