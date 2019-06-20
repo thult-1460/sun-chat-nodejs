@@ -6,7 +6,7 @@ import { ROOM_TYPE, LIMIT_REPRESENTATIVE_MEMBER } from '../../config/room';
 import { Layout, Menu, Icon, Button, Dropdown, message, Typography, Avatar, Row, Col } from 'antd';
 import ModalListRequest from '../modals/room/ModalListRequest';
 import ModalListMember from '../modals/room/ModalListMember';
-import ModalListNotMember from './ModalListNotMember';
+import ModalListNotMember from '../modals/room/ModalListNotMember';
 import EditRoom from './EditRoom';
 import { deleteContact } from '../../api/contact';
 import { SocketContext } from './../../context/SocketContext';

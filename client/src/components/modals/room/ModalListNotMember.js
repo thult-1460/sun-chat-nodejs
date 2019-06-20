@@ -2,10 +2,10 @@ import React, { PureComponent } from 'react';
 import { withNamespaces } from 'react-i18next';
 import { withRouter } from 'react-router';
 import 'antd/dist/antd.css';
-import {getListContactNotMember, loadMessages} from '../../api/room';
-import { addMembers } from '../../api/room';
+import {getListContactNotMember, loadMessages} from '../../../api/room';
+import { addMembers } from '../../../api/room';
 import {Form, Input, Modal, Checkbox, Select, Avatar, List, message, Badge, Icon} from 'antd';
-import { getUserAvatarUrl } from './../../helpers/common';
+import { getUserAvatarUrl } from '../../../helpers/common';
 
 class ModalListNotMember extends PureComponent {
   data = [];
@@ -35,10 +35,6 @@ class ModalListNotMember extends PureComponent {
       .catch(err => {
         message.error(err.response.data.error);
       });
-  }
-
-  componentDidMount() {
-    this.fetchData();
   }
 
   resetListSelect() {
@@ -74,7 +70,6 @@ class ModalListNotMember extends PureComponent {
         .then(res => {
           if (res.data.success) {
             message.success(res.data.message);
-            this.fetchData();
           } else {
             message.error(res.data.message);
           }
@@ -133,15 +128,14 @@ class ModalListNotMember extends PureComponent {
 
   changeStateModal = () => {
     const { modalVisible } = this.state;
+
     this.setState({
       modalVisible: !modalVisible
+    }, () => {
+      if (this.state.modalVisible) {
+        this.fetchData();
+      }
     });
-  }
-
-  componentDidUpdate(prevProps) {
-    if (prevProps.roomId && prevProps.roomId !== this.props.match.params.id) {
-      this.fetchData();
-    }
   }
 
   render() {
