@@ -39,5 +39,6 @@
   },
   "request": {
     "title": "Request list"
-  }
+  },
+  "room_not_exist": "Room has been deleted. You are redirected to Mychat"
 }

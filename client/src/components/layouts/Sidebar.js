@@ -35,6 +35,7 @@ class Sidebar extends React.Component {
       this.setState({
         rooms,
         page,
+        loading: false,
       });
     });
   };
@@ -50,6 +51,9 @@ class Sidebar extends React.Component {
   }
 
   componentDidMount() {
+    const currentRoomId = this.props.match.params.id;
+    this.setState({ selected_room: currentRoomId });
+
     if (checkExpiredToken()) {
       const { page, filter_type } = this.state;
       let { rooms } = this.state;
@@ -75,7 +79,7 @@ class Sidebar extends React.Component {
 
       socket.on('add_to_list_rooms', newRoom => {
         let indexUnpinned = -1;
-        
+
         for (var i = 0; i < rooms.length; i++) {
           if (rooms[i].pinned == false) {
             indexUnpinned = i;
@@ -94,21 +98,20 @@ class Sidebar extends React.Component {
 
       socket.on('remove_from_list_rooms', res => {
         this.setState({
-          rooms: this.state.rooms.filter(function (value, index, arr) {
+          rooms: this.state.rooms.filter(function(value, index, arr) {
             return value._id != res.roomId;
           }),
         });
 
-        rooms = rooms.filter(function (value, index, arr) {
+        rooms = rooms.filter(function(value, index, arr) {
           return value._id != res.roomId;
         });
 
-        this.props.history.push(`/rooms/${this.props.userContext.my_chat_id}`);
+        if (currentRoomId == res.roomId) {
+          this.props.history.push(`/rooms/${this.props.userContext.my_chat_id}`);
+        }
       });
     }
-
-    const roomId = this.props.match.params.id;
-    this.setState({ selected_room: roomId });
   }
 
   componentWillReceiveProps(nextProps) {
