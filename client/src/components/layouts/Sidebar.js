@@ -9,7 +9,6 @@ import { withNamespaces } from 'react-i18next';
 import { SocketContext } from './../../context/SocketContext';
 import { withUserContext } from './../../context/withUserContext';
 import { withRouter } from 'react-router';
-import Loading from '../../components/Loading';
 import { getRoomAvatarUrl } from './../../helpers/common';
 const { Sider } = Layout;
 
@@ -25,7 +24,6 @@ class Sidebar extends React.Component {
     quantity_chats: 0,
     filter_type: config.FILTER_TYPE.LIST_ROOM.ALL.VALUE,
     selected_room: '',
-    isLoading: true,
   };
 
   fetchData = (page, filter_type) => {
@@ -37,7 +35,6 @@ class Sidebar extends React.Component {
       this.setState({
         rooms,
         page,
-        loading: false,
       });
     });
   };
@@ -225,7 +222,6 @@ class Sidebar extends React.Component {
             </Dropdown>
           </div>
           <Menu theme="dark" mode="inline" defaultSelectedKeys={['1']}>
-            {isLoading && <Loading />}
             <div className="sidebar-infinite-container">
               <InfiniteScroll
                 initialLoad={false}
