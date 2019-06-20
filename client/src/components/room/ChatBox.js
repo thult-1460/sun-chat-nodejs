@@ -93,7 +93,7 @@ class ChatBox extends React.Component {
 
   componentDidMount() {
     const roomId = this.props.roomId;
-
+    firstPrevMsgId = 0;
     this.fetchData(roomId);
 
     // Listen 'send_new_msg' event from server
@@ -648,14 +648,14 @@ class ChatBox extends React.Component {
                             </Button>
                           )
                         }
-                        /*<Divider type="vertical" />
-                        <Button type="link" onClick={handlersMessage.actionFunc.replyMember} id={currentUserInfo._id + '-' + message._id} data-mid={message.user_info._id}>
-                          <Icon type="enter" /> {t('button.reply')}
-                        </Button>
-                        <Divider type="vertical" />
-                        <Button type="link" onClick={this.quoteMessage} id={message._id}>
-                          <Icon type="rollback" /> {t('button.quote')}
-                        </Button>*/
+                        {/*<Divider type="vertical" />*/}
+                        {/*<Button type="link" onClick={handlersMessage.actionFunc.replyMember} id={currentUserInfo._id + '-' + message._id} data-mid={message.user_info._id}>*/}
+                          {/*<Icon type="enter" /> {t('button.reply')}*/}
+                        {/*</Button>*/}
+                        {/*<Divider type="vertical" />*/}
+                        {/*<Button type="link" onClick={this.quoteMessage} id={message._id}>*/}
+                          {/*<Icon type="rollback" /> {t('button.quote')}*/}
+                        {/*</Button>*/}
                       </div>
                     }
                   </Col>
@@ -730,19 +730,19 @@ class ChatBox extends React.Component {
                               </Button>
                             )
                           }
-                          /*<Divider type="vertical" />
-                          <Button
-                            type="link"
-                            onClick={handlersMessage.actionFunc.replyMember}
-                            id={currentUserInfo._id + '-' + message._id}
-                            data-mid={message.user_info._id}
-                          >
-                            <Icon type="enter" /> {t('button.reply')}
-                          </Button>
-                          <Divider type="vertical" />
-                          <Button type="link" onClick={this.quoteMessage} id={message._id}>
-                            <Icon type="rollback" /> {t('button.quote')}
-                          </Button>*/
+                          {/*<Divider type="vertical" />*/}
+                          {/*<Button*/}
+                            {/*type="link"*/}
+                            {/*onClick={handlersMessage.actionFunc.replyMember}*/}
+                            {/*id={currentUserInfo._id + '-' + message._id}*/}
+                            {/*data-mid={message.user_info._id}*/}
+                          {/*>*/}
+                            {/*<Icon type="enter" /> {t('button.reply')}*/}
+                          {/*</Button>*/}
+                          {/*<Divider type="vertical" />*/}
+                          {/*<Button type="link" onClick={this.quoteMessage} id={message._id}>*/}
+                            {/*<Icon type="rollback" /> {t('button.quote')}*/}
+                          {/*</Button>*/}
                         </div>
                       }
                     </Col>
