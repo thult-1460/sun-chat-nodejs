@@ -8,6 +8,7 @@ import ChatBox from '../../components/room/ChatBox';
 import HeaderOfRoom from '../../components/room/HeaderOfRoom';
 import { roomConfig } from '../../config/roomConfig';
 import { SocketContext } from './../../context/SocketContext';
+import { withUserContext } from './../../context/withUserContext';
 
 const { Sider, Content } = Layout;
 const { Text } = Typography;
@@ -66,9 +67,8 @@ class RoomDetail extends React.Component {
         this.context.socket.emit('open_room', roomId);
       })
       .catch(error => {
-        if (error.response) {
-          message.error(error.response.data.err);
-        }
+        this.props.history.push(`/rooms/${this.props.userContext.my_chat_id}`);
+        message.error(this.props.t('room_not_exist'));
       });
   };
 
@@ -154,4 +154,4 @@ class RoomDetail extends React.Component {
   }
 }
 
-export default withRouter(withNamespaces(['room'])(RoomDetail));
+export default withRouter(withNamespaces(['room'])(withUserContext(RoomDetail)));

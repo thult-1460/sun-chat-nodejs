@@ -39,5 +39,6 @@
   },
   "request": {
     "title": "Danh sách yêu cầu"
-  }
+  },
+  "room_not_exist": "Phòng đã bị xóa. Bạn được chuyển về Mychat"
 }
