@@ -1012,6 +1012,7 @@ RoomSchema.statics = {
       memberIds.push(mongoose.Types.ObjectId(acceptUserId));
     });
 
+console.log('888888888888888888888888888888888888', memberIds);
     return this.aggregate([
       {
         $match: {
@@ -1065,12 +1066,12 @@ RoomSchema.statics = {
           'sender._id': '$_id',
           'sender.name': '$members.user.name',
           'sender.avatar': '$members.user.avatar',
-          'sender.pinned': {$toBool: false},
+          'sender.pinned': {$eq: [true, false]},
           'sender.type': "$type",
           'receiver._id': '$_id',
           'receiver.name': 1,
           'receiver.avatar': 1,
-          'receiver.pinned': {$toBool: false},
+          'receiver.pinned': {$eq: [true, false]},
           'receiver.type': "$type",
         },
       },
