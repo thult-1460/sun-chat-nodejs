@@ -27,6 +27,7 @@ let firstScroll = false;
 let fourthMsgId = 0;
 let firstPrevMsgId = 0;
 let isSender = false;
+let finalFooterRoom = false;
 
 class ChatBox extends React.Component {
   static contextType = SocketContext;
@@ -279,6 +280,10 @@ class ChatBox extends React.Component {
           break;
         }
       }
+    }
+
+    if (arrCheckEnable.length <= 1) {
+      finalFooterRoom = true;
     }
 
     if (messages.length >= MESSAGE_PAGINATE && !this.state.loadingNew) {
@@ -591,14 +596,14 @@ class ChatBox extends React.Component {
                             </Button>
                           )
                         }
-                        <Divider type="vertical" />
+                        /*<Divider type="vertical" />
                         <Button type="link" onClick={handlersMessage.actionFunc.replyMember} id={currentUserInfo._id + '-' + message._id} data-mid={message.user_info._id}>
                           <Icon type="enter" /> {t('button.reply')}
                         </Button>
                         <Divider type="vertical" />
                         <Button type="link" onClick={this.quoteMessage} id={message._id}>
                           <Icon type="rollback" /> {t('button.quote')}
-                        </Button>
+                        </Button>*/
                       </div>
                     }
                   </Col>
@@ -673,7 +678,7 @@ class ChatBox extends React.Component {
                               </Button>
                             )
                           }
-                          <Divider type="vertical" />
+                          /*<Divider type="vertical" />
                           <Button
                             type="link"
                             onClick={handlersMessage.actionFunc.replyMember}
@@ -685,12 +690,12 @@ class ChatBox extends React.Component {
                           <Divider type="vertical" />
                           <Button type="link" onClick={this.quoteMessage} id={message._id}>
                             <Icon type="rollback" /> {t('button.quote')}
-                          </Button>
+                          </Button>*/
                         </div>
                       }
                     </Col>
                   </Row>
-                  {message._id === currentLastMsgId && currentLastMsgId !== listNewLoadedMessage[0] ? redLine : ''}
+                  {!finalFooterRoom && message._id === currentLastMsgId && currentLastMsgId !== listNewLoadedMessage[0] ? redLine : ''}
                 </div>
               );
             })}
