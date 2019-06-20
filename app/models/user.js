@@ -316,23 +316,17 @@ UserSchema.statics = {
     return this.updateOne({ _id: mongoose.Types.ObjectId(options.criteria._id) }, { $set: options.data });
   },
 
-  acceptRequest: function(userId, requestUserIds) {
-    try {
-      for (let i = 0; i < requestUserIds.length; i++) {
-        let rooms = new Room({ type: config.ROOM_TYPE.DIRECT_CHAT });
-        rooms.members.push(
-          { user: userId, role: config.MEMBER_ROLE.MEMBER },
-          { user: requestUserIds[i], role: config.MEMBER_ROLE.MEMBER }
-        );
-        rooms.save(function(err) {
-          if (err) throw new Error(__('contact.accept.failed'));
-        });
-      }
-
-      return this.update({ _id: userId }, { $pull: { requested_in_comming: { $in: requestUserIds } } });
-    } catch (err) {
-      throw new Error(__('contact.accept.failed'));
+  acceptRequest: async function(userId, requestUserIds) {
+    for (let i = 0; i < requestUserIds.length; i++) {
+      let rooms = new Room({ type: config.ROOM_TYPE.DIRECT_CHAT });
+      rooms.members.push(
+        { user: userId, role: config.MEMBER_ROLE.MEMBER },
+        { user: requestUserIds[i], role: config.MEMBER_ROLE.MEMBER }
+      );
+      await rooms.save();
     }
+
+    return this.update({ _id: userId }, { $pull: { requested_in_comming: { $in: requestUserIds } } });
   },
 
   getListContacts: function({ limit, page = 0, userId, searchText = '' }, getListFlag = false) {

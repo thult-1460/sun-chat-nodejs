@@ -522,6 +522,11 @@ exports.loadMessages = async function(req, res) {
       messages = await Room.loadMessages(roomId, _id, currentMsgId);
     }
 
+    // Hot fix to load msg. In the future, you must handle by another way
+    if (Object.entries(messages).length === 0 && messages.constructor === Object) {
+      messages = [];
+    }
+
     return res.status(200).json({ messages });
   } catch (err) {
     channel.error(err);

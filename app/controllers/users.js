@@ -228,7 +228,7 @@ exports.confirmEmail = function(req, res) {
       res.status(200).json({ msg: __('mail.confirmed') });
     })
     .catch(err => {
-      channel.error(err.toString());
+      channel.error(err);
 
       return res.status(500).json({ msg: __('mail.confirm_failed') });
     });
@@ -327,7 +327,7 @@ exports.apiLogin = async(function*(req, res) {
       token: userMiddleware.generateJWTToken(user),
     });
   } catch (err) {
-    channel.error(err.toString());
+    channel.error(err);
 
     return res.status(401).json({
       message: __('login.fail'),
@@ -414,6 +414,8 @@ exports.sendRequestContact = async(function*(req, res) {
       success: __('contact.send_request.success'),
     });
   } catch (err) {
+    channel.error(err);
+    
     return res.status(500).json({
       error: __('contact.send_request.failed'),
     });
@@ -457,7 +459,7 @@ exports.apiChangePassword = async(function*(req, res) {
       success: __('change_password.update_successfully'),
     });
   } catch (err) {
-    channel.error(err.toString());
+    channel.error(err);
 
     return res.status(500).json({
       error: __('change_password.change_password_failed'),
@@ -505,7 +507,7 @@ exports.apiSendMailResetPassword = async(function*(req, res) {
         throw new Error(err.toString());
       });
   } catch (err) {
-    channel.error(err.toString());
+    channel.error(err);
 
     return res.status(500).json({
       error: __('reset_password.send_email_error'),
@@ -547,7 +549,7 @@ exports.apiResetPassword = async(function*(req, res) {
       message: __('reset_password.success'),
     });
   } catch (err) {
-    channel.error(err.toString());
+    channel.error(err);
 
     return res.status(500).json({
       error: __('token_invalid'),
@@ -586,7 +588,7 @@ exports.rejectContact = async(function*(req, res) {
       success: __('contact.reject.success'),
     });
   } catch (err) {
-    channel.error(err.toString());
+    channel.error(err);
 
     return res.status(500).json({
       error: __('contact.reject.fail'),
@@ -618,6 +620,8 @@ exports.acceptContact = async(function*(req, res) {
       success: __('contact.accept.success'),
     });
   } catch (err) {
+    channel.error(err);
+
     return res.status(500).json({
       error: __('contact.accept.failed'),
     });
@@ -653,6 +657,8 @@ exports.listContacts = async(function*(req, res) {
       result: contacts,
     });
   } catch (err) {
+    channel.error(err);
+
     return res.status(500).json({
       error: __('contact.list.failed'),
     });
@@ -696,7 +702,7 @@ exports.resendActiveEmail = async(function*(req, res) {
         throw new Error(err.toString());
       });
   } catch (err) {
-    channel.error(err.toString());
+    channel.error(err);
 
     return res.status(500).json({
       error: __('mail.resend_active_email.failed'),
@@ -717,6 +723,8 @@ exports.deleteContact = async(function*(req, res) {
       success: __('contact.delete_contact.success'),
     });
   } catch (err) {
+    channel.error(err);
+
     res.status(500).json({
       error: __('contact.delete_contact.failed'),
     });
@@ -755,7 +763,7 @@ exports.deleteSentRequestContact = async function(req, res) {
       success: __('contact.delete-request-sent-contact.success'),
     });
   } catch (err) {
-    channel.error(err.toString());
+    channel.error(err);
 
     return res.status(500).json({
       error: __('contact.delete-request-sent-contact.fail'),
@@ -771,6 +779,8 @@ exports.getRequestSentContactsCount = async function(req, res) {
       result: requestSentContactsCount,
     });
   } catch (err) {
+    channel.error(err);
+
     res.status(500).json({
       error: __('failed'),
     });
