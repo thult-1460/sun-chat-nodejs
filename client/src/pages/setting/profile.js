@@ -128,7 +128,14 @@ class Profile extends React.Component {
       if (!err) {
         const { name, email, username, twitter, github, google, address, phone } = this.props.form.getFieldsValue();
         const avatar = this.state.imageUrl;
-        const user = { name, email, username, twitter, github, google, address, phone, avatar };
+        let user;
+
+        if (this.state.changedAvatar) {
+          user = { name, email, username, twitter, github, google, address, phone, avatar };
+        } else {
+          user = { name, email, username, twitter, github, google, address, phone };
+        }
+
         this.setState({
           update: true,
         });
