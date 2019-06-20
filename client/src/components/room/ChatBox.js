@@ -20,7 +20,6 @@ import { messageConfig } from '../../config/messageConfig';
 import InfiniteScroll from 'react-infinite-scroller';
 import '../../scss/messages.scss';
 import handlersMessage from '../../helpers/handlersMessage';
-import Loading from '../Loading';
 import { getUserAvatarUrl } from './../../helpers/common';
 
 const { Content } = Layout;
@@ -196,7 +195,7 @@ class ChatBox extends React.Component {
     const messageId = e.currentTarget.id;
     const oldMsgFlag = e.currentTarget.getAttribute('old-msg-flag');
 
-    const message = (oldMsgFlag == 1) ? this.getMessageById(this.state.prevMessages, messageId) 
+    const message = (oldMsgFlag == 1) ? this.getMessageById(this.state.prevMessages, messageId)
       : this.getMessageById(this.state.messages, messageId);
 
     if (message !== null) {
@@ -528,7 +527,11 @@ class ChatBox extends React.Component {
     return (
       <Content className="chat-room">
         <div className="list-message" ref={element => (this.roomRef = element)} onScroll={this.handleScroll}>
-          {(isLoadingPrev || isLoadingMes) && <Loading />}
+          {(isLoadingPrev || isLoadingMes) && (
+            <div className="loading-room">
+              <Spin tip="Loading..." />
+            </div>
+          )}
           {prevMessages.map(message => {
             let messageHtml = this.createMarkupMessage(message)
             let notificationClass = message.is_notification ? 'pre-notification' : '';
@@ -581,7 +584,7 @@ class ChatBox extends React.Component {
                   <Col span={24} style={{ position: 'relative' }}>
                     {this.state.messageIdHovering === message._id && message.is_notification == false &&
                       <div style={{ textAlign: 'right', position: 'absolute', bottom: '0', right: '0' }}>
-                        {currentUserInfo._id === message.user_info._id &&  
+                        {currentUserInfo._id === message.user_info._id &&
                           !this.props.isReadOnly && (
                             <Button type="link" onClick={this.editMessage} id={message._id} old-msg-flag="1">
                               <Icon type="edit" /> {t('button.edit')}
@@ -604,7 +607,6 @@ class ChatBox extends React.Component {
             );
           })}
           <div ref={element => (this.roomRef = element)}>
-            {loadingNew && <Loading />}
             {messages.map(message => {
               let messageHtml = this.createMarkupMessage(message)
               let notificationClass = message.is_notification ? 'pre-notification' : '';
@@ -664,7 +666,7 @@ class ChatBox extends React.Component {
                     <Col span={24} style={{ position: 'relative' }}>
                       {this.state.messageIdHovering === message._id && message.is_notification == false &&
                         <div style={{ textAlign: 'right', position: 'absolute', bottom: '0', right: '0' }}>
-                          {currentUserInfo._id === message.user_info._id && 
+                          {currentUserInfo._id === message.user_info._id &&
                             !this.props.isReadOnly && (
                               <Button type="link" onClick={this.editMessage} id={message._id}>
                                 <Icon type="edit" /> {t('button.edit')}
@@ -692,6 +694,11 @@ class ChatBox extends React.Component {
                 </div>
               );
             })}
+            {loadingNew && (
+            <div className="loading-room">
+              <Spin tip="Loading..." />
+            </div>
+            )}
           </div>
         </div>
         <div className="box-button">

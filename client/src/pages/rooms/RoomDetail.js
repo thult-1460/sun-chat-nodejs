@@ -8,7 +8,6 @@ import ChatBox from '../../components/room/ChatBox';
 import HeaderOfRoom from '../../components/room/HeaderOfRoom';
 import { roomConfig } from '../../config/roomConfig';
 import { SocketContext } from './../../context/SocketContext';
-import Loading from '../../components/Loading';
 
 const { Sider, Content } = Layout;
 const { Text } = Typography;
@@ -23,7 +22,6 @@ class RoomDetail extends React.Component {
     roomInfo: '',
     lastMsgId: '',
     isCopy: false,
-    isLoading: true,
     members: [],
   };
 
@@ -63,7 +61,6 @@ class RoomDetail extends React.Component {
           isAdmin: res.data.isAdmin,
           lastMsgId: res.data.lastMsgId,
           isReadOnly: res.data.isReadOnly,
-          isLoading: false,
         });
 
         this.context.socket.emit('open_room', roomId);
@@ -112,7 +109,6 @@ class RoomDetail extends React.Component {
 
     return (
       <React.Fragment>
-        {isLoading && <Loading />}
         <Layout>
           <HeaderOfRoom data={roomInfo} isAdmin={isAdmin} />
           <Layout>
