@@ -9,6 +9,7 @@ import {
   updateMessage,
   getDirectRoomId,
 } from './../../api/room.js';
+import { getListSentRequestContacts, deleteSentRequestContact, getContactRequest } from './../../api/contact';
 import { Link } from 'react-router-dom';
 import { addContact } from './../../api/contact';
 import { SocketContext } from './../../context/SocketContext';
@@ -43,6 +44,7 @@ class ChatBox extends React.Component {
     messageIdHovering: null,
     messageIdEditing: null,
     mapUserIdRoomIds: [],
+    mapUserIdSentRequest: [],
     loadingNew: false,
     isLoadingPrev: false,
     isLoadingMes: true,
@@ -401,10 +403,36 @@ class ChatBox extends React.Component {
 
     addContact({ userId })
       .then(res => {
+        this.setState(prevState => ({
+          mapUserIdSentRequest: {
+            ...prevState.mapUserIdSentRequest,
+            [userId]: true,
+          },
+        }));
         message.success(res.data.success);
       })
       .catch(error => {
         message.error(error.response.data.error);
+      });
+  };
+
+  handleCancelRequest = e => {
+    const requestSentContactId = e.target.value;
+
+    deleteSentRequestContact({ requestSentContactId })
+      .then(res => {
+        this.setState(prevState => ({
+          mapUserIdSentRequest: {
+            ...prevState.mapUserIdSentRequest,
+            [requestSentContactId]: false,
+          },
+        }));
+        message.success(res.data.success);
+      })
+      .catch(error => {
+        this.setState({
+          error: error.response.data.error,
+        });
       });
   };
 
@@ -420,12 +448,30 @@ class ChatBox extends React.Component {
         }));
       });
     }
+
+    if (visible && this.state.mapUserIdSentRequest[userId] === undefined) {
+      getListSentRequestContacts().then(res => {
+        let userIds = res.data.result;
+
+        if (userIds) {
+          userIds.map(item => {
+            this.setState(prevState => ({
+              mapUserIdSentRequest: {
+                ...prevState.mapUserIdSentRequest,
+                [item._id]: true,
+              },
+            }));
+          });
+        }
+      });
+    }
   };
 
   returnContent = message => {
     const currentUserChatRoom = this.props.userContext.my_chat_id;
     const currentuserId = this.props.userContext.info._id;
     const directRoomId = this.state.mapUserIdRoomIds[message.user_info._id];
+    const userIdSentRequest = this.state.mapUserIdSentRequest[message.user_info._id];
 
     let button = '';
     if (message.user_info._id == currentuserId) {
@@ -438,14 +484,20 @@ class ChatBox extends React.Component {
       button = <Spin />;
     } else {
       button = !directRoomId ? (
-        <Button value={message.user_info._id} onClick={this.handleSendRequestContact}>
-          {this.props.t('title.add_contact')}
-        </Button>
+        userIdSentRequest ? (
+          <Button value={message.user_info._id} onClick={this.handleCancelRequest}>
+            {this.props.t('title.cancel_request')}
+          </Button>
+        ) : (
+          <Button value={message.user_info._id} onClick={this.handleSendRequestContact}>
+            {this.props.t('title.add_contact')}
+          </Button>
+        )
       ) : (
-          <Link to={`/rooms/${directRoomId}`}>
-            <Button>{this.props.t('title.direct_chat')}</Button>
-          </Link>
-        );
+        <Link to={`/rooms/${directRoomId}`}>
+          <Button>{this.props.t('title.direct_chat')}</Button>
+        </Link>
+      );
     }
 
     return (
