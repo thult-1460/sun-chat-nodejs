@@ -59,7 +59,7 @@ const messageToHtml = {
     return `<code data-cwtag="[code] ${ code } [/code]" class="chatCode">${ codeHighlight.value }</code>`;
   },
   toall: function() {
-    return '<div class="messageBadge"' + messageConfig.SIGN_TO_ALL + '><div class="messageBadge__toAllBadge" contenteditable="false"><span>To ALL</span></div></div>';
+    return '<div class="messageBadge"' + messageConfig.SIGN_TO_ALL + '><div class="messageBadge__toAllBadge" contenteditable="false"><span>TO ALL</span></div></div>';
   },
 };
 

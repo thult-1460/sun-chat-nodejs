@@ -216,7 +216,6 @@ class Profile extends React.Component {
           {this.state.update && <Alert message={this.state.notice} type={this.state.success ? 'success' : 'error'} />}
           <Row>
             <Col span={8}>
-              <b>{t('user:label.avatar')}</b>
               <FormItem
                 name="avatar"
                 help={
