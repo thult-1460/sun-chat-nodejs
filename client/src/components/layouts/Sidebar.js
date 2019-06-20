@@ -75,6 +75,7 @@ class Sidebar extends React.Component {
 
       socket.on('add_to_list_rooms', newRoom => {
         let indexUnpinned = -1;
+        
         for (var i = 0; i < rooms.length; i++) {
           if (rooms[i].pinned == false) {
             indexUnpinned = i;
@@ -96,6 +97,10 @@ class Sidebar extends React.Component {
           rooms: this.state.rooms.filter(function (value, index, arr) {
             return value._id != res.roomId;
           }),
+        });
+
+        rooms = rooms.filter(function (value, index, arr) {
+          return value._id != res.roomId;
         });
 
         this.props.history.push(`/rooms/${this.props.userContext.my_chat_id}`);
