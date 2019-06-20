@@ -1012,7 +1012,6 @@ RoomSchema.statics = {
       memberIds.push(mongoose.Types.ObjectId(acceptUserId));
     });
 
-console.log('888888888888888888888888888888888888', memberIds);
     return this.aggregate([
       {
         $match: {

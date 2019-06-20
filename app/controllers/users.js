@@ -114,6 +114,8 @@ exports.update = async(function*(req, res) {
 
         return res.status(500).json({ error: __('update_to_fail_user') });
       }
+    } else {
+      delete data_changed.data.avatar;
     }
 
     const user = yield User.updateInfo(data_changed);
