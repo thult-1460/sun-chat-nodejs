@@ -710,6 +710,7 @@ exports.deleteContact = async(function*(req, res) {
     let room = yield User.deleteContact(_id, contactId);
 
     io.to(_id).emit('remove_from_list_rooms', { roomId: room._id });
+    io.to(contactId).emit('remove_from_list_rooms', { roomId: room._id });
     return res.status(200).json({
       success: __('contact.delete_contact.success'),
     });
