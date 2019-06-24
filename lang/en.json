@@ -204,6 +204,8 @@
     }
   },
   "user": {
-    "user_not_exist": "User not exist. Could not this user!"
+    "user_not_exist": "User not exist. Could not this user!",
+    "upload_file_failed": "Image must smaller than {{max}} MB!",
+    "unknown_file": "Unknown file"
   }
 }

@@ -3,11 +3,9 @@
 const fs = require('fs');
 const config = require('../../config/config.js');
 
-const path = config.DIR_UPLOAD_FILE;
-
-exports.saveImage = async (base64Image, fileName, oldUrl = '') => {
+exports.saveImage = async (base64Image, fileName, path, oldUrl = '') => {
   if (oldUrl !== '' && fs.existsSync(path + oldUrl)) {
-    await fs.unlink(path + oldUrl, (err) => {
+    await fs.unlink(path + oldUrl, err => {
       if (err) throw err;
     });
   }

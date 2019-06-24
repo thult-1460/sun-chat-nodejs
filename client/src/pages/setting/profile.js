@@ -237,7 +237,15 @@ class Profile extends React.Component {
                     beforeUpload={() => false}
                     onChange={this.handleChange}
                   >
-                    {imageUrl ? <img src={changedAvatar ? imageUrl : getUserAvatarUrl(imageUrl)} alt="avatar" className="profile-avatar" /> : uploadButton}
+                    {imageUrl ? (
+                      <img
+                        src={changedAvatar ? imageUrl : getUserAvatarUrl(imageUrl)}
+                        alt="avatar"
+                        className="profile-avatar"
+                      />
+                    ) : (
+                      uploadButton
+                    )}
                   </Upload>
                 )}
               </FormItem>

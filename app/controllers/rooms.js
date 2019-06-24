@@ -140,6 +140,7 @@ exports.deleteRoom = async function(req, res) {
 
 exports.createRoom = async (req, res) => {
   const errors = validationResult(req);
+  const pathRoomAvatar = config.DIR_UPLOAD_FILE.ROOM_AVATAR;
 
   if (errors.array().length > 0) {
     let customErrors = customMessageValidate(errors);
@@ -159,7 +160,7 @@ exports.createRoom = async (req, res) => {
 
   if (room.avatar) {
     try {
-      await files.saveImage(room.avatar, slug(room.name, '-')).then(url => {
+      await files.saveImage(room.avatar, slug(room.name, '-'), pathRoomAvatar).then(url => {
         room.avatar = url;
       });
     } catch (err) {
@@ -332,7 +333,7 @@ exports.addMembers = async (req, res) => {
     let userIds = [];
     users.map(user => {
       userIds.push(user._id);
-    })
+    });
 
     const last_message_id = await Room.getLastMsgId(roomId);
     const result = await Room.addMembers({ roomId, users, last_message_id });
@@ -619,6 +620,7 @@ exports.updateMessage = async function(req, res) {
 
 exports.editRoom = async (req, res) => {
   const errors = validationResult(req);
+  const pathRoomAvatar = config.DIR_UPLOAD_FILE.ROOM_AVATAR;
 
   if (errors.array().length > 0) {
     let customErrors = customMessageValidate(errors);
@@ -637,7 +639,7 @@ exports.editRoom = async (req, res) => {
       }
 
       if (roomData.avatar) {
-        await files.saveImage(roomData.avatar, slug(roomData.name, '-'), room.avatar).then(url => {
+        await files.saveImage(roomData.avatar, slug(roomData.name, '-'), pathRoomAvatar, room.avatar).then(url => {
           roomData.avatar = url;
         });
       }
