@@ -7,8 +7,11 @@ import { List, Avatar, Button, message, Spin, Alert, Input, Row, Col } from 'ant
 import { getListContacts, deleteContact } from '../../../api/contact';
 import ContactDetail from './ContactDetail';
 import { getUserAvatarUrl } from './../../../helpers/common';
+import { SocketContext } from './../../../context/SocketContext';
 
 class ListContacts extends Component {
+  static contextType = SocketContext;
+
   constructor(props) {
     super(props);
 
@@ -53,6 +56,14 @@ class ListContacts extends Component {
   componentDidMount() {
     const { page, searchText } = this.state;
     this.fetchData(page, searchText);
+
+    const { socket } = this.context;
+    socket.on('add_to_list_contacts', res => {
+      this.setState(previousState => ({
+        contacts: [...previousState.contacts, res],
+        totalContact: previousState.totalContact + 1,
+      }));
+    });
   }
 
   handleInfiniteOnLoad = () => {
