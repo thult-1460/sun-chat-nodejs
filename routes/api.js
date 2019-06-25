@@ -165,5 +165,5 @@ router.post(
   [auth.jwtMiddleware, authorization.room.hasAuthorization, authorization.room.leaveRoom],
   roomsController.handleMemberLeaveTheRoom
 );
-
+router.post('/rooms/:roomId/edit-desc', [auth.jwtMiddleware, authorization.room.hasAuthorization], roomsController.editDescOfRoom)
 module.exports = router;

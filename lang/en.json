@@ -114,7 +114,11 @@
     },
     "edit": {
       "success": "Edit room successfully",
-      "failed": "Edit room failed"
+      "failed": "Edit room failed",
+      "desc": {
+        "success": "Edit description of room successfully",
+        "failed": "Edit description of room failed"
+      }
     },
     "invitation_code_required": "The link is required",
     "invitation_code_length": "The invitation code link must be {{min}} to {{max}} characters",
