@@ -12,6 +12,7 @@ import { getUserAvatarUrl } from './../../../helpers/common';
 const FormItem = Form.Item;
 const TabPane = Tabs.TabPane;
 
+let isSearching = false;
 class AddContact extends React.Component {
   static contextType = SocketContext;
 
@@ -52,6 +53,7 @@ class AddContact extends React.Component {
   fetchData = (page, searchText) => {
     getSearchContactByName(searchText, page)
       .then(res => {
+        isSearching = false;
         const { data } = this.state;
         res.data.result.map(item => {
           data.push(item);
@@ -85,7 +87,10 @@ class AddContact extends React.Component {
         return;
       }
 
-      this.fetchData(page, searchText);
+      if (isSearching == false) {
+        isSearching = true;
+        this.fetchData(page, searchText);
+      }
     });
   };
 
