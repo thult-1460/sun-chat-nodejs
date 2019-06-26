@@ -9,9 +9,14 @@ import {
   updateMessage,
   getDirectRoomId,
 } from './../../api/room.js';
-import { getListSentRequestContacts, deleteSentRequestContact, getContactRequest } from './../../api/contact';
 import { Link } from 'react-router-dom';
-import { addContact } from './../../api/contact';
+import {
+  addContact,
+  getListSentRequestContacts,
+  deleteSentRequestContact,
+  acceptContact,
+  rejectContact,
+} from './../../api/contact';
 import { SocketContext } from './../../context/SocketContext';
 import { withUserContext } from './../../context/withUserContext';
 import { withNamespaces } from 'react-i18next';
@@ -45,6 +50,7 @@ class ChatBox extends React.Component {
     messageIdEditing: null,
     mapUserIdRoomIds: [],
     mapUserIdSentRequest: [],
+    mapUserIdRequestContact: [],
     loadingNew: false,
     isLoadingPrev: false,
     isLoadingMes: true,
@@ -402,72 +408,127 @@ class ChatBox extends React.Component {
     return { __html: messageContentHtml };
   };
 
-  handleSendRequestContact = e => {
-    const userId = e.target.value;
+  setMapUserIdRequestContact = (requestId, status = true) => {
+    this.setState(prevState => ({
+      mapUserIdRequestContact: {
+        ...prevState.mapUserIdRequestContact,
+        [requestId]: status,
+      },
+    }));
+  }
 
-    addContact({ userId })
+  setMapUserIdSentRequest = (sentRequestId, status = true) => {
+    this.setState(prevState => ({
+      mapUserIdSentRequest: {
+        ...prevState.mapUserIdSentRequest,
+        [sentRequestId]: status,
+      },
+    }));
+  }
+
+  getDirectRoom = userId => {
+    getDirectRoomId(userId).then(res => {
+      let roomId = res.data;
+
+      this.setState(prevState => ({
+        mapUserIdRoomIds: {
+          ...prevState.mapUserIdRoomIds,
+          [userId]: roomId._id !== undefined ? roomId._id : null,
+        },
+      }));
+    });
+  }
+
+  handleSendRequestContact = e => {
+    const sendContactId = e.target.value;
+
+    addContact({ userId: sendContactId })
       .then(res => {
-        this.setState(prevState => ({
-          mapUserIdSentRequest: {
-            ...prevState.mapUserIdSentRequest,
-            [userId]: true,
-          },
-        }));
+        this.setMapUserIdSentRequest(sendContactId);
+
         message.success(res.data.success);
       })
       .catch(error => {
         message.error(error.response.data.error);
       });
-  };
+  }
 
   handleCancelRequest = e => {
-    const requestSentContactId = e.target.value;
+    const sentRequestId = e.target.value;
 
-    deleteSentRequestContact({ requestSentContactId })
+    deleteSentRequestContact({ requestSentContactId: sentRequestId })
       .then(res => {
-        this.setState(prevState => ({
-          mapUserIdSentRequest: {
-            ...prevState.mapUserIdSentRequest,
-            [requestSentContactId]: false,
-          },
-        }));
+        this.setMapUserIdSentRequest(sentRequestId, false);
+
         message.success(res.data.success);
       })
       .catch(error => {
-        this.setState({
-          error: error.response.data.error,
-        });
+        message.error(error.response.data.error);
       });
-  };
+  }
+
+  handleRejectContact = e => {
+    let dataInput = {
+      rejectContactIds: [e.target.value],
+    };
+
+    if (dataInput.rejectContactIds.length > 0) {
+      rejectContact(dataInput)
+        .then(res => {
+          dataInput['rejectContactIds'].map(checkedId => {
+            this.setMapUserIdRequestContact(checkedId, false);
+          });
+
+          message.success(res.data.success);
+        })
+        .catch(error => {
+          message.error(error.response.data.error);
+        });
+    }
+  }
+
+  handleAcceptContact = e => {
+    const requestId = [e.target.value];
+
+    acceptContact(requestId)
+      .then(res => {
+        this.setMapUserIdRequestContact(requestId, false);
+        this.getDirectRoom(requestId);
+
+        message.success(res.data.success);
+      })
+      .catch(error => {
+        message.error(error.response.data.error);
+      });
+  }
 
   handleVisibleChange = userId => visible => {
     if (visible && this.state.mapUserIdRoomIds[userId] === undefined) {
-      getDirectRoomId(userId).then(res => {
-        let roomId = res.data;
-        this.setState(prevState => ({
-          mapUserIdRoomIds: {
-            ...prevState.mapUserIdRoomIds,
-            [userId]: roomId._id !== undefined ? roomId._id : null,
-          },
-        }));
-      });
+      this.getDirectRoom(userId);
     }
 
-    if (visible && this.state.mapUserIdSentRequest[userId] === undefined) {
+    if (visible) {
       getListSentRequestContacts().then(res => {
-        let userIds = res.data.result;
+        let sentRequestIds = res.data.result;
 
-        if (userIds) {
-          userIds.map(item => {
-            this.setState(prevState => ({
-              mapUserIdSentRequest: {
-                ...prevState.mapUserIdSentRequest,
-                [item._id]: true,
-              },
-            }));
+        if (!sentRequestIds.includes(userId)) {
+          sentRequestIds.map(item => {
+            this.setMapUserIdSentRequest(item._id);
           });
+        } else {
+          this.setMapUserIdSentRequest(userId, false);
         }
       });
+
+      let requestContactIds = this.props.userContext.info.requested_in_comming;
+
+      if (requestContactIds.includes(userId)) {
+        requestContactIds.map(item => {
+          let requestContactId = Object.assign({ _id: item });
+
+          this.setMapUserIdRequestContact(requestContactId._id);
+        });
+      }
     }
   };
 
@@ -476,6 +537,7 @@ class ChatBox extends React.Component {
     const currentuserId = this.props.userContext.info._id;
     const directRoomId = this.state.mapUserIdRoomIds[message.user_info._id];
     const userIdSentRequest = this.state.mapUserIdSentRequest[message.user_info._id];
+    const userIdRequestContacts = this.state.mapUserIdRequestContact[message.user_info._id];
 
     let button = '';
     if (message.user_info._id == currentuserId) {
@@ -487,20 +549,27 @@ class ChatBox extends React.Component {
     } else if (directRoomId === undefined) {
       button = <Spin />;
     } else {
-      button = !directRoomId ? (
-        userIdSentRequest ? (
-          <Button value={message.user_info._id} onClick={this.handleCancelRequest}>
-            {this.props.t('title.cancel_request')}
-          </Button>
-        ) : (
-          <Button value={message.user_info._id} onClick={this.handleSendRequestContact}>
-            {this.props.t('title.add_contact')}
-          </Button>
-        )
-      ) : (
+      button = directRoomId ? (
         <Link to={`/rooms/${directRoomId}`}>
           <Button>{this.props.t('title.direct_chat')}</Button>
         </Link>
+      ) : userIdRequestContacts ? (
+        <div>
+          <Button value={message.user_info._id} onClick={this.handleRejectContact}>
+            {this.props.t('title.reject_request')}
+          </Button>
+          <Button value={message.user_info._id} onClick={this.handleAcceptContact}>
+            {this.props.t('title.accept_request')}
+          </Button>
+        </div>
+      ) : userIdSentRequest ? (
+        <Button value={message.user_info._id} onClick={this.handleCancelRequest}>
+          {this.props.t('title.cancel_request')}
+        </Button>
+      ) : (
+        <Button value={message.user_info._id} onClick={this.handleSendRequestContact}>
+          {this.props.t('title.add_contact')}
+        </Button>
       );
     }
 
