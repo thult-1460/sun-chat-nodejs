@@ -415,7 +415,7 @@ exports.sendRequestContact = async(function*(req, res) {
     });
   } catch (err) {
     channel.error(err);
-    
+
     return res.status(500).json({
       error: __('contact.send_request.failed'),
     });
@@ -614,6 +614,9 @@ exports.acceptContact = async(function*(req, res) {
     roomInfos.forEach(roomInfo => {
       io.to(roomInfo.receiver_id).emit('add_to_list_rooms', roomInfo.sender);
       io.to(roomInfo.sender_id).emit('add_to_list_rooms', roomInfo.receiver);
+
+      io.to(roomInfo.receiver_id).emit('add_to_list_contacts', roomInfo.sender);
+      io.to(roomInfo.sender_id).emit('add_to_list_contacts', roomInfo.receiver);
     });
 
     return res.status(200).json({

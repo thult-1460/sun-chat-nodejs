@@ -1022,7 +1022,7 @@ RoomSchema.statics = {
       },
       {
         $addFields: {
-          'receiver': mongoose.Types.ObjectId(userId),
+          receiver: mongoose.Types.ObjectId(userId),
         },
       },
       {
@@ -1035,7 +1035,7 @@ RoomSchema.statics = {
       },
       {
         $addFields: {
-          'receiver': { $arrayElemAt: ['$receiver', 0] },
+          receiver: { $arrayElemAt: ['$receiver', 0] },
         },
       },
       { $unwind: '$members' },
@@ -1060,18 +1060,20 @@ RoomSchema.statics = {
       },
       {
         $project: {
-          'sender_id': '$members.user._id',
-          'receiver_id': "$receiver._id",
+          sender_id: '$members.user._id',
+          receiver_id: '$receiver._id',
           'sender._id': '$_id',
           'sender.name': '$members.user.name',
           'sender.avatar': '$members.user.avatar',
-          'sender.pinned': {$eq: [true, false]},
-          'sender.type': "$type",
+          'sender.email': '$members.user.email',
+          'sender.pinned': { $eq: [true, false] },
+          'sender.type': '$type',
           'receiver._id': '$_id',
           'receiver.name': 1,
           'receiver.avatar': 1,
-          'receiver.pinned': {$eq: [true, false]},
-          'receiver.type': "$type",
+          'receiver.email': 1,
+          'receiver.pinned': { $eq: [true, false] },
+          'receiver.type': '$type',
         },
       },
     ]);
