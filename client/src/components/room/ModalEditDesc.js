@@ -26,6 +26,7 @@ class ModalEditDesc extends Component {
   handleVisible = () => {
     this.setState({
       visible: false,
+      showComponent: false,
     });
   }
 
