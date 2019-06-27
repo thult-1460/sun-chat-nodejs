@@ -707,3 +707,21 @@ exports.handleMemberLeaveTheRoom = async (req, res) => {
     return res.status(500).json({ error: __('room.remove_from_list_rooms.failed') });
   }
 };
+
+exports.editDescOfRoom = async (req, res) => {
+  const io = req.app.get('socketIO');
+  const { roomId } = req.params;
+  const { desc } = req.body;
+
+  try {
+    await Room.editDescOfRoom(roomId, desc);
+
+    let roomInfo = await Room.getInforOfRoom(roomId);
+    io.to(roomId).emit('edit_desc_of_room_successfully', roomInfo[0].desc);
+
+    return res.status(200).json({ message: __('room.edit.desc.success') });
+
+  } catch (err) {
+    return res.status(500).json({ message: __('room.edit.desc.failed') });
+  }
+}

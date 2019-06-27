@@ -1210,6 +1210,16 @@ RoomSchema.statics = {
       },
     ]);
   },
+
+  editDescOfRoom: function (roomId, desc) {
+    return this.findOneAndUpdate(
+      {
+        _id: roomId,
+        deletedAt: null,
+      },
+      { $set: { desc: desc } }
+    ).exec();
+  },
 };
 
 module.exports = mongoose.model('Room', RoomSchema);

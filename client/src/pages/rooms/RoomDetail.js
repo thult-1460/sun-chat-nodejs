@@ -1,6 +1,6 @@
 import React from 'react';
 import 'antd/dist/antd.css';
-import { Layout, Typography, Row, Col, message, Button, Modal, Input } from 'antd';
+import { Layout, Typography, Row, Col, message, Button, Modal, Input, Icon } from 'antd';
 import { withNamespaces } from 'react-i18next';
 import { withRouter } from 'react-router';
 import { getInforRoom, getMembersOfRoom } from '../../api/room';
@@ -9,6 +9,8 @@ import HeaderOfRoom from '../../components/room/HeaderOfRoom';
 import { roomConfig } from '../../config/roomConfig';
 import { SocketContext } from './../../context/SocketContext';
 import { withUserContext } from './../../context/withUserContext';
+import ModalEditDesc from '../../components/room/ModalEditDesc';
+import { ROOM_TYPE } from '../../config/room';
 
 const { Sider, Content } = Layout;
 const { Text } = Typography;
@@ -91,6 +93,14 @@ class RoomDetail extends React.Component {
     this.context.socket.on('create_room_success', roomId => {
       this.props.history.push(`/rooms/${roomId}`);
     });
+    this.context.socket.on('edit_desc_of_room_successfully', descOfRoom => {
+      this.setState(prevState => ({
+        roomInfo: {
+          ...prevState.roomInfo,
+          desc: descOfRoom
+        }
+      }))
+    })
   }
 
   componentWillReceiveProps(nextProps) {
@@ -123,6 +133,7 @@ class RoomDetail extends React.Component {
               <Row type="flex" justify="start" className="title-desc-chat-room">
                 <Col span={24}>
                   <Text strong> {t('title.room_des')} </Text>
+                  {((roomInfo.type === ROOM_TYPE.DIRECT_CHAT || roomInfo.type === ROOM_TYPE.MY_CHAT) || (roomInfo.type == ROOM_TYPE.GROUP_CHAT && isAdmin)) && <ModalEditDesc roomDesc={roomInfo.desc} roomId={roomId} />}
                   <Button type="primary" block onClick={this.showModal} className="invitation-btn">
                     {t('invitation.title')}
                   </Button>

@@ -15,7 +15,8 @@
     "room_name": "Group Chat Name",
     "room_des": "Description",
     "admin_confirm": "Requires confirmation from admin to join",
-    "add_member": "Add members"
+    "add_member": "Add members",
+    "edit-desc-of-room": "Edit Description Of Room"
   },
   "button": {
     "cancel": "Cancel",

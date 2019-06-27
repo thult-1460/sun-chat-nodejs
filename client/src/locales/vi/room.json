@@ -15,7 +15,8 @@
     "room_name": "Tên nhóm trò chuyện",
     "room_des": "Mô tả",
     "admin_confirm": "Cần sự xác nhận của quản trị viên",
-    "add_member": "Thêm thành viên"
+    "add_member": "Thêm thành viên",
+    "edit-desc-of-room": "Chỉnh sửa mô tả cuộc trò chuyện"
   },
   "button": {
     "cancel": "Hủy",

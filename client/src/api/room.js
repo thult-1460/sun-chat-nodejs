@@ -103,3 +103,7 @@ export function getDirectRoomId(userId) {
 export function leaveRoom(roomId) {
   return new Http().authenticated().post(`rooms/${roomId}/leave-room`);
 }
+
+export function editDescOfRoom(roomId, desc) {
+  return new Http().authenticated().post(`rooms/${roomId}/edit-desc`, desc);
+}

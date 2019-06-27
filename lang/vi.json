@@ -114,7 +114,11 @@
     },
     "edit": {
       "success": "Sửa nhóm trò chuyện thành công",
-      "failed": "Sửa nhóm trò chuyện thất bại"
+      "failed": "Sửa nhóm trò chuyện thất bại",
+      "desc": {
+        "success": "Sửa mô tả của cuộc trò chuyện thành công",
+        "failed": "Sửa mô tả của cuộc trò chuyện thất bại"
+      }
     },
     "invitation_code_required": "Link phải điền đầy đủ",
     "invitation_code_length": "Chỉ có thể nhập từ {{min}} đến {{max}} ký tự!",
