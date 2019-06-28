@@ -426,6 +426,8 @@ exports.sendRequestContact = async(function*(req, res) {
     io.to(userIdReceive).emit('add_to_list_received_requests', senderRequest);
     updateSentRequestCount(io, userIdSend);
     updateReceivedRequestCount(io, userIdReceive);
+    io.to(userIdReceive).emit('update_sending_request_users', userIdSend);
+    io.to(userIdSend).emit('update_received_request_users', userIdReceive);
 
     return res.status(200).json({
       success: __('contact.send_request.success'),
@@ -601,6 +603,9 @@ exports.rejectContact = async(function*(req, res) {
       updateSentRequestCount(io, rejectContactId);
     });
 
+    io.to(rejectContactIds).emit('update_received_request_users', _id, false);
+    io.to(_id).emit('update_sending_request_users', rejectContactIds, false);
+
     return res.status(200).json({
       success: __('contact.reject.success'),
     });
@@ -635,6 +640,11 @@ exports.acceptContact = async(function*(req, res) {
       io.to(roomInfo.receiver_id).emit('add_to_list_contacts', roomInfo.sender);
       io.to(roomInfo.sender_id).emit('add_to_list_contacts', roomInfo.receiver);
     });
+
+    io.to(acceptUserIds).emit('update_sending_request_users', _id, false);
+    io.to(acceptUserIds).emit('update_direct_room_id', _id);
+    io.to(_id).emit('update_received_request_users', acceptUserIds, false);
+    io.to(_id).emit('update_direct_room_id', acceptUserIds);
 
     return res.status(200).json({
       success: __('contact.accept.success'),
@@ -778,6 +788,8 @@ exports.deleteSentRequestContact = async function(req, res) {
     updateSentRequestCount(io, _id);
     updateReceivedRequestCount(io, requestSentContactId);
     io.to(requestSentContactId).emit('remove_from_list_received_requests', [_id]);
+    io.to(requestSentContactId).emit('update_sending_request_users', [_id], false);
+    io.to([_id]).emit('update_received_request_users', requestSentContactId, false);
 
     return res.status(200).json({
       success: __('contact.delete-request-sent-contact.success'),
