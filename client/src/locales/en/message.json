@@ -8,6 +8,12 @@
   "send": {
     "failed": "Can't send messages"
   },
+  "get_prev_msg": {
+    "failed": "Get preview messages failed!"
+  },
+  "get_next_msg": {
+    "failed": "Get next messages failed!"
+  },
   "title_edit": "Edit Message",
   "button": {
     "send": "Send",

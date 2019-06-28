@@ -292,7 +292,7 @@ exports.deleteMember = async (req, res) => {
     const room = await Room.storeMessage(roomId, userId, content, true);
     const lastMessage = room.messages.pop();
     const message = await Room.getMessageInfo(roomId, lastMessage._id);
-    const roomInfo = await Room.getInforOfRoom(roomId);
+    const roomInfo = await Room.getInforOfRoom(userId, roomId);
 
     io.to(roomId).emit('update_member_of_room', roomInfo[0].members_info);
     io.to(roomId).emit('send_new_msg', { message: message });
@@ -325,6 +325,7 @@ exports.listContactsNotMember = async (req, res) => {
 };
 
 exports.addMembers = async (req, res) => {
+  const { _id: userId } = req.decoded;
   const { users } = req.body;
   const { roomId } = req.params;
   const io = req.app.get('socketIO');
@@ -338,7 +339,7 @@ exports.addMembers = async (req, res) => {
     const last_message_id = await Room.getLastMsgId(roomId);
     const result = await Room.addMembers({ roomId, users, last_message_id });
     let newMemberOfRoom = await Room.getNewMemberOfRoom(roomId, userIds);
-    let roomInfo = await Room.getInforOfRoom(roomId);
+    let roomInfo = await Room.getInforOfRoom(userId, roomId);
 
     const response = {
       success: result ? true : false,
@@ -370,7 +371,7 @@ exports.getInforOfRoom = async function(req, res) {
     const isAdmin = role === config.MEMBER_ROLE.ADMIN;
     const isReadOnly = role === config.MEMBER_ROLE.READ_ONLY;
     let lastMsgId = await Room.getLastMsgIdOfUser(roomId, _id);
-    let roomInfo = await Room.getInforOfRoom(roomId);
+    let roomInfo = await Room.getInforOfRoom(_id, roomId);
 
     if (roomInfo.length == 0) {
       throw new Error(__('room.not_found'));
@@ -455,6 +456,7 @@ exports.rejectRequests = async (req, res) => {
 };
 
 exports.acceptRequests = async (req, res) => {
+  const { _id: userId } = req.decoded;
   const { requestIds } = req.body;
   const { roomId } = req.params;
   const io = req.app.get('socketIO');
@@ -471,7 +473,7 @@ exports.acceptRequests = async (req, res) => {
 
     io.to(roomId).emit('update_request_join_room_number', numberRequetsJoinRoom);
 
-    let roomInfo = await Room.getInforOfRoom(roomId);
+    let roomInfo = await Room.getInforOfRoom(userId, roomId);
     io.to(roomId).emit('update_member_of_room', roomInfo[0].members_info);
     io.to(roomId).emit('remove_from_list_request_join_room', requestIds);
     io.to(roomId).emit('add_to_list_members', newMemberOfRoom);
@@ -524,7 +526,7 @@ exports.loadMessages = async function(req, res) {
     }
 
     // Hot fix to load msg. In the future, you must handle by another way
-    if (Object.entries(messages).length === 0 && messages.constructor === Object) {
+    if (JSON.stringify(messages) == JSON.stringify([{}])) {
       messages = [];
     }
 
@@ -619,6 +621,7 @@ exports.updateMessage = async function(req, res) {
 };
 
 exports.editRoom = async (req, res) => {
+  const { _id: userId } = req.decoded;
   const errors = validationResult(req);
   const pathRoomAvatar = config.DIR_UPLOAD_FILE.ROOM_AVATAR;
 
@@ -649,7 +652,7 @@ exports.editRoom = async (req, res) => {
           io.to(member.user).emit('action_room');
         });
 
-        let roomInfo = await Room.getInforOfRoom(roomId);
+        let roomInfo = await Room.getInforOfRoom(userId, roomId);
         io.to(roomId).emit('edit_room_successfully', roomInfo[0]);
 
         return res.status(200).json({ message: __('room.edit.success') });
@@ -693,7 +696,7 @@ exports.handleMemberLeaveTheRoom = async (req, res) => {
     const room = await Room.storeMessage(roomId, userId, content, true);
     const lastMessage = room.messages.pop();
     const message = await Room.getMessageInfo(roomId, lastMessage._id);
-    const roomInfo = await Room.getInforOfRoom(roomId);
+    const roomInfo = await Room.getInforOfRoom(userId, roomId);
 
     io.to(roomId).emit('update_member_of_room', roomInfo[0].members_info);
     io.to(roomId).emit('send_new_msg', { message: message });
@@ -714,11 +717,12 @@ exports.editDescOfRoom = async (req, res) => {
   const io = req.app.get('socketIO');
   const { roomId } = req.params;
   const { desc } = req.body;
+  const { _id: userId } = req.decoded;
 
   try {
     await Room.editDescOfRoom(roomId, desc);
 
-    let roomInfo = await Room.getInforOfRoom(roomId);
+    let roomInfo = await Room.getInforOfRoom(userId, roomId);
     io.to(roomId).emit('edit_desc_of_room_successfully', roomInfo[0].desc);
 
     return res.status(200).json({ message: __('room.edit.desc.success') });

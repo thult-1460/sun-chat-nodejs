@@ -8,6 +8,12 @@
   "send": {
     "failed": "Không thể gửi được tin nhắn"
   },
+  "get_prev_msg": {
+    "failed": "Tải tin nhắn cũ thất bại!"
+  },
+  "get_next_msg": {
+    "failed": "Tải tin nhắn mới thất bại!"
+  },
   "title_edit": "Sửa tin nhắn",
   "button": {
     "send": "Gửi",
