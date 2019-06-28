@@ -48,7 +48,9 @@ class HeaderOfRoom extends React.Component {
       }
 
       this.state.memberOfRoom.map(member => {
-        listMember.push(<Avatar size={30} key={member._id} src={getUserAvatarUrl(member.avatar)} className="list-member-chat-room" />);
+        listMember.push(
+          <Avatar size={30} key={member._id} src={getUserAvatarUrl(member.avatar)} className="list-member-chat-room" />
+        );
       });
     }
 
@@ -122,7 +124,15 @@ class HeaderOfRoom extends React.Component {
       <Header className="header-chat-room">
         <Row type="flex" justify="start">
           <Col span={17}>
-            <Avatar size={30} src={getRoomAvatarUrl(this.props.data.avatar)} className="avatar-room-chat" />
+            <Avatar
+              size={30}
+              src={
+                data.type === ROOM_TYPE.GROUP_CHAT
+                  ? getRoomAvatarUrl(this.props.data.avatar)
+                  : getUserAvatarUrl(this.props.data.avatar)
+              }
+              className="avatar-room-chat"
+            />
             <Text strong className="name-chat-room">
               {this.props.data.name}
             </Text>

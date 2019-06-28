@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { withNamespaces } from 'react-i18next';
 import { withRouter } from 'react-router';
 import 'antd/dist/antd.css';
@@ -9,7 +9,7 @@ import ContactDetail from './ContactDetail';
 import { getUserAvatarUrl } from './../../../helpers/common';
 import { SocketContext } from './../../../context/SocketContext';
 
-class ListContacts extends Component {
+class ListContacts extends React.Component {
   static contextType = SocketContext;
 
   constructor(props) {
@@ -55,14 +55,47 @@ class ListContacts extends Component {
 
   componentDidMount() {
     const { page, searchText } = this.state;
+    const { socket } = this.context;
+
     this.fetchData(page, searchText);
 
-    const { socket } = this.context;
     socket.on('add_to_list_contacts', res => {
       this.setState(previousState => ({
         contacts: [...previousState.contacts, res],
         totalContact: previousState.totalContact + 1,
       }));
+    });
+
+    socket.on('update_user_info_in_list_contacts', res => {
+      this.setState(prevState => ({
+        contacts: prevState.contacts.map(contact =>
+          contact._id === res.user_id
+            ? {
+                ...contact,
+                email: res.data.email,
+                name: res.data.name,
+                avatar: res.data.avatar !== undefined ? res.data.avatar : contact.avatar,
+              }
+            : contact
+        ),
+      }));
+
+      if (this.state.contactDetail !== null && this.state.contactDetail._id === res.user_id) {
+        this.setState(prevState => ({
+          contactDetail: {
+            ...prevState.contactDetail,
+            email: res.data.email,
+            name: res.data.name,
+            avatar: res.data.avatar !== undefined ? res.data.avatar : prevState.contactDetail.avatar,
+            username: res.data.username,
+            full_address: res.data.full_address,
+            phone_number: res.data.phone_number,
+            twitter: res.data.twitter,
+            google: res.data.google,
+            github: res.data.github,
+          },
+        }));
+      }
     });
   }
 
@@ -125,10 +158,12 @@ class ListContacts extends Component {
 
   showContactDetail = e => {
     const userId = e.currentTarget.id;
-    for (let i in this.state.contacts) {
-      if (this.state.contacts[i]._id == userId) {
+    const { contacts } = this.state;
+
+    for (let i in contacts) {
+      if (contacts[i]._id === userId) {
         this.setState({
-          contactDetail: this.state.contacts[i],
+          contactDetail: contacts[i],
         });
       }
     }

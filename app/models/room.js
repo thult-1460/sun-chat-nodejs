@@ -1211,7 +1211,7 @@ RoomSchema.statics = {
     ]);
   },
 
-  editDescOfRoom: function (roomId, desc) {
+  editDescOfRoom: function(roomId, desc) {
     return this.findOneAndUpdate(
       {
         _id: roomId,
@@ -1219,6 +1219,31 @@ RoomSchema.statics = {
       },
       { $set: { desc: desc } }
     ).exec();
+  },
+
+  getAllDirectRoomIds: function(userId) {
+    return this.aggregate([
+      {
+        $match: {
+          type: config.ROOM_TYPE.DIRECT_CHAT,
+          'members.user': mongoose.Types.ObjectId(userId),
+          deletedAt: null,
+        },
+      },
+      {
+        $unwind: '$members',
+      },
+      {
+        $match: {
+          'members.user': { $ne: mongoose.Types.ObjectId(userId) },
+        },
+      },
+      {
+        $project: {
+          user_id: '$members.user',
+        },
+      },
+    ]);
   },
 };
 

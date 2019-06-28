@@ -84,23 +84,39 @@ class RoomDetail extends React.Component {
 
   componentDidMount() {
     const roomId = this.props.match.params.id;
+    const { socket } = this.context;
+
     this.fetchData(roomId);
     this.getAllMembersOfRoom(roomId);
 
-    this.context.socket.on('edit_room_successfully', roomInfo => {
+    socket.on('edit_room_successfully', roomInfo => {
       this.setState({ roomInfo });
     });
-    this.context.socket.on('create_room_success', roomId => {
+
+    socket.on('create_room_success', roomId => {
       this.props.history.push(`/rooms/${roomId}`);
     });
-    this.context.socket.on('edit_desc_of_room_successfully', descOfRoom => {
+
+    socket.on('edit_desc_of_room_successfully', descOfRoom => {
       this.setState(prevState => ({
         roomInfo: {
           ...prevState.roomInfo,
-          desc: descOfRoom
-        }
-      }))
-    })
+          desc: descOfRoom,
+        },
+      }));
+    });
+
+    socket.on('update_direct_room_info', res => {
+      if (this.state.roomInfo._id === res._id) {
+        this.setState({
+          roomInfo: {
+            ...this.state.roomInfo,
+            name: res.name,
+            avatar: res.avatar !== undefined ? res.avatar : this.state.roomInfo.avatar,
+          },
+        });
+      }
+    });
   }
 
   componentWillReceiveProps(nextProps) {
@@ -133,7 +149,11 @@ class RoomDetail extends React.Component {
               <Row type="flex" justify="start" className="title-desc-chat-room">
                 <Col span={24}>
                   <Text strong> {t('title.room_des')} </Text>
-                  {((roomInfo.type === ROOM_TYPE.DIRECT_CHAT || roomInfo.type === ROOM_TYPE.MY_CHAT) || (roomInfo.type == ROOM_TYPE.GROUP_CHAT && isAdmin)) && <ModalEditDesc roomDesc={roomInfo.desc} roomId={roomId} />}
+                  {(roomInfo.type === ROOM_TYPE.DIRECT_CHAT ||
+                    roomInfo.type === ROOM_TYPE.MY_CHAT ||
+                    (roomInfo.type == ROOM_TYPE.GROUP_CHAT && isAdmin)) && (
+                    <ModalEditDesc roomDesc={roomInfo.desc} roomId={roomId} />
+                  )}
                   <Button type="primary" block onClick={this.showModal} className="invitation-btn">
                     {t('invitation.title')}
                   </Button>

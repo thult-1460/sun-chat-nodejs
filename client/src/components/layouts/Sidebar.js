@@ -5,11 +5,12 @@ import { checkExpiredToken } from './../../helpers/common';
 import { getListRoomsByUser, getQuantityRoomsByUserId, togglePinnedRoom } from './../../api/room';
 import { Link } from 'react-router-dom';
 import config from './../../config/listRoom';
+import { ROOM_TYPE } from './../../config/room';
 import { withNamespaces } from 'react-i18next';
 import { SocketContext } from './../../context/SocketContext';
 import { withUserContext } from './../../context/withUserContext';
 import { withRouter } from 'react-router';
-import { getRoomAvatarUrl } from './../../helpers/common';
+import { getRoomAvatarUrl, getUserAvatarUrl } from './../../helpers/common';
 const { Sider } = Layout;
 
 class Sidebar extends React.Component {
@@ -52,12 +53,15 @@ class Sidebar extends React.Component {
 
   componentDidMount() {
     const currentRoomId = this.props.match.params.id;
+
     this.setState({ selected_room: currentRoomId });
 
     if (checkExpiredToken()) {
       const { page, filter_type } = this.state;
       let { rooms } = this.state;
+
       this.fetchData(page, filter_type);
+
       getQuantityRoomsByUserId(filter_type).then(res => {
         this.setState({
           quantity_chats: res.data.result,
@@ -110,6 +114,33 @@ class Sidebar extends React.Component {
         if (currentRoomId == res.roomId) {
           this.props.history.push(`/rooms/${this.props.userContext.my_chat_id}`);
         }
+      });
+
+      socket.on('update_direct_room_info', res => {
+        this.setState(prevState => ({
+          rooms: prevState.rooms.map(room =>
+            room._id === res._id
+              ? {
+                  ...room,
+                  name: res.name,
+                  avatar: res.avatar !== undefined ? res.avatar : room.avatar,
+                }
+              : room
+          ),
+        }));
+      });
+
+      socket.on('update_user_avatar', res => {
+        this.setState(prevState => ({
+          rooms: prevState.rooms.map(room =>
+            room._id === res.room_mychat_id
+              ? {
+                  ...room,
+                  avatar: res.avatar !== undefined ? res.avatar : room.avatar,
+                }
+              : room
+          ),
+        }));
       });
     }
   }
@@ -205,7 +236,11 @@ class Sidebar extends React.Component {
           >
             <Link to={`/rooms/${room._id}`}>
               <div className="avatar-name">
-                <Avatar src={getRoomAvatarUrl(room.avatar)} />
+                <Avatar
+                  src={
+                    room.type === ROOM_TYPE.GROUP_CHAT ? getRoomAvatarUrl(room.avatar) : getUserAvatarUrl(room.avatar)
+                  }
+                />
                 &nbsp;&nbsp;
                 <span className="nav-text">{room.name}</span>
               </div>

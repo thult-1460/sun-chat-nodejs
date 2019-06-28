@@ -17,10 +17,20 @@ const { Header } = Layout;
 class Head extends React.Component {
   static contextType = SocketContext;
 
+  state = {
+    avatar: null,
+  };
+
   componentDidMount() {
     if (checkExpiredToken()) {
-      const socket = this.context.socket;
+      const { socket } = this.context;
       socket.on('update_received_request_count', request_friend_count => {});
+
+      socket.on('update_user_avatar', res => {
+        this.setState({
+          avatar: res.avatar !== undefined ? res.avatar : null,
+        });
+      });
     }
   }
 
@@ -41,6 +51,7 @@ class Head extends React.Component {
         </Menu.Item>
       </Menu>
     );
+    const { avatar } = this.state;
 
     return checkExpiredToken() ? (
       <Header style={{ background: '#fff', padding: 0 }}>
@@ -58,7 +69,7 @@ class Head extends React.Component {
           <Col span={4}>
             <Dropdown overlay={menu}>
               <a className="ant-dropdown-link">
-                <Avatar src={getUserAvatarUrl(this.props.userContext.info.avatar)} />
+                <Avatar src={getUserAvatarUrl(avatar == null ? this.props.userContext.info.avatar : avatar)} />
                 <Icon type="down" />
               </a>
             </Dropdown>

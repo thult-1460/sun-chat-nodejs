@@ -82,7 +82,8 @@ exports.update = async(function*(req, res) {
   const criteria = { _id: _id };
   const error = validationResult(req);
   const pathUserAvatar = config.DIR_UPLOAD_FILE.USER_AVATAR;
-  
+  const io = req.app.get('socketIO');
+
   if (error.array().length) {
     const errors = customMessageValidate(error);
 
@@ -124,6 +125,21 @@ exports.update = async(function*(req, res) {
     if (!user) {
       throw new Error(__('update_to_fail_user'));
     }
+
+    const directRoomIds = yield Room.getAllDirectRoomIds(_id);
+
+    directRoomIds.map(room => {
+      io.to(room.user_id).emit('update_direct_room_info', {
+        _id: room._id,
+        name: data_changed.data.name,
+        avatar: data_changed.data.avatar,
+      });
+      io.to(room.user_id).emit('update_user_info_in_list_contacts', { user_id: _id, data: data_changed.data });
+    });
+
+    const roomMychatId = yield Room.getRoomMyChatId(_id);
+
+    io.to(_id).emit('update_user_avatar', { room_mychat_id: roomMychatId[0]._id, avatar: data_changed.data.avatar });
 
     return res.status(200).json({ success: true, msg: __('update_to_success_user') });
   } catch (e) {
