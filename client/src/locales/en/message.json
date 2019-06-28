@@ -21,6 +21,8 @@
     "my_chat": "My chat",
     "direct_chat": "Direct chat",
     "add_contact": "Add Contact",
-    "cancel_request": "Cancel"
+    "cancel_request": "Cancel",
+    "reject_request": "Reject",
+    "accept_request": "Accept"
   }
 }

@@ -261,6 +261,7 @@ UserSchema.statics = {
           full_address: 1,
           phone_number: 1,
           avatar: 1,
+          requested_in_comming: 1,
         },
       });
     } else {
@@ -273,6 +274,7 @@ UserSchema.statics = {
           reset_token_expire: 1,
           email: 1,
           active: 1,
+          requested_in_comming: 1,
         },
       });
     }
@@ -419,7 +421,7 @@ UserSchema.statics = {
     let limit = options.limit || '';
     let page = options.page || 0;
 
-    return this.find({ requested_in_comming: { $in: [userId] } })
+    return this.find({ requested_in_comming: { $in: [userId] }, deletedAt: null })
       .limit(limit)
       .skip(limit * page)
       .select(select)

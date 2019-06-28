@@ -21,6 +21,8 @@
     "my_chat": "Trò chuyện của tôi",
     "direct_chat": "Trò chuyện trực tiếp",
     "add_contact": "Thêm liên lạc",
-    "cancel_request": "Hủy"
+    "cancel_request": "Hủy",
+    "reject_request": "Từ chối",
+    "accept_request": "Đồng ý"
   }
 }
