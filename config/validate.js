@@ -28,10 +28,15 @@ const roomValidate = {
   text_search: {
     minLength: 3,
   },
+};
+
+const avatarValidate = {
   IMG_SIZE: 5, //MB
+  IMG_TYPES: ['image/png', 'image/jpeg', 'image/gif'],
 };
 
 module.exports = {
   authValidate,
   roomValidate,
+  avatarValidate,
 };

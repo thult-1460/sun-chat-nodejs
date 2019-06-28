@@ -183,7 +183,7 @@ class Profile extends React.Component {
 
     if (info.file.size / 1024 / 1024 > avatarValidate.IMG_MAX_SIZE) {
       message.error(
-        this.props.t('validate.img_size', {
+        this.props.t('user:validate.img_size', {
           max: avatarValidate.IMG_MAX_SIZE,
         })
       );
@@ -237,7 +237,15 @@ class Profile extends React.Component {
                     beforeUpload={() => false}
                     onChange={this.handleChange}
                   >
-                    {imageUrl ? <img src={changedAvatar ? imageUrl : getUserAvatarUrl(imageUrl)} alt="avatar" className="profile-avatar" /> : uploadButton}
+                    {imageUrl ? (
+                      <img
+                        src={changedAvatar ? imageUrl : getUserAvatarUrl(imageUrl)}
+                        alt="avatar"
+                        className="profile-avatar"
+                      />
+                    ) : (
+                      uploadButton
+                    )}
                   </Upload>
                 )}
               </FormItem>

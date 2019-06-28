@@ -81,7 +81,8 @@ exports.update = async(function*(req, res) {
   const { _id } = req.decoded;
   const criteria = { _id: _id };
   const error = validationResult(req);
-
+  const pathUserAvatar = config.DIR_UPLOAD_FILE.USER_AVATAR;
+  
   if (error.array().length) {
     const errors = customMessageValidate(error);
 
@@ -106,7 +107,7 @@ exports.update = async(function*(req, res) {
 
     if (data_changed.data.avatar) {
       try {
-        yield files.saveImage(data_changed.data.avatar, slug(data_changed.data.name, '-')).then(url => {
+        yield files.saveImage(data_changed.data.avatar, slug(data_changed.data.name, '-'), pathUserAvatar).then(url => {
           data_changed.data.avatar = url;
         });
       } catch (err) {

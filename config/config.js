@@ -41,7 +41,10 @@ module.exports = {
     COUNT_UNREAD: 1000,
     NEXT_MESSAGE: 10,
   },
-  DIR_UPLOAD_FILE: './public/uploads/',
+  DIR_UPLOAD_FILE: {
+    USER_AVATAR: './public/uploads/user_avatar/',
+    ROOM_AVATAR: './public/uploads/room_avatar/',
+  },
   ROOM: {
     LIMIT_REPRESENTATIVE_MEMBER: 5,
   },

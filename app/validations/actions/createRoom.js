@@ -1,5 +1,5 @@
 const { check } = require('express-validator/check');
-const { roomValidate } = require('./../../../config/validate');
+const { roomValidate, avatarValidate } = require('./../../../config/validate');
 const Room = require('../../models/room.js');
 
 let checkRoomName = () => {
@@ -62,10 +62,10 @@ let checkImgFile = () => {
 
       let imgSize = parseInt(value.replace(/=/g, '').length * 0.75) / 1024 / 1024;
 
-      if (imgSize > roomValidate.IMG_SIZE) {
+      if (imgSize > avatarValidate.IMG_SIZE) {
         throw Error(
           req.__('room.create.upload_file_failed', {
-            max: roomValidate.IMG_SIZE,
+            max: avatarValidate.IMG_SIZE,
           })
         );
       }
