@@ -29,116 +29,80 @@ import handlersMessage from '../../helpers/handlersMessage';
 import { getUserAvatarUrl } from './../../helpers/common';
 
 const { Content } = Layout;
-let firstScroll = false;
-let fourthMsgId = 0;
-let firstPrevMsgId = 0;
-let isSender = false;
-let finalFooterRoom = false;
+const initialState = {
+  // for edit msg
+  isEditing: false,
+  messageIdHovering: null,
+  messageIdEditing: null,
+
+  // for load msg
+  messages: [],
+  redLineMsgId: null,
+  loadingPrev: false,
+  loadingNext: false,
+
+  // for popover
+  directRoomIds: [],
+  receivedRequestUsers: [],
+  sendingRequestUsers: [],
+};
+const initialAttribute = {
+  messageRowRefs: [],
+  msgContainerRef: null,
+  unreadMsgLineRef: null,
+
+  hasPrevMsg: true,
+  hasNextMsg: null,
+  initData: false,
+  firstLoading: true,
+  isSender: false,
+
+  savedLastMsgId: null,
+  scrollTop: 0,
+};
 
 class ChatBox extends React.Component {
   static contextType = SocketContext;
 
-  state = {
-    isEditing: false,
-    messages: [],
-    listNewLoadedMessage: [],
-    currentLastMsgId: this.props.lastMsgId,
-    prevMessages: [],
-    hasMsgUnRead: true,
-    scrollTop: 0,
-    messageIdHovering: null,
-    messageIdEditing: null,
-    mapUserIdRoomIds: [],
-    mapUserIdSentRequest: [],
-    mapUserIdRequestContact: [],
-    loadingNew: false,
-    isLoadingPrev: false,
-    isLoadingMes: true,
-  };
-
-  prevMessageRowRefs = [];
-  messageRowRefs = [];
-  roomRef = '';
-  unReadMsg = '';
+  state = initialState;
+  attr = JSON.parse(JSON.stringify(initialAttribute));
   socket = this.context.socket;
 
-  fetchData(roomId) {
-    loadMessages(roomId).then(res => {
-      let listId = [],
-        messages = res.data.messages;
-
-      messages.map(function (item) {
-        listId.push(item._id);
-      });
-
-      this.setState({
-        isLoadingMes: false,
-        messages: messages,
-        listNewLoadedMessage: listId.reverse(),
-      });
-
-      this.checkUpdateLastMsgAndLoadNew();
-
-      loadPrevMessages(roomId, firstPrevMsgId).then(res => {
-        if (res.data.messages.length > 0) {
-          firstPrevMsgId = res.data.messages[0]._id;
-        }
-
-        if (res.data.messages.length === MESSAGE_PAGINATE) {
-          fourthMsgId = res.data.messages[VISIABLE_MSG_TO_LOAD]._id;
-        } else {
-          fourthMsgId = 0;
-        }
-
-        this.setState({
-          prevMessages: res.data.messages,
-        });
-      });
-    });
-  }
-
   componentDidMount() {
-    const roomId = this.props.roomId;
-    firstPrevMsgId = 0;
-    this.fetchData(roomId);
-
-    // Listen 'send_new_msg' event from server
     this.socket.on('send_new_msg', res => {
-      var { messages, listNewLoadedMessage } = this.state;
-      var lastMessageId = Object.keys(this.messageRowRefs).reverse()[0];
-      messages.push(res.message);
-      listNewLoadedMessage.unshift(res.message._id);
+      if (this.props.loadedRoomInfo && !this.attr.hasNextMsg) {
+        var { redLineMsgId, messages } = this.state;
+        var lastLoadedMsgId = messages.length ? messages.slice(-1)[0]._id : null;
 
-      this.setState(
-        {
-          messages: messages,
-          listNewLoadedMessage: listNewLoadedMessage,
-        },
-        () => {
-          if (isSender || (lastMessageId && this.checkInView(this.messageRowRefs[lastMessageId]))) {
-            this.updateLastMsgId([res.message._id], this.state.currentLastMsgId, 0);
-            this.messageRowRefs[res.message._id].scrollIntoView();
-            window.scrollTo(0, 0);
-            isSender = false;
-          }
+        if (!lastLoadedMsgId || (redLineMsgId == lastLoadedMsgId && this.checkInView(this.attr.messageRowRefs[lastLoadedMsgId])) || (this.attr.isSender && !this.attr.unreadMsgLineRef)) {
+          this.setState({ redLineMsgId: res.message._id });
+          this.attr.isSender = false;
         }
-      );
-    });
 
-    this.socket.on('update_last_readed_message', res => {
-      if (res.messageId) {
-        this.setState({
-          currentLastMsgId: res.messageId,
-        });
+        this.setState(
+          {
+            messages: [...messages, res.message],
+          },
+          () => {
+            if (!lastLoadedMsgId || this.checkInView(this.attr.messageRowRefs[lastLoadedMsgId])) {
+              this.updateLastMsgId(res.message._id);
+              this.attr.messageRowRefs[res.message._id].scrollIntoView();
+              window.scrollTo(0, 0);
+            }
+          }
+        );
       }
     });
 
-    //Listen 'update_msg' event from server
-    this.socket.on('update_msg', res => {
-      const { messages, prevMessages } = this.state;
-      const allMessages = messages.concat(prevMessages);
+    this.socket.on('update_last_message_id_success', res => {
+      if (res.messageId && (res.messageId > this.attr.savedLastMsgId || !this.attr.savedLastMsgId)) {
+        this.attr.savedLastMsgId = res.messageId;
+      }
+    });
 
-      const message = this.getMessageById(allMessages, res._id);
+    this.socket.on('update_msg', res => {
+      const { messages } = this.state;
+      const message = this.getMessageById(messages, res._id);
 
       if (message !== null) {
         message.content = res.content;
@@ -148,19 +112,215 @@ class ChatBox extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.roomId !== this.props.roomId) {
-      firstPrevMsgId = 0;
+    if (prevProps.loadedRoomInfo && !this.props.loadedRoomInfo) {
       document.getElementById('msg-content').value = '';
+
+      this.attr = JSON.parse(JSON.stringify(initialAttribute));
+      this.setState(initialState);
+    }
+
+    if (this.state.messages.length == 0) {
+      this.attr.messageRowRefs = new Array();
+    }
+
+    if (!prevProps.loadedRoomInfo && this.props.loadedRoomInfo) {
+      if (!this.state.redLineMsgId && this.props.lastMsgId) {
+        this.setState({ redLineMsgId: this.props.lastMsgId });
+      }
+
+      if (this.attr.hasNextMsg == undefined && this.props.roomInfo.has_unread_msg != undefined) {
+        this.attr.hasNextMsg = this.props.roomInfo.has_unread_msg;
+      }
+
       this.fetchData(this.props.roomId);
     }
 
-    if (!firstScroll && this.unReadMsg && (this.state.messages || this.state.prevMessages)) {
-      this.unReadMsg.scrollIntoView({ block: 'start' });
-      window.scroll(0, 0);
-      firstScroll = true;
+    if (Object.keys(this.attr.messageRowRefs).length && this.attr.firstLoading) {
+      if (this.attr.unreadMsgLineRef) {
+        this.attr.unreadMsgLineRef.scrollIntoView({ block: 'start' });
+        window.scroll(0, 0);
+        this.attr.firstLoading = false;
+      } else if(Object.keys(this.attr.messageRowRefs).length) {
+        this.attr.messageRowRefs[Object.keys(this.attr.messageRowRefs).slice(-1)[0]].scrollIntoView({ block: 'start' });
+        window.scroll(0, 0);
+        this.attr.firstLoading = false;
+      }
     }
   }
 
+  handleScroll = e => {
+    let scrollTop = e.currentTarget.scrollTop;
+
+    if (this.attr.scrollTop > 0) {
+      if (this.attr.scrollTop > scrollTop) {
+        this.scrollUp();
+      } else {
+        this.scrollDown();
+      }
+    }
+
+    this.attr.scrollTop = scrollTop;
+  };
+
+  scrollDown() {
+    let { messages } = this.state;
+
+    if (messages.length) {
+      this.checkUpdateLastMsgId();
+    }
+
+    const checkMsg = messages.slice(-VISIABLE_MSG_TO_LOAD)[0];
+    let dom = this.attr.messageRowRefs[checkMsg ? checkMsg._id : null];
+
+    if (this.checkInView(dom)) {
+      this.loadNextMsg(this.props.roomId, messages.slice(-1)[0]._id);
+    }
+  }
+
+  scrollUp() {
+    const { messages } = this.state;
+    const checkMsg = messages[VISIABLE_MSG_TO_LOAD - 1];
+    let dom = this.attr.messageRowRefs[checkMsg ? checkMsg._id : null];
+
+    if (this.checkInView(dom)) {
+      this.loadPrevMsg(this.props.roomId, messages[0]._id);
+    }
+  }
+
+  fetchData(roomId) {
+    const { t } = this.props;
+
+    if (!this.state.loadingNext && !this.state.loadingPrev) {
+      this.setState({ loadingNext: true });
+
+      loadMessages(roomId).then(res => {
+        this.setState({ loadingNext: false });
+        let nextMessages = res.data.messages;
+
+        if (nextMessages.length < MESSAGE_PAGINATE) {
+          this.attr.hasNextMsg = false;
+        }
+
+        if (nextMessages.length > 0) {
+          this.setState({
+            messages: nextMessages,
+          });
+          this.checkUpdateLastMsgId();
+        }
+
+        this.loadPrevMsg(roomId, this.state.messages.length ? this.state.messages[0]._id : null);
+      }).catch(error => {
+        this.setState({ loadingNext: false, });
+        message.error(t('get_next_msg.failed'));
+      });
+    }
+  }
+
+  loadPrevMsg(roomId, currentMsgId, concatMsg = true) {
+    const { t } = this.props;
+
+    if (this.attr.hasPrevMsg && !this.state.loadingPrev && !this.state.loadingNext) {
+      this.setState({ loadingPrev: true });
+
+      loadPrevMessages(roomId, currentMsgId).then(res => {
+        this.setState({ loadingPrev: false });
+        let prevMessages = res.data.messages;
+
+        if (prevMessages.length < MESSAGE_PAGINATE) {
+          this.attr.hasPrevMsg = false;
+        }
+
+        if (!this.attr.initData) {
+          this.attr.firstLoading = true;
+          this.attr.initData = true;
+        }
+
+        if (prevMessages.length > 0) {
+          this.setState({
+            messages: prevMessages.concat(this.state.messages),
+          });
+        }
+      }).catch(error => {
+        this.setState({ loadingPrev: false, });
+        message.error(t('get_prev_msg.failed'));
+      });
+    }
+  }
+
+  loadNextMsg(roomId, currentMsgId) {
+    const { t } = this.props;
+
+    if (this.attr.hasNextMsg && !this.state.loadingPrev && !this.state.loadingNext) {
+      this.setState({ loadingNext: true });
+
+      loadUnreadNextMessages(roomId, currentMsgId).then(res => {
+        this.setState({ loadingNext: false });
+        let nextMessages = res.data.messages;
+
+        if (nextMessages.length < MESSAGE_PAGINATE) {
+          this.attr.hasNextMsg = false;
+        }
+
+        if (nextMessages.length > 0) {
+          let messages = this.state.messages.concat(nextMessages);
+
+          if (messages.length > LIMIT_QUANLITY_NEWEST_MSG) {
+            messages = messages.slice(-LIMIT_QUANLITY_NEWEST_MSG);
+          }
+
+          this.setState({
+            messages: messages,
+          });
+        }
+      }).catch(error => {
+        this.setState({ loadingNext: false, });
+        message.error(t('get_next_msg.failed'));
+      });
+    }
+  }
+
+  checkInView(message) {
+    if (!message) {
+      return false;
+    }
+
+    var msgContainer = this.attr.msgContainerRef.getBoundingClientRect();
+    message = message.getBoundingClientRect();
+    var elemTop = message.top - msgContainer.top;
+    var elemBottom = elemTop + message.height;
+
+    return elemBottom > 0 && elemBottom <= msgContainer.height;
+  }
+
+  checkUpdateLastMsgId() {
+    let { messages } = this.state;
+    let messageRowRefs = this.attr.messageRowRefs;
+    let messageIdRowRefs = Object.keys(messageRowRefs);
+    let bottomMsgId = null;
+
+    for (let i = messageIdRowRefs.length - 1; i >= 0; i--) {
+      if (this.checkInView(messageRowRefs[messageIdRowRefs[i]])) {
+        bottomMsgId = messageIdRowRefs[i];
+        break;
+      }
+    }
+
+    if ((!this.attr.savedLastMsgId && bottomMsgId) || bottomMsgId > this.attr.savedLastMsgId) {
+      this.updateLastMsgId(bottomMsgId);
+    }
+  }
+
+  updateLastMsgId(lastMsgId) {
+    const param = {
+      roomId: this.props.roomId,
+      messageId: lastMsgId,
+    };
+
+    this.socket.emit('update_last_message_id', param);
+  }
+
+
+  // for display msg content - BEGIN
   formatMsgTime(timeInput) {
     const { t } = this.props;
     const time = new Date(timeInput);
@@ -168,12 +328,141 @@ class ChatBox extends React.Component {
     return moment(time).format(t('format_time'));
   }
 
+  generateMsgContent = message => {
+    const myChatId = this.props.userContext.my_chat_id;
+    const currentUserId = this.props.userContext.info._id;
+    const directRoomId = this.state.directRoomIds[message.user_info._id];
+    const receivedRequestUser = this.state.receivedRequestUsers[message.user_info._id];
+    const sendingRequestUser = this.state.sendingRequestUsers[message.user_info._id];
+    let button = '';
+
+    if (message.user_info._id == currentUserId) {
+      button = (
+        <Link to={`/rooms/${myChatId}`}>
+          <Button>{this.props.t('title.my_chat')}</Button>
+        </Link>
+      );
+    } else if (directRoomId === undefined) {
+      button = <Spin />;
+    } else {
+      button = directRoomId ? (
+        <Link to={`/rooms/${directRoomId}`}>
+          <Button>{this.props.t('title.direct_chat')}</Button>
+        </Link>
+      ) : sendingRequestUser ? (
+        <div>
+          <Button value={message.user_info._id} onClick={this.handleRejectContact}>
+            {this.props.t('title.reject_request')}
+          </Button>
+          <Button value={message.user_info._id} onClick={this.handleAcceptContact}>
+            {this.props.t('title.accept_request')}
+          </Button>
+        </div>
+      ) : receivedRequestUser ? (
+        <Button value={message.user_info._id} onClick={this.handleCancelRequest}>
+          {this.props.t('title.cancel_request')}
+        </Button>
+      ) : (
+        <Button value={message.user_info._id} onClick={this.handleSendRequestContact}>
+          {this.props.t('title.add_contact')}
+        </Button>
+      );
+    }
+
+    return (
+      <div className="popover-infor">
+        <div className="infor-bg">
+          <Avatar src={getUserAvatarUrl(message.user_info.avatar)} className="infor-avatar" />
+        </div>
+        <p className="infor-name">{message.user_info.name}</p>
+        <p>{message.user_info.email}</p>
+        <div className="infor-footer">
+          <div>{<List.Item>{button}</List.Item>}</div>
+        </div>
+      </div>
+    );
+  }
+
+  generateRedLine = () => {
+    const { t } = this.props;
+
+    return (
+      <div
+        className={'timeLine__unreadLine'}
+        ref={element => (this.attr.unreadMsgLineRef = element)}
+      >
+        <div className="timeLine__unreadLineBorder">
+          <div className="timeLine__unreadLineContainer">
+            <div className="timeLine__unreadLineBody">
+              <span className="timeLine__unreadLineText">{t('unread_title')}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  createMarkupMessage = message => {
+    const members = this.props.allMembers;
+    let messageContentHtml = handlersMessage.renderMessage(message, members);
+
+    return { __html: messageContentHtml };
+  }
+  // for display msg content - END
+
+
+  // for SEND msg - BEGIN
+  handleSendMessage = e => {
+    const { t, roomId } = this.props;
+    const messageId = this.state.messageIdEditing;
+
+    if (e.key === undefined || (e.ctrlKey && e.keyCode == 13)) {
+      let messageContent = document.getElementById('msg-content').value;
+
+      if (messageContent.trim() !== '') {
+        let data = {
+          content: messageContent,
+        };
+
+        if (messageId == null) {
+          sendMessage(roomId, data).catch(e => {
+            message.error(t('send.failed'));
+          });
+        } else {
+          updateMessage(roomId, messageId, data).catch(e => {
+            message.error(t('edit.failed'));
+          });
+        }
+
+        this.attr.isSender = true;
+
+        if (this.state.messages.length) {
+          let lastMsgId = this.state.messages.slice(-1)[0]._id;
+
+          if (this.checkInView(this.attr.messageRowRefs[lastMsgId]) && !this.attr.hasNextMsg) {
+            this.setState({ redLineMsgId: lastMsgId });
+          }
+        }
+
+        document.getElementById('msg-content').value = '';
+      }
+    }
+
+    if (e.keyCode == 27) {
+      this.handleCancelEdit();
+    }
+  }
+  // for SEND msg - END
+
+
+
+  // for edit msg - BEGIN
   handleMouseEnter = e => {
     const messageIdHovering = e.currentTarget.id;
     this.setState({
       messageIdHovering,
     });
-  };
+  }
 
   handleMouseLeave = e => {
     this.setState({
@@ -198,13 +487,13 @@ class ChatBox extends React.Component {
     });
 
     document.getElementById('msg-content').value = '';
-  };
+  }
 
   editMessage = e => {
     const messageId = e.currentTarget.id;
     const oldMsgFlag = e.currentTarget.getAttribute('old-msg-flag');
 
-    const message = (oldMsgFlag == 1) ? this.getMessageById(this.state.prevMessages, messageId)
+    const message = (oldMsgFlag == 1) ? this.getMessageById(this.state.messages, messageId)
       : this.getMessageById(this.state.messages, messageId);
 
     if (message !== null) {
@@ -215,212 +504,68 @@ class ChatBox extends React.Component {
 
       document.getElementById('msg-content').value = message.content;
     }
-  };
+  }
+  // for edit msg - END
 
-  handleSendMessage = e => {
-    const { t, roomId } = this.props;
-    const messageId = this.state.messageIdEditing;
 
-    if (e.key === undefined || (e.ctrlKey && e.keyCode == 13)) {
-      let messageContent = document.getElementById('msg-content').value;
+  // generate list TO - BEGIN
+  generateListTo = () => {
+    const { t, allMembers, roomInfo } = this.props;
+    const currentUserInfo = this.props.userContext.info;
+    const content = allMembers == [] ? (
+      <span>Not data</span>
+    ) : (
+      <div className="member-infinite-container">
+        {roomInfo.type == ROOM_TYPE.GROUP_CHAT && (
+          <a className="form-control to-all" href="javascript:;" onClick={handlersMessage.actionFunc.toAll}>
+            <span>{t('to_all')}</span>
+          </a>
+        )}
+        <InfiniteScroll initialLoad={false} pageStart={0} loadMore={this.handleInfiniteOnLoad} useWindow={false}>
+          <List
+            dataSource={allMembers}
+            renderItem={member => {
+              return member._id != currentUserInfo._id ? (
+                <List.Item key={member._id}>
+                  <List.Item.Meta
+                    avatar={<Avatar src={getUserAvatarUrl(member.avatar)} />}
+                    title={
+                      <a onClick={handlersMessage.actionFunc.toMember} href="javascript:;" data-mid={member._id}>
+                        {member.name}
+                      </a>
+                    }
+                  />
+                </List.Item>
+              ) : (
+                  <span />
+                );
+            }}
+          />
+        </InfiniteScroll>
+      </div>
+    );
 
-      if (messageContent.trim() !== '') {
-        let data = {
-          content: messageContent,
-        };
-
-        if (messageId == null) {
-          isSender = true;
-          sendMessage(roomId, data).catch(e => {
-            message.error(t('send.failed'));
-          });
-        } else {
-          updateMessage(roomId, messageId, data).catch(e => {
-            message.error(t('edit.failed'));
-          });
-        }
-
-        document.getElementById('msg-content').value = '';
-      }
-    }
-
-    if (e.keyCode == 27) {
-      this.handleCancelEdit();
-    }
-  };
-
-  checkInView(message) {
-    var roomChat = this.roomRef.getBoundingClientRect();
-    message = message.getBoundingClientRect();
-    var elemTop = message.top - roomChat.top;
-    var elemBottom = elemTop + message.height;
-
-    return (elemTop < 0 && elemBottom > 0) || (elemTop > 0 && elemTop <= roomChat.height);
+    return content;
   }
 
-  updateLastMsgId(listNewLoadedMessage, currentLastMsgId, indexMsgBeUpdated) {
-    /* when message_id need update > current last_message_id */
-    if (listNewLoadedMessage[indexMsgBeUpdated] > currentLastMsgId || currentLastMsgId === null) {
-      const param = {
-        roomId: this.props.roomId,
-        messageId: listNewLoadedMessage[indexMsgBeUpdated],
-      };
+  handleInfiniteOnLoad = () => { }
+  // generate list TO - END
 
-      this.socket.emit('update_last_readed_message', param);
-    }
-  }
 
-  checkUpdateLastMsgAndLoadNew() {
-    var { listNewLoadedMessage, currentLastMsgId, messages, prevMessages, hasMsgUnRead } = this.state;
-    var roomId = this.props.match.params.id,
-      messageRowRefs = this.messageRowRefs,
-      messageKeysRowRefs = Object.keys(messageRowRefs),
-      arrCheckEnable = [],
-      listNewId = [];
-
-    /* check from newest message, stop when meet first message be displayed */
-    for (let i = messageKeysRowRefs.length - 1; i >= 0; i--) {
-      if (listNewLoadedMessage.indexOf(messageKeysRowRefs[i]) >= 0) {
-        let status = this.checkInView(messageRowRefs[messageKeysRowRefs[i]]);
-        arrCheckEnable.push(status);
-
-        if (status) {
-          break;
-        }
-      }
-    }
-
-    if (arrCheckEnable.length <= 1) {
-      finalFooterRoom = true;
-    }
-
-    if (messages.length >= MESSAGE_PAGINATE && !this.state.loadingNew) {
-      if (hasMsgUnRead && arrCheckEnable.length <= VISIABLE_MSG_TO_LOAD) {
-        this.setState({ loadingNew: true });
-        loadUnreadNextMessages(roomId, listNewLoadedMessage[0]).then(res => {
-          this.setState({ loadingNew: false });
-          let listNewMsg = res.data.messages;
-
-          /* concat current messages and new message */
-          messages = messages.concat(listNewMsg);
-
-          if (listNewMsg.length < MESSAGE_PAGINATE) {
-            this.setState({
-              hasMsgUnRead: false,
-            });
-          }
-
-          listNewMsg.map(function (item) {
-            listNewId.push(item._id);
-          });
-
-          /* just need LIMIT_QUANLITY_NEWEST_MSG message */
-          if (messages.length > LIMIT_QUANLITY_NEWEST_MSG) {
-            messages = messages.slice(messages.length - LIMIT_QUANLITY_NEWEST_MSG, messages.length);
-            prevMessages = [];
-            firstPrevMsgId = messages[0]._id;
-            fourthMsgId = messages[VISIABLE_MSG_TO_LOAD]._id;
-          } else if (messages.length + prevMessages.length > LIMIT_QUANLITY_NEWEST_MSG) {
-            prevMessages = prevMessages.slice(
-              prevMessages.length - LIMIT_QUANLITY_NEWEST_MSG + messages.length,
-              prevMessages.length
-            );
-            firstPrevMsgId = prevMessages[0]._id;
-            fourthMsgId =
-              prevMessages.length < VISIABLE_MSG_TO_LOAD
-                ? messages[VISIABLE_MSG_TO_LOAD - prevMessages.length]._id
-                : prevMessages[VISIABLE_MSG_TO_LOAD]._id;
-          }
-
-          this.setState({
-            listNewLoadedMessage: listNewMsg ? listNewId.reverse() : listNewLoadedMessage,
-            messages: messages,
-          });
-        });
-      }
-    }
-
-    /* check the first view room || loading new message || final message */
-    if (!currentLastMsgId || currentLastMsgId === this.props.lastMsgId || this.state.loadingNew || (arrCheckEnable.length === 1 && !hasMsgUnRead)) {
-      this.updateLastMsgId(listNewLoadedMessage, currentLastMsgId, arrCheckEnable.length - 1);
-    }
-  }
-
-  scrollDown() {
-    this.checkUpdateLastMsgAndLoadNew();
-  }
-
-  scrollUp() {
-    const roomId = this.props.roomId;
-    let { prevMessages } = this.state;
-
-    if (fourthMsgId !== 0) {
-      let dom = this.prevMessageRowRefs[fourthMsgId].getBoundingClientRect();
-
-      if (dom.top > 0 && this.state.isLoadingPrev === false) {
-        // Call next API
-        loadPrevMessages(roomId, firstPrevMsgId).then(res => {
-          this.setState({ isLoadingPrev: false });
-
-          if (Object.entries(res.data.messages[0]).length !== 0) {
-            firstPrevMsgId = res.data.messages[0]._id;
-
-            if (res.data.messages.length === MESSAGE_PAGINATE) {
-              fourthMsgId = res.data.messages[VISIABLE_MSG_TO_LOAD]._id;
-            } else {
-              fourthMsgId = 0;
-            }
-
-            const oldMessages = res.data.messages;
-            prevMessages = oldMessages.concat(prevMessages);
-
-            this.setState({
-              prevMessages: prevMessages,
-            });
-          }
-        });
-
-        this.setState({ isLoadingPrev: true });
-      }
-    }
-  }
-
-  handleScroll = e => {
-    let scrollTop = e.currentTarget.scrollTop;
-
-    if (this.state.scrollTop > scrollTop) {
-      this.scrollUp();
-    } else {
-      this.scrollDown();
-    }
-
-    this.setState({
-      scrollTop: scrollTop,
-    });
-  };
-
-  handleInfiniteOnLoad = () => { };
-
-  createMarkupMessage = message => {
-    const members = this.props.allMembers;
-    let messageContentHtml = handlersMessage.renderMessage(message, members);
-
-    return { __html: messageContentHtml };
-  };
-
-  setMapUserIdRequestContact = (requestId, status = true) => {
+  // process for popover - BEGIN
+  updateSendingRequestUsers = (requestId, status = true) => {
     this.setState(prevState => ({
-      mapUserIdRequestContact: {
-        ...prevState.mapUserIdRequestContact,
+      sendingRequestUsers: {
+        ...prevState.sendingRequestUsers,
         [requestId]: status,
       },
     }));
   }
 
-  setMapUserIdSentRequest = (sentRequestId, status = true) => {
+  updateReceivedRequestUsers = (sentRequestId, status = true) => {
     this.setState(prevState => ({
-      mapUserIdSentRequest: {
-        ...prevState.mapUserIdSentRequest,
+      receivedRequestUsers: {
+        ...prevState.receivedRequestUsers,
         [sentRequestId]: status,
       },
     }));
@@ -431,8 +576,8 @@ class ChatBox extends React.Component {
       let roomId = res.data;
 
       this.setState(prevState => ({
-        mapUserIdRoomIds: {
-          ...prevState.mapUserIdRoomIds,
+        directRoomIds: {
+          ...prevState.directRoomIds,
           [userId]: roomId._id !== undefined ? roomId._id : null,
         },
       }));
@@ -444,8 +589,7 @@ class ChatBox extends React.Component {
 
     addContact({ userId: sendContactId })
       .then(res => {
-        this.setMapUserIdSentRequest(sendContactId);
-
+        this.updateReceivedRequestUsers(sendContactId);
         message.success(res.data.success);
       })
       .catch(error => {
@@ -458,8 +602,7 @@ class ChatBox extends React.Component {
 
     deleteSentRequestContact({ requestSentContactId: sentRequestId })
       .then(res => {
-        this.setMapUserIdSentRequest(sentRequestId, false);
-
+        this.updateReceivedRequestUsers(sentRequestId, false);
         message.success(res.data.success);
       })
       .catch(error => {
@@ -476,7 +619,7 @@ class ChatBox extends React.Component {
       rejectContact(dataInput)
         .then(res => {
           dataInput['rejectContactIds'].map(checkedId => {
-            this.setMapUserIdRequestContact(checkedId, false);
+            this.updateSendingRequestUsers(checkedId, false);
           });
 
           message.success(res.data.success);
@@ -492,7 +635,7 @@ class ChatBox extends React.Component {
 
     acceptContact(requestId)
       .then(res => {
-        this.setMapUserIdRequestContact(requestId, false);
+        this.updateSendingRequestUsers(requestId, false);
         this.getDirectRoom(requestId);
 
         message.success(res.data.success);
@@ -503,7 +646,7 @@ class ChatBox extends React.Component {
   }
 
   handleVisibleChange = userId => visible => {
-    if (visible && this.state.mapUserIdRoomIds[userId] === undefined) {
+    if (visible && this.state.directRoomIds[userId] === undefined) {
       this.getDirectRoom(userId);
     }
 
@@ -513,10 +656,10 @@ class ChatBox extends React.Component {
 
         if (!sentRequestIds.includes(userId)) {
           sentRequestIds.map(item => {
-            this.setMapUserIdSentRequest(item._id);
+            this.updateReceivedRequestUsers(item._id);
           });
         } else {
-          this.setMapUserIdSentRequest(userId, false);
+          this.updateReceivedRequestUsers(userId, false);
         }
       });
 
@@ -526,215 +669,48 @@ class ChatBox extends React.Component {
         requestContactIds.map(item => {
           let requestContactId = Object.assign({ _id: item });
 
-          this.setMapUserIdRequestContact(requestContactId._id);
+          this.updateSendingRequestUsers(requestContactId._id);
         });
       }
     }
   };
-
-  returnContent = message => {
-    const currentUserChatRoom = this.props.userContext.my_chat_id;
-    const currentuserId = this.props.userContext.info._id;
-    const directRoomId = this.state.mapUserIdRoomIds[message.user_info._id];
-    const userIdSentRequest = this.state.mapUserIdSentRequest[message.user_info._id];
-    const userIdRequestContacts = this.state.mapUserIdRequestContact[message.user_info._id];
-
-    let button = '';
-    if (message.user_info._id == currentuserId) {
-      button = (
-        <Link to={`/rooms/${currentUserChatRoom}`}>
-          <Button>{this.props.t('title.my_chat')}</Button>
-        </Link>
-      );
-    } else if (directRoomId === undefined) {
-      button = <Spin />;
-    } else {
-      button = directRoomId ? (
-        <Link to={`/rooms/${directRoomId}`}>
-          <Button>{this.props.t('title.direct_chat')}</Button>
-        </Link>
-      ) : userIdRequestContacts ? (
-        <div>
-          <Button value={message.user_info._id} onClick={this.handleRejectContact}>
-            {this.props.t('title.reject_request')}
-          </Button>
-          <Button value={message.user_info._id} onClick={this.handleAcceptContact}>
-            {this.props.t('title.accept_request')}
-          </Button>
-        </div>
-      ) : userIdSentRequest ? (
-        <Button value={message.user_info._id} onClick={this.handleCancelRequest}>
-          {this.props.t('title.cancel_request')}
-        </Button>
-      ) : (
-        <Button value={message.user_info._id} onClick={this.handleSendRequestContact}>
-          {this.props.t('title.add_contact')}
-        </Button>
-      );
-    }
-
-    return (
-      <div className="popover-infor">
-        <div className="infor-bg">
-          <Avatar src={getUserAvatarUrl(message.user_info.avatar)} className="infor-avatar" />
-        </div>
-        <p className="infor-name">{message.user_info.name}</p>
-        <p>{message.user_info.email}</p>
-        <div className="infor-footer">
-          <div>{<List.Item>{button}</List.Item>}</div>
-        </div>
-      </div>
-    );
-  };
+  // process for popover - END
 
   render() {
     const {
-      prevMessages,
       messages,
-      currentLastMsgId,
-      listNewLoadedMessage,
+      redLineMsgId,
       isEditing,
-      isLoadingMes,
-      isLoadingPrev,
-      loadingNew,
+      loadingPrev,
+      loadingNext,
+      messageIdEditing,
+      messageIdHovering,
     } = this.state;
-    const { t, roomInfo, allMembers } = this.props;
+    const { t, roomInfo, isReadOnly } = this.props;
     const currentUserInfo = this.props.userContext.info;
+    const showListMember = this.generateListTo();
+    const redLine = this.generateRedLine();
 
-    const showListMember =
-      allMembers == [] ? (
-        <span>Not data</span>
-      ) : (
-          <div className="member-infinite-container">
-            {roomInfo.type == ROOM_TYPE.GROUP_CHAT && (
-              <a className="form-control to-all" href="javascript:;" onClick={handlersMessage.actionFunc.toAll}>
-                <span>{t('to_all')}</span>
-              </a>
-            )}
-            <InfiniteScroll initialLoad={false} pageStart={0} loadMore={this.handleInfiniteOnLoad} useWindow={false}>
-              <List
-                dataSource={allMembers}
-                renderItem={member => {
-                  return member._id != currentUserInfo._id ? (
-                    <List.Item key={member._id}>
-                      <List.Item.Meta
-                        avatar={<Avatar src={getUserAvatarUrl(member.avatar)} />}
-                        title={
-                          <a onClick={handlersMessage.actionFunc.toMember} href="javascript:;" data-mid={member._id}>
-                            {member.name}
-                          </a>
-                        }
-                      />
-                    </List.Item>
-                  ) : (
-                      <span />
-                    );
-                }}
-              />
-            </InfiniteScroll>
-          </div>
-        );
+    let nextMsgId = null;
 
-    const redLine = (
-      <div
-        className={'timeLine__unreadLine ' + (loadingNew || currentLastMsgId === this.props.lastMsgId ? 'hide' : '')}
-        ref={element => (this.unReadMsg = element)}
-      >
-        <div className="timeLine__unreadLineBorder">
-          <div className="timeLine__unreadLineContainer">
-            <div className="timeLine__unreadLineBody">
-              <span className="timeLine__unreadLineText">{t('unread_title')}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+    for (let message of messages) {
+      if (!redLineMsgId || message._id > redLineMsgId) {
+        nextMsgId = message._id;
+        break;
+      }
+    }
 
     return (
       <Content className="chat-room">
-        <div className="list-message" ref={element => (this.roomRef = element)} onScroll={this.handleScroll}>
-          {(isLoadingPrev || isLoadingMes) && (
+        <div className="list-message" ref={element => (this.attr.msgContainerRef = element)} onScroll={this.handleScroll}>
+          {(loadingPrev) && (
             <div className="loading-room">
               <Spin tip="Loading..." />
             </div>
           )}
-          {prevMessages.map(message => {
-            let messageHtml = this.createMarkupMessage(message)
-            let notificationClass = message.is_notification ? 'pre-notification' : '';
-            let isToMe = messageHtml.__html.includes(`data-cwtag="[To:${currentUserInfo._id}]"`) ||
-              messageHtml.__html.includes(messageConfig.SIGN_TO_ALL);
-
-            return (
-              <div key={message._id} ref={element => (this.prevMessageRowRefs[message._id] = element)}>
-                <Row
-                  key={message._id}
-                  className={this.state.messageIdEditing === message._id ? 'message-item isEditing' : 'message-item', isToMe ? 'timelineMessage--mention' : '' }
-                  onMouseEnter={this.handleMouseEnter}
-                  onMouseLeave={this.handleMouseLeave}
-                  id={message._id}
-                >
-                  <Col span={22}>
-                    <List.Item className="li-message">
-                      <Popover
-                        placement="topLeft"
-                        trigger="click"
-                        text={message.user_info.name}
-                        content={this.returnContent(message)}
-                        onVisibleChange={this.handleVisibleChange(message.user_info._id)}
-                      >
-                        <div data-user-id={message.user_info._id}>
-                          <List.Item.Meta
-                            className="show-infor"
-                            avatar={<Avatar src={getUserAvatarUrl(message.user_info.avatar)} />}
-                            title={<p>{message.user_info.name}</p>}
-                          />
-                        </div>
-                      </Popover>
-                    </List.Item>
-                    <div className="infor-content">
-                      <pre className={"timelineMessage__message " + notificationClass} dangerouslySetInnerHTML={messageHtml} />
-                    </div>
-                  </Col>
-                  <Col span={2} className="message-time">
-                    <h4>
-                      {this.formatMsgTime(message.updatedAt)}{' '}
-                      {message.updatedAt !== message.createdAt ? (
-                        <span>
-                          <Icon type="edit" />
-                        </span>
-                      ) : (
-                          ''
-                        )}
-                    </h4>
-                  </Col>
-                  <Col span={24} style={{ position: 'relative' }}>
-                    {this.state.messageIdHovering === message._id && message.is_notification == false &&
-                      <div style={{ textAlign: 'right', position: 'absolute', bottom: '0', right: '0' }}>
-                        {currentUserInfo._id === message.user_info._id &&
-                          !this.props.isReadOnly && (
-                            <Button type="link" onClick={this.editMessage} id={message._id} old-msg-flag="1">
-                              <Icon type="edit" /> {t('button.edit')}
-                            </Button>
-                          )
-                        }
-                        {/*<Divider type="vertical" />*/}
-                        {/*<Button type="link" onClick={handlersMessage.actionFunc.replyMember} id={currentUserInfo._id + '-' + message._id} data-mid={message.user_info._id}>*/}
-                          {/*<Icon type="enter" /> {t('button.reply')}*/}
-                        {/*</Button>*/}
-                        {/*<Divider type="vertical" />*/}
-                        {/*<Button type="link" onClick={this.quoteMessage} id={message._id}>*/}
-                          {/*<Icon type="rollback" /> {t('button.quote')}*/}
-                        {/*</Button>*/}
-                      </div>
-                    }
-                  </Col>
-                </Row>
-              </div>
-            );
-          })}
-          <div ref={element => (this.roomRef = element)}>
+          <div>
             {messages.map(message => {
-              let messageHtml = this.createMarkupMessage(message)
+              let messageHtml = this.createMarkupMessage(message);
               let notificationClass = message.is_notification ? 'pre-notification' : '';
               let isToMe = messageHtml.__html.includes(`data-cwtag="[To:${currentUserInfo._id}]"`) ||
                 messageHtml.__html.includes(messageConfig.SIGN_TO_ALL);
@@ -742,13 +718,14 @@ class ChatBox extends React.Component {
               return (
                 <div
                   key={message._id}
-                  ref={element => (this.messageRowRefs[message._id] = element)}
+                  ref={element => (this.attr.messageRowRefs[message._id] = element)}
                   className="wrap-message"
                 >
+                  {message._id === nextMsgId ? redLine : ''}
                   <Row
                     key={message._id}
                     className={
-                      (this.state.messageIdEditing === message._id ? 'message-item isEditing' : 'message-item',
+                      (messageIdEditing === message._id ? 'message-item isEditing' : 'message-item',
                         isToMe ? 'timelineMessage--mention' : '')
                     }
                     onMouseEnter={this.handleMouseEnter}
@@ -761,7 +738,7 @@ class ChatBox extends React.Component {
                           placement="topLeft"
                           trigger="click"
                           text={message.user_info.name}
-                          content={this.returnContent(message)}
+                          content={this.generateMsgContent(message)}
                           onVisibleChange={this.handleVisibleChange(message.user_info._id)}
                         >
                           <div data-user-id={message.user_info._id}>
@@ -790,10 +767,10 @@ class ChatBox extends React.Component {
                       </h4>
                     </Col>
                     <Col span={24} style={{ position: 'relative' }}>
-                      {this.state.messageIdHovering === message._id && message.is_notification == false &&
+                      {messageIdHovering === message._id && message.is_notification == false &&
                         <div style={{ textAlign: 'right', position: 'absolute', bottom: '0', right: '0' }}>
                           {currentUserInfo._id === message.user_info._id &&
-                            !this.props.isReadOnly && (
+                            !isReadOnly && (
                               <Button type="link" onClick={this.editMessage} id={message._id}>
                                 <Icon type="edit" /> {t('button.edit')}
                               </Button>
@@ -816,11 +793,10 @@ class ChatBox extends React.Component {
                       }
                     </Col>
                   </Row>
-                  {!finalFooterRoom && message._id === currentLastMsgId && currentLastMsgId !== listNewLoadedMessage[0] ? redLine : ''}
                 </div>
               );
             })}
-            {loadingNew && (
+            {loadingNext && (
             <div className="loading-room">
               <Spin tip="Loading..." />
             </div>
@@ -850,7 +826,7 @@ class ChatBox extends React.Component {
                   style={{ float: 'right' }}
                   type="primary"
                   onClick={this.handleSendMessage}
-                  disabled={this.props.isReadOnly}
+                  disabled={isReadOnly}
                 >
                   {t('button.send')}
                 </Button>
@@ -862,7 +838,7 @@ class ChatBox extends React.Component {
           rows={4}
           style={{ resize: 'none' }}
           id="msg-content"
-          disabled={this.props.isReadOnly}
+          disabled={isReadOnly}
           onKeyDown={this.handleSendMessage}
         />
       </Content>

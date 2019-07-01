@@ -13,7 +13,7 @@ exports.saveImage = async (base64Image, fileName, path, oldUrl = '') => {
   let base64Data = base64Image.replace(/^data:image\/[a-z]+;base64,/, '');
 
   if (!fs.existsSync(path)) {
-    await fs.mkdir(path, err => {
+    await fs.mkdirSync(path, err => {
       if (err) throw err;
     });
   }

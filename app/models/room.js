@@ -117,7 +117,12 @@ RoomSchema.statics = {
                 $filter: {
                   input: '$members',
                   as: 'mem',
-                  cond: { $eq: ['$$mem.user', mongoose.Types.ObjectId(userId)] },
+                  cond: {
+                    $and: [
+                      { $eq: ['$$mem.deletedAt', null] },
+                      { $eq: ['$$mem.user', mongoose.Types.ObjectId(userId)] },
+                    ],
+                  },
                 },
               },
               0,
@@ -132,9 +137,9 @@ RoomSchema.statics = {
               input: '$messages',
               as: 'mes',
               cond: {
-                $or: [
+                $and: [
                   { $eq: ['$$mes.deletedAt', null] },
-                  { $eq: ['$$mes._id', '$last_msg_id_reserve.last_message_id'] },
+                  { $gt: ['$$mes._id', '$last_msg_id_reserve.last_message_id'] },
                 ],
               },
             },
@@ -143,7 +148,7 @@ RoomSchema.statics = {
       },
       {
         $addFields: {
-          message_limit: { $slice: ['$message_able', -1 * default_quantity_unread] },
+          message_able: { $slice: ['$message_able', -1 * default_quantity_unread] },
         },
       },
       { $unwind: '$members' },
@@ -198,26 +203,7 @@ RoomSchema.statics = {
           type: 1,
           last_created_msg: { $max: '$messages.createdAt' },
           pinned: '$last_msg_id_reserve.pinned',
-          quantity_unread: {
-            $cond: {
-              if: {
-                $and: [
-                  { $gt: [{ $indexOfArray: ['$message_limit._id', '$last_msg_id_reserve.last_message_id'] }, -1] },
-                  { $ne: ['$last_msg_id_reserve.last_message_id', null] },
-                ],
-              },
-              then: {
-                $size: {
-                  $slice: [
-                    '$message_limit._id',
-                    { $add: [{ $indexOfArray: ['$message_limit._id', '$last_msg_id_reserve.last_message_id'] }, 1] },
-                    default_quantity_unread,
-                  ],
-                },
-              },
-              else: { $size: '$message_limit' },
-            },
-          },
+          quantity_unread: { $size: '$message_able' },
         },
       }
     );
@@ -297,7 +283,7 @@ RoomSchema.statics = {
       query.push({
         $addFields: {
           quantity_unread: {
-            $gte: [{ $arrayElemAt: ['$message_able._id', 0] }, '$members.last_message_id'],
+            $gt: [{ $arrayElemAt: ['$message_able._id', -1] }, '$members.last_message_id'],
           },
         },
       });
@@ -562,7 +548,7 @@ RoomSchema.statics = {
     );
   },
 
-  getInforOfRoom: function(roomId) {
+  getInforOfRoom: function(userId, roomId) {
     return this.aggregate([
       { $match: { _id: mongoose.Types.ObjectId(roomId), deletedAt: null } },
       {
@@ -590,6 +576,45 @@ RoomSchema.statics = {
         },
       },
       {
+        $addFields: {
+          current_user: {
+            $arrayElemAt: [
+              {
+                $filter: {
+                  input: '$members',
+                  as: 'mem',
+                  cond: {
+                    $and: [
+                      { $eq: ['$$mem.deletedAt', null] },
+                      { $eq: ['$$mem.user', mongoose.Types.ObjectId(userId)] },
+                    ],
+                  },
+                },
+              },
+              0,
+            ],
+          },
+        },
+      },
+      {
+        $addFields: {
+          messages: {
+            $filter: {
+              input: '$messages',
+              as: 'mes',
+              cond: { $eq: ['$$mes.deletedAt', null] },
+            },
+          },
+        },
+      },
+      {
+        $addFields: {
+          has_unread_msg: {
+            $gt: [{ $arrayElemAt: ['$messages._id', -1] }, '$current_user.last_message_id'],
+          },
+        },
+      },
+      {
         $project: {
           name: 1,
           desc: 1,
@@ -597,6 +622,7 @@ RoomSchema.statics = {
           avatar: 1,
           invitation_code: 1,
           invitation_type: 1,
+          has_unread_msg: 1,
           'members_info._id': 1,
           'members_info.name': 1,
           'members_info.email': 1,
@@ -758,18 +784,29 @@ RoomSchema.statics = {
     ).exec();
   },
 
-  loadMessages: async function(roomId, userId, currentMsgId = 0, getNextMsgFlag = true) {
-    var paddingIndex = getNextMsgFlag ? 1 : -1 * config.LIMIT_MESSAGE.NEXT_MESSAGE;
+  loadMessages: async function(roomId, userId, currentMsgId = null, getNextMsgFlag = true) {
+    let index = getNextMsgFlag ? 0 : -config.LIMIT_MESSAGE.NEXT_MESSAGE;
+    let msgId = currentMsgId;
 
-    if (currentMsgId == 0) {
-      currentMsgId = await this.getLastMsgIdOfUser(roomId, userId);
+    if (msgId == null) {
+      msgId = await this.getLastMsgIdOfUser(roomId, userId);
 
-      if (currentMsgId == null && getNextMsgFlag == false) {
+      if (msgId == null && getNextMsgFlag == false) {
         return [];
       }
+    }
 
-      if (!getNextMsgFlag) {
-        paddingIndex++;
+    if (msgId) {
+      msgId = mongoose.Types.ObjectId(msgId);
+    }
+
+    let filterMsg = { $gt : ['$$mes._id', msgId] };
+
+    if (!getNextMsgFlag) {
+      if (currentMsgId) {
+        filterMsg = { $lt : ['$$mes._id', msgId] };
+      } else {
+        filterMsg = { $lte : ['$$mes._id', msgId] };
       }
     }
 
@@ -779,52 +816,24 @@ RoomSchema.statics = {
       { $match: { 'members.user': mongoose.Types.ObjectId(userId), 'members.deletedAt': null } },
       {
         $addFields: {
-          message_able: {
+          messages: {
             $filter: {
               input: '$messages',
               as: 'mes',
               cond: {
-                $or: [{ $eq: ['$$mes.deletedAt', null] }, { $eq: ['$$mes._id', '$user.last_message_id'] }],
+                $and: [
+                  { $eq: ['$$mes.deletedAt', null] },
+                  filterMsg,
+                ],
               },
             },
           },
         },
       },
-      {
-        $addFields: {
-          index_of_message: {
-            $add: [{ $indexOfArray: ['$message_able._id', mongoose.Types.ObjectId(currentMsgId)] }, paddingIndex],
-          },
-        },
-      },
-
       {
         $addFields: {
           messages: {
-            $cond: {
-              if: {
-                $gte: ['$index_of_message', 0],
-              },
-              then: {
-                $slice: ['$message_able', '$index_of_message', config.LIMIT_MESSAGE.NEXT_MESSAGE],
-              },
-              else: {
-                $cond: {
-                  if: {
-                    $lt: [{ $abs: '$index_of_message' }, config.LIMIT_MESSAGE.NEXT_MESSAGE],
-                  },
-                  then: {
-                    $slice: [
-                      '$message_able',
-                      {
-                        $add: ['$index_of_message', config.LIMIT_MESSAGE.NEXT_MESSAGE],
-                      },
-                    ],
-                  },
-                  else: '[]',
-                },
-              },
-            },
+            $slice: ['$messages', index, config.LIMIT_MESSAGE.NEXT_MESSAGE],
           },
         },
       },
@@ -1167,7 +1176,10 @@ RoomSchema.statics = {
               input: '$messages',
               as: 'mes',
               cond: {
-                $or: [{ $eq: ['$$mes.deletedAt', null] }, { $eq: ['$$mes._id', '$members.last_message_id'] }],
+                $and: [
+                  { $eq: ['$$mes.deletedAt', null] },
+                  { $gt: ['$$mes._id', '$members.last_message_id'] },
+                ],
               },
             },
           },
@@ -1175,33 +1187,14 @@ RoomSchema.statics = {
       },
       {
         $addFields: {
-          message_limit: { $slice: ['$message_able', -1 * config.LIMIT_MESSAGE.COUNT_UNREAD] },
+          message_able: { $slice: ['$message_able', -1 * config.LIMIT_MESSAGE.COUNT_UNREAD] },
         },
       },
       {
         $project: {
           avatar: 1,
           name: 1,
-          quantity_unread: {
-            $cond: {
-              if: {
-                $and: [
-                  { $gt: [{ $indexOfArray: ['$message_limit._id', '$members.last_message_id'] }, -1] },
-                  { $ne: ['$members.last_message_id', null] },
-                ],
-              },
-              then: {
-                $size: {
-                  $slice: [
-                    '$message_limit._id',
-                    { $add: [{ $indexOfArray: ['$message_limit._id', '$members.last_message_id'] }, 1] },
-                    config.LIMIT_MESSAGE.COUNT_UNREAD,
-                  ],
-                },
-              },
-              else: { $size: '$message_limit' },
-            },
-          },
+          quantity_unread: { $size: '$message_able' },
           role: 1,
           pinned: '$members.pinned',
           last_created_msg: { $max: '$messages.createdAt' },

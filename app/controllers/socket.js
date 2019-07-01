@@ -41,14 +41,9 @@ module.exports = function(io) {
       delete socket.roomId;
     });
 
-    socket.on('update_msg', messageId => {
-      let message = ''; // get from DB
-      io.to(socket.roomId).emit('update_msg', { _id: messageId, content: message });
-    });
-
-    socket.on('update_last_readed_message', async function({ roomId, messageId }) {
+    socket.on('update_last_message_id', async function({ roomId, messageId }) {
       let result = await Room.updateLastMessageForMember(roomId, socket.userId, messageId);
-      io.to(socket.userId).emit('update_last_readed_message', { messageId: result ? messageId : false });
+      io.to(socket.userId).emit('update_last_message_id_success', { messageId: result ? messageId : false });
     });
 
     socket.on('delete_msg', messageId => {
@@ -56,41 +51,6 @@ module.exports = function(io) {
     });
     // action of USER - END
 
-    // action of ADMIN - BEGIN
-    socket.on('add_room', (roomId, userIds) => {
-      userIds.map(userId => io.to(userId).emit('add_room', {}));
-    });
-
-    socket.on('delete_room', () => {
-      let message = '[ROOM_NAME] has been deleted.';
-      io.to(socket.roomId).emit('delete_room', message);
-    });
-
-    socket.on('add_member', (roomId, userIds) => {
-      let msg = '[USERNAMEs] joined the group.';
-      let message = {}; // add message to room
-      let members = {}; // get representative members
-      io.to(socket.roomId).emit('change_member_count', { message: message, members: members });
-      userIds.map(userId => io.to(userId).emit('add_room', {}));
-    });
-
-    socket.on('kick_out', (roomId, userIds) => {
-      let msg = '[USERNAMEs] has been deleted.';
-      let message = {}; // add message to room
-      let members = {}; // get representative members
-
-      userIds.map(userId => io.to(userId).emit('had_been_kicked_out', roomId));
-      io.to(socket.roomId).emit('change_member_count', { message: message, members: members });
-    });
-    // action of ADMIN - END
-
-    // action of MEMBER - BEGIN
-    socket.on('new_request_member', roomId => {});
-
-    socket.on('join_room', roomId => {});
-
-    socket.on('left_room', () => {});
-    // action of MEMBER - END
 
     socket.on('get_list_room', async params => {
       const options = {

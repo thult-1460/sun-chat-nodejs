@@ -26,6 +26,7 @@ class RoomDetail extends React.Component {
     lastMsgId: '',
     isCopy: false,
     members: [],
+    loadedRoomInfo: false,
   };
 
   showModal = () => {
@@ -64,6 +65,7 @@ class RoomDetail extends React.Component {
           isAdmin: res.data.isAdmin,
           lastMsgId: res.data.lastMsgId,
           isReadOnly: res.data.isReadOnly,
+          loadedRoomInfo: true,
         });
 
         this.context.socket.emit('open_room', roomId);
@@ -121,7 +123,9 @@ class RoomDetail extends React.Component {
 
   componentWillReceiveProps(nextProps) {
     const roomId = nextProps.match.params.id;
+
     if (this.props.match.params.id !== roomId) {
+      this.setState({ loadedRoomInfo: false });
       this.fetchData(roomId);
       this.getAllMembersOfRoom(roomId);
     }
@@ -129,7 +133,7 @@ class RoomDetail extends React.Component {
 
   render() {
     const { t } = this.props;
-    const { roomInfo, isAdmin, isCopy, lastMsgId, isReadOnly, members, isLoading } = this.state;
+    const { roomInfo, isAdmin, isCopy, lastMsgId, isReadOnly, members, isLoading, loadedRoomInfo } = this.state;
     const invitationURL = `${roomConfig.INVITATION_URL}${roomInfo.invitation_code}`;
     const roomId = this.props.match.params.id;
 
@@ -144,6 +148,7 @@ class RoomDetail extends React.Component {
               isReadOnly={isReadOnly}
               allMembers={members}
               roomInfo={roomInfo}
+              loadedRoomInfo={loadedRoomInfo}
             />
             <Sider className="sidebar-chat">
               <Row type="flex" justify="start" className="title-desc-chat-room">
