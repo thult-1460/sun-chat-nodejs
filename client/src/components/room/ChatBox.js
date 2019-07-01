@@ -109,6 +109,18 @@ class ChatBox extends React.Component {
         this.handleCancelEdit();
       }
     });
+
+    this.socket.on('update_received_request_users', (requestId, status = true) => {
+      this.updateReceivedRequestUsers(requestId, status);
+    });
+
+    this.socket.on('update_sending_request_users', (sentRequestId, status = true) => {
+      this.updateSendingRequestUsers(sentRequestId, status);
+    });
+
+    this.socket.on('update_direct_room_id', userId => {
+      this.getDirectRoom(userId);
+    });
   }
 
   componentDidUpdate(prevProps) {
@@ -590,6 +602,7 @@ class ChatBox extends React.Component {
     addContact({ userId: sendContactId })
       .then(res => {
         this.updateReceivedRequestUsers(sendContactId);
+        this.updateSendingRequestUsers(this.props.userContext.info._id);
         message.success(res.data.success);
       })
       .catch(error => {
@@ -603,6 +616,7 @@ class ChatBox extends React.Component {
     deleteSentRequestContact({ requestSentContactId: sentRequestId })
       .then(res => {
         this.updateReceivedRequestUsers(sentRequestId, false);
+        this.updateSendingRequestUsers(this.props.userContext.info._id, false);
         message.success(res.data.success);
       })
       .catch(error => {
@@ -620,6 +634,7 @@ class ChatBox extends React.Component {
         .then(res => {
           dataInput['rejectContactIds'].map(checkedId => {
             this.updateSendingRequestUsers(checkedId, false);
+            this.updateReceivedRequestUsers(this.props.userContext.info._id, false);
           });
 
           message.success(res.data.success);
@@ -636,6 +651,7 @@ class ChatBox extends React.Component {
     acceptContact(requestId)
       .then(res => {
         this.updateSendingRequestUsers(requestId, false);
+        this.updateReceivedRequestUsers(this.props.userContext.info._id, false);
         this.getDirectRoom(requestId);
 
         message.success(res.data.success);
@@ -650,19 +666,20 @@ class ChatBox extends React.Component {
       this.getDirectRoom(userId);
     }
 
-    if (visible) {
+    if (visible && this.state.receivedRequestUsers[userId] === undefined) {
       getListSentRequestContacts().then(res => {
         let sentRequestIds = res.data.result;
+        sentRequestIds.map(item => {
+          this.updateReceivedRequestUsers(item._id);
+        });
 
         if (!sentRequestIds.includes(userId)) {
-          sentRequestIds.map(item => {
-            this.updateReceivedRequestUsers(item._id);
-          });
-        } else {
           this.updateReceivedRequestUsers(userId, false);
         }
       });
+    }
 
+    if (visible && this.state.sendingRequestUsers[userId] === undefined) {
       let requestContactIds = this.props.userContext.info.requested_in_comming;
 
       if (requestContactIds.includes(userId)) {
