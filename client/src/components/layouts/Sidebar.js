@@ -130,12 +130,13 @@ class Sidebar extends React.Component {
         }));
       });
 
-      socket.on('update_user_avatar', res => {
+      socket.on('update_mychat_info', res => {
         this.setState(prevState => ({
           rooms: prevState.rooms.map(room =>
-            room._id === res.room_mychat_id
+            room._id === res._id
               ? {
                   ...room,
+                  name: res.name,
                   avatar: res.avatar !== undefined ? res.avatar : room.avatar,
                 }
               : room

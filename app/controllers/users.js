@@ -113,7 +113,6 @@ exports.update = async(function*(req, res) {
         });
       } catch (err) {
         channel.error(err);
-
         return res.status(500).json({ error: __('update_to_fail_user') });
       }
     } else {
@@ -126,23 +125,24 @@ exports.update = async(function*(req, res) {
       throw new Error(__('update_to_fail_user'));
     }
 
-    const directRoomIds = yield Room.getAllDirectRoomIds(_id);
+    const rooms = yield Room.getAllRoomByUserId(_id);
 
-    directRoomIds.map(room => {
-      io.to(room.user_id).emit('update_direct_room_info', {
-        _id: room._id,
-        name: data_changed.data.name,
-        avatar: data_changed.data.avatar,
-      });
-      io.to(room.user_id).emit('update_user_info_in_list_contacts', { user_id: _id, data: data_changed.data });
+    rooms.map(room => {
+      io.to(room._id).emit('update_user_info', user);
+
+      if (room.type == config.ROOM_TYPE.DIRECT_CHAT) {
+        io.to(room.members[0]).emit('update_direct_room_info', { _id: room._id, name: user.name, avatar: user.avatar });
+        io.to(room.members[0]).emit('update_user_info_in_list_contacts', { user_id: _id, data: data_changed.data });
+      }
+
+      if (room.type == config.ROOM_TYPE.SELF_CHAT) {
+        io.to(_id).emit('update_mychat_info', { _id: room._id, name: user.name, avatar: user.avatar });
+      }
     });
-
-    const roomMychatId = yield Room.getRoomMyChatId(_id);
-
-    io.to(_id).emit('update_user_avatar', { room_mychat_id: roomMychatId[0]._id, avatar: data_changed.data.avatar });
 
     return res.status(200).json({ success: true, msg: __('update_to_success_user') });
   } catch (e) {
+    channel.error(e);
     return res.status(500).json({ success: false, msg: __('update_to_fail_user') });
   }
 });
