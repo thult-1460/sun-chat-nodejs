@@ -59,6 +59,8 @@ const initialAttribute = {
 
   savedLastMsgId: null,
   scrollTop: 0,
+
+  userInfoUpdateData: {},
 };
 
 class ChatBox extends React.Component {
@@ -121,6 +123,28 @@ class ChatBox extends React.Component {
     this.socket.on('update_direct_room_id', userId => {
       this.getDirectRoom(userId);
     });
+
+    //Listen 'update_user_info' event from server
+    this.socket.on('update_user_info', res => {
+      let { messages } = this.state;
+      this.attr.userInfoUpdateData[res._id] = res;
+      messages = this.updateMessagesByUser(messages, res);
+
+      this.forceUpdate();
+    });
+  }
+
+  updateMessagesByUser(messages, user) {
+    if (messages.length > 0) {
+      messages.forEach((message, index) => {
+        if (message.user === user._id) {
+          messages[index].user = user._id;
+          messages[index].user_info = user;
+        }
+      });
+    }
+
+    return messages;
   }
 
   componentDidUpdate(prevProps) {
@@ -433,7 +457,7 @@ class ChatBox extends React.Component {
 
       if (messageContent.trim() !== '') {
         let data = {
-          content: messageContent,
+          content: handlersMessage.handleContentMessageWithI18n(messageContent),
         };
 
         if (messageId == null) {
@@ -465,7 +489,6 @@ class ChatBox extends React.Component {
     }
   }
   // for SEND msg - END
-
 
 
   // for edit msg - BEGIN
@@ -703,7 +726,7 @@ class ChatBox extends React.Component {
       messageIdEditing,
       messageIdHovering,
     } = this.state;
-    const { t, roomInfo, isReadOnly } = this.props;
+    const { t, roomInfo, isReadOnly, roomId } = this.props;
     const currentUserInfo = this.props.userContext.info;
     const showListMember = this.generateListTo();
     const redLine = this.generateRedLine();
@@ -727,9 +750,10 @@ class ChatBox extends React.Component {
           )}
           <div>
             {messages.map(message => {
-              let messageHtml = this.createMarkupMessage(message);
+              let messageHtml = this.createMarkupMessage(message, this.attr.userInfoUpdateData);
               let notificationClass = message.is_notification ? 'pre-notification' : '';
               let isToMe = messageHtml.__html.includes(`data-cwtag="[To:${currentUserInfo._id}]"`) ||
+                messageHtml.__html.includes(`data-cwtag="[rp mid=${currentUserInfo._id}]"`) ||
                 messageHtml.__html.includes(messageConfig.SIGN_TO_ALL);
 
               return (
@@ -793,19 +817,22 @@ class ChatBox extends React.Component {
                               </Button>
                             )
                           }
-                          {/*<Divider type="vertical" />*/}
-                          {/*<Button*/}
-                            {/*type="link"*/}
-                            {/*onClick={handlersMessage.actionFunc.replyMember}*/}
-                            {/*id={currentUserInfo._id + '-' + message._id}*/}
-                            {/*data-mid={message.user_info._id}*/}
-                          {/*>*/}
-                            {/*<Icon type="enter" /> {t('button.reply')}*/}
-                          {/*</Button>*/}
-                          {/*<Divider type="vertical" />*/}
-                          {/*<Button type="link" onClick={this.quoteMessage} id={message._id}>*/}
-                            {/*<Icon type="rollback" /> {t('button.quote')}*/}
-                          {/*</Button>*/}
+                          {currentUserInfo._id !== message.user_info._id &&
+                            !isReadOnly && (
+                              <Button type="link"
+                                onClick={handlersMessage.actionFunc.replyMember}
+                                id={message._id}
+                                data-rid={roomId}
+                                data-mid={message.user_info._id}
+                                data-name={message.user_info.name}
+                              >
+                                <Icon type="enter" /> {t('button.reply')}
+                              </Button>
+                            )
+                          }
+                          <Button type="link" onClick={this.quoteMessage} id={message._id}>
+                            <Icon type="rollback" /> {t('button.quote')}
+                          </Button>
                         </div>
                       }
                     </Col>

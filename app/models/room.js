@@ -1214,11 +1214,10 @@ RoomSchema.statics = {
     ).exec();
   },
 
-  getAllDirectRoomIds: function(userId) {
+  getAllRoomByUserId: function(userId) {
     return this.aggregate([
       {
         $match: {
-          type: config.ROOM_TYPE.DIRECT_CHAT,
           'members.user': mongoose.Types.ObjectId(userId),
           deletedAt: null,
         },
@@ -1228,13 +1227,36 @@ RoomSchema.statics = {
       },
       {
         $match: {
-          'members.user': { $ne: mongoose.Types.ObjectId(userId) },
-        },
+          $or: [
+            {
+              $and: [
+                { "type": {$ne: config.ROOM_TYPE.SELF_CHAT } },
+                { 'members.user': { $ne: mongoose.Types.ObjectId(userId) } },
+              ]
+            },
+            {
+              $and: [
+                { "type": {$eq: config.ROOM_TYPE.SELF_CHAT } },
+                { 'members.user': { $eq: mongoose.Types.ObjectId(userId) } }
+              ]
+            }
+          ]
+        }
       },
       {
         $project: {
           user_id: '$members.user',
+          type: 1,
         },
+      },
+      {
+        $group: {
+          _id: '$_id',
+          type: {$first: '$type'},
+          members: {
+            $push: '$user_id',
+          },
+        }
       },
     ]);
   },

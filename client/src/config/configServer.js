@@ -4,6 +4,7 @@ const config = {
   LOCALE: process.env.REACT_APP_LOCALE || 'en',
   USER_AVATAR_DIR: '/uploads/user_avatar/',
   ROOM_AVATAR_DIR: '/uploads/room_avatar/',
+  JWT_SECRET: process.env.REACT_APP_JWT_SECRET,
 };
 
 export default config;

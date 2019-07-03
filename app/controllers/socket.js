@@ -51,7 +51,6 @@ module.exports = function(io) {
     });
     // action of USER - END
 
-
     socket.on('get_list_room', async params => {
       const options = {
         userId: socket.userId,
