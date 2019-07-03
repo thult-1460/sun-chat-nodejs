@@ -850,9 +850,7 @@ class ChatBox extends React.Component {
         <div className="box-button">
           <Popover content={showListMember}>
             <Badge className="header-icon" type="primary">
-              <a href="javascript:;">
-                <strong>{t('to')}</strong>
-              </a>
+              <a href="javascript:;">{roomInfo.type !== room.ROOM_TYPE.MY_CHAT ? <strong>{t('to')}</strong> : ''}</a>
             </Badge>
           </Popover>
           {isEditing ? (

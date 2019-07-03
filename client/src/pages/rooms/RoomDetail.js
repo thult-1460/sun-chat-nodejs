@@ -197,9 +197,13 @@ class RoomDetail extends React.Component {
                   </Col>
                 </Row>
                 <div className="content-desc-chat-room">{roomInfo.desc}</div>
-                <Button type="primary" block onClick={this.showModal} className="invitation-btn">
-                  {t('invitation.title')}
-                </Button>
+                {roomInfo.type == room.ROOM_TYPE.GROUP_CHAT ? (
+                  <Button type="primary" block onClick={this.showModal} className="invitation-btn">
+                    {t('invitation.title')}
+                  </Button>
+                ) : (
+                  ''
+                )}
               </Sider>
             </Resizable>
           </Layout>
