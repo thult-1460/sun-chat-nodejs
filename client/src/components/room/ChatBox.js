@@ -752,8 +752,8 @@ class ChatBox extends React.Component {
             {messages.map(message => {
               let messageHtml = this.createMarkupMessage(message, this.attr.userInfoUpdateData);
               let notificationClass = message.is_notification ? 'pre-notification' : '';
-              let isToMe = messageHtml.__html.includes(`data-cwtag="[To:${currentUserInfo._id}]"`) ||
-                messageHtml.__html.includes(`data-cwtag="[rp mid=${currentUserInfo._id}]"`) ||
+              let isToMe = messageHtml.__html.includes(`data-tag="[To:${currentUserInfo._id}]"`) ||
+                messageHtml.__html.includes(`data-tag="[rp mid=${currentUserInfo._id}]"`) ||
                 messageHtml.__html.includes(messageConfig.SIGN_TO_ALL);
 
               return (

@@ -12,13 +12,17 @@ let subContent = {};
 const insertTextToMessageArea = function(content) {
   let target = document.getElementById('msg-content');
 
-  if (target.setRangeText) {
-    //if setRangeText function is supported by current browser
-    target.setRangeText(content)
-  } else {
-    target.focus()
-    document.execCommand('insertText', false /*no UI*/, content);
+  target.focus();
+  if (document.execCommand('insertText', false, content)) {
+    return;
   }
+
+  target.setRangeText(
+    content,
+    target.selectionStart,
+    target.selectionEnd,
+    'end'
+  );
 };
 
 const handleContentMessageWithI18n = (content) => {
@@ -54,12 +58,12 @@ const messageToHtml = {
   to: function(id, userInfo) {
     let avatar = getAvatarByID(id, userInfo);
 
-    return `<div data-cwtag="[To:${id}]" class="messageBadge" contenteditable="false"><div class="chatTimeLineTo"><span>To</span>${ avatar }</div></div>`;
+    return `<div data-tag="[To:${id}]" class="messageBadge" contenteditable="false"><div class="chatTimeLineTo"><span>To</span>${ avatar }</div></div>`;
   },
   code: function(code) {
     let codeHighlight = hljs.highlightAuto(_.unescape(code));
 
-    return `<code data-cwtag="[code] ${ code } [/code]" class="chatCode">${ codeHighlight.value }</code>`;
+    return `<code data-tag="[code] ${ code } [/code]" class="chatCode">${ codeHighlight.value }</code>`;
   },
   toall: function() {
     return '<div class="messageBadge"' + messageConfig.SIGN_TO_ALL + '><div class="messageBadge__toAllBadge" contenteditable="false"><span>TO ALL</span></div></div>';
@@ -67,20 +71,24 @@ const messageToHtml = {
   reply: function(memberId, userInfo) {
     let avatar = getAvatarByID(memberId, userInfo);
 
-    return `<div data-cwtag="[rp mid=${memberId}]" class="messageBadge" contenteditable="false"><div class="chatTimeLineTo" data-mid="${memberId}"><span>&#8592; Re</span>${ avatar }</div></div>`;
+    return `<div data-tag="[rp mid=${memberId}]" class="messageBadge" contenteditable="false"><div class="chatTimeLineTo" data-mid="${memberId}"><span>&#8592; Re</span>${ avatar }</div></div>`;
   }
 };
-
 
 const renderMessageToHtml = {
   to: function(content, userInfo) {
     let regEx = /\[to:([\w-]+)\]/gi;
     let match = regEx.exec(content);
+    let tmpMatch = {};
 
     while (match !== null) {
-      contentHtml = contentHtml.replace(match[0], messageToHtml.to(match[1], userInfo));
+      tmpMatch[match[0]] = messageToHtml.to(match[1], userInfo);
       match = regEx.exec(content);
     }
+
+    _.map(tmpMatch, function(el, key) {
+      contentHtml = contentHtml.replace(new RegExp(_.escapeRegExp(key), 'g'), el);
+    });
 
     return false;
   },
@@ -92,11 +100,16 @@ const renderMessageToHtml = {
   reply: function(content, userInfo) {
     let regEx = /\[rp mid=([\w-]+).*?\]/g;
     let match = regEx.exec(content);
+    let tmpMatch = {};
 
     while (match !== null) {
-      contentHtml = contentHtml.replace(match[0], messageToHtml.reply(match[1], userInfo));
+      tmpMatch[match[0]] = messageToHtml.reply(match[1], userInfo);
       match = regEx.exec(content);
     }
+
+    _.map(tmpMatch, function(el, key) {
+      contentHtml = contentHtml.replace(new RegExp(_.escapeRegExp(key), 'g'), el);
+    });
 
     return false;
   }
