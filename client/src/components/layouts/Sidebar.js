@@ -1,16 +1,17 @@
 import React from 'react';
-import { Layout, Icon, Menu, Avatar, message, Typography, Dropdown, List, Button, Spin } from 'antd';
+import { Layout, Icon, Menu, Avatar, message, Typography, Dropdown, List, Button } from 'antd';
 import InfiniteScroll from 'react-infinite-scroller';
 import { checkExpiredToken } from './../../helpers/common';
 import { getListRoomsByUser, getQuantityRoomsByUserId, togglePinnedRoom } from './../../api/room';
 import { Link } from 'react-router-dom';
 import config from './../../config/listRoom';
-import { ROOM_TYPE } from './../../config/room';
+import { room } from './../../config/room';
 import { withNamespaces } from 'react-i18next';
 import { SocketContext } from './../../context/SocketContext';
 import { withUserContext } from './../../context/withUserContext';
 import { withRouter } from 'react-router';
 import { getRoomAvatarUrl, getUserAvatarUrl } from './../../helpers/common';
+import { Resizable } from 're-resizable';
 const { Sider } = Layout;
 
 class Sidebar extends React.Component {
@@ -52,6 +53,14 @@ class Sidebar extends React.Component {
   }
 
   componentDidMount() {
+    let sideBarDOM = document.getElementsByClassName('side-bar')[0];
+
+    if (sideBarDOM) {
+      sideBarDOM.style.removeProperty('width');
+      sideBarDOM.style.removeProperty('min-width');
+      sideBarDOM.style.removeProperty('max-width');
+    }
+
     const currentRoomId = this.props.match.params.id;
 
     this.setState({ selected_room: currentRoomId });
@@ -226,28 +235,30 @@ class Sidebar extends React.Component {
 
     let renderHtml =
       rooms.length > 0 &&
-      rooms.map((room, index) => {
+      rooms.map((item, index) => {
         return (
           <List.Item
             key={index}
-            className={room._id == this.state.selected_room ? 'item-active' : ''}
-            data-room-id={room._id}
+            className={item._id == this.state.selected_room ? 'item-active' : ''}
+            data-room-id={item._id}
             onClick={this.updateSelectedRoom}
           >
-            <Link to={`/rooms/${room._id}`}>
+            <Link to={`/rooms/${item._id}`}>
               <div className="avatar-name">
                 <Avatar
                   src={
-                    room.type === ROOM_TYPE.GROUP_CHAT ? getRoomAvatarUrl(room.avatar) : getUserAvatarUrl(room.avatar)
+                    item.type === room.ROOM_TYPE.GROUP_CHAT ? getRoomAvatarUrl(item.avatar) : getUserAvatarUrl(item.avatar)
                   }
                 />
                 &nbsp;&nbsp;
-                <span className="nav-text">{room.name}</span>
+                <span className="nav-text">{item.name}</span>
               </div>
-              {room.quantity_unread > 0 && <Typography.Text mark>{room.quantity_unread}</Typography.Text>}
-              <Button className={room.pinned ? 'pin pinned' : 'pin'} onClick={this.handlePinned} value={room._id}>
-                <Icon type="pushpin" />
-              </Button>
+              <div className="state-room">
+                {item.quantity_unread > 0 && <Typography.Text mark>{item.quantity_unread}</Typography.Text>}
+                <Button className={item.pinned ? 'pin pinned' : 'pin'} onClick={this.handlePinned} value={item._id}>
+                  <Icon type="pushpin" />
+                </Button>
+              </div>
             </Link>
           </List.Item>
         );
@@ -255,29 +266,31 @@ class Sidebar extends React.Component {
 
     return (
       checkExpiredToken() && (
-        <Sider>
-          <div id="div-filter">
-            <Dropdown overlay={cond_filter}>
-              <a className="ant-dropdown-link">
-                {selected_content}
-                <Icon type="filter" />
-              </a>
-            </Dropdown>
-          </div>
-          <Menu theme="dark" mode="inline" defaultSelectedKeys={['1']}>
-            <div className="sidebar-infinite-container">
-              <InfiniteScroll
-                initialLoad={false}
-                pageStart={0}
-                loadMore={this.handleInfiniteOnLoad}
-                hasMore={!this.state.loading && this.state.hasMore}
-                useWindow={false}
-              >
-                {renderHtml}
-              </InfiniteScroll>
+        <Resizable enable={{right: true}} minWidth={config.MIN_WIDTH * window.innerWidth} maxWidth={config.MAX_WIDTH * window.innerWidth}>
+          <Sider className="side-bar">
+            <div id="div-filter">
+              <Dropdown overlay={cond_filter}>
+                <a className="ant-dropdown-link">
+                  {selected_content}
+                  <Icon type="filter" />
+                </a>
+              </Dropdown>
             </div>
-          </Menu>
-        </Sider>
+            <Menu theme="dark" mode="inline" defaultSelectedKeys={['1']}>
+              <div className="sidebar-infinite-container">
+                <InfiniteScroll
+                  initialLoad={false}
+                  pageStart={0}
+                  loadMore={this.handleInfiniteOnLoad}
+                  hasMore={!this.state.loading && this.state.hasMore}
+                  useWindow={false}
+                >
+                  {renderHtml}
+                </InfiniteScroll>
+              </div>
+            </Menu>
+          </Sider>
+        </Resizable>
       )
     );
   }

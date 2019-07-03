@@ -4,7 +4,7 @@ import { withRouter } from 'react-router';
 import 'antd/dist/antd.css';
 import ListContactCreateRoom from './ListContactsCreateRoom.js';
 import { createRoom, editRoom } from '../../api/room.js';
-import { roomConfig } from '../../config/roomConfig';
+import { room } from '../../config/room';
 import { Row, Col, Card, Form, Input, Icon, Button, Modal, message, Checkbox, Upload, Typography } from 'antd';
 import { SocketContext } from './../../context/SocketContext';
 import { getRoomAvatarUrl } from './../../helpers/common';
@@ -17,7 +17,7 @@ class FormCreateRoom extends PureComponent {
   static contextType = SocketContext;
   static defaultProps = {
     handleModalVisible: () => {},
-    invitationURL: roomConfig.INVITATION_URL,
+    invitationURL: room.INVITATION_URL,
     roomInfo: {
       name: '',
       desc: '',
@@ -47,22 +47,22 @@ class FormCreateRoom extends PureComponent {
       {
         required: false,
         message: this.props.t('validate.amount_char', {
-          min: roomConfig.CHAR_MIN,
-          max: roomConfig.CHAR_MAX,
+          min: room.CHAR_MIN,
+          max: room.CHAR_MAX,
         }),
-        min: roomConfig.CHAR_MIN,
-        max: roomConfig.CHAR_MAX,
+        min: room.CHAR_MIN,
+        max: room.CHAR_MAX,
       },
     ],
     invitation_code: [
       {
         required: true,
         message: this.props.t('validate.amount_char', {
-          min: roomConfig.CHAR_MIN,
-          max: roomConfig.CHAR_MAX,
+          min: room.CHAR_MIN,
+          max: room.CHAR_MAX,
         }),
-        min: roomConfig.CHAR_MIN,
-        max: roomConfig.CHAR_MAX,
+        min: room.CHAR_MIN,
+        max: room.CHAR_MAX,
       },
       {
         pattern: '^[A-Za-z0-9_-]*$',
@@ -103,23 +103,23 @@ class FormCreateRoom extends PureComponent {
   };
 
   handleChangeAvatar = info => {
-    const types = roomConfig.IMG_TYPES;
+    const types = room.IMG_TYPES;
 
     if (info.file.uid !== '-1') {
       if (types.every(type => info.file.type !== type)) {
         message.error(
           this.props.t('validate.img_type', {
-            types: roomConfig.IMG_TYPES.join(', '),
+            types: room.IMG_TYPES.join(', '),
           })
         );
 
         return;
       }
 
-      if (info.file.size / 1024 / 1024 > roomConfig.IMG_MAX_SIZE) {
+      if (info.file.size / 1024 / 1024 > room.IMG_MAX_SIZE) {
         message.error(
           this.props.t('validate.img_size', {
-            max: roomConfig.IMG_MAX_SIZE,
+            max: room.IMG_MAX_SIZE,
           })
         );
 
@@ -234,8 +234,8 @@ class FormCreateRoom extends PureComponent {
   adminApproves = e => {
     this.setState({
       invitationType: e.target.checked
-        ? roomConfig.INVITATION_TYPE.NEED_APPROVAL
-        : roomConfig.INVITATION_TYPE.NOT_NEED_APPROVAL,
+        ? room.INVITATION_TYPE.NEED_APPROVAL
+        : room.INVITATION_TYPE.NOT_NEED_APPROVAL,
     });
   };
 

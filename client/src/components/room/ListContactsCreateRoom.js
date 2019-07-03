@@ -5,7 +5,7 @@ import 'antd/dist/antd.css';
 import { List, Avatar, Button, message, Spin, Alert, Checkbox, Select, Form, Input } from 'antd';
 import { getLimitListContacts } from '../../api/contact';
 import { ROLES } from '../../config/member';
-import { roomConfig } from '../../config/roomConfig';
+import { room } from '../../config/room';
 import { getUserAvatarUrl } from './../../helpers/common';
 
 const CheckboxGroup = Checkbox.Group;
@@ -14,7 +14,7 @@ const Search = Input.Search;
 
 class ListContactCreateRoom extends Component {
   static defaultProps = {
-    limit: roomConfig.LIMIT_CONTACT,
+    limit: room.LIMIT_CONTACT,
   };
 
   state = {
@@ -174,7 +174,7 @@ class ListContactCreateRoom extends Component {
                 </List>
               </CheckboxGroup>
               <p style={{textAlign: 'center'}}>{t('contact:list_contact.limit_contact', {
-                limit: roomConfig.LIMIT_CONTACT
+                limit: room.LIMIT_CONTACT
               })}</p>
             </div>
           </div>

@@ -1,7 +1,5 @@
-'use strict';
-
 import hljs from "highlight.js";
-import { messageConfig } from '../config/messageConfig';
+import { messageConfig } from '../config/message';
 import { getUserAvatarUrl } from './common';
 const _ = require('lodash');
 

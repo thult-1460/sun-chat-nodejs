@@ -1,5 +1,4 @@
 import React, { Fragment } from 'react';
-import Main from './../../components/layouts/Main';
 import 'antd/dist/antd.css';
 import { resetPassword } from './../../api/auth.js';
 import { Form, Icon, Input, Button, Alert } from 'antd';
@@ -59,7 +58,6 @@ class ResetPassword extends React.Component {
 
   handleResetPassword = e => {
     const url = this.props.location.search;
-    const { t } = this.props;
     const params = queryString.parse(url);
     const { password, password_confirmation } = this.props.form.getFieldsValue();
     const _this = this;
