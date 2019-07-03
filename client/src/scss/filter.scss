@@ -6,25 +6,29 @@
 #div-filter {
   height: 30px;
   background-color: white;
-  margin: 16px;
+  margin: 2px;
   border-radius: 5px;
   text-align: center;
   padding: 4px;
 
   a {
     float: left;
+    font-size: 12px;
     width: 100%;
   }
 }
 
-.ant-dropdown-menu-light {
-  margin-left: -2px;
-  margin-top: 7px;
-  min-width: 265px;
-  background-color: cornflowerblue;
+.ant-dropdown-placement-bottomLeft {
+  width: 10%;
+  .ant-dropdown-menu-light {
+    margin-left: -2px;
+    margin-top: 7px;
+    width: 100%;
+    background-color: cornflowerblue;
 
-  li {
-    background-color: #cadae8;
+    li {
+      font-size: 12px;
+      background-color: #cadae8;
+    }
   }
 }
-

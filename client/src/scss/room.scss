@@ -1,9 +1,7 @@
-.sidebar-chat.ant-layout-sider {
+.description-chat.ant-layout-sider {
   color: #fff;
-
   float: right;
   background-color: #e6e6e6;
-  min-width: 406px !important;
 }
 .icon-request-list {
   margin-top: -5px;
@@ -101,7 +99,7 @@ head .delete-member {
 
 .invitation-btn {
   position: relative;
-  top: 300px;
+  top: 20px;
 }
 
 .copy-btn {
@@ -305,6 +303,9 @@ pre {
 }
 .edit-desc {
   float: right;
+  svg {
+    color: #08a0a0
+  }
 }
 .btn-group-edit-desc-of-room {
   padding: 20px 0 0 150px;

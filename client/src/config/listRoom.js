@@ -33,6 +33,8 @@ const config = {
   LIMIT_ITEM_SHOW: {
     ROOM: 20,
   },
+  MIN_WIDTH: 8/100, // ratio %
+  MAX_WIDTH: 27/100, // ratio %
 };
 
 export default config;

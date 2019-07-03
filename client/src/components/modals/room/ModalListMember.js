@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Icon, Badge, Modal, Avatar } from 'antd';
+import { Modal, Avatar } from 'antd';
 import ListMember from './../../../pages/rooms/ListMember';
 
 class ModalListMember extends Component {

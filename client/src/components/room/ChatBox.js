@@ -1,6 +1,6 @@
 import React from 'react';
 import { withRouter } from 'react-router';
-import { Layout, Input, Button, List, Avatar, Icon, Row, Col, Badge, Popover, message, Divider, Spin } from 'antd';
+import { Layout, Input, Button, List, Avatar, Icon, Row, Col, Badge, Popover, message, Spin } from 'antd';
 import {
   loadMessages,
   sendMessage,
@@ -21,8 +21,8 @@ import { SocketContext } from './../../context/SocketContext';
 import { withUserContext } from './../../context/withUserContext';
 import { withNamespaces } from 'react-i18next';
 import moment from 'moment';
-import { MESSAGE_PAGINATE, VISIABLE_MSG_TO_LOAD, LIMIT_QUANLITY_NEWEST_MSG, ROOM_TYPE } from '../../config/room';
-import { messageConfig } from '../../config/messageConfig';
+import { room } from '../../config/room';
+import { messageConfig } from '../../config/message';
 import InfiniteScroll from 'react-infinite-scroller';
 import '../../scss/messages.scss';
 import handlersMessage from '../../helpers/handlersMessage';
@@ -181,7 +181,7 @@ class ChatBox extends React.Component {
       this.checkUpdateLastMsgId();
     }
 
-    const checkMsg = messages.slice(-VISIABLE_MSG_TO_LOAD)[0];
+    const checkMsg = messages.slice(-room.VISIABLE_MSG_TO_LOAD)[0];
     let dom = this.attr.messageRowRefs[checkMsg ? checkMsg._id : null];
 
     if (this.checkInView(dom)) {
@@ -191,7 +191,7 @@ class ChatBox extends React.Component {
 
   scrollUp() {
     const { messages } = this.state;
-    const checkMsg = messages[VISIABLE_MSG_TO_LOAD - 1];
+    const checkMsg = messages[room.VISIABLE_MSG_TO_LOAD - 1];
     let dom = this.attr.messageRowRefs[checkMsg ? checkMsg._id : null];
 
     if (this.checkInView(dom)) {
@@ -209,7 +209,7 @@ class ChatBox extends React.Component {
         this.setState({ loadingNext: false });
         let nextMessages = res.data.messages;
 
-        if (nextMessages.length < MESSAGE_PAGINATE) {
+        if (nextMessages.length < room.MESSAGE_PAGINATE) {
           this.attr.hasNextMsg = false;
         }
 
@@ -238,7 +238,7 @@ class ChatBox extends React.Component {
         this.setState({ loadingPrev: false });
         let prevMessages = res.data.messages;
 
-        if (prevMessages.length < MESSAGE_PAGINATE) {
+        if (prevMessages.length < room.MESSAGE_PAGINATE) {
           this.attr.hasPrevMsg = false;
         }
 
@@ -269,15 +269,15 @@ class ChatBox extends React.Component {
         this.setState({ loadingNext: false });
         let nextMessages = res.data.messages;
 
-        if (nextMessages.length < MESSAGE_PAGINATE) {
+        if (nextMessages.length < room.MESSAGE_PAGINATE) {
           this.attr.hasNextMsg = false;
         }
 
         if (nextMessages.length > 0) {
           let messages = this.state.messages.concat(nextMessages);
 
-          if (messages.length > LIMIT_QUANLITY_NEWEST_MSG) {
-            messages = messages.slice(-LIMIT_QUANLITY_NEWEST_MSG);
+          if (messages.length > room.LIMIT_QUANLITY_NEWEST_MSG) {
+            messages = messages.slice(-room.LIMIT_QUANLITY_NEWEST_MSG);
           }
 
           this.setState({
@@ -528,7 +528,7 @@ class ChatBox extends React.Component {
       <span>Not data</span>
     ) : (
       <div className="member-infinite-container">
-        {roomInfo.type == ROOM_TYPE.GROUP_CHAT && (
+        {roomInfo.type == room.ROOM_TYPE.GROUP_CHAT && (
           <a className="form-control to-all" href="javascript:;" onClick={handlersMessage.actionFunc.toAll}>
             <span>{t('to_all')}</span>
           </a>

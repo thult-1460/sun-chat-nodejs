@@ -6,11 +6,11 @@ import { withRouter } from 'react-router';
 import { getInforRoom, getMembersOfRoom } from '../../api/room';
 import ChatBox from '../../components/room/ChatBox';
 import HeaderOfRoom from '../../components/room/HeaderOfRoom';
-import { roomConfig } from '../../config/roomConfig';
 import { SocketContext } from './../../context/SocketContext';
 import { withUserContext } from './../../context/withUserContext';
 import ModalEditDesc from '../../components/room/ModalEditDesc';
-import { ROOM_TYPE } from '../../config/room';
+import { room } from '../../config/room';
+import { Resizable } from 're-resizable';
 
 const { Sider, Content } = Layout;
 const { Text } = Typography;
@@ -85,6 +85,14 @@ class RoomDetail extends React.Component {
   };
 
   componentDidMount() {
+    let descDOM = document.getElementsByClassName('description-chat')[0];
+
+    if (descDOM) {
+      descDOM.style.removeProperty('width');
+      descDOM.style.removeProperty('min-width');
+      descDOM.style.removeProperty('max-width');
+    }
+
     const roomId = this.props.match.params.id;
     const { socket } = this.context;
 
@@ -133,8 +141,8 @@ class RoomDetail extends React.Component {
 
   render() {
     const { t } = this.props;
-    const { roomInfo, isAdmin, isCopy, lastMsgId, isReadOnly, members, isLoading, loadedRoomInfo } = this.state;
-    const invitationURL = `${roomConfig.INVITATION_URL}${roomInfo.invitation_code}`;
+    const { roomInfo, isAdmin, isCopy, lastMsgId, isReadOnly, members, loadedRoomInfo } = this.state;
+    const invitationURL = `${room.INVITATION_URL}${roomInfo.invitation_code}`;
     const roomId = this.props.match.params.id;
 
     return (
@@ -150,39 +158,41 @@ class RoomDetail extends React.Component {
               roomInfo={roomInfo}
               loadedRoomInfo={loadedRoomInfo}
             />
-            <Sider className="sidebar-chat">
-              <Row type="flex" justify="start" className="title-desc-chat-room">
-                <Col span={24}>
-                  <Text strong> {t('title.room_des')} </Text>
-                  {(roomInfo.type === ROOM_TYPE.DIRECT_CHAT ||
-                    roomInfo.type === ROOM_TYPE.MY_CHAT ||
-                    (roomInfo.type == ROOM_TYPE.GROUP_CHAT && isAdmin)) && (
-                    <ModalEditDesc roomDesc={roomInfo.desc} roomId={roomId} />
-                  )}
-                  <Button type="primary" block onClick={this.showModal} className="invitation-btn">
-                    {t('invitation.title')}
-                  </Button>
-                  <Modal
-                    title="Invitation Link"
-                    visible={this.state.visible}
-                    onOk={this.handleOk}
-                    onCancel={this.handleCancel}
-                    footer={[
-                      <Button key="back" onClick={this.handleCancel}>
-                        {t('button.back')}
-                      </Button>,
-                    ]}
-                  >
-                    <p> {t('invitation.description')} </p>
-                    <Input placeholder="Basic usage" value={invitationURL} id="url-invitation" />
-                    <Button type="primary" onClick={this.handleCopyInvitationLink} className="copy-btn">
-                      {isCopy ? t('button.copied') : t('button.copy')}
-                    </Button>
-                  </Modal>
-                </Col>
-              </Row>
-              <div className="content-desc-chat-room">{roomInfo.desc}</div>
-            </Sider>
+            <Resizable enable={{left: true}} minWidth={room.MIN_WIDTH_DESC * window.innerWidth} maxWidth={room.MAX_WIDTH_DESC * window.innerWidth}>
+              <Sider className="description-chat">
+                <Row type="flex" justify="start" className="title-desc-chat-room">
+                  <Col span={24}>
+                    <Text strong> {t('title.room_des')} </Text>
+                    {(roomInfo.type === room.ROOM_TYPE.DIRECT_CHAT ||
+                      roomInfo.type === room.ROOM_TYPE.MY_CHAT ||
+                      (roomInfo.type == room.ROOM_TYPE.GROUP_CHAT && isAdmin)) && (
+                      <ModalEditDesc roomDesc={roomInfo.desc} roomId={roomId} />
+                    )}
+                    <Modal
+                      title="Invitation Link"
+                      visible={this.state.visible}
+                      onOk={this.handleOk}
+                      onCancel={this.handleCancel}
+                      footer={[
+                        <Button key="back" onClick={this.handleCancel}>
+                          {t('button.back')}
+                        </Button>,
+                      ]}
+                    >
+                      <p> {t('invitation.description')} </p>
+                      <Input placeholder="Basic usage" value={invitationURL} id="url-invitation" />
+                      <Button type="primary" onClick={this.handleCopyInvitationLink} className="copy-btn">
+                        {isCopy ? t('button.copied') : t('button.copy')}
+                      </Button>
+                    </Modal>
+                  </Col>
+                </Row>
+                <div className="content-desc-chat-room">{roomInfo.desc}</div>
+                <Button type="primary" block onClick={this.showModal} className="invitation-btn">
+                  {t('invitation.title')}
+                </Button>
+              </Sider>
+            </Resizable>
           </Layout>
         </Layout>
       </React.Fragment>

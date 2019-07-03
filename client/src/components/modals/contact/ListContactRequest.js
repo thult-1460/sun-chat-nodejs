@@ -112,8 +112,6 @@ class ListContactRequest extends React.Component {
 
   handleRejectContact = e => {
     let dataInput = {};
-    let newData = [];
-    const { data, numberContacts } = this.state;
 
     // If check all
     dataInput = {

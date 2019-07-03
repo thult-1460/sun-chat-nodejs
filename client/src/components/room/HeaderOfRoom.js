@@ -2,7 +2,7 @@ import React from 'react';
 import { deleteRoom, leaveRoom } from '../../api/room';
 import { withNamespaces } from 'react-i18next';
 import history from '../../history';
-import { ROOM_TYPE, LIMIT_REPRESENTATIVE_MEMBER } from '../../config/room';
+import { room } from '../../config/room';
 import { Layout, Menu, Icon, Button, Dropdown, message, Typography, Avatar, Row, Col } from 'antd';
 import ModalListRequest from '../modals/room/ModalListRequest';
 import ModalListMember from '../modals/room/ModalListMember';
@@ -38,9 +38,9 @@ class HeaderOfRoom extends React.Component {
   showRepresentativeMembers = () => {
     let listMember = [];
     const data = this.props.data;
-    const limitShowMember = LIMIT_REPRESENTATIVE_MEMBER;
+    const limitShowMember = room.LIMIT_REPRESENTATIVE_MEMBER;
 
-    if (data.type === ROOM_TYPE.GROUP_CHAT) {
+    if (data.type === room.ROOM_TYPE.GROUP_CHAT) {
       if (data.number_of_members > limitShowMember) {
         listMember.push(<ModalListMember key={0} numRemainMember={data.number_of_members - limitShowMember} />);
       } else {
@@ -110,7 +110,7 @@ class HeaderOfRoom extends React.Component {
       }
     }
 
-    if (data.type === ROOM_TYPE.DIRECT_CHAT) {
+    if (data.type === room.ROOM_TYPE.DIRECT_CHAT) {
       buttonLeaveRoom = (
         <Button value={directChatId} onClick={this.handleDeteleContact}>
           {t('button.remove_contact')}
@@ -127,7 +127,7 @@ class HeaderOfRoom extends React.Component {
             <Avatar
               size={30}
               src={
-                data.type === ROOM_TYPE.GROUP_CHAT
+                data.type === room.ROOM_TYPE.GROUP_CHAT
                   ? getRoomAvatarUrl(this.props.data.avatar)
                   : getUserAvatarUrl(this.props.data.avatar)
               }
@@ -146,7 +146,7 @@ class HeaderOfRoom extends React.Component {
           </Col>
           <Col span={4}> {this.showRepresentativeMembers()}</Col>
           <Col span={1}>{this.props.isAdmin && <ModalListNotMember />}</Col>
-          {data.type !== ROOM_TYPE.MY_CHAT && (
+          {data.type !== room.ROOM_TYPE.MY_CHAT && (
             <Col span={1}>
               <Dropdown
                 overlay={

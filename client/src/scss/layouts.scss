@@ -11,9 +11,7 @@ body {
 
 .ant-layout-sider {
   flex: 0 0 300px !important;
-  max-width: 300px !important;
-  min-width: 270px !important;
-  width: 300px !important;
+  width: 100%;
 }
 
 .ant-menu-dark {
@@ -22,23 +20,32 @@ body {
 
     .avatar-name {
       float: left;
-      min-width: 212px;
+      min-width: 80%;
+      width: 80%;
+      max-width: 81%;
 
       .nav-text {
+        line-height: 12px;
+        display: block;
         color: white;
         font-size: 12px;
         white-space: nowrap;
-        width: 212px;
         overflow: hidden;
         text-overflow: ellipsis;
+        padding: 15px 0 0 0;
       }
+    }
+
+    .state-room {
+      min-width: 30px;
+      max-width: 50px;
+      float: left;
     }
 
     .ant-typography {
       height: 25px;
       margin: 5px 0 0 0;
-      padding: 12px 10px;
-      float: right;
+      padding: 12px 2px;
 
       mark {
         background-color: #6b54b2;
@@ -52,7 +59,6 @@ body {
 
     .anticon {
       margin: 10px 3px 0 0;
-      float: right;
     }
   }
 }
@@ -75,7 +81,7 @@ section.ant-layout {
   margin-left: 0 !important;
 
   main.ant-layout-content {
-    border: 1px solid #e5e5e5;
+    border: 1px solid #bdb5b5;
     border-radius: 4px;
   }
 }
@@ -119,13 +125,13 @@ section.ant-layout {
     height: 35px;
     border: none;
     background: none;
-    color: #133b63;
+    color: #485366;
     float: right;
-    margin-right: 5px;
+    margin-right: 1px;
     &:hover,
     &.pinned {
       background: none;
-      color: #40a9ff;
+      color: #00ff2f;
     }
     &:focus,
     &:active {
@@ -144,6 +150,7 @@ section.ant-layout {
   }
 }
 .avatar-name .ant-avatar {
+  float: left;
   width: 35px;
   height: 35px;
 }
@@ -158,4 +165,28 @@ section.ant-layout {
 .sidebar-infinite-container {
   overflow: auto;
   height: 890px;
+}
+
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+  background: transparent;
+  overflow: visible;
+}
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(0, 0, 0, 0);
+}
+
+.side-bar {
+  height: -webkit-fill-available;
+  border-right: 5px groove !important;
+  ::-webkit-scrollbar-thumb {
+    background-color: #4e4d4d;
+    border: 1px solid rgba(0, 0, 0, 0);
+  }
 }
