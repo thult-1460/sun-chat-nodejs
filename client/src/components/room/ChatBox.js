@@ -810,7 +810,7 @@ class ChatBox extends React.Component {
                     <Col span={24} style={{ position: 'relative' }}>
                       {messageIdHovering === message._id && message.is_notification == false &&
                         <div style={{ textAlign: 'right', position: 'absolute', bottom: '0', right: '0' }}>
-                          {currentUserInfo._id === message.user_info._id &&
+                          {currentUserInfo._id === message.user_info._id && !message.is_notification &&
                             !isReadOnly && (
                               <Button type="link" onClick={this.editMessage} id={message._id}>
                                 <Icon type="edit" /> {t('button.edit')}
