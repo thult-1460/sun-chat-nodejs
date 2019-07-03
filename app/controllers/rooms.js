@@ -155,6 +155,7 @@ exports.createRoom = async (req, res) => {
   room.messages = room.messages ? room.messages : [];
   room.messages.push({
     content: __('room.create.message_dafault', { name: room.name }),
+    is_init_room: true,
     user: _id,
   });
 

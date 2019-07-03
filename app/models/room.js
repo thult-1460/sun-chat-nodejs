@@ -11,6 +11,7 @@ const Messages = new Schema(
     content: { type: String },
     is_notification: { type: Boolean, default: false },
     user: { type: Schema.ObjectId, ref: 'User' },
+    is_init_room: { type: Boolean, default: false },
     deletedAt: { type: Date, default: null },
   },
   {
@@ -866,6 +867,7 @@ RoomSchema.statics = {
           'user_info.avatar': 1,
           'user_info.email': 1,
           is_notification: 1,
+          is_init_room: 1,
         },
       },
     ]);
