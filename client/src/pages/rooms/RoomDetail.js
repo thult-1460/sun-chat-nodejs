@@ -132,9 +132,23 @@ class RoomDetail extends React.Component {
     socket.on('update_user_info', res => {
       const { members } = this.state;
       let index = members.findIndex(member => member._id == res._id);
-      members[index] = {...members[index], ...res}
+      members[index] = { ...members[index], ...res };
 
-      this.setState({ members });
+      this.setState(prevState => ({
+        roomInfo: {
+          ...prevState.roomInfo,
+          members_info: prevState.roomInfo.members_info.map(member =>
+            member._id === res._id
+              ? {
+                  ...member,
+                  name: res.name,
+                  avatar: res.avatar,
+                }
+              : member
+          ),
+          members,
+        },
+      }));
     });
   }
 
@@ -152,10 +166,10 @@ class RoomDetail extends React.Component {
   setWidthChatBox = () => {
     let sideBarW = document.getElementsByClassName('side-bar')[0].offsetWidth;
     let descW = document.getElementsByClassName('description-chat')[0].offsetWidth;
-    document.getElementsByClassName('chat-room')[0].style.width = (window.innerWidth - sideBarW - descW ) +'px';
+    document.getElementsByClassName('chat-room')[0].style.width = window.innerWidth - sideBarW - descW + 'px';
     localStorage.setItem('sideBarW', sideBarW);
     localStorage.setItem('descW', descW);
-  }
+  };
 
   render() {
     const { t } = this.props;
@@ -178,8 +192,13 @@ class RoomDetail extends React.Component {
               roomInfo={roomInfo}
               loadedRoomInfo={loadedRoomInfo}
             />
-            <Resizable enable={{left: true}} minWidth={minW} maxWidth={maxW} onResizeStop={this.setWidthChatBox}
-                       defaultSize={{width: localStorage.getItem('descW') ? localStorage.getItem('descW') : (minW + maxW)/2}}>
+            <Resizable
+              enable={{ left: true }}
+              minWidth={minW}
+              maxWidth={maxW}
+              onResizeStop={this.setWidthChatBox}
+              defaultSize={{ width: localStorage.getItem('descW') ? localStorage.getItem('descW') : (minW + maxW) / 2 }}
+            >
               <Sider className="description-chat">
                 <Row type="flex" justify="start" className="title-desc-chat-room">
                   <Col span={24}>

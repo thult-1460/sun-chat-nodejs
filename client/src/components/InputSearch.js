@@ -3,7 +3,8 @@ import { Input, List, Avatar } from 'antd';
 import { Link } from 'react-router-dom';
 import config from './../config/listRoom';
 import { getListRoomsBySubName } from './../api/room';
-import { getRoomAvatarUrl } from './../helpers/common';
+import { getRoomAvatarUrl, getUserAvatarUrl } from './../helpers/common';
+import { room } from './../config/room';
 
 export default class InputSearch extends Component {
   data = [];
@@ -20,7 +21,7 @@ export default class InputSearch extends Component {
     document.removeEventListener('mousedown', this.handleClick);
   }
 
-  seachName = e => {
+  searchName = e => {
     let text = e.target.value.trim();
     this.data = [];
 
@@ -48,6 +49,13 @@ export default class InputSearch extends Component {
     }
   };
 
+  clickItem = () => {
+    this.setState({
+      subName: '',
+      hasData: false,
+    });
+  };
+
   render() {
     var name = [],
       regex = new RegExp(`(.*)(${this.state.subName})(.*)`, 'i');
@@ -56,8 +64,8 @@ export default class InputSearch extends Component {
       <div ref={node => (this.node = node)}>
         <Input.Search
           placeholder="Search name here !"
-          onChange={this.seachName}
-          onClick={this.seachName}
+          onChange={this.searchName}
+          onClick={this.searchName}
           className="ant-dropdown-link"
         />
         {this.state.hasData && (
@@ -69,9 +77,17 @@ export default class InputSearch extends Component {
               (name = item.name.match(regex)) && (
                 <List.Item>
                   <List.Item.Meta
-                    avatar={<Avatar src={getRoomAvatarUrl(item.avatar)} />}
+                    avatar={
+                      <Avatar
+                        src={
+                          item.type === room.ROOM_TYPE.GROUP_CHAT
+                            ? getRoomAvatarUrl(item.avatar)
+                            : getUserAvatarUrl(item.avatar)
+                        }
+                      />
+                    }
                     title={
-                      <Link to={`/rooms/${item._id}`}>
+                      <Link to={`/rooms/${item._id}`} onClick={this.clickItem}>
                         {name[1]}
                         <span>{name[2]}</span>
                         {name[3]}

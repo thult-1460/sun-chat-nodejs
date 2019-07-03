@@ -343,6 +343,7 @@ RoomSchema.statics = {
         $project: {
           name: 1,
           avatar: 1,
+          type: 1,
         },
       },
     ]);
@@ -800,13 +801,13 @@ RoomSchema.statics = {
       msgId = mongoose.Types.ObjectId(msgId);
     }
 
-    let filterMsg = { $gt : ['$$mes._id', msgId] };
+    let filterMsg = { $gt: ['$$mes._id', msgId] };
 
     if (!getNextMsgFlag) {
       if (currentMsgId) {
-        filterMsg = { $lt : ['$$mes._id', msgId] };
+        filterMsg = { $lt: ['$$mes._id', msgId] };
       } else {
-        filterMsg = { $lte : ['$$mes._id', msgId] };
+        filterMsg = { $lte: ['$$mes._id', msgId] };
       }
     }
 
@@ -821,10 +822,7 @@ RoomSchema.statics = {
               input: '$messages',
               as: 'mes',
               cond: {
-                $and: [
-                  { $eq: ['$$mes.deletedAt', null] },
-                  filterMsg,
-                ],
+                $and: [{ $eq: ['$$mes.deletedAt', null] }, filterMsg],
               },
             },
           },
@@ -1176,10 +1174,7 @@ RoomSchema.statics = {
               input: '$messages',
               as: 'mes',
               cond: {
-                $and: [
-                  { $eq: ['$$mes.deletedAt', null] },
-                  { $gt: ['$$mes._id', '$members.last_message_id'] },
-                ],
+                $and: [{ $eq: ['$$mes.deletedAt', null] }, { $gt: ['$$mes._id', '$members.last_message_id'] }],
               },
             },
           },
@@ -1230,18 +1225,18 @@ RoomSchema.statics = {
           $or: [
             {
               $and: [
-                { "type": {$ne: config.ROOM_TYPE.SELF_CHAT } },
+                { type: { $ne: config.ROOM_TYPE.SELF_CHAT } },
                 { 'members.user': { $ne: mongoose.Types.ObjectId(userId) } },
-              ]
+              ],
             },
             {
               $and: [
-                { "type": {$eq: config.ROOM_TYPE.SELF_CHAT } },
-                { 'members.user': { $eq: mongoose.Types.ObjectId(userId) } }
-              ]
-            }
-          ]
-        }
+                { type: { $eq: config.ROOM_TYPE.SELF_CHAT } },
+                { 'members.user': { $eq: mongoose.Types.ObjectId(userId) } },
+              ],
+            },
+          ],
+        },
       },
       {
         $project: {
@@ -1252,11 +1247,11 @@ RoomSchema.statics = {
       {
         $group: {
           _id: '$_id',
-          type: {$first: '$type'},
+          type: { $first: '$type' },
           members: {
             $push: '$user_id',
           },
-        }
+        },
       },
     ]);
   },

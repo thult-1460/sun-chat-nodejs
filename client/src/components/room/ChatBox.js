@@ -76,7 +76,11 @@ class ChatBox extends React.Component {
         var { redLineMsgId, messages } = this.state;
         var lastLoadedMsgId = messages.length ? messages.slice(-1)[0]._id : null;
 
-        if (!lastLoadedMsgId || (redLineMsgId == lastLoadedMsgId && this.checkInView(this.attr.messageRowRefs[lastLoadedMsgId])) || (this.attr.isSender && !this.attr.unreadMsgLineRef)) {
+        if (
+          !lastLoadedMsgId ||
+          (redLineMsgId == lastLoadedMsgId && this.checkInView(this.attr.messageRowRefs[lastLoadedMsgId])) ||
+          (this.attr.isSender && !this.attr.unreadMsgLineRef)
+        ) {
           this.setState({ redLineMsgId: res.message._id });
           this.attr.isSender = false;
         }
@@ -136,7 +140,7 @@ class ChatBox extends React.Component {
     //cho vào helper dc thì tốt
     let sideBarW = document.getElementsByClassName('side-bar')[0].offsetWidth;
     let descW = document.getElementsByClassName('description-chat')[0].offsetWidth;
-    document.getElementsByClassName('chat-room')[0].style.width = (window.innerWidth - sideBarW - descW ) +'px';
+    document.getElementsByClassName('chat-room')[0].style.width = window.innerWidth - sideBarW - descW + 'px';
     localStorage.setItem('sideBarW', sideBarW);
     localStorage.setItem('descW', descW);
   }
@@ -155,6 +159,8 @@ class ChatBox extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
+    this.inputMsg.focus();
+
     if (prevProps.loadedRoomInfo && !this.props.loadedRoomInfo) {
       document.getElementById('msg-content').value = '';
 
@@ -183,7 +189,7 @@ class ChatBox extends React.Component {
         this.attr.unreadMsgLineRef.scrollIntoView({ block: 'start' });
         window.scroll(0, 0);
         this.attr.firstLoading = false;
-      } else if(Object.keys(this.attr.messageRowRefs).length) {
+      } else if (Object.keys(this.attr.messageRowRefs).length) {
         this.attr.messageRowRefs[Object.keys(this.attr.messageRowRefs).slice(-1)[0]].scrollIntoView({ block: 'start' });
         window.scroll(0, 0);
         this.attr.firstLoading = false;
@@ -236,26 +242,28 @@ class ChatBox extends React.Component {
     if (!this.state.loadingNext && !this.state.loadingPrev) {
       this.setState({ loadingNext: true });
 
-      loadMessages(roomId).then(res => {
-        this.setState({ loadingNext: false });
-        let nextMessages = res.data.messages;
+      loadMessages(roomId)
+        .then(res => {
+          this.setState({ loadingNext: false });
+          let nextMessages = res.data.messages;
 
-        if (nextMessages.length < room.MESSAGE_PAGINATE) {
-          this.attr.hasNextMsg = false;
-        }
+          if (nextMessages.length < room.MESSAGE_PAGINATE) {
+            this.attr.hasNextMsg = false;
+          }
 
-        if (nextMessages.length > 0) {
-          this.setState({
-            messages: nextMessages,
-          });
-          this.checkUpdateLastMsgId();
-        }
+          if (nextMessages.length > 0) {
+            this.setState({
+              messages: nextMessages,
+            });
+            this.checkUpdateLastMsgId();
+          }
 
-        this.loadPrevMsg(roomId, this.state.messages.length ? this.state.messages[0]._id : null);
-      }).catch(error => {
-        this.setState({ loadingNext: false, });
-        message.error(t('get_next_msg.failed'));
-      });
+          this.loadPrevMsg(roomId, this.state.messages.length ? this.state.messages[0]._id : null);
+        })
+        .catch(error => {
+          this.setState({ loadingNext: false });
+          message.error(t('get_next_msg.failed'));
+        });
     }
   }
 
@@ -265,28 +273,30 @@ class ChatBox extends React.Component {
     if (this.attr.hasPrevMsg && !this.state.loadingPrev && !this.state.loadingNext) {
       this.setState({ loadingPrev: true });
 
-      loadPrevMessages(roomId, currentMsgId).then(res => {
-        this.setState({ loadingPrev: false });
-        let prevMessages = res.data.messages;
+      loadPrevMessages(roomId, currentMsgId)
+        .then(res => {
+          this.setState({ loadingPrev: false });
+          let prevMessages = res.data.messages;
 
-        if (prevMessages.length < room.MESSAGE_PAGINATE) {
-          this.attr.hasPrevMsg = false;
-        }
+          if (prevMessages.length < room.MESSAGE_PAGINATE) {
+            this.attr.hasPrevMsg = false;
+          }
 
-        if (!this.attr.initData) {
-          this.attr.firstLoading = true;
-          this.attr.initData = true;
-        }
+          if (!this.attr.initData) {
+            this.attr.firstLoading = true;
+            this.attr.initData = true;
+          }
 
-        if (prevMessages.length > 0) {
-          this.setState({
-            messages: prevMessages.concat(this.state.messages),
-          });
-        }
-      }).catch(error => {
-        this.setState({ loadingPrev: false, });
-        message.error(t('get_prev_msg.failed'));
-      });
+          if (prevMessages.length > 0) {
+            this.setState({
+              messages: prevMessages.concat(this.state.messages),
+            });
+          }
+        })
+        .catch(error => {
+          this.setState({ loadingPrev: false });
+          message.error(t('get_prev_msg.failed'));
+        });
     }
   }
 
@@ -296,29 +306,31 @@ class ChatBox extends React.Component {
     if (this.attr.hasNextMsg && !this.state.loadingPrev && !this.state.loadingNext) {
       this.setState({ loadingNext: true });
 
-      loadUnreadNextMessages(roomId, currentMsgId).then(res => {
-        this.setState({ loadingNext: false });
-        let nextMessages = res.data.messages;
+      loadUnreadNextMessages(roomId, currentMsgId)
+        .then(res => {
+          this.setState({ loadingNext: false });
+          let nextMessages = res.data.messages;
 
-        if (nextMessages.length < room.MESSAGE_PAGINATE) {
-          this.attr.hasNextMsg = false;
-        }
-
-        if (nextMessages.length > 0) {
-          let messages = this.state.messages.concat(nextMessages);
-
-          if (messages.length > room.LIMIT_QUANLITY_NEWEST_MSG) {
-            messages = messages.slice(-room.LIMIT_QUANLITY_NEWEST_MSG);
+          if (nextMessages.length < room.MESSAGE_PAGINATE) {
+            this.attr.hasNextMsg = false;
           }
 
-          this.setState({
-            messages: messages,
-          });
-        }
-      }).catch(error => {
-        this.setState({ loadingNext: false, });
-        message.error(t('get_next_msg.failed'));
-      });
+          if (nextMessages.length > 0) {
+            let messages = this.state.messages.concat(nextMessages);
+
+            if (messages.length > room.LIMIT_QUANLITY_NEWEST_MSG) {
+              messages = messages.slice(-room.LIMIT_QUANLITY_NEWEST_MSG);
+            }
+
+            this.setState({
+              messages: messages,
+            });
+          }
+        })
+        .catch(error => {
+          this.setState({ loadingNext: false });
+          message.error(t('get_next_msg.failed'));
+        });
     }
   }
 
@@ -361,7 +373,6 @@ class ChatBox extends React.Component {
 
     this.socket.emit('update_last_message_id', param);
   }
-
 
   // for display msg content - BEGIN
   formatMsgTime(timeInput) {
@@ -424,16 +435,13 @@ class ChatBox extends React.Component {
         </div>
       </div>
     );
-  }
+  };
 
   generateRedLine = () => {
     const { t } = this.props;
 
     return (
-      <div
-        className={'timeLine__unreadLine'}
-        ref={element => (this.attr.unreadMsgLineRef = element)}
-      >
+      <div className={'timeLine__unreadLine'} ref={element => (this.attr.unreadMsgLineRef = element)}>
         <div className="timeLine__unreadLineBorder">
           <div className="timeLine__unreadLineContainer">
             <div className="timeLine__unreadLineBody">
@@ -443,16 +451,15 @@ class ChatBox extends React.Component {
         </div>
       </div>
     );
-  }
+  };
 
   createMarkupMessage = message => {
     const members = this.props.allMembers;
     let messageContentHtml = handlersMessage.renderMessage(message, members);
 
     return { __html: messageContentHtml };
-  }
+  };
   // for display msg content - END
-
 
   // for SEND msg - BEGIN
   handleSendMessage = e => {
@@ -494,9 +501,8 @@ class ChatBox extends React.Component {
     if (e.keyCode == 27) {
       this.handleCancelEdit();
     }
-  }
+  };
   // for SEND msg - END
-
 
   // for edit msg - BEGIN
   handleMouseEnter = e => {
@@ -504,7 +510,7 @@ class ChatBox extends React.Component {
     this.setState({
       messageIdHovering,
     });
-  }
+  };
 
   handleMouseLeave = e => {
     this.setState({
@@ -529,14 +535,16 @@ class ChatBox extends React.Component {
     });
 
     document.getElementById('msg-content').value = '';
-  }
+  };
 
   editMessage = e => {
     const messageId = e.currentTarget.id;
     const oldMsgFlag = e.currentTarget.getAttribute('old-msg-flag');
 
-    const message = (oldMsgFlag == 1) ? this.getMessageById(this.state.messages, messageId)
-      : this.getMessageById(this.state.messages, messageId);
+    const message =
+      oldMsgFlag == 1
+        ? this.getMessageById(this.state.messages, messageId)
+        : this.getMessageById(this.state.messages, messageId);
 
     if (message !== null) {
       this.setState({
@@ -546,53 +554,52 @@ class ChatBox extends React.Component {
 
       document.getElementById('msg-content').value = message.content;
     }
-  }
+  };
   // for edit msg - END
-
 
   // generate list TO - BEGIN
   generateListTo = () => {
     const { t, allMembers, roomInfo } = this.props;
     const currentUserInfo = this.props.userContext.info;
-    const content = allMembers == [] ? (
-      <span>Not data</span>
-    ) : (
-      <div className="member-infinite-container">
-        {roomInfo.type == room.ROOM_TYPE.GROUP_CHAT && (
-          <a className="form-control to-all" href="javascript:;" onClick={handlersMessage.actionFunc.toAll}>
-            <span>{t('to_all')}</span>
-          </a>
-        )}
-        <InfiniteScroll initialLoad={false} pageStart={0} loadMore={this.handleInfiniteOnLoad} useWindow={false}>
-          <List
-            dataSource={allMembers}
-            renderItem={member => {
-              return member._id != currentUserInfo._id ? (
-                <List.Item key={member._id}>
-                  <List.Item.Meta
-                    avatar={<Avatar src={getUserAvatarUrl(member.avatar)} />}
-                    title={
-                      <a onClick={handlersMessage.actionFunc.toMember} href="javascript:;" data-mid={member._id}>
-                        {member.name}
-                      </a>
-                    }
-                  />
-                </List.Item>
-              ) : (
+    const content =
+      allMembers == [] ? (
+        <span>Not data</span>
+      ) : (
+        <div className="member-infinite-container">
+          {roomInfo.type == room.ROOM_TYPE.GROUP_CHAT && (
+            <a className="form-control to-all" href="javascript:;" onClick={handlersMessage.actionFunc.toAll}>
+              <span>{t('to_all')}</span>
+            </a>
+          )}
+          <InfiniteScroll initialLoad={false} pageStart={0} loadMore={this.handleInfiniteOnLoad} useWindow={false}>
+            <List
+              dataSource={allMembers}
+              renderItem={member => {
+                return member._id != currentUserInfo._id ? (
+                  <List.Item key={member._id}>
+                    <List.Item.Meta
+                      avatar={<Avatar src={getUserAvatarUrl(member.avatar)} />}
+                      title={
+                        <a onClick={handlersMessage.actionFunc.toMember} href="javascript:;" data-mid={member._id}>
+                          {member.name}
+                        </a>
+                      }
+                    />
+                  </List.Item>
+                ) : (
                   <span />
                 );
-            }}
-          />
-        </InfiniteScroll>
-      </div>
-    );
+              }}
+            />
+          </InfiniteScroll>
+        </div>
+      );
 
     return content;
-  }
+  };
 
-  handleInfiniteOnLoad = () => { }
+  handleInfiniteOnLoad = () => {};
   // generate list TO - END
-
 
   // process for popover - BEGIN
   updateSendingRequestUsers = (requestId, status = true) => {
@@ -602,7 +609,7 @@ class ChatBox extends React.Component {
         [requestId]: status,
       },
     }));
-  }
+  };
 
   updateReceivedRequestUsers = (sentRequestId, status = true) => {
     this.setState(prevState => ({
@@ -611,7 +618,7 @@ class ChatBox extends React.Component {
         [sentRequestId]: status,
       },
     }));
-  }
+  };
 
   getDirectRoom = userId => {
     getDirectRoomId(userId).then(res => {
@@ -624,7 +631,7 @@ class ChatBox extends React.Component {
         },
       }));
     });
-  }
+  };
 
   handleSendRequestContact = e => {
     const sendContactId = e.target.value;
@@ -638,7 +645,7 @@ class ChatBox extends React.Component {
       .catch(error => {
         message.error(error.response.data.error);
       });
-  }
+  };
 
   handleCancelRequest = e => {
     const sentRequestId = e.target.value;
@@ -652,7 +659,7 @@ class ChatBox extends React.Component {
       .catch(error => {
         message.error(error.response.data.error);
       });
-  }
+  };
 
   handleRejectContact = e => {
     let dataInput = {
@@ -673,7 +680,7 @@ class ChatBox extends React.Component {
           message.error(error.response.data.error);
         });
     }
-  }
+  };
 
   handleAcceptContact = e => {
     const requestId = [e.target.value];
@@ -689,7 +696,7 @@ class ChatBox extends React.Component {
       .catch(error => {
         message.error(error.response.data.error);
       });
-  }
+  };
 
   handleVisibleChange = userId => visible => {
     if (visible && this.state.directRoomIds[userId] === undefined) {
@@ -749,8 +756,12 @@ class ChatBox extends React.Component {
 
     return (
       <Content className="chat-room">
-        <div className="list-message" ref={element => (this.attr.msgContainerRef = element)} onScroll={this.handleScroll}>
-          {(loadingPrev) && (
+        <div
+          className="list-message"
+          ref={element => (this.attr.msgContainerRef = element)}
+          onScroll={this.handleScroll}
+        >
+          {loadingPrev && (
             <div className="loading-room">
               <Spin tip="Loading..." />
             </div>
@@ -759,8 +770,9 @@ class ChatBox extends React.Component {
             {messages.map(message => {
               let messageHtml = this.createMarkupMessage(message, this.attr.userInfoUpdateData);
               let notificationClass = message.is_notification ? 'pre-notification' : '';
-              let isToMe = messageHtml.__html.includes(`data-tag="[To:${currentUserInfo._id}]"`) ||
-                messageHtml.__html.includes(`data-tag="[rp mid=${currentUserInfo._id}]"`) ||
+              let isToMe =
+                messageHtml.__html.includes(`data-cwtag="[To:${currentUserInfo._id}]"`) ||
+                messageHtml.__html.includes(`data-cwtag="[rp mid=${currentUserInfo._id}]"`) ||
                 messageHtml.__html.includes(messageConfig.SIGN_TO_ALL);
 
               return (
@@ -774,7 +786,7 @@ class ChatBox extends React.Component {
                     key={message._id}
                     className={
                       (messageIdEditing === message._id ? 'message-item isEditing' : 'message-item',
-                        isToMe ? 'timelineMessage--mention' : '')
+                      isToMe ? 'timelineMessage--mention' : '')
                     }
                     onMouseEnter={this.handleMouseEnter}
                     onMouseLeave={this.handleMouseLeave}
@@ -799,7 +811,10 @@ class ChatBox extends React.Component {
                         </Popover>
                       </List.Item>
                       <div className="infor-content">
-                        <pre className={"timelineMessage__message " + notificationClass} dangerouslySetInnerHTML={messageHtml} />
+                        <pre
+                          className={'timelineMessage__message ' + notificationClass}
+                          dangerouslySetInnerHTML={messageHtml}
+                        />
                       </div>
                     </Col>
                     <Col span={2} className="message-time">
@@ -810,47 +825,44 @@ class ChatBox extends React.Component {
                             <Icon type="edit" />
                           </span>
                         ) : (
-                            ''
-                          )}
+                          ''
+                        )}
                       </h4>
                     </Col>
                     <Col span={24} style={{ position: 'relative' }}>
-                      {messageIdHovering === message._id && message.is_notification == false &&
+                      {messageIdHovering === message._id && message.is_notification == false && (
                         <div style={{ textAlign: 'right', position: 'absolute', bottom: '0', right: '0' }}>
-                          {currentUserInfo._id === message.user_info._id && !message.is_notification &&
-                            !isReadOnly && (
-                              <Button type="link" onClick={this.editMessage} id={message._id}>
-                                <Icon type="edit" /> {t('button.edit')}
-                              </Button>
-                            )
-                          }
-                          {currentUserInfo._id !== message.user_info._id &&
-                            !isReadOnly && (
-                              <Button type="link"
-                                onClick={handlersMessage.actionFunc.replyMember}
-                                id={message._id}
-                                data-rid={roomId}
-                                data-mid={message.user_info._id}
-                                data-name={message.user_info.name}
-                              >
-                                <Icon type="enter" /> {t('button.reply')}
-                              </Button>
-                            )
-                          }
+                          {currentUserInfo._id === message.user_info._id && !message.is_notification && !isReadOnly && (
+                            <Button type="link" onClick={this.editMessage} id={message._id}>
+                              <Icon type="edit" /> {t('button.edit')}
+                            </Button>
+                          )}
+                          {currentUserInfo._id !== message.user_info._id && !isReadOnly && (
+                            <Button
+                              type="link"
+                              onClick={handlersMessage.actionFunc.replyMember}
+                              id={message._id}
+                              data-rid={roomId}
+                              data-mid={message.user_info._id}
+                              data-name={message.user_info.name}
+                            >
+                              <Icon type="enter" /> {t('button.reply')}
+                            </Button>
+                          )}
                           {/*<Button type="link" onClick={this.quoteMessage} id={message._id}>*/}
-                            {/*<Icon type="rollback" /> {t('button.quote')}*/}
+                          {/*<Icon type="rollback" /> {t('button.quote')}*/}
                           {/*</Button>*/}
                         </div>
-                      }
+                      )}
                     </Col>
                   </Row>
                 </div>
               );
             })}
             {loadingNext && (
-            <div className="loading-room">
-              <Spin tip="Loading..." />
-            </div>
+              <div className="loading-room">
+                <Spin tip="Loading..." />
+              </div>
             )}
           </div>
         </div>
@@ -870,17 +882,12 @@ class ChatBox extends React.Component {
               </Button>
             </React.Fragment>
           ) : (
-              <React.Fragment>
-                <Button
-                  style={{ float: 'right' }}
-                  type="primary"
-                  onClick={this.handleSendMessage}
-                  disabled={isReadOnly}
-                >
-                  {t('button.send')}
-                </Button>
-              </React.Fragment>
-            )}
+            <React.Fragment>
+              <Button style={{ float: 'right' }} type="primary" onClick={this.handleSendMessage} disabled={isReadOnly}>
+                {t('button.send')}
+              </Button>
+            </React.Fragment>
+          )}
         </div>
         <Input.TextArea
           placeholder={t('type_msg')}
@@ -889,6 +896,9 @@ class ChatBox extends React.Component {
           id="msg-content"
           disabled={isReadOnly}
           onKeyDown={this.handleSendMessage}
+          ref={input => {
+            this.inputMsg = input;
+          }}
         />
       </Content>
     );

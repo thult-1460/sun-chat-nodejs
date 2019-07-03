@@ -127,6 +127,7 @@ exports.update = async(function*(req, res) {
 
     const rooms = yield Room.getAllRoomByUserId(_id);
 
+    io.to(user._id).emit('update_user_avatar', user);
     rooms.map(room => {
       io.to(room._id).emit('update_user_info', user);
 
