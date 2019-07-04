@@ -4,32 +4,31 @@
   background-color: #e6e6e6;
 }
 .icon-request-list {
+  margin-top: -10px;
+  margin-right: 20px;
+}
+.modal-add-member {
   margin-top: -5px;
+  margin-left: 10px;
 }
 .icon-setting-room {
   color: black;
-  font-size: 20px;
-  float: right;
+  font-size: 18px;
+  float: left;
   padding-right: 4px;
+  margin-top: 6px;
+}
+.menu-room-config {
+  button {
+    display: block;
+    text-align: center;
+    border: none;
+  }
 }
 .chat-room {
   background-color: white;
   margin: '24px 16px 0';
   overflow: 'initial';
-}
-.ant-dropdown-menu.menu-detail-room {
-  background-color: white;
-  margin-top: 0px;
-  margin-left: -92px;
-  min-width: 0;
-}
-.ant-dropdown-menu.menu-detail-room > li {
-  background-color: white;
-}
-.ant-dropdown-menu-item.item-setting > button {
-  display: block;
-  text-align: center;
-  border: none;
 }
 
 .invatation {
@@ -74,8 +73,7 @@ head .delete-member {
   margin-top: -10px;
 }
 .list-member-chat-room {
-  float: right;
-  margin-top: 5px;
+  display: flex;
 }
 .adding-member-icon {
   float: right;

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Layout, Row, Col, Menu, Icon, Dropdown, Avatar } from 'antd';
+import { Layout, Row, Col, Menu, Icon, Dropdown, Avatar, Badge, Popover } from 'antd';
 import { checkExpiredToken } from './../../helpers/common';
 import InputSearch from './../InputSearch';
 import ModalListContacts from '../modals/contact/ModalListContacts';
@@ -11,6 +11,7 @@ import { Link } from 'react-router-dom';
 import { SocketContext } from './../../context/SocketContext';
 import { withUserContext } from './../../context/withUserContext';
 import { withRouter } from 'react-router';
+import { withNamespaces } from 'react-i18next';
 import { getUserAvatarUrl } from './../../helpers/common';
 const { Header } = Layout;
 
@@ -40,16 +41,14 @@ class Head extends React.Component {
   };
 
   render() {
+    const { t } = this.props;
+
     const menu = (
-      <Menu>
-        <Menu.Item>
-          <Link to="/setting/profile">Profile</Link>
-          <Link to="/change-password">Change Passowrd</Link>
-          <a href="javascript:;" onClick={this.onLogout}>
-            Logout
-          </a>
-        </Menu.Item>
-      </Menu>
+      <div style={{ padding: '5px 15px 0'}}>
+        <p><Link to="/setting/profile"><Icon type="user" /> {t('button.profile')}</Link></p>
+        <p><Link to="/change-password"><Icon type="edit" /> {t('button.change_passowrd')}</Link></p>
+        <p><a href="javascript:;" onClick={this.onLogout}><Icon type="logout" /> {t('button.logout')}</a></p>
+      </div>
     );
     const { avatar } = this.state;
 
@@ -67,12 +66,14 @@ class Head extends React.Component {
             <CreateRoom />
           </Col>
           <Col span={4}>
-            <Dropdown overlay={menu}>
-              <a className="ant-dropdown-link">
-                <Avatar src={getUserAvatarUrl(avatar == null ? this.props.userContext.info.avatar : avatar)} />
-                <Icon type="down" />
-              </a>
-            </Dropdown>
+            <Popover content={menu}>
+              <Badge className="header-icon" type="primary">
+                <a href="javascript:;">
+                  <Avatar src={getUserAvatarUrl(avatar == null ? this.props.userContext.info.avatar : avatar)} />
+                  {this.props.userContext.info.name} <Icon type="caret-down" style={{ fontSize: '12px'}} />
+                </a>
+              </Badge>
+            </Popover>
           </Col>
           <Col span={3}>
             <ChangeLanguage />
@@ -91,4 +92,4 @@ class Head extends React.Component {
   }
 }
 
-export default withRouter(withUserContext(Head));
+export default withRouter(withNamespaces(['user'])(withUserContext(Head)));

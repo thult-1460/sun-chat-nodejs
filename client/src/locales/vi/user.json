@@ -22,7 +22,10 @@
     "update_info": "Cập nhật thông tin",
     "delete": "Xóa",
     "accept": "Chấp nhận",
-    "check_all": "Chọn tất cả"
+    "check_all": "Chọn tất cả",
+    "profile": "Thông tin cá nhân",
+    "change_passowrd": "Thay đổi mật khẩu",
+    "logout": "Đăng xuất"
   },
   "error_title": "Lỗi",
   "validate": {
