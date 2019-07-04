@@ -1,7 +1,7 @@
 import React from 'react';
 import { Layout, Icon, Menu, Avatar, message, Typography, Dropdown, List, Button } from 'antd';
 import InfiniteScroll from 'react-infinite-scroller';
-import { checkExpiredToken } from './../../helpers/common';
+import {checkExpiredToken, saveSizeComponentsChat} from './../../helpers/common';
 import { getListRoomsByUser, getQuantityRoomsByUserId, togglePinnedRoom } from './../../api/room';
 import { Link } from 'react-router-dom';
 import config from './../../config/listRoom';
@@ -209,17 +209,12 @@ class Sidebar extends React.Component {
     });
   };
 
-  //cho vào helper dc thì tốt
   setWidthChatBox = () => {
-    let sideBarW = document.getElementsByClassName('side-bar')[0].offsetWidth;
-    let descW = document.getElementsByClassName('description-chat')[0].offsetWidth;
-    document.getElementsByClassName('chat-room')[0].style.width = (window.innerWidth - sideBarW - descW ) + 'px';
-    localStorage.setItem('sideBarW', sideBarW);
-    localStorage.setItem('descW', descW);
+    saveSizeComponentsChat();
   }
 
   render() {
-    const { rooms, isLoading } = this.state;
+    const { rooms } = this.state;
     const { t } = this.props;
     const list_flag = config.FILTER_TYPE.LIST_ROOM;
     const active = 'ant-dropdown-menu-item-selected';

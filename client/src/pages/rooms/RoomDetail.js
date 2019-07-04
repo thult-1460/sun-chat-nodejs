@@ -11,6 +11,7 @@ import { withUserContext } from './../../context/withUserContext';
 import ModalEditDesc from '../../components/room/ModalEditDesc';
 import { room } from '../../config/room';
 import { Resizable } from 're-resizable';
+import {saveSizeComponentsChat} from "../../helpers/common";
 
 const { Sider, Content } = Layout;
 const { Text } = Typography;
@@ -162,14 +163,9 @@ class RoomDetail extends React.Component {
     }
   }
 
-  //cho vào helper dc thì tốt
   setWidthChatBox = () => {
-    let sideBarW = document.getElementsByClassName('side-bar')[0].offsetWidth;
-    let descW = document.getElementsByClassName('description-chat')[0].offsetWidth;
-    document.getElementsByClassName('chat-room')[0].style.width = window.innerWidth - sideBarW - descW + 'px';
-    localStorage.setItem('sideBarW', sideBarW);
-    localStorage.setItem('descW', descW);
-  };
+    saveSizeComponentsChat();
+  }
 
   render() {
     const { t } = this.props;

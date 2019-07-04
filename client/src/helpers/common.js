@@ -29,3 +29,11 @@ export function getUserAvatarUrl (avatar) {
 export function getRoomAvatarUrl (avatar) {
   return `${systemConfig.ROOM_AVATAR_DIR}${avatar}`;
 }
+
+export function saveSizeComponentsChat () {
+  let sideBarW = document.getElementsByClassName('side-bar')[0].offsetWidth;
+  let descW = document.getElementsByClassName('description-chat')[0].offsetWidth;
+  document.getElementsByClassName('chat-room')[0].style.width = (window.innerWidth - sideBarW - descW) + 'px';
+  localStorage.setItem('sideBarW', sideBarW);
+  localStorage.setItem('descW', descW);
+}
