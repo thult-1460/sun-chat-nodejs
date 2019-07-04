@@ -18,7 +18,7 @@ class AdminRoleMemberList extends React.Component {
   componentDidMount() {
     const { socket } = this.context;
 
-    socket.on('update_user_info', res => {
+    socket.on('update_member_info', res => {
       this.setState(prevState => ({
         members: prevState.members.map(member =>
           member._id === res._id
