@@ -182,7 +182,7 @@ class RegisterPage extends React.Component {
       <Fragment>
         <Notifications />
 
-        <div className="form" style={{ height: 560 }}>
+        <div className="form">
           {isLoading && <Loading />}
           {error && <Alert message="Error" type="error" description={error} closable />}
           <Form layout="horizontal" onSubmit={this.onSubmit} onChange={this.onChange}>
