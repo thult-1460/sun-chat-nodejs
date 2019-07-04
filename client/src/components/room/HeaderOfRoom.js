@@ -49,7 +49,7 @@ class HeaderOfRoom extends React.Component {
 
       this.state.memberOfRoom.map(member => {
         listMember.push(
-          <Avatar size={30} key={member._id} src={getUserAvatarUrl(member.avatar)} className="list-member-chat-room" />
+          <Avatar size={30} key={member._id} src={getUserAvatarUrl(member.avatar)} />
         );
       });
     }
@@ -123,46 +123,63 @@ class HeaderOfRoom extends React.Component {
     return (
       <Header className="header-chat-room">
         <Row type="flex" justify="start">
-          <Col span={17}>
-            <Avatar
-              size={30}
-              src={
-                data.type === room.ROOM_TYPE.GROUP_CHAT
-                  ? getRoomAvatarUrl(this.props.data.avatar)
-                  : getUserAvatarUrl(this.props.data.avatar)
-              }
-              className="avatar-room-chat"
-            />
-            <Text strong className="name-chat-room">
-              {this.props.data.name}
-            </Text>
-          </Col>
-          <Col span={1}>
+        <Col span={8}>
+          <Avatar
+            size={30}
+            src={
+              data.type === room.ROOM_TYPE.GROUP_CHAT
+                ? getRoomAvatarUrl(this.props.data.avatar)
+                : getUserAvatarUrl(this.props.data.avatar)
+            }
+            className="avatar-room-chat"
+          />
+          <Text strong className="name-chat-room">
+            {this.props.data.name}
+          </Text>
+        </Col>
+        <Col span={6} offset={10}>
+          <Row>
+          <Col span={20} className="list-member-chat-room">
             {this.props.isAdmin && (
               <div className="icon-request-list">
                 <ModalListRequest roomId={data._id} />
               </div>
             )}
+            {this.showRepresentativeMembers()}
+            {this.props.isAdmin && (
+              <div className="modal-add-member">
+                <ModalListNotMember />
+              </div>
+            )}
           </Col>
-          <Col span={4}> {this.showRepresentativeMembers()}</Col>
-          <Col span={1}>{this.props.isAdmin && <ModalListNotMember />}</Col>
-          {data.type !== room.ROOM_TYPE.MY_CHAT && (
-            <Col span={1}>
+          <Col span={4}>
+            {data.type !== room.ROOM_TYPE.MY_CHAT && (
               <Dropdown
+                placement="bottomCenter"
                 overlay={
-                  <Menu className="menu-detail-room">
-                    <Menu.Item className="item-setting">
-                      {this.props.isAdmin && <EditRoom roomInfo={data} />}
-                      {this.props.isAdmin && <Button onClick={this.handleDeleteRoom}>{t('button.delete-room')}</Button>}
-                      {buttonLeaveRoom}
-                    </Menu.Item>
+                  <Menu className="menu-room-config">
+                      {this.props.isAdmin && (
+                        <Menu.Item>
+                          <EditRoom roomInfo={data} />
+                        </Menu.Item>
+                      )}
+                      {this.props.isAdmin && (
+                        <Menu.Item>
+                          <Button onClick={this.handleDeleteRoom}>{t('button.delete-room')}</Button> 
+                        </Menu.Item>
+                      )}
+                      <Menu.Item>
+                        {buttonLeaveRoom}
+                      </Menu.Item>
                   </Menu>
                 }
               >
                 <Icon type="setting" className="icon-setting-room" theme="outlined" />
               </Dropdown>
-            </Col>
-          )}
+            )}
+          </Col>
+          </Row>
+        </Col>
         </Row>
       </Header>
     );

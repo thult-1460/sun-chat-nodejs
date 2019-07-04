@@ -75,7 +75,7 @@ class LoginPage extends React.Component {
             <Form.Item>
               <Input
                 prefix={<Icon type="user" />}
-                placeholder="Email address"
+                placeholder={t('email')}
                 type="text"
                 onChange={this.handleChangeUsername}
               />
@@ -83,7 +83,7 @@ class LoginPage extends React.Component {
             <Form.Item>
               <Input
                 prefix={<Icon type="lock" />}
-                placeholder="Your password"
+                placeholder={t('password')}
                 type="password"
                 onChange={this.handleChangePassword}
               />
