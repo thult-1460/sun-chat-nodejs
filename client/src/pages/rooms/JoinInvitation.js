@@ -3,7 +3,7 @@ import { getInfoRoomWithInvitionCode, sendRequestJoinRoom } from './../../api/ro
 import { Avatar, Button, Row, Col, Alert } from 'antd';
 import { withNamespaces } from 'react-i18next';
 import { withRouter } from 'react-router';
-import { INVATATION_STATUS } from './../../config/room.js';
+import { room as roomConfig } from './../../config/room.js';
 import { SocketContext } from '../../context/SocketContext';
 import { getRoomAvatarUrl } from './../../helpers/common';
 
@@ -28,7 +28,7 @@ class JoinInvitation extends React.Component {
       .then(res => {
         let { status } = res.data;
 
-        if (status == INVATATION_STATUS.CANT_JOIN) {
+        if (status == roomConfig.INVATATION_STATUS.CANT_JOIN) {
           this.setState({
             error: t('invitation.cant_join'),
           });
@@ -58,11 +58,11 @@ class JoinInvitation extends React.Component {
         let { status, room_id } = res.data;
 
         switch (status) {
-          case INVATATION_STATUS.IN_ROOM:
+          case roomConfig.INVATATION_STATUS.IN_ROOM:
             window.location.href = `/rooms/${room_id}`;
 
             break;
-          case INVATATION_STATUS.HAVE_REQUEST_BEFORE:
+          case roomConfig.INVATATION_STATUS.HAVE_REQUEST_BEFORE:
             this.setState({
               isSendRequest: true,
               message: t('invitation.have_request_before'),

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Icon, Badge, Modal } from 'antd';
 import ListRequest from './ListRequest';
 import { getNumberOfRequests } from '../../../api/room';
-import { NUMBER_REQUEST_JOIN_ROOM_OVERFLOW } from '../../../config/room';
+import { room as roomConfig } from '../../../config/room';
 import { SocketContext } from '../../../context/SocketContext';
 
 class ModalListRequest extends Component {
@@ -53,7 +53,7 @@ class ModalListRequest extends Component {
 
   render() {
     return (
-      <Badge count={this.state.numberRequestJoinRooms} overflowCount={NUMBER_REQUEST_JOIN_ROOM_OVERFLOW}>
+      <Badge count={this.state.numberRequestJoinRooms} overflowCount={roomConfig.NUMBER_REQUEST_JOIN_ROOM_OVERFLOW}>
         <Icon type="user-add" onClick={this.showModal} className="icon-setting-room" theme="outlined" />
         <Modal visible={this.state.visible} onOk={this.handleOk} onCancel={this.handleCancel} footer={null}>
           {this.state.showComponent === true ? <ListRequest /> : ''}
