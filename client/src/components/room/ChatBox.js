@@ -128,8 +128,8 @@ class ChatBox extends React.Component {
       this.getDirectRoom(userId);
     });
 
-    //Listen 'update_user_info' event from server
-    this.socket.on('update_user_info', res => {
+    //Listen 'update_member_info' event from server
+    this.socket.on('update_member_info', res => {
       let { messages } = this.state;
       this.attr.userInfoUpdateData[res._id] = res;
       this.updateMessagesByUser(messages, res);

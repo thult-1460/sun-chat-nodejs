@@ -908,7 +908,16 @@ RoomSchema.statics = {
           messages: msgObject,
         },
       },
-      { new: true }
+      {
+        fields: {
+          '_id': 1,
+          'type': 1,
+          'name': 1,
+          'avatar': 1,
+          'messages': { $slice: -1 },
+        },
+        new: true
+      }
     );
   },
 
@@ -1150,11 +1159,19 @@ RoomSchema.statics = {
     ]);
   },
 
-  getRoomInfoNewMember: function(roomId, userIds) {
-    let newMemberIds = [];
-    userIds.map(userId => {
-      newMemberIds.push(mongoose.Types.ObjectId(userId));
-    });
+  getRoomInfoNewMember: function(roomId, userIds = []) {
+    let memberConditions = {
+      'members.deletedAt': null,
+    };
+
+    if (userIds.length) {
+      let newMemberIds = [];
+      userIds.map(userId => {
+        newMemberIds.push(mongoose.Types.ObjectId(userId));
+      });
+
+      memberConditions['members.user'] = { $in: newMemberIds };
+    }
 
     return this.aggregate([
       { $match: { _id: mongoose.Types.ObjectId(roomId), deletedAt: null } },
@@ -1162,10 +1179,7 @@ RoomSchema.statics = {
         $unwind: '$members',
       },
       {
-        $match: {
-          'members.user': { $in: newMemberIds },
-          'members.deletedAt': null,
-        },
+        $match: memberConditions,
       },
       {
         $addFields: {
@@ -1189,6 +1203,7 @@ RoomSchema.statics = {
         $project: {
           avatar: 1,
           name: 1,
+          type: 1,
           quantity_unread: { $size: '$message_able' },
           role: 1,
           pinned: '$members.pinned',

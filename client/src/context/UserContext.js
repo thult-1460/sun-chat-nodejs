@@ -9,7 +9,7 @@ class Provider extends Component {
 
     this.state = {
       info: {},
-      my_chat_id: {},
+      my_chat_id: null,
     };
   }
 

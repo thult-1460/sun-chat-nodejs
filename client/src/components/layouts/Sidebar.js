@@ -1,7 +1,7 @@
 import React from 'react';
 import { Layout, Icon, Menu, Avatar, message, Typography, Dropdown, List, Button } from 'antd';
 import InfiniteScroll from 'react-infinite-scroller';
-import {checkExpiredToken, saveSizeComponentsChat} from './../../helpers/common';
+import { checkExpiredToken, saveSizeComponentsChat } from './../../helpers/common';
 import { getListRoomsByUser, getQuantityRoomsByUserId, togglePinnedRoom } from './../../api/room';
 import { Link } from 'react-router-dom';
 import config from './../../config/listRoom';
@@ -25,17 +25,13 @@ class Sidebar extends React.Component {
     page: 1,
     quantity_chats: 0,
     filter_type: config.FILTER_TYPE.LIST_ROOM.ALL.VALUE,
-    selected_room: '',
+    selected_room: null,
   };
 
-  fetchData = (page, filter_type) => {
+  fetchData = (page, filter_type, resetListRooms = false) => {
     getListRoomsByUser(page, filter_type).then(res => {
-      let { rooms } = this.state;
-      res.data.map(item => {
-        rooms.push(item);
-      });
       this.setState({
-        rooms,
+        rooms: resetListRooms ? res.data : [...this.state.rooms, ...res.data],
         page,
         loading: false,
       });
@@ -61,13 +57,10 @@ class Sidebar extends React.Component {
       sideBarDOM.style.removeProperty('max-width');
     }
 
-    const currentRoomId = this.props.match.params.id;
-
-    this.setState({ selected_room: currentRoomId });
+    this.setState({ selected_room: this.props.match.params.id });
 
     if (checkExpiredToken()) {
       const { page, filter_type } = this.state;
-      let { rooms } = this.state;
 
       this.fetchData(page, filter_type);
 
@@ -91,22 +84,7 @@ class Sidebar extends React.Component {
       });
 
       socket.on('add_to_list_rooms', newRoom => {
-        let indexUnpinned = -1;
-
-        for (var i = 0; i < rooms.length; i++) {
-          if (rooms[i].pinned == false) {
-            indexUnpinned = i;
-            break;
-          }
-        }
-
-        if (
-          filter_type === config.FILTER_TYPE.LIST_ROOM.ALL.VALUE ||
-          filter_type === config.FILTER_TYPE.LIST_ROOM.GROUP.VALUE
-        ) {
-          indexUnpinned === -1 ? rooms.push(newRoom) : rooms.splice(indexUnpinned, 0, newRoom);
-          this.setState({ rooms });
-        }
+        this.addToListRooms(newRoom, this.state.filter_type);
       });
 
       socket.on('remove_from_list_rooms', res => {
@@ -116,11 +94,7 @@ class Sidebar extends React.Component {
           }),
         });
 
-        rooms = rooms.filter(function(value, index, arr) {
-          return value._id != res.roomId;
-        });
-
-        if (currentRoomId == res.roomId) {
+        if (this.state.selected_room == res.roomId) {
           this.props.history.push(`/rooms/${this.props.userContext.my_chat_id}`);
         }
       });
@@ -151,6 +125,31 @@ class Sidebar extends React.Component {
               : room
           ),
         }));
+      });
+
+      socket.on('update_list_rooms_when_receive_msg', res => {
+        let room = this.getRoomById(this.state.rooms, res.room._id);
+
+        if (room) {
+          room.last_created_msg = res.room.last_created_msg;
+
+          if (res.sender != this.props.userContext.info._id) {
+            room.quantity_unread = res.room.quantity_unread;
+          }
+
+          this.setState({ rooms: this.state.rooms.sort(this.compareRoom) });
+        } else {
+          this.addToListRooms(res.room, filter_type);
+        }
+      });
+
+      socket.on('update_quantity_unread', res => {
+        let room = this.getRoomById(this.state.rooms, res.room_id);
+
+        if (room) {
+          room.quantity_unread = res.quantity_unread;
+          this.forceUpdate();
+        }
       });
     }
   }
@@ -192,7 +191,7 @@ class Sidebar extends React.Component {
       filter_type: filter_type,
     });
 
-    this.fetchData(page, filter_type);
+    this.fetchData(page, filter_type, true);
 
     getQuantityRoomsByUserId(filter_type).then(res => {
       this.setState({
@@ -209,9 +208,65 @@ class Sidebar extends React.Component {
     });
   };
 
+  getRoomById = (rooms, roomId) => {
+    for (let i = rooms.length - 1; i >= 0; i--) {
+      if (rooms[i]._id === roomId) {
+        return rooms[i];
+      }
+    }
+
+    return null;
+  };
+
+  addToListRooms = (newRoom, filter_type) => {
+    let { rooms } = this.state;
+    let indexUnpinned = -1;
+
+    for (var i = 0; i < rooms.length; i++) {
+      if (rooms[i].pinned == false) {
+        indexUnpinned = i;
+        break;
+      }
+    }
+
+    if (
+      filter_type === config.FILTER_TYPE.LIST_ROOM.ALL.VALUE ||
+      filter_type === config.FILTER_TYPE.LIST_ROOM.GROUP.VALUE
+    ) {
+      indexUnpinned === -1 ? rooms.push(newRoom) : rooms.splice(indexUnpinned, 0, newRoom);
+      this.setState({ rooms });
+    }
+  };
+
+  compareRoom = (a, b) => {
+    let comparison = 0;
+
+    if (a.pinned > b.pinned) {
+      comparison = -1;
+    } else if (a.pinned < b.pinned) {
+      comparison = 1;
+    } else {
+      if (a.last_created_msg > b.last_created_msg) {
+        comparison = -1;
+      } else if (a.last_created_msg < b.last_created_msg) {
+        comparison = 1;
+      } else {
+        if (a._id > b._id) {
+          comparison = -1;
+        } else if (a._id < b._id) {
+          comparison = 1;
+        } else {
+          comparison = 0;
+        }
+      }
+    }
+
+    return comparison;
+  };
+
   setWidthChatBox = () => {
     saveSizeComponentsChat();
-  }
+  };
 
   render() {
     const { rooms } = this.state;
@@ -252,7 +307,9 @@ class Sidebar extends React.Component {
               <div className="avatar-name">
                 <Avatar
                   src={
-                    item.type === room.ROOM_TYPE.GROUP_CHAT ? getRoomAvatarUrl(item.avatar) : getUserAvatarUrl(item.avatar)
+                    item.type === room.ROOM_TYPE.GROUP_CHAT
+                      ? getRoomAvatarUrl(item.avatar)
+                      : getUserAvatarUrl(item.avatar)
                   }
                 />
                 &nbsp;&nbsp;
@@ -274,8 +331,15 @@ class Sidebar extends React.Component {
 
     return (
       checkExpiredToken() && (
-        <Resizable enable={{right: true}} minWidth={minW} maxWidth={maxW} onResizeStop={this.setWidthChatBox}
-                   defaultSize={{width: localStorage.getItem('sideBarW') ? localStorage.getItem('sideBarW') : (minW + maxW)/2}}>
+        <Resizable
+          enable={{ right: true }}
+          minWidth={minW}
+          maxWidth={maxW}
+          onResizeStop={this.setWidthChatBox}
+          defaultSize={{
+            width: localStorage.getItem('sideBarW') ? localStorage.getItem('sideBarW') : (minW + maxW) / 2,
+          }}
+        >
           <Sider className="side-bar">
             <div id="div-filter">
               <Dropdown overlay={cond_filter}>

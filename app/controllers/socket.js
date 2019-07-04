@@ -43,6 +43,8 @@ module.exports = function(io) {
 
     socket.on('update_last_message_id', async function({ roomId, messageId }) {
       let result = await Room.updateLastMessageForMember(roomId, socket.userId, messageId);
+      let roomInfo = await Room.getRoomInfoNewMember(roomId, [socket.userId]);
+      io.to(socket.userId).emit('update_quantity_unread', { room_id: roomId, quantity_unread: roomInfo[0].quantity_unread });
       io.to(socket.userId).emit('update_last_message_id_success', { messageId: result ? messageId : false });
     });
 

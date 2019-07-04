@@ -129,8 +129,8 @@ class RoomDetail extends React.Component {
       }
     });
 
-    //Listen 'update_user_info' event from server
-    socket.on('update_user_info', res => {
+    //Listen 'update_member_info' event from server
+    socket.on('update_member_info', res => {
       const { members } = this.state;
       let index = members.findIndex(member => member._id == res._id);
       members[index] = { ...members[index], ...res };

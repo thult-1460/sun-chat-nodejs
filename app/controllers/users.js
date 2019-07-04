@@ -129,7 +129,7 @@ exports.update = async(function*(req, res) {
 
     io.to(user._id).emit('update_user_avatar', user);
     rooms.map(room => {
-      io.to(room._id).emit('update_user_info', user);
+      io.to(room._id).emit('update_member_info', user);
 
       if (room.type == config.ROOM_TYPE.DIRECT_CHAT) {
         io.to(room.members[0]).emit('update_direct_room_info', { _id: room._id, name: user.name, avatar: user.avatar });

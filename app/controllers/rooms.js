@@ -584,6 +584,23 @@ exports.storeMessage = async function(req, res) {
 
     io.to(roomId).emit('send_new_msg', { message: message });
 
+    const members = await Room.getRoomInfoNewMember(roomId);
+
+    members.map(member => {
+      io.to(member.user).emit('update_list_rooms_when_receive_msg', {
+        sender: userId,
+        room: {
+          _id: room._id,
+          avatar: room.type == 1 ? room.avatar : member.user.avatar,
+          type: room.type,
+          name: room.name,
+          last_created_msg: member.last_created_msg,
+          pinned: member.pinned,
+          quantity_unread: member.quantity_unread,
+        }
+      });
+    });
+
     return res.status(200).json({
       message_id: lastMessage._id,
       message: __('room.message.create.success'),
