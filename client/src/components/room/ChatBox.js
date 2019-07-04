@@ -26,7 +26,7 @@ import { messageConfig } from '../../config/message';
 import InfiniteScroll from 'react-infinite-scroller';
 import '../../scss/messages.scss';
 import handlersMessage from '../../helpers/handlersMessage';
-import { getUserAvatarUrl } from './../../helpers/common';
+import { getUserAvatarUrl, saveSizeComponentsChat } from './../../helpers/common';
 
 const { Content } = Layout;
 const initialState = {
@@ -137,12 +137,9 @@ class ChatBox extends React.Component {
       this.forceUpdate();
     });
 
-    //cho vào helper dc thì tốt
-    let sideBarW = document.getElementsByClassName('side-bar')[0].offsetWidth;
-    let descW = document.getElementsByClassName('description-chat')[0].offsetWidth;
-    document.getElementsByClassName('chat-room')[0].style.width = window.innerWidth - sideBarW - descW + 'px';
-    localStorage.setItem('sideBarW', sideBarW);
-    localStorage.setItem('descW', descW);
+    if (!localStorage.getItem('descW')) {
+      saveSizeComponentsChat();
+    }
   }
 
   updateMessagesByUser(messages, user) {
@@ -348,7 +345,6 @@ class ChatBox extends React.Component {
   }
 
   checkUpdateLastMsgId() {
-    let { messages } = this.state;
     let messageRowRefs = this.attr.messageRowRefs;
     let messageIdRowRefs = Object.keys(messageRowRefs);
     let bottomMsgId = null;
