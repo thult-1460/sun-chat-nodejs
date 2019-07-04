@@ -209,6 +209,15 @@ class Sidebar extends React.Component {
     });
   };
 
+  //cho vào helper dc thì tốt
+  setWidthChatBox = () => {
+    let sideBarW = document.getElementsByClassName('side-bar')[0].offsetWidth;
+    let descW = document.getElementsByClassName('description-chat')[0].offsetWidth;
+    document.getElementsByClassName('chat-room')[0].style.width = (window.innerWidth - sideBarW - descW ) + 'px';
+    localStorage.setItem('sideBarW', sideBarW);
+    localStorage.setItem('descW', descW);
+  }
+
   render() {
     const { rooms, isLoading } = this.state;
     const { t } = this.props;
@@ -265,9 +274,13 @@ class Sidebar extends React.Component {
         );
       });
 
+    let minW = config.MIN_WIDTH * window.innerWidth;
+    let maxW = config.MAX_WIDTH * window.innerWidth;
+
     return (
       checkExpiredToken() && (
-        <Resizable enable={{right: true}} minWidth={config.MIN_WIDTH * window.innerWidth} maxWidth={config.MAX_WIDTH * window.innerWidth}>
+        <Resizable enable={{right: true}} minWidth={minW} maxWidth={maxW} onResizeStop={this.setWidthChatBox}
+                   defaultSize={{width: localStorage.getItem('sideBarW') ? localStorage.getItem('sideBarW') : (minW + maxW)/2}}>
           <Sider className="side-bar">
             <div id="div-filter">
               <Dropdown overlay={cond_filter}>

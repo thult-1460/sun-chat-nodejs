@@ -128,10 +128,17 @@ class ChatBox extends React.Component {
     this.socket.on('update_user_info', res => {
       let { messages } = this.state;
       this.attr.userInfoUpdateData[res._id] = res;
-      messages = this.updateMessagesByUser(messages, res);
+      this.updateMessagesByUser(messages, res);
 
       this.forceUpdate();
     });
+
+    //cho vào helper dc thì tốt
+    let sideBarW = document.getElementsByClassName('side-bar')[0].offsetWidth;
+    let descW = document.getElementsByClassName('description-chat')[0].offsetWidth;
+    document.getElementsByClassName('chat-room')[0].style.width = (window.innerWidth - sideBarW - descW ) +'px';
+    localStorage.setItem('sideBarW', sideBarW);
+    localStorage.setItem('descW', descW);
   }
 
   updateMessagesByUser(messages, user) {
@@ -830,9 +837,9 @@ class ChatBox extends React.Component {
                               </Button>
                             )
                           }
-                          <Button type="link" onClick={this.quoteMessage} id={message._id}>
-                            <Icon type="rollback" /> {t('button.quote')}
-                          </Button>
+                          {/*<Button type="link" onClick={this.quoteMessage} id={message._id}>*/}
+                            {/*<Icon type="rollback" /> {t('button.quote')}*/}
+                          {/*</Button>*/}
                         </div>
                       }
                     </Col>
