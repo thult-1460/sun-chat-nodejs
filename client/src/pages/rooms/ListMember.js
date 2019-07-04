@@ -37,13 +37,29 @@ class ListMember extends React.Component {
         userId: res.data.results.userId,
       });
     });
+
     const { socket } = this.context;
+
     socket.on('add_to_list_members', newMember => {
       newMember.map(member => {
         this.setState(prevState => ({
           members: [...prevState.members, member.user],
         }));
       });
+    });
+
+    socket.on('update_user_info', res => {
+      this.setState(prevState => ({
+        members: prevState.members.map(member =>
+          member._id === res._id
+            ? {
+                ...member,
+                name: res.name,
+                avatar: res.avatar,
+              }
+            : member
+        ),
+      }));
     });
   }
 
