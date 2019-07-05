@@ -33,7 +33,7 @@ class ChangeLanguage extends Component {
 
         return (
           <Button
-            key={key}
+            key={key} className="btn-language"
             type={localStorage.getItem('i18nextLng') === resource ? 'danger' : ''}
             disabled={localStorage.getItem('i18nextLng') === resource}
             onClick={() => this.changeLanguage(resource)}

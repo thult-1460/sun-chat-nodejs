@@ -138,6 +138,7 @@ class HeaderOfRoom extends React.Component {
           </Text>
         </Col>
         <Col span={6} offset={10}>
+          <div className="option-header-room">
           <Row>
           <Col span={20} className="list-member-chat-room">
             {this.props.isAdmin && (
@@ -179,6 +180,7 @@ class HeaderOfRoom extends React.Component {
             )}
           </Col>
           </Row>
+          </div>
         </Col>
         </Row>
       </Header>
