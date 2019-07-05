@@ -66,7 +66,9 @@ export default class Http {
       })
       .catch(error => {
         if (error.response && error.response.status === statusCode.UNAUTHORIZED) {
-          // do something
+          if (url !== '/login') {
+            window.location.href = '/login';
+          }
         }
 
         return Promise.reject(error);

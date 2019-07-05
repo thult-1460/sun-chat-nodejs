@@ -107,6 +107,10 @@ section.ant-layout {
     }
   }
 }
+.ant-layout-header  .ant-avatar-circle {
+  width: 45px;
+  height: 45px;
+}
 
 .ant-menu-dark li.ant-list-item {
   margin: 0;
@@ -188,5 +192,9 @@ section.ant-layout {
   ::-webkit-scrollbar-thumb {
     background-color: #4e4d4d;
     border: 1px solid rgba(0, 0, 0, 0);
+  }
+  .ant-avatar-circle {
+    width: 45px;
+    height: 45px;
   }
 }

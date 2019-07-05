@@ -51,7 +51,7 @@ const getAvatarByID = (id, userInfo) => {
   let member = listMembers.find(member => member._id == id);
   let avatar = (member && member.avatar) ? getUserAvatarUrl(member.avatar) : messageConfig.ICO_AVATAR_NOTFOUND;
 
-  return `<img data-mid="${id}" src="${ (userInfo[id] && userInfo[id].avatar) ? getUserAvatarUrl(userInfo[id].avatar) : avatar }" />`;
+  return `<img data-mid="${id}" src="${ (userInfo[id] && userInfo[id].avatar) ? getUserAvatarUrl(userInfo[id].avatar) : avatar }" onError="this.onerror=null;this.src='${messageConfig.ICO_AVATAR_NOTFOUND}';" />`;
 };
 
 const messageToHtml = {
