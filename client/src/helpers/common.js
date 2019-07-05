@@ -14,7 +14,7 @@ export function checkExpiredToken () {
       }
     }
 
-    throw new Error(); 
+    throw new Error();
   } catch(err) {
     localStorage.removeItem('token');
 
@@ -22,12 +22,12 @@ export function checkExpiredToken () {
   }
 }
 
-export function getUserAvatarUrl (avatar) {
-  return `${systemConfig.USER_AVATAR_DIR}${avatar}`;
+export function getUserAvatarUrl (avatar = null) {
+  return avatar ? `${systemConfig.USER_AVATAR_DIR}${avatar}` : `${systemConfig.DEFAULT_AVATAR_USER_DIR}`;
 }
 
-export function getRoomAvatarUrl (avatar) {
-  return `${systemConfig.ROOM_AVATAR_DIR}${avatar}`;
+export function getRoomAvatarUrl (avatar = null) {
+  return avatar ? `${systemConfig.ROOM_AVATAR_DIR}${avatar}` : `${systemConfig.DEFAULT_ROOM_AVATAR_DIR}`;
 }
 
 export function saveSizeComponentsChat () {

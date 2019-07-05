@@ -4,6 +4,8 @@ const config = {
   LOCALE: process.env.REACT_APP_LOCALE || 'en',
   USER_AVATAR_DIR: '/uploads/user_avatar/',
   ROOM_AVATAR_DIR: '/uploads/room_avatar/',
+  DEFAULT_ROOM_AVATAR_DIR: require('../images/default_avatar/room_default.png'),
+  DEFAULT_AVATAR_USER_DIR: require('../images/default_avatar/user_default.png'),
   JWT_SECRET: process.env.REACT_APP_JWT_SECRET,
 };
 
