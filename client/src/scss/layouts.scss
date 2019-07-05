@@ -1,10 +1,9 @@
 .header-icon {
-  margin: 0 15px;
+  margin: 0 6%;
   i {
     font-size: 20px;
   }
 }
-
 body {
   overflow: hidden;
 }
@@ -86,25 +85,57 @@ section.ant-layout {
   }
 }
 
-.ant-layout-header > .ant-row-flex-middle > div:first-child {
-  margin-right: 50px;
+.ant-layout-header > .ant-row-flex-middle {
+  background: #cbd9e8 !important;
+  align-items: unset;
+  height: 100%;
+  > div:first-child {
+    .ant-list-split {
+      z-index: 10;
+      position: fixed;
+      width: 20pc;
+      padding: 0;
+      background-color: #cbd9e8;
+      ul.ant-list-items {
+        max-height: 400px;
+        overflow: auto;
 
-  .ant-list-split {
-    z-index: 10;
-    position: fixed;
-    width: 20pc;
-    padding: 0;
-    background-color: #cbd9e8;
-    ul.ant-list-items {
-      max-height: 400px;
-      overflow: auto;
-
-      span {
-        width: 30px;
-        height: 30px;
-        color: #d11b4f;
+        span {
+          width: 30px;
+          height: 30px;
+          color: #d11b4f;
+        }
       }
     }
+  }
+  .dropdown-setting {
+    margin: 0;
+    width: -webkit-fill-available;
+    text-overflow: ellipsis;
+    padding-top: 15px;
+    a {
+      width: 100%;
+      span.ant-avatar{
+        margin-top: -10px;
+        float: left;
+      }
+      span.account-name {
+        display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        float: left;
+      }
+      i {
+        font-size: 20px;
+      }
+    }
+  }
+  .options-contact-room span {
+    float: right;
+    padding-top: 19px;
+  }
+  div.ant-btn-group {
+    float: right;
   }
 }
 .ant-layout-header  .ant-avatar-circle {
@@ -197,4 +228,24 @@ section.ant-layout {
     width: 45px;
     height: 45px;
   }
+}
+
+#root > .ant-layout-has-sider > section {
+  > section {
+    height: calc(100vh - 64px);
+    main {
+      overflow: hidden;
+    }
+  }
+}
+
+.btn-language {
+  width: 1px;
+  span {
+    margin: -10px;
+  }
+}
+
+.ant-input-search {
+  padding: 8px;
 }

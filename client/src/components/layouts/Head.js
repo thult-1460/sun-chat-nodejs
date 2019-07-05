@@ -58,24 +58,29 @@ class Head extends React.Component {
           <Col span={5}>
             <InputSearch />
           </Col>
-          <Col span={7} />
+          <Col span={10} />
           <Col span={4}>
-            <ModalListContacts />
-            <ModalListContactRequest />
-            <ModalAddContact />
-            <CreateRoom />
+            <div className="options-contact-room">
+              <CreateRoom />
+              <ModalAddContact />
+              <ModalListContactRequest />
+              <ModalListContacts />
+            </div>
           </Col>
-          <Col span={4}>
+          <Col span={3}>
             <Popover content={menu}>
-              <Badge className="header-icon" type="primary">
+              <Badge className="header-icon dropdown-setting" type="primary">
                 <a href="javascript:;">
                   <Avatar src={getUserAvatarUrl(avatar == null ? this.props.userContext.info.avatar : avatar)} />
-                  {this.props.userContext.info.name} <Icon type="caret-down" style={{ fontSize: '12px'}} />
+                  <span className="account-name">
+                    {this.props.userContext.info.name}
+                  </span>
+                  <Icon type="caret-down" style={{ fontSize: '12px'}} />
                 </a>
               </Badge>
             </Popover>
           </Col>
-          <Col span={3}>
+          <Col span={2}>
             <ChangeLanguage />
           </Col>
         </Row>
