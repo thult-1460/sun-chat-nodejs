@@ -32,15 +32,16 @@ class FormCreateRoom extends PureComponent {
       previewImage: '',
       changeAvatar: false,
       fileList: [],
-      invitationCode: Math.random()
-        .toString(36)
-        .substring(2, 35),
-      isChangeLink: false,
-      invitationType: 0,
       members: [],
       errors: {},
     };
   }
+
+  invitationType = room.INVITATION_TYPE.NOT_NEED_APPROVAL;
+  isChangeLink = false;
+  invitationCode = Math.random()
+    .toString(36)
+    .substring(2, 35);
 
   rules = {
     name: [
@@ -71,25 +72,20 @@ class FormCreateRoom extends PureComponent {
     ],
   };
 
-  componentDidMount() {
-    const { roomInfo } = this.props;
+  componentWillReceiveProps(nextProps) {
+    const { roomInfo } = nextProps;
 
-    if (roomInfo._id !== undefined) {
+    if (nextProps.roomInfo._id != this.props.roomInfo._id) {
+      this.invitationType = roomInfo.invitation_type;
+      this.invitationCode = roomInfo.invitation_code;
       this.setState({
-        invitationCode: roomInfo.invitation_code,
-        invitationType: roomInfo.invitation_type,
+        fileList: roomInfo.avatar ? [
+          {
+            uid: '-1',
+            url: getRoomAvatarUrl(roomInfo.avatar),
+          },
+        ] : [],
       });
-
-      if (roomInfo.avatar) {
-        this.setState({
-          fileList: [
-            {
-              uid: '-1',
-              url: getRoomAvatarUrl(roomInfo.avatar),
-            },
-          ],
-        });
-      }
     }
   }
 
@@ -127,14 +123,24 @@ class FormCreateRoom extends PureComponent {
       }
     }
 
-    this.setState({ fileList: info.fileList, changeAvatar: true });
+    this.setState({ fileList: info.fileList.slice(-1), changeAvatar: true });
   };
 
   handleCancelSubmit = () => {
+    let { roomInfo } = this.props;
+
+    this.invitationType = roomInfo.invitation_type;
+    this.invitationCode = roomInfo.invitation_code;
+    this.isChangeLink = false;
     this.setState({
-      fileList: [],
-      isChangeLink: false,
+      changeAvatar: false,
       errors: {},
+      fileList: roomInfo.avatar ? [
+        {
+          uid: '-1',
+          url: getRoomAvatarUrl(roomInfo.avatar),
+        },
+      ] : [],
     });
     this.props.handleModalVisible();
   };
@@ -148,9 +154,7 @@ class FormCreateRoom extends PureComponent {
       });
 
       if (err.response.data.invitation_code) {
-        this.setState({
-          isChangeLink: true,
-        });
+        this.isChangeLink = true;
       }
     }
   };
@@ -163,8 +167,8 @@ class FormCreateRoom extends PureComponent {
         form.resetFields();
         this.setState({
           fileList: [],
-          isChangeLink: false,
         });
+        this.isChangeLink = false;
         message.success(response.data.message);
         handleModalVisible();
       })
@@ -175,24 +179,22 @@ class FormCreateRoom extends PureComponent {
     const { handleModalVisible } = this.props;
     editRoom(roomId, room)
       .then(response => {
-        this.setState({
-          isChangeLink: false,
-          invitationCode: room.invitation_code,
-        });
         message.success(response.data.message);
         handleModalVisible();
+        this.isChangeLink = false;
       })
       .catch(this.handleError);
   };
 
   handleSubmit = () => {
     const { form, roomInfo } = this.props;
-    const { invitationType, invitationCode, fileList, changeAvatar, members } = this.state;
+    const { fileList, changeAvatar, members } = this.state;
+    const invitationCode = this.invitationCode;
 
     form.validateFields((err, fieldsValue) => {
       if (err) return;
 
-      let roomVals = { ...fieldsValue, ...{ invitation_type: invitationType } };
+      let roomVals = { ...fieldsValue, ...{ invitation_type: this.invitationType } };
 
       if (!fieldsValue.invitation_code) {
         roomVals = { ...roomVals, ...{ invitation_code: invitationCode } };
@@ -206,14 +208,17 @@ class FormCreateRoom extends PureComponent {
         roomVals = { ...roomVals, ...{ members } };
         this.handleCreateRoom(roomVals);
       } else {
+        roomVals.invitation_code = invitationCode;
+        roomVals.changeAvatar = this.state.changeAvatar;
+
         this.handleEditRoom(roomInfo._id, roomVals);
       }
     });
   };
 
   showFormEditInvitationLinkRoom = flag => {
+    this.isChangeLink = flag;
     this.setState({
-      isChangeLink: flag,
       errors: {},
     });
   };
@@ -224,25 +229,22 @@ class FormCreateRoom extends PureComponent {
     form.validateFields(['invitation_code'], (err, values) => {
       if (err) return;
 
-      this.setState({
-        invitationCode: values.invitation_code,
-        isChangeLink: false,
-      });
+      this.invitationCode = values.invitation_code;
     });
   };
 
   adminApproves = e => {
-    this.setState({
-      invitationType: e.target.checked
+    this.invitationType = e.target.checked
         ? room.INVITATION_TYPE.NEED_APPROVAL
-        : room.INVITATION_TYPE.NOT_NEED_APPROVAL,
-    });
+        : room.INVITATION_TYPE.NOT_NEED_APPROVAL;
   };
 
   render() {
     const { t, form, modalVisible, invitationURL, roomInfo } = this.props;
-    const { previewVisible, previewImage, fileList, invitationCode, isChangeLink, errors, invitationType } = this.state;
+    const { previewVisible, previewImage, fileList, errors } = this.state;
+    const { isChangeLink, invitationType, invitationCode } = this
     let invitationLink = invitationURL + invitationCode;
+
     const uploadButton = (
       <div>
         <Icon type="plus" />
@@ -286,7 +288,7 @@ class FormCreateRoom extends PureComponent {
             }
           >
             {form.getFieldDecorator('invitation_code', {
-              initialValue: invitationCode,
+              initialValue: this.invitationCode,
               rules: this.rules.invitation_code,
             })(<Input onChange={() => this.setState({ errors: {} })} />)}
           </FormItem>
