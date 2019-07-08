@@ -547,10 +547,17 @@ exports.apiResetPassword = async(function*(req, res) {
 
   try {
     var user = yield User.load({ criteria });
+    var hash_new_password = user.encryptPassword(password);
 
     if (user == null) {
       return res.status(401).json({
         error: __('token_invalid'),
+      });
+    }
+
+    if (hash_new_password === user.hashed_password) {
+      return res.status(422).json({
+        error: __('change_password.compare_current_and_new_password_failed'),
       });
     }
 

@@ -98,7 +98,14 @@ class ForgotPassword extends React.Component {
               <Button className="login-form-button" type="primary" value="Log in" onClick={this.handleResetPassword}>
                 {t('reset_password')}
               </Button>
-              {t('or')} <a href="/register">{t('register')}</a>
+              <div>
+                <a className="login-form-forgot" href="/register">
+                  {t('register')}
+                </a>
+                <a style={{ float: 'right' }} href="/login">
+                  {t('login')}
+                </a>
+              </div>
             </Form.Item>
           </Form>
         </div>

@@ -160,7 +160,14 @@ class ResetPassword extends React.Component {
                   >
                     {t('reset_password')}
                   </Button>
-                  {t('or')} <a href="/register">{t('register')}</a>
+                  <div>
+                    <a className="login-form-forgot" href="/register">
+                      {t('register')}
+                    </a>
+                    <a style={{ float: 'right' }} href="/login">
+                      {t('login')}
+                    </a>
+                  </div>
                 </Form.Item>
               </div>
             )}
