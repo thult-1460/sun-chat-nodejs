@@ -107,3 +107,21 @@
 #list-contact-item {
   width: 290px;
 }
+
+#list-contacts {
+  li.ant-list-item {
+    > a {
+      width: 66%;
+    }
+    .ant-btn-group .ant-btn {
+      font-size: 13px;
+      padding: 0 5px 0px 5px;
+    }
+  }
+}
+
+.ant-modal-content .ant-input-search {
+  .ant-input-lg, .ant-input-search-button {
+    font-size: 13px;
+  }
+}

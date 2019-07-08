@@ -90,6 +90,9 @@ section.ant-layout {
   align-items: unset;
   height: 100%;
   > div:first-child {
+    .ant-input-search {
+      padding: 8px;
+    }
     .ant-list-split {
       z-index: 10;
       position: fixed;
@@ -130,9 +133,12 @@ section.ant-layout {
       }
     }
   }
-  .options-contact-room span {
+  .options-contact-room > span {
     float: right;
     padding-top: 19px;
+    sup.ant-badge-count {
+      margin-top: 12px;
+    }
   }
   div.ant-btn-group {
     float: right;
@@ -244,8 +250,4 @@ section.ant-layout {
   span {
     margin: -10px;
   }
-}
-
-.ant-input-search {
-  padding: 8px;
 }

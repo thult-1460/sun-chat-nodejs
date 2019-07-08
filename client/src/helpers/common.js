@@ -32,8 +32,11 @@ export function getRoomAvatarUrl (avatar = null) {
 
 export function saveSizeComponentsChat () {
   let sideBarW = document.getElementsByClassName('side-bar')[0].offsetWidth;
-  let descW = document.getElementsByClassName('description-chat')[0].offsetWidth;
-  document.getElementsByClassName('chat-room')[0].style.width = (window.innerWidth - sideBarW - descW) + 'px';
+  let descW = document.getElementsByClassName('description-chat')[0];
   localStorage.setItem('sideBarW', sideBarW);
-  localStorage.setItem('descW', descW);
+
+  if (descW) {
+    document.getElementsByClassName('chat-room')[0].style.width = (window.innerWidth - sideBarW - descW.offsetWidth) + 'px';
+    localStorage.setItem('descW', descW.offsetWidth);
+  }
 }

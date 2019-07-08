@@ -194,7 +194,7 @@ class ListContacts extends React.Component {
             />
             <div>
               {this.state.contacts.length > 0 ? (
-                <div className="infinite-container">
+                <div className="infinite-container" id="list-contacts">
                   {error && <Alert message={t('user:error_title')} type="error" description={error} />}
                   <InfiniteScroll
                     initialLoad={false}
