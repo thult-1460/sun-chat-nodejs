@@ -38,6 +38,7 @@ class ChooseMemberToCall extends React.Component {
       newMember.map(member => {
         this.setState(prevState => ({
           listMember: [...prevState.listMember, member.user],
+          listIdMember: [...prevState.listIdMember, member.user._id]
         }));
       });
     });
