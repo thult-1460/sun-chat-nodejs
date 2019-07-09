@@ -16,7 +16,8 @@
     "room_des": "Mô tả",
     "admin_confirm": "Cần sự xác nhận của quản trị viên",
     "add_member": "Thêm thành viên",
-    "edit-desc-of-room": "Chỉnh sửa mô tả cuộc trò chuyện"
+    "edit-desc-of-room": "Chỉnh sửa mô tả cuộc trò chuyện",
+    "video-audio-call": "Trò truyện trực tiếp"
   },
   "button": {
     "cancel": "Hủy",
@@ -29,7 +30,11 @@
     "copy": "Sap chép",
     "back": "Trở về",
     "copied": "Đã sao chép",
-    "remove_contact": "Xóa liên hệ này"
+    "remove_contact": "Xóa liên hệ này",
+    "check-all": "Tất cả",
+    "uncheck-all": "Bỏ chọn",
+    "video-call": "Gọi thoại hình ảnh",
+    "audio-call": "Cuộc gọi âm thanh"
   },
   "invitation": {
     "joined": "Bạn đã vào phòng này",
@@ -41,5 +46,9 @@
   "request": {
     "title": "Danh sách yêu cầu"
   },
-  "room_not_exist": "Phòng đã bị xóa. Bạn được chuyển về Mychat"
+  "room_not_exist": "Phòng đã bị xóa. Bạn được chuyển về Mychat",
+  "video-audio-call": {
+    "choose-member": "Chọn thành viên tham gia trò chuyện trực tiếp"
+  },
+  "no-data": "Không có dữ liệu"
 }

@@ -165,5 +165,6 @@ router.post(
   [auth.jwtMiddleware, authorization.room.hasAuthorization, authorization.room.leaveRoom],
   roomsController.handleMemberLeaveTheRoom
 );
-router.post('/rooms/:roomId/edit-desc', [auth.jwtMiddleware, authorization.room.hasAuthorization], roomsController.editDescOfRoom)
+router.post('/rooms/:roomId/edit-desc', [auth.jwtMiddleware, authorization.room.hasAuthorization], roomsController.editDescOfRoom);
+router.get('/search-member-of-room/:roomId', [auth.jwtMiddleware, authorization.room.hasAuthorization], roomsController.searchMemberOfRoomByName);
 module.exports = router;

@@ -16,7 +16,8 @@
     "room_des": "Description",
     "admin_confirm": "Requires confirmation from admin to join",
     "add_member": "Add members",
-    "edit-desc-of-room": "Edit Description Of Room"
+    "edit-desc-of-room": "Edit Description Of Room",
+    "video-audio-call": "Sun chat live"
   },
   "button": {
     "cancel": "Cancel",
@@ -29,7 +30,11 @@
     "copy": "Copy",
     "back": "Back",
     "copied": "Copied",
-    "remove_contact": "Remove this contact"
+    "remove_contact": "Remove this contact",
+    "check-all": "Checked all",
+    "uncheck-all": "Uncheck all",
+    "video-call": "Video call",
+    "audio-call": "Audio call"
   },
   "invitation": {
     "joined": "You are in this room",
@@ -41,5 +46,9 @@
   "request": {
     "title": "Request list"
   },
-  "room_not_exist": "Room has been deleted. You are redirected to Mychat"
+  "room_not_exist": "Room has been deleted. You are redirected to Mychat",
+  "video-audio-call": {
+    "choose-member": "Select a member to join the Sun chat live"
+  },
+  "no-data": "No data"
 }
