@@ -7,7 +7,8 @@ import { Button } from 'antd';
 
 class EditRoom extends PureComponent {
   state = {
-    modalVisible: false
+    modalVisible: false,
+    roomInfo: {},
   };
 
   handleModalVisible = flag => {
@@ -16,9 +17,15 @@ class EditRoom extends PureComponent {
     });
   };
 
+  componentWillReceiveProps(nextProps) {
+    this.setState({
+      roomInfo: nextProps.roomInfo
+    });
+  }
+
   render() {
-    const { t, roomInfo } = this.props;
-    const { modalVisible } = this.state;
+    const { t } = this.props;
+    const { modalVisible, roomInfo } = this.state;
     const parentMethods = {
       handleModalVisible: this.handleModalVisible
     };

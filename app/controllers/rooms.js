@@ -663,6 +663,8 @@ exports.editRoom = async (req, res) => {
         await files.saveImage(roomData.avatar, slug(roomData.name, '-'), pathRoomAvatar, room.avatar).then(url => {
           roomData.avatar = url;
         });
+      } else if (roomData.changeAvatar) {
+        roomData.avatar = null;
       }
 
       await Room.findOneAndUpdate({ _id: roomId }, { $set: roomData }, { new: true }).then(async roomData => {
