@@ -42,20 +42,12 @@ class ChooseMemberToCall extends React.Component {
       });
     });
 
-    this.context.socket.on('update_member_of_room', newListMember => {
-      const currentUserId = this.props.roomDetail.currentUserId;
-      const listMember = newListMember.filter(item => item._id != currentUserId);
-      const listIdMember = [];
-      listMember.map(member => {
-        listIdMember.push(member._id);
-      });
-
-      const newCheckedList = _.intersection(listIdMember, this.state.checkedList);
-      this.setState({
-        listMember,
-        listIdMember,
-        checkedList: newCheckedList,
-      });
+    this.context.socket.on('remove_to_list_members', memberId => {
+      this.setState(prevState => ({
+        listMember: prevState.listMember.filter(item => item._id != memberId),
+        checkedList: prevState.checkedList.filter(item => item != memberId),
+        listIdMember: prevState.listIdMember.filter(item => item != memberId),
+      }));
     });
   }
 
