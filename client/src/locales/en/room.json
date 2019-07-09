@@ -48,7 +48,8 @@
   },
   "room_not_exist": "Room has been deleted. You are redirected to Mychat",
   "video-audio-call": {
-    "choose-member": "Select a member to join the Sun chat live"
+    "choose-member": "Select a member to join the Sun chat live",
+    "search-member": "Search member by name"
   },
   "no-data": "No data"
 }

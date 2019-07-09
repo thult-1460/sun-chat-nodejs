@@ -2,9 +2,7 @@ import React from 'react';
 import { withNamespaces } from 'react-i18next';
 import { withRouter } from 'react-router';
 import 'antd/dist/antd.css';
-import { room } from '../../config/room';
-import { List, Avatar, Button, message, Spin, Alert, Input, Row, Col, Checkbox } from 'antd';
-import { searchMemberOfRoom } from '../../api/room';
+import { List, Avatar, Button, Input, Row, Col, Checkbox } from 'antd';
 import { SocketContext } from './../../context/SocketContext';
 import { getRoomAvatarUrl, getUserAvatarUrl } from './../../helpers/common';
 const _ = require('lodash');
@@ -82,16 +80,18 @@ class ChooseMemberToCall extends React.Component {
   }
 
   handleSearch = (e) => {
-    const roomId = this.props.roomDetail._id;
     const searchText = e.target.value.trim();
-    searchMemberOfRoom({ roomId, searchText }).then(res => {
-      this.setState({
-        listMember: res.data,
-      });
-    }).catch(err => {
-      message.error(err.response.data.error);
+    const listMember = this.props.listMember;
+    const regex = new RegExp(`(.*)(${_.escapeRegExp(searchText)})(.*)`, 'i');
+    let result = [];
+    listMember.filter(item => {
+      if (item.name.match(regex)) result.push(item);
+    })
+    this.setState({
+      listMember: result,
     });
   }
+
   cancel = () => {
     this.props.handleVisible();
   }
@@ -116,7 +116,7 @@ class ChooseMemberToCall extends React.Component {
           </Row>
           <Row className="input-search-member-to-call">
             <Input.Search
-              placeholder="Search member by name"
+              placeholder={t('video-audio-call.search-member')}
               onChange={this.handleSearch}
             />
           </Row>
