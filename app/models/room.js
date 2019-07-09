@@ -1270,46 +1270,6 @@ RoomSchema.statics = {
       },
     ]);
   },
-
-  searchMemberOfRoomByName: function (options) {
-    return this.aggregate([
-      { $match: { _id: mongoose.Types.ObjectId(options.roomId), deletedAt: null } },
-      { $unwind: '$members' },
-      {
-        $match: {
-          $and: [
-            { 'members.deletedAt': null },
-            { 'members.user': { $ne: mongoose.Types.ObjectId(options.userId) } },
-          ],
-        },
-      },
-      {
-        $lookup: {
-          from: 'users',
-          localField: 'members.user',
-          foreignField: '_id',
-          as: 'members.user',
-        },
-      },
-      {
-        $match: {
-          $or: [
-            { 'members.user.name': { $regex: '^.*' + options.searchText + '.*$', $options: 'i' } },
-          ],
-        },
-      },
-      {
-        $replaceRoot: { newRoot: { $arrayElemAt: ['$members.user', 0] } },
-      },
-      {
-        $project: {
-          '_id': 1,
-          'avatar': 1,
-          'name': 1,
-        },
-      },
-    ]);
-  }
 };
 
 module.exports = mongoose.model('Room', RoomSchema);

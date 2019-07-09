@@ -107,7 +107,3 @@ export function leaveRoom(roomId) {
 export function editDescOfRoom(roomId, desc) {
   return new Http().authenticated().post(`rooms/${roomId}/edit-desc`, desc);
 }
-
-export function searchMemberOfRoom({ roomId, searchText }) {
-  return new Http().authenticated().get(`/search-member-of-room/${roomId}?searchText=${searchText}`);
-}

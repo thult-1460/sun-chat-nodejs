@@ -749,26 +749,3 @@ exports.editDescOfRoom = async (req, res) => {
     return res.status(500).json({ message: __('room.edit.desc.failed') });
   }
 };
-
-exports.searchMemberOfRoomByName = async (req, res) => {
-  let { _id } = req.decoded;
-  let { roomId } = req.params;
-  let searchText = req.query.searchText;
-
-  const options = {
-    userId: _id,
-    searchText,
-    roomId
-  };
-
-  try {
-    let members = await Room.searchMemberOfRoomByName(options);
-    return res.status(200).json(members);
-  } catch (err) {
-    channel.error(err);
-
-    return res.status(500).json({
-      error: err.toString(),
-    });
-  }
-}

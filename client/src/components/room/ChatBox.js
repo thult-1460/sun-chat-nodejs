@@ -870,8 +870,8 @@ class ChatBox extends React.Component {
               <a href="javascript:;">{roomInfo.type !== room.ROOM_TYPE.MY_CHAT ? <strong>{t('to')}</strong> : ''}</a>
             </Badge>
           </Popover>
-          {(roomInfo.type === room.ROOM_TYPE.GROUP_CHAT || roomInfo.type === room.ROOM_TYPE.DIRECT_CHAT) &&
-            <ModalChooseMemberToCall listMember={listMember} roomDetail={{ name: roomInfo.name, avatar: roomInfo.avatar, tye: roomInfo.type, _id: roomInfo._id, currentUserId: currentUserInfo._id }} />}
+          {roomInfo.type === room.ROOM_TYPE.GROUP_CHAT &&
+            <ModalChooseMemberToCall listMember={listMember} roomDetail={{ name: roomInfo.name, avatar: roomInfo.avatar, type: roomInfo.type, _id: roomInfo._id, currentUserId: currentUserInfo._id }} />}
           {isEditing ? (
             <React.Fragment>
               <Button style={{ float: 'right' }} type="primary" onClick={this.handleSendMessage}>

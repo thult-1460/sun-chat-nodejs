@@ -48,7 +48,8 @@
   },
   "room_not_exist": "Phòng đã bị xóa. Bạn được chuyển về Mychat",
   "video-audio-call": {
-    "choose-member": "Chọn thành viên tham gia trò chuyện trực tiếp"
+    "choose-member": "Chọn thành viên tham gia trò chuyện trực tiếp",
+    "search-member": "Tìm kiếm thành viên theo tên"
   },
   "no-data": "Không có dữ liệu"
 }
