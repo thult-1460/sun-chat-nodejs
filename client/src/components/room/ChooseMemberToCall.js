@@ -18,27 +18,17 @@ class ChooseMemberToCall extends React.Component {
       checkedList: [],
       checkedAll: false,
       listMember: this.props.listMember,
-      listIdMember: [],
       indeterminate: false,
     };
   }
 
   componentDidMount() {
-    let listIdMember = [];
-    this.props.listMember.map(item => {
-      listIdMember.push(item._id);
-    });
-
-    this.setState({
-      listIdMember
-    });
     const { socket } = this.context;
 
     socket.on('add_to_list_members', newMember => {
       newMember.map(member => {
         this.setState(prevState => ({
           listMember: [...prevState.listMember, member.user],
-          listIdMember: [...prevState.listIdMember, member.user._id]
         }));
       });
     });
@@ -47,7 +37,6 @@ class ChooseMemberToCall extends React.Component {
       this.setState(prevState => ({
         listMember: prevState.listMember.filter(item => item._id != memberId),
         checkedList: prevState.checkedList.filter(item => item != memberId),
-        listIdMember: prevState.listIdMember.filter(item => item != memberId),
       }));
     });
   }
@@ -59,7 +48,11 @@ class ChooseMemberToCall extends React.Component {
   };
 
   oncheckedAll = e => {
-    const { listIdMember } = this.state;
+    const { listMember } = this.state;
+    let listIdMember = [];
+    listMember.map(member => {
+      listIdMember.push(member._id)
+    });
 
     this.setState({
       checkedList: listIdMember
@@ -92,6 +85,7 @@ class ChooseMemberToCall extends React.Component {
   render() {
     const { t, roomDetail } = this.props;
     const { listMember, checkedList } = this.state;
+
     return (
       <React.Fragment >
         <Row >
