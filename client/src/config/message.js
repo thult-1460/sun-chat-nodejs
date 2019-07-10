@@ -3,6 +3,13 @@ const message = {
   ICO_AVATAR_NOTFOUND: require('../images/ico_avatar_notfound.png'),
 };
 
+const block = {
+  TITLE_BLOCK: '[title]',
+  CODE_BLOCK: '[code]',
+  INFO_BLOCK: '[block]'
+};
+
 module.exports = {
   messageConfig: message,
+  block
 };

@@ -47,10 +47,7 @@ const actionFunc = {
     insertTextToMessageArea('[toall]' + '\n');
 
     return false;
-  },
-  title: function(e) {
-    insertTextToMessageArea('[title]' + '\n');
-  },
+  }
 };
 
 const getAvatarByID = (id, userInfo) => {
