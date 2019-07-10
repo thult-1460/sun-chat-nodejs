@@ -30,5 +30,10 @@
     "cancel_request": "Cancel",
     "reject_request": "Reject",
     "accept_request": "Accept"
+  },
+  "block": {
+    "title": "[title]",
+    "code": "[code]",
+    "info": "[info]"
   }
 }

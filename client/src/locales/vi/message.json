@@ -30,5 +30,10 @@
     "cancel_request": "Hủy",
     "reject_request": "Từ chối",
     "accept_request": "Đồng ý"
+  },
+  "block": {
+    "title": "[title]",
+    "code": "[code]",
+    "info": "[info]"
   }
 }

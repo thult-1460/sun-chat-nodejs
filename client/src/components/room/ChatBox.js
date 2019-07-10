@@ -725,6 +725,14 @@ class ChatBox extends React.Component {
       }
     }
   };
+
+  clickTitleBlock = () => {
+    document.getElementById('msg-content').value += '[title][/title]';
+  };
+
+  clickCodeBlock = () => {
+    document.getElementById('msg-content').value += '[code][/code]';
+  };
   // process for popover - END
 
   render() {
@@ -872,6 +880,12 @@ class ChatBox extends React.Component {
           </Popover>
           {roomInfo.type === room.ROOM_TYPE.GROUP_CHAT &&
             <ModalChooseMemberToCall listMember={listMember} roomDetail={{ name: roomInfo.name, avatar: roomInfo.avatar, type: roomInfo.type, _id: roomInfo._id, currentUserId: currentUserInfo._id }} />}
+          <a onClick={this.clickTitleBlock} className="block">
+            <strong>{t('block.title')}</strong>
+          </a>
+          <a onClick={this.clickCodeBlock} className="block">
+            <strong>{t('block.code')}</strong>
+          </a>
           {isEditing ? (
             <React.Fragment>
               <Button style={{ float: 'right' }} type="primary" onClick={this.handleSendMessage}>
