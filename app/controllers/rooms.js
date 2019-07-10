@@ -298,6 +298,7 @@ exports.deleteMember = async (req, res) => {
     io.to(roomId).emit('update_member_of_room', roomInfo[0].members_info);
     io.to(roomId).emit('send_new_msg', { message: message });
     io.to(memberId).emit('remove_from_list_rooms', { roomId: roomId });
+    io.to(roomId).emit('remove_to_list_members', memberId);
 
     if (!result) throw new Error(__('room.delete_member.failed'));
 
@@ -750,4 +751,4 @@ exports.editDescOfRoom = async (req, res) => {
   } catch (err) {
     return res.status(500).json({ message: __('room.edit.desc.failed') });
   }
-}
+};

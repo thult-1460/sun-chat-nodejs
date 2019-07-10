@@ -4,6 +4,7 @@ import { withNamespaces } from 'react-i18next';
 import { withRouter } from 'react-router';
 import MemberRow from './MemberRow';
 import { SocketContext } from './../../context/SocketContext';
+const _ = require('lodash');
 
 class AdminRoleMemberList extends React.Component {
   static contextType = SocketContext;
@@ -29,6 +30,14 @@ class AdminRoleMemberList extends React.Component {
               }
             : member
         ),
+      }));
+    });
+
+  socket.on('update_member_of_room', newMembers => {
+    const members = this.state.members;
+    const memberHasDeleted = _.differenceBy(members, newMembers, '_id');
+    this.setState(prevState => ({
+        members: prevState.members.filter(item => item._id != memberHasDeleted[0]._id),
       }));
     });
   }

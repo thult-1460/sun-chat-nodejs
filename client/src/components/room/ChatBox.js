@@ -27,6 +27,7 @@ import InfiniteScroll from 'react-infinite-scroller';
 import '../../scss/messages.scss';
 import handlersMessage from '../../helpers/handlersMessage';
 import { getUserAvatarUrl, saveSizeComponentsChat } from './../../helpers/common';
+import ModalChooseMemberToCall from './ModalChooseMemberToCall';
 
 const { Content } = Layout;
 const initialState = {
@@ -736,10 +737,11 @@ class ChatBox extends React.Component {
       messageIdEditing,
       messageIdHovering,
     } = this.state;
-    const { t, roomInfo, isReadOnly, roomId } = this.props;
+    const { t, roomInfo, isReadOnly, roomId, allMembers } = this.props;
     const currentUserInfo = this.props.userContext.info;
     const showListMember = this.generateListTo();
     const redLine = this.generateRedLine();
+    const listMember = allMembers.filter(item => item._id != currentUserInfo._id);
 
     let nextMsgId = null;
 
@@ -868,6 +870,8 @@ class ChatBox extends React.Component {
               <a href="javascript:;">{roomInfo.type !== room.ROOM_TYPE.MY_CHAT ? <strong>{t('to')}</strong> : ''}</a>
             </Badge>
           </Popover>
+          {roomInfo.type === room.ROOM_TYPE.GROUP_CHAT &&
+            <ModalChooseMemberToCall listMember={listMember} roomDetail={{ name: roomInfo.name, avatar: roomInfo.avatar, type: roomInfo.type, _id: roomInfo._id, currentUserId: currentUserInfo._id }} />}
           {isEditing ? (
             <React.Fragment>
               <Button style={{ float: 'right' }} type="primary" onClick={this.handleSendMessage}>

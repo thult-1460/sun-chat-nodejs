@@ -5,6 +5,7 @@ import config from './../config/listRoom';
 import { getListRoomsBySubName } from './../api/room';
 import { getRoomAvatarUrl, getUserAvatarUrl } from './../helpers/common';
 import { room } from './../config/room';
+const _ = require('lodash');
 
 export default class InputSearch extends Component {
   data = [];
@@ -58,7 +59,7 @@ export default class InputSearch extends Component {
 
   render() {
     var name = [],
-      regex = new RegExp(`(.*)(${this.state.subName})(.*)`, 'i');
+      regex = new RegExp(`(.*)(${_.escapeRegExp(this.state.subName)})(.*)`, 'i');
 
     return (
       <div ref={node => (this.node = node)}>
