@@ -884,7 +884,7 @@ class ChatBox extends React.Component {
             <strong>{block.TITLE_BLOCK}</strong>
           </a>
           <a onClick={this.clickCodeBlock} className="block">
-            <strong>{block.TITLE_BLOCK}</strong>
+            <strong>{block.CODE_BLOCK}</strong>
           </a>
           {isEditing ? (
             <React.Fragment>
