@@ -1,5 +1,5 @@
 .header-icon {
-  margin: 0 2%;
+  margin: 0 1%;
   i {
     font-size: 20px;
   }
@@ -118,7 +118,7 @@ section.ant-layout {
     padding-top: 15px;
     a {
       width: 100%;
-      span.ant-avatar{
+      span.ant-avatar {
         margin-top: -15px;
         float: left;
       }
@@ -208,7 +208,6 @@ section.ant-layout {
   height: 890px;
 }
 
-
 ::-webkit-scrollbar {
   width: 10px;
   height: 10px;
@@ -250,4 +249,8 @@ section.ant-layout {
   span {
     margin: -10px;
   }
+}
+
+.block {
+  margin: 0 1%;
 }

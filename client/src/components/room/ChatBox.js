@@ -22,7 +22,7 @@ import { withUserContext } from './../../context/withUserContext';
 import { withNamespaces } from 'react-i18next';
 import moment from 'moment';
 import { room } from '../../config/room';
-import { messageConfig } from '../../config/message';
+import { messageConfig, block } from '../../config/message';
 import InfiniteScroll from 'react-infinite-scroller';
 import '../../scss/messages.scss';
 import handlersMessage from '../../helpers/handlersMessage';
@@ -725,6 +725,14 @@ class ChatBox extends React.Component {
       }
     }
   };
+
+  clickTitleBlock = () => {
+    document.getElementById('msg-content').value += '[title][/title]';
+  };
+
+  clickCodeBlock = () => {
+    document.getElementById('msg-content').value += '[code][/code]';
+  };
   // process for popover - END
 
   render() {
@@ -872,6 +880,12 @@ class ChatBox extends React.Component {
           </Popover>
           {roomInfo.type === room.ROOM_TYPE.GROUP_CHAT &&
             <ModalChooseMemberToCall listMember={listMember} roomDetail={{ name: roomInfo.name, avatar: roomInfo.avatar, type: roomInfo.type, _id: roomInfo._id, currentUserId: currentUserInfo._id }} />}
+          <a onClick={this.clickTitleBlock} className="block">
+            <strong>{block.TITLE_BLOCK}</strong>
+          </a>
+          <a onClick={this.clickCodeBlock} className="block">
+            <strong>{block.CODE_BLOCK}</strong>
+          </a>
           {isEditing ? (
             <React.Fragment>
               <Button style={{ float: 'right' }} type="primary" onClick={this.handleSendMessage}>
