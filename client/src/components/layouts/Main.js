@@ -4,14 +4,19 @@ import Head from './Head';
 import Sidebar from './Sidebar';
 import { Layout } from 'antd'
 
-export default ({ children }) => (
+export default ({ children }) => {
+  return (
     <React.Fragment>
-        <Layout>
-            <Sidebar />
-            <Layout style={{ marginLeft: 200 }}>
-                <Head /> { children }
-                <Foot />
-            </Layout>
+      {!children._owner.return.memoizedProps.withoutLayout ? (
+      <Layout>
+        <Sidebar />
+        <Layout style={{ marginLeft: 200 }}>
+          <Head />
+          { children }
+          <Foot />
         </Layout>
+      </Layout>
+      ) : children }
     </React.Fragment>
-)
+  )
+}

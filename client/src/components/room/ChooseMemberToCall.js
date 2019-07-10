@@ -1,6 +1,6 @@
 import React from 'react';
 import { withNamespaces } from 'react-i18next';
-import { withRouter } from 'react-router';
+import { withUserContext } from './../../context/withUserContext';
 import 'antd/dist/antd.css';
 import { List, Avatar, Button, Input, Row, Col, Checkbox } from 'antd';
 import { SocketContext } from './../../context/SocketContext';
@@ -82,6 +82,10 @@ class ChooseMemberToCall extends React.Component {
     this.props.handleVisible();
   }
 
+  liveChat = () => {
+    window.open(window.location.href + "/user/" + this.props.userContext.info._id, "_blank", "toolbar=yes, width="+ window.innerWidth+",height="+ window.innerHeight);
+  }
+
   render() {
     const { t, roomDetail } = this.props;
     const { listMember, checkedList } = this.state;
@@ -139,10 +143,10 @@ class ChooseMemberToCall extends React.Component {
             </Col>
           </Row>
           <Row className="button-group-choose-type-call">
-            <Button type="primary">
+            <Button type="primary" onClick={this.liveChat}>
               {t('button.video-call')}
             </Button>
-            <Button >
+            <Button onClick={this.liveChat}>
               {t('button.audio-call')}
             </Button>
             <Button onClick={this.cancel}>
@@ -155,4 +159,4 @@ class ChooseMemberToCall extends React.Component {
   }
 }
 
-export default withNamespaces(['room'])(withRouter(ChooseMemberToCall));
+export default withNamespaces(['room'])(withUserContext(ChooseMemberToCall));

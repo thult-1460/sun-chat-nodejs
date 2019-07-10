@@ -12,6 +12,7 @@ import ResetPassword from '../pages/auth/resetpassword.js';
 import ListContacts from '../components/modals/contact/ListContacts';
 import RoomDetail from '../pages/rooms/RoomDetail';
 import AddContact from '../components/modals/contact/AddContact';
+import LiveChat from '../components/room/LiveChat';
 
 const routes = [
   {
@@ -91,6 +92,13 @@ const routes = [
     exact: true,
     auth: true,
     component: AddContact,
+  },
+  {
+    path: '/rooms/:roomId/user/:userId',
+    exact: true,
+    auth: true,
+    withoutLayout: true,
+    component: LiveChat,
   },
   //notFound
   {
