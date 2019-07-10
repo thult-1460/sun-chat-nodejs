@@ -165,5 +165,17 @@ router.post(
   [auth.jwtMiddleware, authorization.room.hasAuthorization, authorization.room.leaveRoom],
   roomsController.handleMemberLeaveTheRoom
 );
-router.post('/rooms/:roomId/edit-desc', [auth.jwtMiddleware, authorization.room.hasAuthorization], roomsController.editDescOfRoom);
+
+router.post(
+  '/rooms/:roomId/edit-desc',
+  [auth.jwtMiddleware, authorization.room.hasAuthorization],
+  roomsController.editDescOfRoom
+);
+
+router.post(
+  '/rooms/:roomId/tasks',
+  [auth.jwtMiddleware, authorization.room.hasAuthorization],
+  roomsValidate.validate('createTask'),
+  roomsController.createTask
+);
 module.exports = router;

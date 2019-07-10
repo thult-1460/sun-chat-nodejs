@@ -1,0 +1,27 @@
+{
+  "messages": {
+    "create": {
+      "success": "Create new task successfully!",
+      "failed": "Create new task failed"
+    }
+  },
+  "title": {
+    "create": "Create new task",
+    "content": "Content",
+    "pick_time": "Pick start date and end date",
+    "assignees": "Assignees",
+    "add_user": "Add user"
+  },
+  "status": {
+    "new": "New",
+    "in_progress": "In progress",
+    "pending": "Pending",
+    "done": "Done",
+    "reject": "Reject"
+  },
+  "validate": {
+    "content": "Please input your content",
+    "time": "Please select time",
+    "assignees": "Please assign this task for somebody"
+  }
+}

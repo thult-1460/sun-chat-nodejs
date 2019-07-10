@@ -207,5 +207,32 @@
     "user_not_exist": "User not exist. Could not this user!",
     "upload_file_failed": "Image must smaller than {{max}} MB!",
     "unknown_file": "Unknown file"
+  },
+  "task": {
+    "validate": {
+      "content": {
+        "required": "The content is not empty"
+      },
+      "start_date": {
+        "not_date": "The start field is not date"
+      },
+      "end_date": {
+        "not_date": "The end field is not date",
+        "expire": " The end date less than the start date"
+      },
+      "users": {
+        "required": "The assignees is not empty",
+        "not_array": "The assignees is not array"
+      },
+      "status": {
+        "not_array": "The status is not array"
+      },
+      "percent": {
+        "not_array": "The percent is not array"
+      }
+    },
+    "create": {
+      "error": "Create new task failed"
+    }
   }
 }

@@ -598,7 +598,7 @@ exports.storeMessage = async function(req, res) {
           last_created_msg: member.last_created_msg,
           pinned: member.pinned,
           quantity_unread: member.quantity_unread,
-        }
+        },
       });
     });
 
@@ -747,8 +747,37 @@ exports.editDescOfRoom = async (req, res) => {
     io.to(roomId).emit('edit_desc_of_room_successfully', roomInfo[0].desc);
 
     return res.status(200).json({ message: __('room.edit.desc.success') });
-
   } catch (err) {
-    return res.status(500).json({ message: __('room.edit.desc.failed') });
+    channel.error(err);
+
+    return res.status(500).json({ error: __('room.edit.desc.failed') });
+  }
+};
+
+exports.createTask = async (req, res) => {
+  const errors = validationResult(req);
+
+  if (errors.array().length > 0) {
+    let customErrors = customMessageValidate(errors);
+
+    return res.status(422).json(customErrors);
+  }
+
+  const io = req.app.get('socketIO');
+  const { roomId } = req.params;
+  const { ...task } = req.body;
+  const { _id: userId } = req.decoded;
+
+  try {
+    const room = await Room.createTask(roomId, userId, task);
+    const lastTask = room.tasks.pop();
+
+    return res.status(200).json({
+      task_id: lastTask._id,
+    });
+  } catch (err) {
+    channel.error(err);
+
+    return res.status(500).json({ error: __('task.create.error') });
   }
 };
