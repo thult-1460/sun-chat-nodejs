@@ -1,0 +1,9 @@
+{
+  "video-audio-call": {
+    "invation": "Bạn có một lời mời",
+    "message-join-call": "Bạn đã được mời tham gia sun chat live với {{roomName}}"
+  },
+  "button": {
+    "join-call": "Tham gia"
+  }
+}

@@ -2,12 +2,13 @@ import React from 'react';
 import { withNamespaces } from 'react-i18next';
 import { withUserContext } from './../../context/withUserContext';
 import 'antd/dist/antd.css';
-import { List, Avatar, Button, Input, Row, Col, Checkbox } from 'antd';
+import { List, Avatar, Button, Input, Row, Col, Checkbox, message } from 'antd';
 import { SocketContext } from './../../context/SocketContext';
 import { getRoomAvatarUrl, getUserAvatarUrl } from './../../helpers/common';
+import { room } from '../../config/room';
+import { sendCallingRequest } from '../../api/room';
 const _ = require('lodash');
 const CheckboxGroup = Checkbox.Group;
-
 class ChooseMemberToCall extends React.Component {
   static contextType = SocketContext;
 
@@ -81,9 +82,24 @@ class ChooseMemberToCall extends React.Component {
   cancel = () => {
     this.props.handleVisible();
   }
+  handleSendRequest = (e) => {
+    const { checkedList } = this.state;
+    const callType = e.target.value;
+    const roomId = this.props.roomDetail._id;
+    const roomName = this.props.roomDetail.name;
+
+    sendCallingRequest({ checkedList, callType, roomName }, roomId).then(res => {
+    }).catch(error => {
+      message.error(error.response.data.error);
+    });
+  }
 
   liveChat = () => {
-    window.open(window.location.href + "/user/" + this.props.userContext.info._id, "_blank", "toolbar=yes, width="+ window.innerWidth+",height="+ window.innerHeight);
+    window.open(window.location.href + "/user/" + this.props.userContext.info._id, "_blank", "toolbar=yes, width=" + window.innerWidth + ",height=" + window.innerHeight);
+  }
+
+  liveChat = () => {
+    window.open(window.location.href + "/user/" + this.props.userContext.info._id, "_blank", "toolbar=yes, width=" + window.innerWidth + ",height=" + window.innerHeight);
   }
 
   render() {
@@ -143,10 +159,14 @@ class ChooseMemberToCall extends React.Component {
             </Col>
           </Row>
           <Row className="button-group-choose-type-call">
-            <Button type="primary" onClick={this.liveChat}>
+            {/* <Button type="primary" onClick={this.liveChat}>
               {t('button.video-call')}
             </Button>
-            <Button onClick={this.liveChat}>
+            <Button onClick={this.liveChat}> */}
+            <Button type="primary" onClick={this.handleSendRequest} value={room.CALL_TYPE.VIDEO_CHAT}>
+              {t('button.video-call')}
+            </Button>
+            <Button onClick={this.handleSendRequest} value={room.CALL_TYPE.AUDIO_CHAT}>
               {t('button.audio-call')}
             </Button>
             <Button onClick={this.cancel}>

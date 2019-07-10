@@ -234,5 +234,9 @@
     "create": {
       "error": "Create new task failed"
     }
+  },
+  "call-video-audio": {
+    "sent-noti-success": "Sent notification to member successful",
+    "sent-noti-failed": "Sent notification to member failed"
   }
 }

@@ -505,6 +505,14 @@ UserSchema.statics = {
       .select('_id name email username avatar')
       .exec();
   },
+
+  showInforListUser: function(listUserId) {
+    return this.find({
+      _id : {$in : listUserId},
+      deletedAt: null,
+    }).select('_id name email username avatar')
+      .exec();
+  }
 };
 
 module.exports = mongoose.model('User', UserSchema);

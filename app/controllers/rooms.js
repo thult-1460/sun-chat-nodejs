@@ -753,3 +753,46 @@ exports.editDescOfRoom = async (req, res) => {
     return res.status(500).json({ error: __('room.edit.desc.failed') });
   }
 };
+
+exports.sendCallingRequest = async(req, res) => {
+  const io = req.app.get('socketIO');
+  const {checkedList, callType, roomName} = req.body;
+  const { roomId } = req.params;
+  const { _id: userId } = req.decoded;
+  let room = [];
+
+  try {
+
+    const inforSelectedMember = await User.showInforListUser(checkedList);
+
+    if (checkedList.length > 0) {
+      await Promise.all(inforSelectedMember.map(async member => {
+        const content = `[info][title]Started Sun chat Live[/title][To:${member._id }] ${member.name}
+      [live rid=${roomId}] [/info]`;
+        io.to(member._id).emit('send-notification-join-calling', roomName);
+        room = await Room.storeMessage(roomId, userId, content);
+        const lastMessage = room.messages.pop();
+        const message = await Room.getMessageInfo(roomId, lastMessage._id);
+
+        io.to(roomId).emit('send_new_msg', { message: message });
+      }));
+    } else {
+      const content = `[info][title]Started Sun chat Live [/title][live rid=${roomId}] [/info]`;
+      room = await Room.storeMessage(roomId, userId, content);
+      const lastMessage = room.messages.pop();
+      const message = await Room.getMessageInfo(roomId, lastMessage._id);
+
+      io.to(roomId).emit('send_new_msg', { message: message });
+    }
+
+    return res.status(200).json({
+      message: __('call-video-audio.sent-noti-success'),
+      });
+  } catch (err) {
+    channel.error(err);
+
+    return res.status(500).json({
+      error: __('call-video-audio.sent-noti-failed'),
+    });
+  }
+};

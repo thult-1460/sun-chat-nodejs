@@ -229,5 +229,9 @@
     "create": {
       "error": "Tạo công việc mới lỗi"
     }
+  },
+  "call-video-audio": {
+    "sent-noti-success": "Gửi thông báo tham gia cuộc gọi thành công",
+    "sent-noti-failed": "Gửi thông báo tham gia cuộc gọi thất bại"
   }
 }

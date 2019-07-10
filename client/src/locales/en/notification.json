@@ -1,0 +1,9 @@
+{
+  "video-audio-call": {
+    "invation": "You have an invitation",
+    "message-join-call": "You have been invited to join sun chat live with {{roomName}}"
+  },
+  "button": {
+    "join-call": "Join"
+  }
+}
