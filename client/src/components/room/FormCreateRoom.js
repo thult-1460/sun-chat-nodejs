@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import { withNamespaces } from 'react-i18next';
 import { withRouter } from 'react-router';
 import 'antd/dist/antd.css';
@@ -13,7 +13,7 @@ const FormItem = Form.Item;
 const { TextArea } = Input;
 const { Paragraph } = Typography;
 
-class FormCreateRoom extends PureComponent {
+class FormCreateRoom extends Component {
   static contextType = SocketContext;
   static defaultProps = {
     handleModalVisible: () => {},

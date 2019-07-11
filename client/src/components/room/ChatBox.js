@@ -504,15 +504,18 @@ class ChatBox extends React.Component {
   // for edit msg - BEGIN
   handleMouseEnter = e => {
     const messageIdHovering = e.currentTarget.id;
-    this.setState({
-      messageIdHovering,
-    });
+
+    if (document.getElementById('action-button-' + messageIdHovering)) {
+      document.getElementById('action-button-' + messageIdHovering).style.display = 'block';
+    }
   };
 
   handleMouseLeave = e => {
-    this.setState({
-      messageIdHovering: null,
-    });
+    const messageIdHovering = e.currentTarget.id;
+
+    if (document.getElementById('action-button-' + messageIdHovering)) {
+      document.getElementById('action-button-' + messageIdHovering).style.display = 'none';
+    }
   };
 
   getMessageById(messages, messageId) {
@@ -553,6 +556,22 @@ class ChatBox extends React.Component {
     }
   };
   // for edit msg - END
+
+  // for quote msg - BEGIN
+  quoteMessage = e => {
+    const messageId = e.currentTarget.id;
+    const memberId = e.target.getAttribute('data-mid');
+    const message = this.getMessageById(this.state.messages, messageId);
+
+    let data = {
+      content: message.content,
+      userName: message.user_info.name,
+      time: message.updatedAt
+    };
+
+    handlersMessage.actionFunc.quoteMessage(memberId, data);
+  };
+  // for quote msg - END
 
   // generate list TO - BEGIN
   generateListTo = () => {
@@ -725,14 +744,6 @@ class ChatBox extends React.Component {
       }
     }
   };
-
-  clickTitleBlock = () => {
-    document.getElementById('msg-content').value += '[title][/title]';
-  };
-
-  clickCodeBlock = () => {
-    document.getElementById('msg-content').value += '[code][/code]';
-  };
   // process for popover - END
 
   render() {
@@ -836,8 +847,8 @@ class ChatBox extends React.Component {
                       </h4>
                     </Col>
                     <Col span={24} style={{ position: 'relative' }}>
-                      {messageIdHovering === message._id && message.is_notification == false && (
-                        <div style={{ textAlign: 'right', position: 'absolute', bottom: '0', right: '0' }}>
+                      {message.is_notification == false && (
+                        <div id={'action-button-' + message._id} style={{ textAlign: 'right', position: 'absolute', bottom: '0', right: '0', display: 'none' }}>
                           {currentUserInfo._id === message.user_info._id && !message.is_notification && !isReadOnly && (
                             <Button type="link" onClick={this.editMessage} id={message._id}>
                               <Icon type="edit" /> {t('button.edit')}
@@ -855,9 +866,14 @@ class ChatBox extends React.Component {
                               <Icon type="enter" /> {t('button.reply')}
                             </Button>
                           )}
-                          {/*<Button type="link" onClick={this.quoteMessage} id={message._id}>*/}
-                          {/*<Icon type="rollback" /> {t('button.quote')}*/}
-                          {/*</Button>*/}
+                          <Button
+                            type="link"
+                            onClick={this.quoteMessage}
+                            id={message._id}
+                            data-mid={message.user_info._id}
+                          >
+                            <Icon type="rollback" /> {t('button.quote')}
+                          </Button>
                         </div>
                       )}
                     </Col>
@@ -880,10 +896,10 @@ class ChatBox extends React.Component {
           </Popover>
           {roomInfo.type === room.ROOM_TYPE.GROUP_CHAT &&
             <ModalChooseMemberToCall listMember={listMember} roomDetail={{ name: roomInfo.name, avatar: roomInfo.avatar, type: roomInfo.type, _id: roomInfo._id, currentUserId: currentUserInfo._id }} />}
-          <a onClick={this.clickTitleBlock} className="block">
+          <a onClick={handlersMessage.actionFunc.titleBlock} className="block">
             <strong>{block.TITLE_BLOCK}</strong>
           </a>
-          <a onClick={this.clickCodeBlock} className="block">
+          <a onClick={handlersMessage.actionFunc.codeBlock} className="block">
             <strong>{block.CODE_BLOCK}</strong>
           </a>
           {isEditing ? (
