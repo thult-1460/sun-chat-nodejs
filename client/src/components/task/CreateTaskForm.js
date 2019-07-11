@@ -7,6 +7,7 @@ import { Form, Input, Icon, Button, Select, DatePicker, message, Alert } from 'a
 import { createTask } from './../../api/task.js';
 import { config as taskConfig } from './../../config/task.js';
 
+const { TextArea } = Input;
 const { Option } = Select;
 const { MonthPicker, RangePicker } = DatePicker;
 
@@ -16,6 +17,8 @@ let assignees = [];
 class CreateTaskForm extends React.Component {
   state = {
     assigneesError: '',
+    filterMembers: [],
+    selectedAssignees: [],
   };
 
   handleSubmit = e => {
@@ -51,16 +54,45 @@ class CreateTaskForm extends React.Component {
 
   handleChangeAssignees = value => {
     assignees = value;
+    this.setState({
+      selectedAssignees: value,
+    });
+  };
+
+  handleSearch = value => {
+    const { members } = this.props;
+    let filterMembers = [];
+
+    members.map(member => {
+      if (member.name.includes(value)) {
+        filterMembers.push(member);
+      }
+    });
+
+    this.setState({
+      filterMembers: filterMembers,
+    });
   };
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.roomId != this.props.roomId) {
+      this.setState({
+        filterMembers: nextProps.members,
+        selectedAssignees: [],
+      });
       this.props.form.resetFields();
     }
   }
 
+  componentDidMount() {
+    this.setState({
+      filterMembers: this.props.members,
+    });
+  }
+
   render() {
-    const { members, roomId, t } = this.props;
+    const { roomId, t } = this.props;
+    const members = this.state.filterMembers;
     const { getFieldDecorator, getFieldValue } = this.props.form;
     let membersHTML = [];
 
@@ -74,7 +106,7 @@ class CreateTaskForm extends React.Component {
         <Form.Item>
           {getFieldDecorator('content', {
             rules: [{ required: true, message: t('validate.content') }],
-          })(<Input />)}
+          })(<TextArea rows={4} />)}
         </Form.Item>
         <p> {t('title.pick_time')} (*) </p>
         <Form.Item>
@@ -90,7 +122,10 @@ class CreateTaskForm extends React.Component {
           style={{ width: '100%' }}
           placeholder="Please select"
           defaultValue={[]}
+          value={this.state.selectedAssignees}
+          filterOption={false}
           onChange={this.handleChangeAssignees}
+          onSearch={this.handleSearch}
         >
           {membersHTML}
         </Select>

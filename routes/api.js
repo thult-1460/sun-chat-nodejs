@@ -9,6 +9,7 @@ const auth = require('../app/controllers/auth/authController');
 //controller
 const users = require('../app/controllers/users');
 const roomsController = require('../app/controllers/rooms');
+const tasksController = require('../app/controllers/tasks');
 const authorization = require('../config/middlewares/authorization.js');
 //validation
 const usersValidate = require('../app/validations/users.js');
@@ -176,6 +177,6 @@ router.post(
   '/rooms/:roomId/tasks',
   [auth.jwtMiddleware, authorization.room.hasAuthorization],
   roomsValidate.validate('createTask'),
-  roomsController.createTask
+  tasksController.createTask
 );
 module.exports = router;
