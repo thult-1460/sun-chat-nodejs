@@ -101,7 +101,23 @@
 }
 
 .wrap-message:hover {
-  border: 1px solid #b7e0f6;;
+  border: 1px solid #b7e0f6;
+}
+
+.info-block {
+  border: 1px solid #b3b3b3;
+  border-radius: 3px;
+  padding: 4px 8px;
+}
+
+.title-block {
+  display: flex;
+  align-items: center;
+  margin: -4px -8px 4px;
+  padding: 4px 8px;
+  background: #f2f2f2;
+  border-bottom: 1px solid #cccccc;
+  border-radius: 2px 2px 0 0;
 }
 
 .chatQuote_icon {

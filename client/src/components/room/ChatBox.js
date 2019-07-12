@@ -909,6 +909,9 @@ class ChatBox extends React.Component {
               }}
             />
           )}
+          <a onClick={handlersMessage.actionFunc.infoBlock} className="block">
+            <strong>{block.INFO_BLOCK}</strong>
+          </a>
           <a onClick={handlersMessage.actionFunc.titleBlock} className="block">
             <strong>{block.TITLE_BLOCK}</strong>
           </a>

@@ -58,6 +58,12 @@ const actionFunc = {
 
     return false;
   }
+  ,
+  infoBlock: function(e) {
+    insertTextToMessageArea('[info][/info]');
+
+    return false;
+  }
 };
 
 const getAvatarByID = (id, userInfo, hasName = false) => {
@@ -103,7 +109,13 @@ const messageToHtml = {
   },
   url: function(url) {
     return `<a href="${url}" target="_blank" class="url_msg">${url}</a>`;
-  }
+  },
+  titleInfo: function(content) {
+    return `<div class="title-block"><b>&#9432</b> ${content}</div>`;
+  },
+  info: function(content) {
+    return `<div class="info-block">${content}</div>`;
+  },
 };
 
 const renderMessageToHtml = {
@@ -130,6 +142,23 @@ const renderMessageToHtml = {
     while (match !== null) {
       content = content.replace(match[0], messageToHtml.reply(match[1], userInfo));
       match = regEx.exec(content);
+    }
+
+    return content;
+  },
+  info: function(content, userInfo) {
+    let infoRegEx = /(\[info\])(((?!\[(\/?info)\]).)*)(\[\/info\])/s;
+    let infoMatch = infoRegEx.exec(content);
+    let titleRegEx = /(\[title\])(((?!\[(\/?title)\]).)*)(\[\/title\])/s;
+
+    while (infoMatch !== null) {
+      if(titleRegEx.test(infoMatch[2])) {
+        let titleMatch = titleRegEx.exec(infoMatch[2])
+
+        content = content.replace(titleMatch[0], messageToHtml.titleInfo(titleMatch[2]));
+      }
+      content = content.replace(infoMatch[0], messageToHtml.info(infoMatch[2]));
+      infoMatch = infoRegEx.exec(content);
     }
 
     return content;

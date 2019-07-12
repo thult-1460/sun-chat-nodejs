@@ -6,7 +6,7 @@ const message = {
 const block = {
   TITLE_BLOCK: '[title]',
   CODE_BLOCK: '[code]',
-  INFO_BLOCK: '[block]'
+  INFO_BLOCK: '[info]'
 };
 
 module.exports = {
