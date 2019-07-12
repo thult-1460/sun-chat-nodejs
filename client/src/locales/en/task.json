@@ -23,5 +23,6 @@
     "content": "Please input your content",
     "time": "Please select time",
     "assignees": "Please assign this task for somebody"
-  }
+  },
+  "format_date": "YYYY-MM-DD HH:mm"
 }

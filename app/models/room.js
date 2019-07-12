@@ -41,7 +41,7 @@ const Tasks = new Schema(
     assignees: [
       {
         user: { type: Schema.ObjectId, ref: 'User' },
-        status: { type: Number, default: 0 },
+        status: { type: Number, default: config.TASK_STATUS.NEW },
         percent: { type: Number, default: 0 },
       },
     ],
@@ -1281,9 +1281,9 @@ RoomSchema.statics = {
   createTask(roomId, userId, task) {
     let assignees = [];
 
-    for (let i = 0; i < task.users.length; i++) {
+    for (let i = 0; i < task.assignees.length; i++) {
       assignees.push({
-        user: task.users[i],
+        user: task.assignees[i],
       });
     }
 

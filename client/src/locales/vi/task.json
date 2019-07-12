@@ -23,5 +23,6 @@
     "content": "Hãy nhập nội dung công việc",
     "time": "Lựa chọn thời gian",
     "assignees": "Hãy gán công việc này cho ai đó"
-  }
+  },
+  "format_date": "YYYY-MM-DD HH:mm"
 }

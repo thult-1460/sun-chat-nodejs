@@ -21,5 +21,4 @@ export const config = {
       title: 'status.reject',
     },
   ],
-  FORMAT_DATE: 'YYYY-MM-DD HH:mm',
 };

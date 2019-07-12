@@ -11,7 +11,6 @@ const { TextArea } = Input;
 const { Option } = Select;
 const { MonthPicker, RangePicker } = DatePicker;
 
-let id = 0;
 let assignees = [];
 
 class CreateTaskForm extends React.Component {
@@ -34,7 +33,7 @@ class CreateTaskForm extends React.Component {
         } else {
           values['start'] = values['range-time-picker'][0];
           values['due'] = values['range-time-picker'][1];
-          values['users'] = assignees;
+          values['assignees'] = assignees;
 
           createTask(roomId, values)
             .then(res => {
@@ -112,7 +111,7 @@ class CreateTaskForm extends React.Component {
         <Form.Item>
           {getFieldDecorator('range-time-picker', {
             rules: [{ type: 'array', required: true, message: t('validate.time') }],
-          })(<RangePicker showTime format={taskConfig.FORMAT_DATE} />)}
+          })(<RangePicker showTime format={t('format_date')} />)}
         </Form.Item>
 
         <p> {t('title.assignees')} (*) </p>
