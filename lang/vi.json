@@ -202,5 +202,32 @@
     "user_not_exist": "Tài khoản này không tồn tại. Không thể thêm liên lạc này!",
     "upload_file_failed": "File ảnh phải nhỏ hơn {{max}} MB!",
     "unknown_file": "File không xác định"
+  },
+  "task": {
+    "validate": {
+      "content": {
+        "required": "Nội dung không được để trống"
+      },
+      "start_date": {
+        "not_date": "Trường ngày bắt đầu không phải thời gian"
+      },
+      "end_date": {
+        "not_date": "Trường ngày kết thúc không phải thời gian",
+        "expire": "Ngày kết thúc phải lớn hơn ngày bắt đầu"
+      },
+      "users": {
+        "required": "Người được gán không được trống",
+        "not_array": "Người được gán phải là 1 mảng"
+      },
+      "status": {
+        "not_array": "Trường trạng thái phải là 1 mảng"
+      },
+      "percent": {
+        "not_array": "Trường tiến độ phải là một mảng"
+      }
+    },
+    "create": {
+      "error": "Tạo công việc mới lỗi"
+    }
   }
 }

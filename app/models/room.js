@@ -35,9 +35,16 @@ const Members = new Schema(
 const Tasks = new Schema(
   {
     content: { type: String },
+    start: { type: Date, default: null },
     due: { type: Date, default: null },
-    assignees: { type: Schema.ObjectId, ref: 'User' },
-    done: { type: Boolean, default: false },
+    assigner: { type: Schema.ObjectId, ref: 'User' },
+    assignees: [
+      {
+        user: { type: Schema.ObjectId, ref: 'User' },
+        status: { type: Number, default: config.TASK_STATUS.NEW },
+        percent: { type: Number, default: 0 },
+      },
+    ],
     deletedAt: { type: Date, default: null },
   },
   {
@@ -910,13 +917,13 @@ RoomSchema.statics = {
       },
       {
         fields: {
-          '_id': 1,
-          'type': 1,
-          'name': 1,
-          'avatar': 1,
-          'messages': { $slice: -1 },
+          _id: 1,
+          type: 1,
+          name: 1,
+          avatar: 1,
+          messages: { $slice: -1 },
         },
-        new: true
+        new: true,
       }
     );
   },
@@ -1269,6 +1276,26 @@ RoomSchema.statics = {
         },
       },
     ]);
+  },
+
+  createTask(roomId, userId, task) {
+    let assignees = [];
+
+    for (let i = 0; i < task.assignees.length; i++) {
+      assignees.push({
+        user: task.assignees[i],
+      });
+    }
+
+    const taskObj = {
+      content: task.content,
+      assigner: mongoose.Types.ObjectId(userId),
+      start: task.start,
+      due: task.due,
+      assignees: assignees,
+    };
+
+    return this.findOneAndUpdate({ _id: roomId, deleteAt: null }, { $push: { tasks: taskObj } }, { new: true });
   },
 };
 

@@ -566,7 +566,7 @@ class ChatBox extends React.Component {
     let data = {
       content: message.content,
       userName: message.user_info.name,
-      time: message.updatedAt
+      time: message.updatedAt,
     };
 
     handlersMessage.actionFunc.quoteMessage(memberId, data);
@@ -788,8 +788,8 @@ class ChatBox extends React.Component {
               let messageHtml = this.createMarkupMessage(message, this.attr.userInfoUpdateData);
               let notificationClass = message.is_notification ? 'pre-notification' : '';
               let isToMe =
-                messageHtml.__html.includes(`data-cwtag="[To:${currentUserInfo._id}]"`) ||
-                messageHtml.__html.includes(`data-cwtag="[rp mid=${currentUserInfo._id}]"`) ||
+                messageHtml.__html.includes(`data-tag="[To:${currentUserInfo._id}]"`) ||
+                messageHtml.__html.includes(`data-tag="[rp mid=${currentUserInfo._id}]"`) ||
                 messageHtml.__html.includes(messageConfig.SIGN_TO_ALL);
 
               return (
@@ -848,7 +848,10 @@ class ChatBox extends React.Component {
                     </Col>
                     <Col span={24} style={{ position: 'relative' }}>
                       {message.is_notification == false && (
-                        <div id={'action-button-' + message._id} style={{ textAlign: 'right', position: 'absolute', bottom: '0', right: '0', display: 'none' }}>
+                        <div
+                          id={'action-button-' + message._id}
+                          style={{ textAlign: 'right', position: 'absolute', bottom: '0', right: '0', display: 'none' }}
+                        >
                           {currentUserInfo._id === message.user_info._id && !message.is_notification && !isReadOnly && (
                             <Button type="link" onClick={this.editMessage} id={message._id}>
                               <Icon type="edit" /> {t('button.edit')}
@@ -894,8 +897,18 @@ class ChatBox extends React.Component {
               <a href="javascript:;">{roomInfo.type !== room.ROOM_TYPE.MY_CHAT ? <strong>{t('to')}</strong> : ''}</a>
             </Badge>
           </Popover>
-          {roomInfo.type === room.ROOM_TYPE.GROUP_CHAT &&
-            <ModalChooseMemberToCall listMember={listMember} roomDetail={{ name: roomInfo.name, avatar: roomInfo.avatar, type: roomInfo.type, _id: roomInfo._id, currentUserId: currentUserInfo._id }} />}
+          {roomInfo.type === room.ROOM_TYPE.GROUP_CHAT && (
+            <ModalChooseMemberToCall
+              listMember={listMember}
+              roomDetail={{
+                name: roomInfo.name,
+                avatar: roomInfo.avatar,
+                type: roomInfo.type,
+                _id: roomInfo._id,
+                currentUserId: currentUserInfo._id,
+              }}
+            />
+          )}
           <a onClick={handlersMessage.actionFunc.titleBlock} className="block">
             <strong>{block.TITLE_BLOCK}</strong>
           </a>

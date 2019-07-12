@@ -9,9 +9,10 @@ import HeaderOfRoom from '../../components/room/HeaderOfRoom';
 import { SocketContext } from './../../context/SocketContext';
 import { withUserContext } from './../../context/withUserContext';
 import ModalEditDesc from '../../components/room/ModalEditDesc';
+import ModalCreateTask from '../../components/room/ModalCreateTask';
 import { room } from '../../config/room';
 import { Resizable } from 're-resizable';
-import {saveSizeComponentsChat} from "../../helpers/common";
+import { saveSizeComponentsChat } from '../../helpers/common';
 
 const { Sider, Content } = Layout;
 const { Text } = Typography;
@@ -165,7 +166,7 @@ class RoomDetail extends React.Component {
 
   setWidthChatBox = () => {
     saveSizeComponentsChat();
-  }
+  };
 
   render() {
     const { t } = this.props;
@@ -195,7 +196,10 @@ class RoomDetail extends React.Component {
               onResizeStop={this.setWidthChatBox}
               defaultSize={{ width: localStorage.getItem('descW') ? localStorage.getItem('descW') : (minW + maxW) / 2 }}
             >
-              <Sider className="description-chat" width={ localStorage.getItem('descW') ? localStorage.getItem('descW') : (minW + maxW) / 2 }>
+              <Sider
+                className="description-chat"
+                width={localStorage.getItem('descW') ? localStorage.getItem('descW') : (minW + maxW) / 2}
+              >
                 <Row type="flex" justify="start" className="title-desc-chat-room">
                   <Col span={24}>
                     <Text strong> {t('title.room_des')} </Text>
@@ -225,9 +229,12 @@ class RoomDetail extends React.Component {
                 </Row>
                 <div className="content-desc-chat-room">{roomInfo.desc}</div>
                 {roomInfo.type == room.ROOM_TYPE.GROUP_CHAT ? (
-                  <Button type="primary" block onClick={this.showModal} className="invitation-btn">
-                    {t('invitation.title')}
-                  </Button>
+                  <div>
+                    <Button type="primary" block onClick={this.showModal} className="invitation-btn">
+                      {t('invitation.title')}
+                    </Button>
+                    <ModalCreateTask members={roomInfo.members_info} roomId={roomId} />
+                  </div>
                 ) : (
                   ''
                 )}

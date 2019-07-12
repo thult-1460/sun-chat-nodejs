@@ -1,0 +1,28 @@
+{
+  "messages": {
+    "create": {
+      "success": "Tạo công việc mới thành công",
+      "failed": "Tạo công việc mới thất bại"
+    }
+  },
+  "title": {
+    "create": "Tạo công việc",
+    "content": "Nội dung",
+    "pick_time": "Chọn ngày bắt đầu và ngày kết thúc",
+    "assignees": "Gán cho thành viên",
+    "add_user": "Thêm thành viên"
+  },
+  "status": {
+    "new": "Mới",
+    "in_progress": "Đang thực hiện",
+    "pending": "Đang chờ",
+    "done": "Đã hoàn thành",
+    "reject": "Từ chối"
+  },
+  "validate": {
+    "content": "Hãy nhập nội dung công việc",
+    "time": "Lựa chọn thời gian",
+    "assignees": "Hãy gán công việc này cho ai đó"
+  },
+  "format_date": "YYYY-MM-DD HH:mm"
+}
