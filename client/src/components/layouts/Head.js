@@ -35,7 +35,7 @@ class Head extends React.Component {
           avatar: res.avatar,
         });
       });
-      socket.on('send-notification-join-calling', roomName => {
+      socket.on('member_receive_notification_join_calling', roomName => {
         this.setState({
           showNoticationCallRequest: true,
           roomNameCallRequest: roomName,

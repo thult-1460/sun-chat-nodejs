@@ -14,7 +14,7 @@ class ModalNotificationCallRequest extends Component {
       showComponent: false,
     };
 
-    this.url = config.URL_NOTIFICATION;
+    this.url = config.CALLING_NOTIFICATION_LOCATION;
     this.audio = new Audio(this.url);
   }
 
@@ -23,6 +23,7 @@ class ModalNotificationCallRequest extends Component {
       play: true,
     });
     this.audio.play();
+
   }
 
   pause = () => {
@@ -34,6 +35,20 @@ class ModalNotificationCallRequest extends Component {
     if (this.props.showModal) {
       this.showModal();
     }
+
+    setTimeout(
+      () => this.destroyModal(),
+      config.TIME_SHOW_NOTIFICATION * 1000
+    );
+  }
+
+  destroyModal = () => {
+    this.setState({
+      visible: false,
+      showComponent: false,
+    });
+    this.pause();
+    this.props.updateShowModal();
   }
 
   showModal = () => {

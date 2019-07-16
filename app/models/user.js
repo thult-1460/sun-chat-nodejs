@@ -506,7 +506,7 @@ UserSchema.statics = {
       .exec();
   },
 
-  showInforListUser: function(listUserId) {
+  showListUsersInfo: function(listUserId) {
     return this.find({
       _id : {$in : listUserId},
       deletedAt: null,

@@ -763,27 +763,31 @@ exports.sendCallingRequest = async(req, res) => {
 
   try {
 
-    const inforSelectedMember = await User.showInforListUser(checkedList);
+    const inforSelectedMember = await User.showListUsersInfo(checkedList);
+    let listMemberHaveTo = '';
+    let room  = [];
+
+    inforSelectedMember.map(member => {
+      listMemberHaveTo += `[To:${member._id }] ${member.name}\n`;
+    });
 
     if (checkedList.length > 0) {
-      await Promise.all(inforSelectedMember.map(async member => {
-        const content = `[info][title]Started Sun chat Live[/title][To:${member._id }] ${member.name}
-      [live rid=${roomId}] [/info]`;
-        io.to(member._id).emit('send-notification-join-calling', roomName);
-        room = await Room.storeMessage(roomId, userId, content);
-        const lastMessage = room.messages.pop();
-        const message = await Room.getMessageInfo(roomId, lastMessage._id);
+       const content = `[info][title]Started Sun chat Live[/title]` + listMemberHaveTo +
+      `[live rid=${roomId} id=2333] [/info]`;
+      room = await Room.storeMessage(roomId, userId, content);
 
-        io.to(roomId).emit('send_new_msg', { message: message });
-      }));
+      inforSelectedMember.map(member => {
+        io.to(member._id).emit('member_receive_notification_join_calling', roomName);
+      });
     } else {
       const content = `[info][title]Started Sun chat Live [/title][live rid=${roomId}] [/info]`;
       room = await Room.storeMessage(roomId, userId, content);
-      const lastMessage = room.messages.pop();
-      const message = await Room.getMessageInfo(roomId, lastMessage._id);
-
-      io.to(roomId).emit('send_new_msg', { message: message });
     }
+
+    const lastMessage = room.messages.pop();
+    const message = await Room.getMessageInfo(roomId, lastMessage._id);
+
+    io.to(roomId).emit('send_new_msg', { message: message });
 
     return res.status(200).json({
       message: __('call-video-audio.sent-noti-success'),
