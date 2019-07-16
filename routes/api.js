@@ -179,4 +179,6 @@ router.post(
   roomsValidate.validate('createTask'),
   tasksController.createTask
 );
+
+router.post('/rooms/:roomId/send-calling-request', [auth.jwtMiddleware, authorization.room.hasAuthorization], roomsController.sendCallingRequest);
 module.exports = router;

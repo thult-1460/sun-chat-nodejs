@@ -13,6 +13,7 @@ import { withUserContext } from './../../context/withUserContext';
 import { withRouter } from 'react-router';
 import { withNamespaces } from 'react-i18next';
 import { getUserAvatarUrl } from './../../helpers/common';
+import ModalNotificationCallRequest from '../modals/notification/ModalNotificationCallRequest';
 const { Header } = Layout;
 
 class Head extends React.Component {
@@ -20,19 +21,33 @@ class Head extends React.Component {
 
   state = {
     avatar: null,
+    showNoticationCallRequest: false,
+    roomNameCallRequest: '',
   };
 
   componentDidMount() {
     if (checkExpiredToken()) {
       const { socket } = this.context;
-      socket.on('update_received_request_count', request_friend_count => {});
+      socket.on('update_received_request_count', request_friend_count => { });
 
       socket.on('update_user_avatar', res => {
         this.setState({
           avatar: res.avatar,
         });
       });
+      socket.on('member_receive_notification_join_calling', roomName => {
+        this.setState({
+          showNoticationCallRequest: true,
+          roomNameCallRequest: roomName,
+        });
+      });
     }
+  }
+
+  updateShowModal = () => {
+    this.setState({
+      showNoticationCallRequest: false,
+    });
   }
 
   onLogout = () => {
@@ -42,9 +57,8 @@ class Head extends React.Component {
 
   render() {
     const { t } = this.props;
-
     const menu = (
-      <div style={{ padding: '5px 15px 0'}}>
+      <div style={{ padding: '5px 15px 0' }}>
         <p><Link to="/setting/profile"><Icon type="user" /> {t('button.profile')}</Link></p>
         <p><Link to="/change-password"><Icon type="edit" /> {t('button.change_passowrd')}</Link></p>
         <p><a href="javascript:;" onClick={this.onLogout}><Icon type="logout" /> {t('button.logout')}</a></p>
@@ -75,25 +89,26 @@ class Head extends React.Component {
                   <span className="account-name">
                     {this.props.userContext.info.name}
                   </span>
-                  <Icon type="caret-down" style={{ fontSize: '12px'}} />
+                  <Icon type="caret-down" style={{ fontSize: '12px' }} />
                 </a>
               </Badge>
             </Popover>
           </Col>
           <Col span={2}>
             <ChangeLanguage />
+            {this.state.showNoticationCallRequest && <ModalNotificationCallRequest roomName={this.state.roomNameCallRequest} showModal={this.state.showNoticationCallRequest} updateShowModal={this.updateShowModal} />}
           </Col>
         </Row>
       </Header>
     ) : (
-      <Header style={{ background: '#fff', padding: 0 }}>
-        <Row type="flex" justify="end" align="middle">
-          <Col span={3}>
-            <ChangeLanguage />
-          </Col>
-        </Row>
-      </Header>
-    );
+        <Header style={{ background: '#fff', padding: 0 }}>
+          <Row type="flex" justify="end" align="middle">
+            <Col span={3}>
+              <ChangeLanguage />
+            </Col>
+          </Row>
+        </Header>
+      );
   }
 }
 

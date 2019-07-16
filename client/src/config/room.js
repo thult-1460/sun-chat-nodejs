@@ -20,13 +20,17 @@ const room = {
     DIRECT_CHAT: 1,
     MY_CHAT: 2,
   },
+  CALL_TYPE: {
+    VIDEO_CHAT: 0,
+    AUDIO_CHAT: 1,
+  },
   LIMIT_REPRESENTATIVE_MEMBER: 5,
   MESSAGE_PAGINATE: 10,
   VISIABLE_MSG_TO_LOAD: 4,
   LIMIT_QUANLITY_NEWEST_MSG: 200,
   NUMBER_REQUEST_JOIN_ROOM_OVERFLOW: 99,
-  MIN_WIDTH_DESC: 10/100, // ratio %
-  MAX_WIDTH_DESC: 37/100, // ratio %
+  MIN_WIDTH_DESC: 10 / 100, // ratio %
+  MAX_WIDTH_DESC: 37 / 100, // ratio %
 };
 
 module.exports = {
