@@ -75,9 +75,9 @@ const actionFunc = {
 const getAvatarByID = (id, hasName = false) => {
   let member = listMembers.find(member => member._id == id);
   let avatar = (member && member.avatar) ? getUserAvatarUrl(member.avatar) : messageConfig.ICO_AVATAR_NOTFOUND;
-  let name = hasName ? `<span class="_nameMid${id}"> ${(member && member.avatar) ? member.name : 'Loading...'}</span>` : '';
+  let name = hasName ? `<span class="_nameMid${id}"> ${(member && member.avatar) ? member.name : i18n.t('message:loading')}</span>` : '';
 
-  return `<img class="_avatar" data-mid="${id}" src="${ avatar }" onError="this.onerror=null;this.src='${messageConfig.ICO_AVATAR_NOTFOUND}';" />${name}`;
+  return `<img id="target" class="_avatar _avatarClickTip" data-mid="${id}" src="${ avatar }" onError="this.onerror=null;this.src='${messageConfig.ICO_AVATAR_NOTFOUND}';" />${name}`;
 };
 
 const messageToHtml = {
@@ -213,7 +213,7 @@ const renderMessageToHtml = {
     return content;
   },
   url: function(content) {
-    let regEx = /(http(s)?:\/\/)[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+/gm;
+    let regEx = /(https?:\/\/[-.!~*';?:@&=+$,%{}()\w][-.!~*';?:@&=+$,%{}()\w\/]+(?:#[^）\s]*)?)/gi;
     content = content.replace(regEx, messageToHtml.url('$&'));
 
     return content;

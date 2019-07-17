@@ -500,7 +500,7 @@ UserSchema.statics = {
 
   getInfoUser: function(userId) {
     return this.findOne({
-      _id: userId,
+      _id: mongoose.Types.ObjectId(userId),
     })
       .select('_id name email username avatar')
       .exec();
