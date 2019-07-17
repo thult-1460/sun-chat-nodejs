@@ -22,6 +22,7 @@ import {
   rejectContact,
 } from './../../api/contact';
 import { getUserById } from './../../api/user';
+import { offerJoinLiveChat } from '../../api/call';
 import { SocketContext } from './../../context/SocketContext';
 import { withUserContext } from './../../context/withUserContext';
 import { withNamespaces } from 'react-i18next';
@@ -250,6 +251,10 @@ class ChatBox extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
+    $('.joinLiveButton').unbind('click').bind('click', e => {
+      this.joinLiveChat(e.currentTarget.dataset.liveId);
+    });
+
     if (prevProps.loadedRoomInfo && !this.props.loadedRoomInfo) {
       document.getElementById('msg-content').value = '';
       this.inputMsg.focus();
@@ -294,6 +299,29 @@ class ChatBox extends React.Component {
       }
     }
   }
+
+  joinLiveChat = liveChatId => {
+    let param = {
+      roomId: this.props.roomId,
+      liveChatId: liveChatId,
+      info: {
+        avatar: this.props.userContext.info.avatar,
+        name: this.props.userContext.info.name,
+      },
+    };
+
+    offerJoinLiveChat(param).then(res => {
+      if (res.data.success) {
+        window.open(
+          `${window.location.href}/live/${liveChatId}`,
+          '_blank',
+          'toolbar=yes, width=' + window.innerWidth + ',height=' + window.innerHeight
+        );
+      } else {
+        message.error(res.data.message);
+      }
+    });
+  };
 
   handleScroll = e => {
     let scrollTop = e.currentTarget.scrollTop;
@@ -1278,6 +1306,7 @@ class ChatBox extends React.Component {
                 </div>
               );
             })}
+
             {loadingNext && (
               <div className="loading-room">
                 <Spin tip="Loading..." />

@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const config = require('../../config/config');
 const _ = require('underscore');
+const logger = require('./../logger/winston');
+const channel = logger.init('error');
 
 mongoose.set('useFindAndModify', false);
 
@@ -76,6 +78,17 @@ const Files = new Schema(
   }
 );
 
+const Calls = new Schema({
+  type: { type: Number },
+  participants: [
+    {
+      user_id: { type: Schema.ObjectId, ref: 'User' },
+      status: { type: Number, default: 0 },
+      is_caller: { type: Boolean, default: false },
+    },
+  ],
+});
+
 const RoomSchema = new Schema(
   {
     name: { type: String },
@@ -95,6 +108,7 @@ const RoomSchema = new Schema(
     messages: [Messages],
     tasks: [Tasks],
     files: [Files],
+    calls: [Calls],
     incoming_requests: [
       {
         type: Schema.ObjectId,
@@ -1647,18 +1661,18 @@ RoomSchema.statics = {
   async toggleReactionMsg({ roomId, userId, msgId, reactionTag }) {
     let reactionObject = {
       deletedAt: null,
-      user:  mongoose.Types.ObjectId(userId),
+      user: mongoose.Types.ObjectId(userId),
       reaction_tag: reactionTag,
     };
     let conditionFilter = {
-      _id:  mongoose.Types.ObjectId(roomId),
+      _id: mongoose.Types.ObjectId(roomId),
       deleteAt: null,
       messages: {
         $elemMatch: {
-          _id:  mongoose.Types.ObjectId(msgId),
-          deletedAt: null
-        }
-      }
+          _id: mongoose.Types.ObjectId(msgId),
+          deletedAt: null,
+        },
+      },
     };
 
     try {
@@ -1669,16 +1683,19 @@ RoomSchema.statics = {
         {
           $project: {
             reaction: {
-              $arrayElemAt: [{
-                $filter: {
-                  input: '$messages.reactions',
-                  as: 'reaction',
-                  cond: { $eq: [ '$$reaction.user', mongoose.Types.ObjectId(userId)] }
-                }
-              }, 0]
-            }
-          }
-        }
+              $arrayElemAt: [
+                {
+                  $filter: {
+                    input: '$messages.reactions',
+                    as: 'reaction',
+                    cond: { $eq: ['$$reaction.user', mongoose.Types.ObjectId(userId)] },
+                  },
+                },
+                0,
+              ],
+            },
+          },
+        },
       ]).exec();
 
       if (reaction[0].reaction) {
@@ -1686,24 +1703,26 @@ RoomSchema.statics = {
           return await this.findOneAndUpdate(
             conditionFilter,
             {
-              $pull: { 'messages.$.reactions': {
-                user: { $eq: mongoose.Types.ObjectId(userId) },
-              }}
+              $pull: {
+                'messages.$.reactions': {
+                  user: { $eq: mongoose.Types.ObjectId(userId) },
+                },
+              },
             },
             { multi: true, new: true }
-          )
+          );
         } else {
           return await this.findOneAndUpdate(
             conditionFilter,
             {
-              $set: { 'messages.$.reactions.$[reaction].reaction_tag': reactionTag }
+              $set: { 'messages.$.reactions.$[reaction].reaction_tag': reactionTag },
             },
             {
-              arrayFilters: [ { 'reaction.user': { $eq: mongoose.Types.ObjectId(userId) } } ],
+              arrayFilters: [{ 'reaction.user': { $eq: mongoose.Types.ObjectId(userId) } }],
               multi: true,
-              new: true
+              new: true,
             }
-          )
+          );
         }
       } else {
         return await this.findOneAndUpdate(
@@ -1711,8 +1730,8 @@ RoomSchema.statics = {
           {
             $push: { 'messages.$.reactions': reactionObject },
           },
-          { new: true, strict: false },
-        )
+          { new: true, strict: false }
+        );
       }
     } catch (err) {
       throw new Error(err.toString());
@@ -1730,7 +1749,7 @@ RoomSchema.statics = {
             $filter: {
               input: '$messages.reactions',
               as: 'reaction',
-              cond: { $eq: [ '$$reaction.reaction_tag', reactionTag ] }
+              cond: { $eq: ['$$reaction.reaction_tag', reactionTag] },
             },
           },
         },
@@ -1746,7 +1765,7 @@ RoomSchema.statics = {
       },
       {
         $addFields: {
-          'info_user': { $arrayElemAt: ['$reactions.info_user', 0] },
+          info_user: { $arrayElemAt: ['$reactions.info_user', 0] },
         },
       },
       {
@@ -1783,6 +1802,197 @@ RoomSchema.statics = {
         multi: true,
       }
     ).exec();
+  },
+
+  async getLiveChat({ roomId, userId = null, liveChatId = null }) {
+    let cond = [
+      { $eq: ['$$mem.is_caller', true] },
+      { $eq: ['$$mem.status', config.CALL.PARTICIPANT.STATUS.CONNECTING] },
+    ];
+
+    if (userId) {
+      cond.push({ $eq: ['$$mem.user_id', mongoose.Types.ObjectId(userId)] });
+    }
+
+    let query = [{ $match: { _id: mongoose.Types.ObjectId(roomId) } }, { $unwind: '$calls' }];
+
+    if (liveChatId) {
+      query.push({ $match: { 'calls._id': mongoose.Types.ObjectId(liveChatId) } });
+    }
+
+    query.push(
+      {
+        $addFields: {
+          members: {
+            $filter: {
+              input: '$calls.participants',
+              as: 'mem',
+              cond: {
+                $and: cond,
+              },
+            },
+          },
+        },
+      },
+      {
+        $match: { $expr: { $size: '$members' } },
+      },
+      {
+        $project: {
+          liveId: '$calls._id',
+          member: { $arrayElemAt: ['$members', 0] },
+        },
+      }
+    );
+
+    const result = await this.aggregate(query);
+
+    return result.length ? result[0] : null;
+  },
+
+  getListMemberLiveChat(roomId, liveId) {
+    return this.aggregate([
+      { $match: { _id: mongoose.Types.ObjectId(roomId) } },
+      { $unwind: '$calls' },
+      { $match: { 'calls._id': mongoose.Types.ObjectId(liveId) } },
+      {
+        $addFields: {
+          members: {
+            $filter: {
+              input: '$calls.participants',
+              as: 'mem',
+              cond: {
+                $eq: ['$$mem.status', config.CALL.PARTICIPANT.STATUS.CONNECTING],
+              },
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          members: 1,
+        },
+      },
+    ]);
+  },
+
+  checkExistMemberLiveChat: async function(roomId, liveId, memberId) {
+    const res = await this.aggregate([
+      { $match: { _id: mongoose.Types.ObjectId(roomId) } },
+      { $unwind: '$calls' },
+      {
+        $match: {
+          'calls._id': mongoose.Types.ObjectId(liveId),
+          'calls.participants.user_id': mongoose.Types.ObjectId(memberId),
+        },
+      },
+      {
+        $project: {
+          'calls.user_id': '$calls.participants.user_id',
+        },
+      },
+    ]);
+
+    return res.length !== 0;
+  },
+
+  createLiveChat({ roomId, userId, callType }) {
+    return this.updateOne(
+      {
+        _id: roomId,
+      },
+      {
+        $push: {
+          calls: {
+            type: callType,
+            participants: [
+              {
+                user_id: userId,
+                status: config.CALL.PARTICIPANT.STATUS.CONNECTING,
+                is_caller: true,
+              },
+            ],
+          },
+        },
+      }
+    );
+  },
+
+  updateStatusCallMember: async function(roomId, liveId, userId, isMasterCall, status) {
+    let result = false;
+    let condForParticipant = { 'j.user_id': userId, 'j.is_caller': false };
+
+    if (status === config.CALL.PARTICIPANT.STATUS.HANGUP) {
+      condForParticipant['j.status'] = {
+        $in: [config.CALL.PARTICIPANT.STATUS.WAITING, config.CALL.PARTICIPANT.STATUS.CONNECTING],
+      };
+    }
+
+    if (isMasterCall) {
+      condForParticipant['j.is_caller'] = true;
+    }
+
+    await this.update(
+      { _id: roomId },
+      { $set: { 'calls.$[i].participants.$[j].status': status } },
+      { arrayFilters: [{ 'i._id': mongoose.Types.ObjectId(liveId) }, condForParticipant] }
+    )
+      .then(function(resp) {
+        if (resp.ok) {
+          result = true;
+        }
+      })
+      .catch(function(err) {
+        channel.error(err);
+      });
+
+    return result;
+  },
+
+  addMemberLiveChat: async function(roomId, liveId, memberId) {
+    let result = false;
+
+    await this.update(
+      { _id: roomId },
+      {
+        $push: {
+          'calls.$[i].participants': {
+            status: config.CALL.PARTICIPANT.STATUS.CONNECTING,
+            is_caller: false,
+            user_id: memberId,
+          },
+        },
+      },
+      { arrayFilters: [{ 'i._id': mongoose.Types.ObjectId(liveId) }] }
+    )
+      .then(function(resp) {
+        if (resp.ok) {
+          result = true;
+        }
+      })
+      .catch(function(err) {
+        channel.error(err);
+      });
+
+    return result;
+  },
+
+  acceptMemberLiveChat: async function(roomId, liveId, memberId) {
+    const res = await this.checkExistMemberLiveChat(roomId, liveId, memberId);
+
+    if (res) {
+      return await this.updateStatusCallMember(
+        roomId,
+        liveId,
+        memberId,
+        false,
+        config.CALL.PARTICIPANT.STATUS.CONNECTING
+      );
+    } else {
+      return await this.addMemberLiveChat(roomId, liveId, memberId);
+    }
+
+    return false;
   },
 };
 

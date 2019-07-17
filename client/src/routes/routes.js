@@ -94,7 +94,7 @@ const routes = [
     component: AddContact,
   },
   {
-    path: '/rooms/:roomId/user/:userId',
+    path: '/rooms/:roomId/live/:liveChatId',
     exact: true,
     auth: true,
     withoutLayout: true,

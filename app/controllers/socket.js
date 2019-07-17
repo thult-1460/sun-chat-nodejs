@@ -1,11 +1,26 @@
 const jwt = require('jsonwebtoken');
 const jwtSecret = process.env.JWT_SECRET;
 const mongoose = require('mongoose');
+const config = require('../../config/config');
 const Room = mongoose.model('Room');
 
 module.exports = function(io) {
   io.on('connection', socket => {
-    socket.on('disconnect', () => {
+    socket.on('disconnect', async function() {
+      if (socket.isMasterCall !== undefined) {
+        let res = await Room.updateStatusCallMember(
+          socket.roomId,
+          socket.callId,
+          socket.userId,
+          socket.isMasterCall,
+          config.CALL.PARTICIPANT.STATUS.HANGUP
+        );
+
+        if (socket.isMasterCall === false && res) {
+          io.to(socket.callId).emit('change-offer-list', { userGiveUp: socket.userId });
+        }
+      }
+
       console.log('socket disconnected');
     });
 
@@ -35,6 +50,10 @@ module.exports = function(io) {
       }
     });
 
+    socket.on('join-live-chat', liveChatId => {
+      socket.join(liveChatId);
+    });
+
     socket.on('close_room', () => {
       socket.leave(socket.roomId);
       delete socket.roomId;
@@ -43,7 +62,10 @@ module.exports = function(io) {
     socket.on('update_last_message_id', async function({ roomId, messageId }) {
       let result = await Room.updateLastMessageForMember(roomId, socket.userId, messageId);
       let roomInfo = await Room.getRoomInfoNewMember(roomId, [socket.userId]);
-      io.to(socket.userId).emit('update_quantity_unread', { room_id: roomId, quantity_unread: roomInfo[0].quantity_unread });
+      io.to(socket.userId).emit('update_quantity_unread', {
+        room_id: roomId,
+        quantity_unread: roomInfo[0].quantity_unread,
+      });
       io.to(socket.userId).emit('update_last_message_id_success', { messageId: result ? messageId : false });
     });
     // action of USER - END
@@ -58,6 +80,25 @@ module.exports = function(io) {
 
       let rooms = await Room.getListRoomByUserId(options);
       io.to(socket.userId).emit('update_list_room', rooms);
+    });
+
+    socket.on('regist-live-chat', async function({ roomId, liveId, master }) {
+      socket.roomId = roomId;
+      socket.callId = liveId;
+
+      if (master) {
+        socket.isMasterCall = true;
+      } else {
+        socket.isMasterCall = false;
+        socket.status = config.CALL.PARTICIPANT.STATUS.WAITING;
+
+        const masterId = null;
+        const liveChat = await Room.getLiveChat({ roomId, masterId, liveId });
+
+        if (liveChat.member !== undefined) {
+          socket.masterId = liveChat.member.user_id;
+        }
+      }
     });
   });
 };

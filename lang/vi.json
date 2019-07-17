@@ -195,7 +195,19 @@
   },
   "socket": {
     "room": {
-      "open_room_failed": "open_room_failed"
+      "open_room_failed": "Không thể mở phòng"
+    },
+    "live_chat": {
+      "create": {
+        "existed": "Cuộc gọi đã tồn tại",
+        "fail": "Hiện không thể tạo mới cuộc gọi"
+      },
+      "offer": {
+        "fail": "Phòng không tồn tại"
+      },
+      "accept": {
+        "fail": "Không thể thêm người này làm thành viên"
+      }
     }
   },
   "user": {
@@ -228,7 +240,7 @@
       "percent": {
         "not_array": "Trường tiến độ phải là một mảng",
         "failed": "Trường tiến độ phải từ {{min}} đến {{max}}",
-        "status_done_failed": "Trạng thái chỉ Hoàn Thành khi tiến độ là {{max}}",
+        "status_done_failed": "Trạng thái chỉ Hoàn Thành khi tiến độ là {{max}}"
       }
     },
     "create": {

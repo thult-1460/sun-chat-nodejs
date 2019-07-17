@@ -65,4 +65,18 @@ module.exports = {
       DONE: 100,
     },
   },
+  CALL: {
+    TYPE: {
+      VIDEO_CHAT: 0,
+      AUDIO_CHAT: 1,
+    },
+    PARTICIPANT: {
+      STATUS: {
+        WAITING: 0,
+        CONNECTING: 1,
+        HANGUP: 2,
+        NO_RESPONSE: 3,
+      },
+    },
+  },
 };
