@@ -1,4 +1,5 @@
 import systemConfig from './../config/configServer';
+import configEmoji from '../config/emoji';
 const jwt = require('jsonwebtoken');
 
 export function checkExpiredToken () {
@@ -28,6 +29,10 @@ export function getUserAvatarUrl (avatar = null) {
 
 export function getRoomAvatarUrl (avatar = null) {
   return avatar ? `${systemConfig.ROOM_AVATAR_DIR}${avatar}` : `${systemConfig.DEFAULT_ROOM_AVATAR_DIR}`;
+}
+
+export function getEmoji(emoji) {
+  return `${configEmoji.EMOJI_DIR}${emoji}`;
 }
 
 export function saveSizeComponentsChat () {

@@ -22,11 +22,12 @@ import { withUserContext } from './../../context/withUserContext';
 import { withNamespaces } from 'react-i18next';
 import moment from 'moment';
 import { room } from '../../config/room';
+import configEmoji from '../../config/emoji';
 import { messageConfig, block } from '../../config/message';
 import InfiniteScroll from 'react-infinite-scroller';
 import '../../scss/messages.scss';
 import handlersMessage from '../../helpers/handlersMessage';
-import { getUserAvatarUrl, saveSizeComponentsChat } from './../../helpers/common';
+import { getUserAvatarUrl, saveSizeComponentsChat, getEmoji } from './../../helpers/common';
 import ModalChooseMemberToCall from './ModalChooseMemberToCall';
 
 const { Content } = Layout;
@@ -590,6 +591,26 @@ class ChatBox extends React.Component {
 
     return content;
   };
+  generateListEMoji = () => {
+    const listEmoji = configEmoji.EMOJI;
+    const { t } = this.props;
+    const content = (
+          <div className="member-infinite-container" style={{ width: '210px' }}>
+
+            <InfiniteScroll initialLoad={false} pageStart={0} loadMore={this.handleInfiniteOnLoad} useWindow={false}>
+              <div className="box-emoji" >
+                {Object.entries(listEmoji).map(([key, emoji]) => {
+                  return (
+                    <p className="line-emoji"><Avatar className="image-emoji" src={getEmoji(emoji.image)} alt={key} title={t(emoji.tooltip)}/></p>
+                  )
+                })}
+              </div>
+            </InfiniteScroll>
+          </div>
+        );
+
+    return content;
+  };
 
   handleInfiniteOnLoad = () => {};
   // generate list TO - END
@@ -736,6 +757,7 @@ class ChatBox extends React.Component {
     const { t, roomInfo, isReadOnly, roomId, allMembers } = this.props;
     const currentUserInfo = this.props.userContext.info;
     const showListMember = this.generateListTo();
+    const showListEmoji = this.generateListEMoji();
     const redLine = this.generateRedLine();
     const listMember = allMembers.filter(item => item._id != currentUserInfo._id);
 
@@ -869,6 +891,11 @@ class ChatBox extends React.Component {
           </div>
         </div>
         <div className="box-button">
+          <Popover content={showListEmoji}>
+            <Badge className="header-icon" type="primary">
+              <Icon type="smile" theme="outlined" />
+            </Badge>
+          </Popover>
           <Popover content={showListMember}>
             <Badge className="header-icon" type="primary">
               <a href="javascript:;">{roomInfo.type !== room.ROOM_TYPE.MY_CHAT ? <strong>{t('to')}</strong> : ''}</a>
