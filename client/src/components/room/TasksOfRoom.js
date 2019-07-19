@@ -57,12 +57,14 @@ class TasksOfRoom extends React.Component {
   componentDidMount() {
     const roomId = this.props.match.params.id;
     const { socket } = this.context;
+    this.setState({ activeKey: '1' });
 
     this.getMyTasksOfRoom(roomId);
   }
 
   handleChangeTabs = key => {
     const roomId = this.props.match.params.id;
+    this.setState({ activeKey: key });
 
     if (key == configTask.TYPE.MY_TASKS) {
       this.getMyTasksOfRoom(roomId);
@@ -78,8 +80,9 @@ class TasksOfRoom extends React.Component {
 
     if (this.props.match.params.id !== roomId) {
       this.getMyTasksOfRoom(roomId);
-      this.getTaskAssignedOfRoom(roomId);
-      this.getAllTasksOfRoom(roomId);
+      this.setState({
+        activeKey: '1',
+      });
     }
   }
 
@@ -187,7 +190,7 @@ class TasksOfRoom extends React.Component {
     return (
       <React.Fragment>
         <div className="chat-task">
-          <Tabs onChange={this.handleChangeTabs} defaultActiveKey="1">
+          <Tabs onChange={this.handleChangeTabs} activeKey={this.state.activeKey}>
             {condFilter}
           </Tabs>
         </div>
