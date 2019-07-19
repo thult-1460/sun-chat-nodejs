@@ -203,7 +203,6 @@ class ChatBox extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    this.inputMsg.focus();
 
     if (prevProps.loadedRoomInfo && !this.props.loadedRoomInfo) {
       document.getElementById('msg-content').value = '';
