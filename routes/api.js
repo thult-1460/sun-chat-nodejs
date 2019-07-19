@@ -57,6 +57,7 @@ router.post('/resend-active-email', users.resendActiveEmail);
 
 router.get('/users', auth.jwtMiddleware, users.show);
 router.post('/update/user', auth.jwtMiddleware, usersValidate.validate('update'), users.update);
+router.get('/users/:userId', auth.jwtMiddleware, users.getInforOfUser);
 
 //Rooms
 router.get('/rooms/index', auth.jwtMiddleware, roomsController.index);

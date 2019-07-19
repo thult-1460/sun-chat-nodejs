@@ -170,6 +170,7 @@
       height: 20px;
       border-radius: 50%;
       flex-shrink: 0;
+      cursor: pointer;
     }
   }
 }
@@ -229,8 +230,33 @@
   cursor: default;
 }
 
+
 img.image-emoji {
   width: 20px;
   height: 20px;
   margin: 0 3px 3px 3px;
+}
+
+.profileTooltip {
+  border-radius: 5px;
+  display: none;
+  position: absolute;
+  padding: 2px;
+  z-index: 5000;
+  width: 355px;
+  height: 227px;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3);
+  background: #fff;
+  border: 1px solid #b3b3b3;
+
+  .tooltipTriangle {
+    display: block;
+    position: absolute;
+    left: 165px;
+    width: 0;
+    height: 0;
+    content: '';
+    border-style: solid;
+    pointer-events: none;
+  }
 }

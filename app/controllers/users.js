@@ -826,3 +826,19 @@ exports.getRequestSentContactsCount = async function(req, res) {
     });
   }
 };
+
+exports.getInforOfUser = async function(req, res) {
+  const { userId } = req.params;
+
+  try {
+    let userInfo = await User.getInfoUser(userId);
+
+    return res.status(200).json({ userInfo });
+  } catch (err) {
+    channel.error(err);
+
+    res.status(500).json({
+      err: __('user.get_infor_failed'),
+    });
+  }
+};

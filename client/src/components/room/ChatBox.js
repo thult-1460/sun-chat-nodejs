@@ -1,5 +1,6 @@
 import React from 'react';
 import { withRouter } from 'react-router';
+import { Link } from 'react-router-dom';
 import { Layout, Input, Button, List, Avatar, Icon, Row, Col, Badge, Popover, message, Spin } from 'antd';
 import {
   loadMessages,
@@ -9,7 +10,6 @@ import {
   updateMessage,
   getDirectRoomId,
 } from './../../api/room.js';
-import { Link } from 'react-router-dom';
 import {
   addContact,
   getListSentRequestContacts,
@@ -17,6 +17,7 @@ import {
   acceptContact,
   rejectContact,
 } from './../../api/contact';
+import { getUserById } from './../../api/user';
 import { SocketContext } from './../../context/SocketContext';
 import { withUserContext } from './../../context/withUserContext';
 import { withNamespaces } from 'react-i18next';
@@ -29,6 +30,7 @@ import '../../scss/messages.scss';
 import handlersMessage from '../../helpers/handlersMessage';
 import { getUserAvatarUrl, saveSizeComponentsChat, getEmoji } from './../../helpers/common';
 import ModalChooseMemberToCall from './ModalChooseMemberToCall';
+import $ from 'jquery';
 
 const { Content } = Layout;
 const initialState = {
@@ -47,6 +49,7 @@ const initialState = {
   directRoomIds: [],
   receivedRequestUsers: [],
   sendingRequestUsers: [],
+  infoUserTip: {}
 };
 const initialAttribute = {
   messageRowRefs: [],
@@ -61,6 +64,7 @@ const initialAttribute = {
 
   savedLastMsgId: null,
   scrollTop: 0,
+  infoUserTips: {}
 };
 
 class ChatBox extends React.Component {
@@ -131,6 +135,71 @@ class ChatBox extends React.Component {
     if (!localStorage.getItem('descW')) {
       saveSizeComponentsChat();
     }
+
+    let _this = this;
+    const { t } = this.props;
+
+    $(document).on('click', '._avatarClickTip', async function(e) {
+      let { infoUserTips } = _this.attr;
+      let currentUserInfo = _this.props.userContext.info;
+      let flag = true;
+      let profileTipId = $(e.currentTarget).attr('data-mid');
+      let userInfo = {};
+
+      if (profileTipId == currentUserInfo._id) {
+        const { _id, avatar, email, name } = currentUserInfo;
+        userInfo = { _id, avatar, email, name };
+      } else if (infoUserTips[profileTipId]) {
+        userInfo = infoUserTips[profileTipId];
+      } else {
+        try {
+          let response = await getUserById(profileTipId);
+          userInfo = response.data.userInfo;
+          infoUserTips[profileTipId] = userInfo;
+        } catch {
+          flag = false;
+          userInfo = {
+            name: t('cancelled_user')
+          }
+        }
+      }
+
+      _this.setState({ infoUserTip: userInfo })
+      if (flag) {
+        await _this.handleVisibleChange(profileTipId)(true)
+      }
+    });
+
+    $(document).on('click', 'body', function(event) {
+      let xPosition = 0, yPosition = 0;
+      xPosition = event.clientX - ($('.profileTooltip').width() / 2);
+
+      if ((event.clientY - $('.profileTooltip').height()) < 0) {
+        yPosition = event.clientY + 20;
+        $('.tooltipTriangle').css({
+          'bottom': '225px',
+          'border-width': '0 7px 7px 7px',
+          'border-color': 'transparent transparent #a5a0a0 transparent'
+        })
+      } else {
+        yPosition = event.clientY - ($('.profileTooltip').height() + 25);
+        $('.tooltipTriangle').css({
+          'bottom': '-7px',
+          'border-width': '7px 7px 0 7px',
+          'border-color': '#a5a0a0 transparent transparent transparent'
+        })
+      }
+
+      if (event.target.id == 'target') {
+        $('.profileTooltip').css({
+          top: yPosition + "px",
+          left: xPosition + "px"
+        }).show();
+      } else {
+        _this.setState({ infoUserTip:  {} });
+        $('.profileTooltip').hide();
+      }
+    });
   }
 
   componentDidUpdate(prevProps) {
@@ -359,22 +428,24 @@ class ChatBox extends React.Component {
     return moment(time).format(t('format_time'));
   }
 
-  generateMsgContent = message => {
+  generateMsgContent = infoUserTip => {
+    const { t } = this.props;
+    const userId = infoUserTip._id ? infoUserTip._id : null;
     const myChatId = this.props.userContext.my_chat_id;
     const currentUserId = this.props.userContext.info._id;
-    const directRoomId = this.state.directRoomIds[message.user_info._id];
-    const receivedRequestUser = this.state.receivedRequestUsers[message.user_info._id];
-    const sendingRequestUser = this.state.sendingRequestUsers[message.user_info._id];
-    let button = '';
+    const directRoomId = this.state.directRoomIds[userId];
+    const receivedRequestUser = this.state.receivedRequestUsers[userId];
+    const sendingRequestUser = this.state.sendingRequestUsers[userId];
+    let button = <Spin />;
 
-    if (message.user_info._id == currentUserId) {
+    if (userId == currentUserId) {
       button = (
         <Link to={`/rooms/${myChatId}`}>
           <Button>{this.props.t('title.my_chat')}</Button>
         </Link>
       );
     } else if (directRoomId === undefined) {
-      button = <Spin />;
+      button = '';
     } else {
       button = directRoomId ? (
         <Link to={`/rooms/${directRoomId}`}>
@@ -382,19 +453,19 @@ class ChatBox extends React.Component {
         </Link>
       ) : sendingRequestUser ? (
         <div>
-          <Button value={message.user_info._id} onClick={this.handleRejectContact}>
+          <Button value={userId} onClick={this.handleRejectContact}>
             {this.props.t('title.reject_request')}
           </Button>
-          <Button value={message.user_info._id} onClick={this.handleAcceptContact}>
+          <Button value={userId} onClick={this.handleAcceptContact}>
             {this.props.t('title.accept_request')}
           </Button>
         </div>
       ) : receivedRequestUser ? (
-        <Button value={message.user_info._id} onClick={this.handleCancelRequest}>
+        <Button value={userId} onClick={this.handleCancelRequest}>
           {this.props.t('title.cancel_request')}
         </Button>
       ) : (
-        <Button value={message.user_info._id} onClick={this.handleSendRequestContact}>
+        <Button value={userId} onClick={this.handleSendRequestContact}>
           {this.props.t('title.add_contact')}
         </Button>
       );
@@ -403,12 +474,14 @@ class ChatBox extends React.Component {
     return (
       <div className="popover-infor">
         <div className="infor-bg">
-          <Avatar src={getUserAvatarUrl(message.user_info.avatar)} className="infor-avatar" />
+          <Avatar src={getUserAvatarUrl(infoUserTip.avatar)} className="infor-avatar" />
         </div>
-        <p className="infor-name">{message.user_info.name}</p>
-        <p>{message.user_info.email}</p>
+        <div style={{ minHeight: '55px'}}>
+          <p className="infor-name">{ (infoUserTip.name) ? infoUserTip.name : t('loading')}</p>
+          <p>{ (infoUserTip.email) ? infoUserTip.email : '' }</p>
+        </div>
         <div className="infor-footer">
-          <div>{<List.Item>{button}</List.Item>}</div>
+          <div>{<List.Item style={{ minHeight: '35px' }}>{button}</List.Item>}</div>
         </div>
       </div>
     );
@@ -756,6 +829,7 @@ class ChatBox extends React.Component {
       loadingNext,
       messageIdEditing,
       messageIdHovering,
+      infoUserTip
     } = this.state;
     const { t, roomInfo, isReadOnly, roomId, allMembers } = this.props;
     const currentUserInfo = this.props.userContext.info;
@@ -775,6 +849,10 @@ class ChatBox extends React.Component {
 
     return (
       <Content className="chat-room">
+        <div id="_profileTip" className="profileTooltip tooltip tooltip--white" role="tooltip">
+          <div className="_cwTTTriangle tooltipTriangle tooltipTriangle--whiteTop"></div>
+          { this.generateMsgContent(infoUserTip) }
+        </div>
         <div
           className="list-message"
           ref={element => (this.attr.msgContainerRef = element)}
@@ -817,7 +895,7 @@ class ChatBox extends React.Component {
                           placement="topLeft"
                           trigger="click"
                           text={message.user_info.name}
-                          content={this.generateMsgContent(message)}
+                          content={this.generateMsgContent(message.user_info)}
                           onVisibleChange={this.handleVisibleChange(message.user_info._id)}
                         >
                           <div data-user-id={message.user_info._id}>
