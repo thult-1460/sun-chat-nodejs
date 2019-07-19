@@ -1,6 +1,7 @@
 import hljs from 'highlight.js';
 import { messageConfig } from '../config/message';
-import { getUserAvatarUrl } from './common';
+import { getUserAvatarUrl, getEmoji } from './common';
+import configEmoji from '../config/emoji';
 import i18n from '../i18n';
 import moment from 'moment';
 
@@ -64,6 +65,10 @@ const actionFunc = {
     insertTextToMessageArea('[info][/info]');
 
     return false;
+  },
+  addEmoji: function (value) {
+    insertTextToMessageArea(value);
+    return false;
   }
 };
 
@@ -121,7 +126,10 @@ const messageToHtml = {
     let liveId = /(?:\s+|\b)id=([\w-]+)/.exec(str)[1];
 
     return `<div class="joinLiveButton ${(rid == roomId) ? '' : 'joinLiveButton--disabled'}" data-live-id="${liveId}"><span class="joinLiveButton__iconContainer"><img class="joinLiveButton__icon" src="${messageConfig.VIDEO_CAMERA}"></span><span class="joinLiveButton__label">Join Chatwork Live</span></div>`;
-  }
+  },
+  emoji: function (emoji) {
+    return `<img src="${getEmoji(emoji.image)}" title="${i18n.t(emoji.tooltip)}"  class="image-emoji">`;
+  },
 };
 
 const renderMessageToHtml = {
@@ -220,7 +228,15 @@ const renderMessageToHtml = {
     }
 
     return content;
-  }
+  },
+  emoji: function (content) {
+    const listKey = Object.entries(configEmoji.EMOJI);
+    listKey.map(([key, emoji]) => {
+      content = content.replace(new RegExp(_.escapeRegExp(key), 'g'), messageToHtml.emoji(emoji));
+    });
+
+    return content;
+   }
 };
 
 // handles blockCode

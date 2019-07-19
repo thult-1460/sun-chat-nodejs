@@ -348,6 +348,9 @@ class ChatBox extends React.Component {
     this.socket.emit('update_last_message_id', param);
   }
 
+  handleEmoji = (e) => {
+    handlersMessage.actionFunc.addEmoji(e.target.alt);
+  }
   // for display msg content - BEGIN
   formatMsgTime(timeInput) {
     const { t } = this.props;
@@ -601,7 +604,7 @@ class ChatBox extends React.Component {
               <div className="box-emoji" >
                 {Object.entries(listEmoji).map(([key, emoji]) => {
                   return (
-                    <p className="line-emoji"><Avatar className="image-emoji" src={getEmoji(emoji.image)} alt={key} title={t(emoji.tooltip)}/></p>
+                    <p className="line-emoji"><Avatar className="image-emoji" src={getEmoji(emoji.image)} alt={key} title={t(emoji.tooltip)} onClick={this.handleEmoji}/></p>
                   )
                 })}
               </div>

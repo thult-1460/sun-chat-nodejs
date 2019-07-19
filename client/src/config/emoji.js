@@ -8,7 +8,7 @@ const configEmoji = {
       image: 'emo_sad.gif',
       tooltip: "emoji:sad",
     },
-    ':(roger)': {
+    '(roger)': {
       image: 'emo_roger.gif',
       tooltip: "emoji:roger",
     },
