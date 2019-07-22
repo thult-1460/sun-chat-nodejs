@@ -1,4 +1,5 @@
 const configEmoji = {
+  EMOJI_DIR: '../emoji/',
   EMOJI: {
     ':)': {
       image: 'emo_smile.gif',
@@ -146,7 +147,40 @@ const configEmoji = {
     },
   },
 
-  EMOJI_DIR: '../emoji/',
+  REACTION: {
+    '(y)': {
+      image: 'emo_yes.gif',
+      tooltip: "emoji:reaction.yes",
+    },
+    '(roger)': {
+      image: 'emo_roger.gif',
+      tooltip: "emoji:reaction.roger",
+    },
+    '(bow)': {
+      image: "emo_bow.gif",
+      tooltip: "emoji:reaction.bow",
+    },
+    '(cracker)': {
+      image: 'emo_cracker.gif',
+      tooltip: "emoji:reaction.cracker",
+    },
+    '(dance)': {
+      image: 'emo_dance.gif',
+      tooltip: "emoji:reaction.dance",
+    },
+    '(clap)': {
+      image: 'emo_clap.gif',
+      tooltip: "emoji:reaction.clap",
+    },
+    '(+1)': {
+      image: 'plusone.png',
+      tooltip: "emoji:reaction.plusone",
+    },
+    '(-1)': {
+      image: 'minusone.png',
+      tooltip: "emoji:reaction.minusone",
+    }
+  },
 }
 
 export default configEmoji;

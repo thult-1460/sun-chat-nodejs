@@ -34,5 +34,15 @@
   "coffee": "Cà phê",
   "beer": "Bia",
   "handshake": "Bắt tay",
-  "yes": "Đồng ý"
+  "yes": "Đồng ý",
+  "reaction": {
+    "roger": "Tôi đã hiểu!",
+    "bow": "Cám ơn bạn!",
+    "cracker": "Xin chúc mừng!",
+    "dance": "Vui quá!",
+    "clap": "Thật tuyệt!",
+    "yes": "Thích!",
+    "plusone": "Cộng 1!",
+    "minusone": "Trừ 1!"
+  }
 }

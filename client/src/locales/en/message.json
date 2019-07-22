@@ -21,7 +21,8 @@
     "cancel": "Cancel",
     "edit": "Edit",
     "reply": "Reply",
-    "quote": "Quote"
+    "quote": "Quote",
+    "reaction": "Reaction"
   },
   "title": {
     "my_chat": "My chat",

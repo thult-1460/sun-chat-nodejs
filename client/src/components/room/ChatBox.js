@@ -134,8 +134,6 @@ class ChatBox extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    this.inputMsg.focus();
-
     if (prevProps.loadedRoomInfo && !this.props.loadedRoomInfo) {
       document.getElementById('msg-content').value = '';
 
@@ -554,6 +552,40 @@ class ChatBox extends React.Component {
   };
   // for quote msg - END
 
+  // for reaction msg - BEGIN
+  reactionMessage = e => {
+
+  }
+
+  handleVisibleReaction = visible => {
+
+  }
+
+  generateReactionMsg = (msgId) => {
+    const listReaction = configEmoji.REACTION;
+    const { t } = this.props;
+    const content = (
+      <div id="_reactionList" className="reactionSelectorTooltip">
+        <ul className="reactionSelectorTooltip__emoticonList">
+          {Object.entries(listReaction).map(([key, reaction]) => {
+            return (
+              <li className="reactionSelectorTooltip__itemContainer">
+                <span className="reactionSelectorTooltip__item">
+                  <span className="reactionSelectorTooltip__emoticonContainer">
+                    <Avatar className="reactionSelectorTooltip__emoticon image-emoji" src={getEmoji(reaction.image)} alt={key} title={t(reaction.tooltip)} />
+                  </span>
+                </span>
+              </li>
+            )
+          })}
+        </ul>
+      </div>
+    );
+
+    return content;
+  }
+  // for reaction msg - END
+
   // generate list TO - BEGIN
   generateListTo = () => {
     const { t, allMembers, roomInfo } = this.props;
@@ -599,7 +631,6 @@ class ChatBox extends React.Component {
     const { t } = this.props;
     const content = (
           <div className="member-infinite-container" style={{ width: '210px' }}>
-
             <InfiniteScroll initialLoad={false} pageStart={0} loadMore={this.handleInfiniteOnLoad} useWindow={false}>
               <div className="box-emoji" >
                 {Object.entries(listEmoji).map(([key, emoji]) => {
@@ -871,6 +902,19 @@ class ChatBox extends React.Component {
                               <Icon type="enter" /> {t('button.reply')}
                             </Button>
                           )}
+                          <Popover
+                            content={this.generateReactionMsg(message._id)}
+                            trigger="click"
+                            onVisibleChange={this.handleVisibleReaction}
+                          >
+                            <Button
+                              type="link"
+                              id={message._id}
+                              data-mid={message.user_info._id}
+                            >
+                              <Icon type="heart" theme="twoTone" twoToneColor="#eb2f96" /> {t('button.reaction')}
+                            </Button>
+                          </Popover>
                           <Button
                             type="link"
                             onClick={this.quoteMessage}
