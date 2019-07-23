@@ -84,7 +84,7 @@ exports.getMemberOfRoom = async function(req, res) {
 
   try {
     let results = [];
-    const members = await Room.getMembersOfRoom(roomId);
+    const members = await Room.getMembersOfRoom(roomId, _id);
 
     members.map(function(member) {
       let { _id: memberId } = member.user;
