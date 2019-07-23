@@ -15,7 +15,7 @@ const NickNameSchema = new Schema(
   {
     owner: { type: Schema.ObjectId, ref: 'User', },
     user_id: { type: Schema.ObjectId, ref: 'User', },
-    nick_name: {
+    nickname: {
       type: String,
       default: '',
       required: true,
