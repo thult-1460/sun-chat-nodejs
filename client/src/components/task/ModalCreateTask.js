@@ -6,21 +6,8 @@ import { withRouter } from 'react-router';
 
 class ModalCreateTask extends Component {
   state = {
-    visible: false,
     members: [],
     roomId: 0,
-  };
-
-  showModal = () => {
-    this.setState({
-      visible: true,
-    });
-  };
-
-  handleCancel = () => {
-    this.setState({
-      visible: false,
-    });
   };
 
   componentWillReceiveProps(nextProps) {
@@ -41,21 +28,20 @@ class ModalCreateTask extends Component {
     const { t } = this.props;
 
     return (
-      <div>
-        <Button type="primary" onClick={this.showModal} className="create-task-btn">
-          <Icon type="check-square" />
-          {t('title.create')}
-        </Button>
-        <Modal
-          title={t('title.create')}
-          visible={this.state.visible}
-          onCancel={this.handleCancel}
-          width="35%"
-          footer={null}
-        >
-          <CreateTaskForm members={this.state.members} roomId={this.state.roomId} />
-        </Modal>
-      </div>
+      <Modal
+        title={t('title.create')}
+        visible={this.props.visibleCreateTask}
+        onCancel={this.props.hideCreateTaskModal}
+        width="35%"
+        footer={null}
+      >
+        <CreateTaskForm
+          members={this.state.members}
+          roomId={this.state.roomId}
+          resetNewTask={this.props.resetNewTask}
+          hideCreateTaskModal={this.props.hideCreateTaskModal}
+        />
+      </Modal>
     );
   }
 }

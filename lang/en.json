@@ -222,9 +222,10 @@
         "not_date": "The end field is not date",
         "expire": " The end date less than the start date"
       },
-      "users": {
+      "assignees": {
         "required": "The assignees is not empty",
-        "not_array": "The assignees is not array"
+        "not_array": "The assignees is not array",
+        "not_member": "The assignees must be a member of this room"
       },
       "status": {
         "not_array": "The status is not array"
@@ -235,6 +236,11 @@
     },
     "create": {
       "error": "Create new task failed"
+    },
+    "edit": {
+      "success": "Edit task successfully",
+      "error": "Edit task failed",
+      "authorization": "You cannot edit this task"
     }
   },
   "call-video-audio": {

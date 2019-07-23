@@ -41,14 +41,45 @@ exports.createTask = async (req, res) => {
   try {
     const room = await Room.createTask(roomId, userId, task);
     const lastTask = room.tasks.pop();
+    const newTaskInfo = await Room.getTaskInfoOfRoom(roomId, lastTask._id);
 
     return res.status(200).json({
       task_id: lastTask._id,
+      task_info: newTaskInfo,
     });
   } catch (err) {
     channel.error(err);
 
     return res.status(500).json({ error: __('task.create.error') });
+  }
+};
+
+exports.editTask = async (req, res) => {
+  const errors = validationResult(req);
+
+  if (errors.array().length > 0) {
+    let customErrors = customMessageValidate(errors);
+
+    return res.status(422).json(customErrors);
+  }
+
+  const { roomId, taskId } = req.params;
+  const { ...taskInput } = req.body;
+
+  try {
+    await Room.editTask(roomId, taskId, taskInput);
+    const editedTaskInfo = await Room.getTaskInfoOfRoom(roomId, taskId);
+
+    return res.status(200).json({
+      message: __('task.edit.success'),
+      task_info: editedTaskInfo,
+    });
+  } catch (err) {
+    channel.error(err);
+
+    return res.status(500).json({
+      error: __('task.edit.error'),
+    });
   }
 };
 

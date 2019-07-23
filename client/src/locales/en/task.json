@@ -3,6 +3,10 @@
     "create": {
       "success": "Create new task successfully!",
       "failed": "Create new task failed"
+    },
+    "edit": {
+      "success": "Edit task successfully!",
+      "failed": "Edit task failed"
     }
   },
   "title": {
@@ -11,6 +15,7 @@
     "pick_time": "Pick start date and end date",
     "assignees": "Assignees",
     "add_user": "Add user",
+    "edit": "Edit task",
     "room_task": "Tasks",
     "tasks": {
       "my_tasks": "My Tasks",

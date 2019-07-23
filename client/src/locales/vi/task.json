@@ -3,6 +3,10 @@
     "create": {
       "success": "Tạo công việc mới thành công",
       "failed": "Tạo công việc mới thất bại"
+    },
+    "edit": {
+      "success": "Chỉnh sửa công việc thành công",
+      "failed": "Chỉnh sửa công việc thất bại"
     }
   },
   "title": {
@@ -11,6 +15,7 @@
     "pick_time": "Chọn ngày bắt đầu và ngày kết thúc",
     "assignees": "Gán cho thành viên",
     "add_user": "Thêm thành viên",
+    "edit": "Chỉnh sửa công việc",
     "room_task": "Công việc",
     "tasks": {
       "my_tasks": "Công việc của tôi",

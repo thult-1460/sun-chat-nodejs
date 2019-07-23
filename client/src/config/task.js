@@ -34,6 +34,7 @@ export const config = {
   TYPE: {
     MY_TASKS: 1,
     TASKS_ASSIGNED: 2,
+    ALL: 3,
   },
   LIST_TASKS: {
     MY_TASKS: {

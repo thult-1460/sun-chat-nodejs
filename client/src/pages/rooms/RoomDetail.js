@@ -10,7 +10,6 @@ import TasksOfRoom from '../../components/room/TasksOfRoom';
 import { SocketContext } from './../../context/SocketContext';
 import { withUserContext } from './../../context/withUserContext';
 import ModalEditDesc from '../../components/room/ModalEditDesc';
-import ModalCreateTask from '../../components/room/ModalCreateTask';
 import { room } from '../../config/room';
 import { Resizable } from 're-resizable';
 import { saveSizeComponentsChat } from '../../helpers/common';
@@ -236,12 +235,16 @@ class RoomDetail extends React.Component {
                     <Button type="primary" block onClick={this.showModal} className="invitation-btn">
                       {t('invitation.title')}
                     </Button>
-                    <ModalCreateTask members={roomInfo.members_info} roomId={roomId} />
                   </div>
                 ) : (
                   ''
                 )}
-                <TasksOfRoom />
+                <TasksOfRoom
+                  roomId={roomId}
+                  roomInfo={roomInfo}
+                  visibleCreateTask={this.state.visibleCreateTask}
+                  showCreateTaskModal={this.showCreateTaskModal}
+                />
               </Sider>
             </Resizable>
           </Layout>

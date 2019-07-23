@@ -36,16 +36,30 @@ let checkDueDay = () => {
     });
 };
 let checkAssignees = () => {
-  return check('users')
+  return check('assignees')
     .not()
     .isEmpty()
     .withMessage((value, { req, loc, path }) => {
-      return req.__('task.validate.users.required');
+      return req.__('task.validate.assignees.required');
     })
     .optional()
     .custom(async (value, { req }) => {
       if (value !== '' && (!Array.isArray(value) || !value.length)) {
-        throw Error(req.__('task.validate.users.not_array'));
+        throw Error(req.__('task.validate.assignees.not_array'));
+      } else {
+        const { roomId } = req.params;
+        const members = await Room.getMembersOfRoom(roomId);
+        let membersId = [];
+
+        members.map(m => {
+          membersId.push(m.user._id.toString());
+        });
+
+        for (let i = 0; i < value.length; i++) {
+          if (membersId.indexOf(value[i]) == -1) {
+            throw Error(req.__('task.validate.assignees.not_member'));
+          }
+        }
       }
     });
 };

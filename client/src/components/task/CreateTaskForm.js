@@ -39,9 +39,14 @@ class CreateTaskForm extends React.Component {
             .then(res => {
               message.success(t('messages.create.success'));
 
+              // Reset form and hidden modal
+              this.props.hideCreateTaskModal(res.data.task_info);
+              this.props.resetNewTask();
               this.setState({
+                selectedAssignees: [],
                 assigneesError: '',
               });
+              this.props.form.resetFields();
             })
             .catch(error => {
               message.error(t('messages.create.failed'));
@@ -96,7 +101,11 @@ class CreateTaskForm extends React.Component {
     let membersHTML = [];
 
     members.map(member => {
-      membersHTML.push(<Option value={member._id}>{member.name}</Option>);
+      membersHTML.push(
+        <Option value={member._id} key={member._id}>
+          {member.name}
+        </Option>
+      );
     });
 
     return (
@@ -129,7 +138,7 @@ class CreateTaskForm extends React.Component {
           {membersHTML}
         </Select>
         <Form.Item>
-          <Button type="primary" htmlType="submit">
+          <Button type="primary" htmlType="submit" className="create-task-modal">
             {t('title.create')}
           </Button>
         </Form.Item>

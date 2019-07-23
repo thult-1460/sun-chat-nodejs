@@ -132,6 +132,7 @@ head .delete-member {
 }
 
 .chat-task {
+  margin-top: 30px;
   .content-task {
     background-color: #fff;
     border-radius: 5px;
@@ -470,4 +471,8 @@ pre {
 .btn-join-call {
   margin-left: 35%;
   width: 30%;
+}
+
+.create-task-modal {
+  margin-top: 20px;
 }
