@@ -397,9 +397,9 @@ RoomSchema.statics = {
                 },
               },
             },
-            { $project: { _id: 1, nick_name: 1 } },
+            { $project: { _id: 1, nickname: 1 } },
           ],
-          as: 'user.nick_name',
+          as: 'user.nickname',
         },
       },
 
@@ -416,14 +416,14 @@ RoomSchema.statics = {
           'user.twitter': 1,
           'user.github': 1,
           'user.google': 1,
-          'user.nick_name': {
+          'user.nickname': {
             $arrayElemAt: [
-              '$user.nick_name',
+              '$user.nickname',
               {
                 $cond: {
-                  if: { $gte: [{ $size: '$user.nick_name' }, 1] },
+                  if: { $gte: [{ $size: '$user.nickname' }, 1] },
                   then: {
-                    $indexOfArray: ['$user.nick_name.room_id', mongoose.Types.ObjectId(roomId)],
+                    $indexOfArray: ['$user.nickname.room_id', mongoose.Types.ObjectId(roomId)],
                   },
                   else: 0,
                 },
