@@ -233,7 +233,11 @@
     "edit": {
       "success": "Chỉnh sửa công việc thành công",
       "error": "Chỉnh sửa công việc thất bại",
-      "authorization": "Bạn không thể chỉnh sửa công việc này"
+      "authorization": "Bạn không thể chỉnh sửa công việc này",
+      "status": {
+        "success": "Chỉnh sửa trạng thái thành công",
+        "error": "Chỉnh sửa trạng thái thất bại"
+      }
     },
     "delete": {
       "success": "Xóa công việc thành công",

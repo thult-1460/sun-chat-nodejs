@@ -20,6 +20,10 @@
       "success": "Xóa công việc thành công!",
       "failed": "Xóa công việc thất bại",
       "confirm": "Bạn có chắc?"
+    },
+    "edit_status": {
+      "success": "Chỉnh sửa trạng thái thành công",
+      "failed": "Chỉnh sửa trạng thái thất bại"
     }
   },
   "title": {
@@ -35,7 +39,9 @@
       "tasks_assigned": "Công việc đã giao",
       "all": "Tất cả",
       "add_task": "Thêm công việc"
-    }
+    },
+    "edit_status": "Sửa trạng thái",
+    "edit_my_status": "Sửa trạng thái của tôi"
   },
   "status": {
     "new": "Mới",
@@ -56,7 +62,9 @@
     "delete": "Xóa",
     "done": "Xong",
     "cancel": "Hủy",
-    "reject": "Từ chối"
+    "reject": "Từ chối",
+    "done": "Xong",
+    "update": "Cập nhật"
   },
   "task": {
     "new": "Mới",

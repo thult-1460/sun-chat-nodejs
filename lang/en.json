@@ -243,7 +243,11 @@
     "edit": {
       "success": "Edit task successfully",
       "error": "Edit task failed",
-      "authorization": "You cannot edit this task"
+      "authorization": "You cannot edit this task",
+      "status": {
+        "success": "Edit status successfully",
+        "error": "Edit status failed"
+      }
     },
     "reject": {
       "success": "Reject task successfully",

@@ -205,6 +205,11 @@ router.get(
   [auth.jwtMiddleware, authorization.room.hasAuthorization],
   tasksController.getTasksOfRoom
 );
+router.post(
+  '/rooms/:roomId/tasks/:taskId/change-my-status/:userId',
+  [auth.jwtMiddleware, authorization.room.hasAuthorization],
+  tasksController.changeStatusOfMyTask
+);
 
 router.delete(
   '/rooms/:roomId/tasks/:taskId',

@@ -1757,7 +1757,32 @@ RoomSchema.statics = {
         },
       },
     ]);
-  }
+  },
+
+  changeStatusOfMyTask(roomId, taskId, userId, status, percent) {
+    return this.updateOne(
+      { _id: roomId },
+      {
+        $set: {
+          'tasks.$[i].assignees.$[j].percent': percent,
+          'tasks.$[i].assignees.$[j].status': status,
+        },
+      },
+      {
+        arrayFilters: [
+          {
+            'i._id': mongoose.Types.ObjectId(taskId),
+            'i.deletedAt': null,
+          },
+          {
+            'j.user': mongoose.Types.ObjectId(userId),
+            'j.deletedAt': null,
+          },
+        ],
+        multi: true,
+      }
+    ).exec();
+  },
 };
 
 module.exports = mongoose.model('Room', RoomSchema);
