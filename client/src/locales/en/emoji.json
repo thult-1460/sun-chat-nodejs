@@ -34,5 +34,15 @@
   "coffee": "Coffee",
   "beer": "Beer",
   "handshake": "Handshake",
-  "yes": "Thumbs up"
+  "yes": "Thumbs up",
+  "reaction": {
+    "roger": "Roger",
+    "bow": "Thanks",
+    "cracker": "Congrats",
+    "dance": "Yay",
+    "clap": "Great",
+    "yes": "Like",
+    "plusone": "Plus one",
+    "minusone": "Minus one"
+  }
 }

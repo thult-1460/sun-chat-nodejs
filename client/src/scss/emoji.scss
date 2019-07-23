@@ -1,19 +1,143 @@
-
 .box-emoji {
   padding-top: 15px;
   padding-right: 2px;
   padding-bottom: 0px;
   padding-left: 9px;
-}
+  .line-emoji {
+    display: block;
+    float: left;
+    margin-left: 3px;
 
-.line-emoji {
-  display: block;
-  float: left;
-  margin-left: 3px;
-  cursor: pointer;
+    .ant-avatar.image-emoji:hover {
+      background: #dcf0fa;
+      border-color: #b1d6ed;
+    }
+  }
 }
 
 .ant-avatar.image-emoji {
   width: 23px !important;
-  height: 23px !important; 
+  height: 23px !important;
+  border-radius: 3px;
+  transition: border 0.2s linear 0s;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+
+.reactionSelectorTooltip {
+  width: 100%;
+  height: 35px;
+
+  .reactionSelectorTooltip__emoticonList {
+    padding-left: 10px;
+    list-style: none;
+    text-align: center;
+    overflow: visible;
+
+    .reactionSelectorTooltip__itemContainer {
+      display: inline-block;
+      margin-right: 5px;
+
+      .reactionSelectorTooltip__item {
+        position: relative;
+        display: block;
+        width: 28px;
+        height: 36px;
+
+        .reactionSelectorTooltip__emoticonContainer {
+          position: absolute;
+          top: 0;
+          left: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 35px;
+          height: 36px;
+          cursor: pointer;
+          transition: transform 0.2s;
+
+          &:hover {
+            transform: scale(1.5, 1.5);
+            transform-origin: bottom center;
+          }
+        }
+      }
+    }
+  }
+}
+
+.timelineMessage__reactionDisplayContainer {
+  display: none;
+  padding-top: 8px;
+  align-items: center;
+}
+
+.reactionButton:first-child {
+  margin-left: 0;
+}
+
+.reactionButton--myReaction {
+  color: #0084b2;
+}
+
+.reactionButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  margin-left: 8px;
+  border-radius: 4px;
+  border: 1px solid #b3b3b3;
+  color: #4d4d4d;
+  background-color: #fff;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.reactionButton:hover {
+    border-color: #0084b2;
+}
+
+.reactionButton__emoticon {
+  width: 16px;
+  height: 16px;
+  margin-right: 4px;
+}
+
+.reactionButton__count {
+  position: relative;
+  color: inherit;
+  font-weight: bold;
+  font-size: 13px;
+  height: 16px;
+  line-height: 17px;
+}
+
+.timelineMessage__reactionUserListContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 8px;
+    border-radius: 4px;
+    border: 1px solid #b3b3b3;
+    background-color: #fff;
+    width: 32px;
+    height: 24px;
+    fill: #1a1a1a;
+    cursor: pointer;
+}
+
+.timelineMessage__reactionUserListIcon {
+    width: 16px;
+    height: 16px;
+    fill: inherit;
+    fill: inherit;
+}
+
+.timelineMessage__reactionUserListContainer:hover {
+    border-color: #0084b2;
 }
