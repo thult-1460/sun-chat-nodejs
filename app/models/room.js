@@ -356,7 +356,7 @@ RoomSchema.statics = {
     ]);
   },
 
-  getMembersOfRoom(roomId) {
+  getMembersOfRoom(roomId, userId) {
     return this.aggregate([
       { $match: { _id: mongoose.Types.ObjectId(roomId), deletedAt: null } },
       { $unwind: '$members' },
@@ -377,6 +377,33 @@ RoomSchema.statics = {
         },
       },
       {
+        $lookup: {
+          from: 'nicknames',
+          let: {
+            userId: '$user._id',
+            roomId: [null, mongoose.Types.ObjectId(roomId)],
+          },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ['$user_id', '$$userId'] },
+                    { $eq: ['$owner', mongoose.Types.ObjectId(userId)] },
+                    { $eq: ['$deletedAt', null] },
+                    { $in: ['$room_id', '$$roomId'] },
+                  ],
+
+                },
+              },
+            },
+            { $project: { _id: 1, nick_name: 1 } },
+          ],
+          as: 'user.nick_name',
+        },
+      },
+
+      {
         $project: {
           members: 1,
           'user._id': 1,
@@ -389,6 +416,20 @@ RoomSchema.statics = {
           'user.twitter': 1,
           'user.github': 1,
           'user.google': 1,
+          'user.nick_name': {
+            $arrayElemAt: [
+              '$user.nick_name',
+              {
+                $cond: {
+                  if: { $gte: [{ $size: '$user.nick_name' }, 1] },
+                  then: {
+                    $indexOfArray: ['$user.nick_name.room_id', mongoose.Types.ObjectId(roomId)],
+                  },
+                  else: 0,
+                },
+              },
+            ],
+          },
         },
       },
     ]);
