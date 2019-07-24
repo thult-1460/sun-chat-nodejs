@@ -119,3 +119,7 @@ export function sendCallingRequest(data, roomId) {
 export function getListNicknameByUserInRoom(roomId) {
   return new Http().authenticated().get(`rooms/${roomId}/nicknames`);
 }
+
+export function reactionMsg(roomId, data) {
+  return new Http().authenticated().post(`rooms/${roomId}/reaction-msg`, data);
+}

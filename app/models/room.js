@@ -7,11 +7,23 @@ mongoose.set('useFindAndModify', false);
 const Schema = mongoose.Schema;
 
 // Setup schema
+const Reactions = new Schema(
+  {
+    user: { type: Schema.ObjectId, ref: 'User' },
+    reaction_tag: { type: String },
+    deletedAt: { type: Date, default: null },
+  },
+  {
+    timestamps: true,
+  }
+);
+
 const Messages = new Schema(
   {
     content: { type: String },
     is_notification: { type: Boolean, default: false },
     user: { type: Schema.ObjectId, ref: 'User' },
+    reactions: [Reactions],
     deletedAt: { type: Date, default: null },
   },
   {
@@ -1008,6 +1020,7 @@ RoomSchema.statics = {
           'user_info.avatar': 1,
           'user_info.email': 1,
           is_notification: 1,
+          reactions: 1,
         },
       },
     ]);
@@ -1079,7 +1092,7 @@ RoomSchema.statics = {
     const message = await this.aggregate([
       { $match: { _id: mongoose.Types.ObjectId(roomId) } },
       { $unwind: '$messages' },
-      { $match: { 'messages._id': mongoose.Types.ObjectId(messageId), 'messages._id.deletedAt': null } },
+      { $match: { 'messages._id': mongoose.Types.ObjectId(messageId), 'messages.deletedAt': null } },
       {
         $lookup: {
           from: 'users',
@@ -1106,6 +1119,7 @@ RoomSchema.statics = {
           'messages.user_info.name': 1,
           'messages.user_info.avatar': 1,
           'messages.is_notification': 1,
+          'messages.reactions': 1,
         },
       },
     ]);
@@ -1629,6 +1643,81 @@ RoomSchema.statics = {
       }
     );
   },
+
+  async toggleReactionMsg({ roomId, userId, msgId, reactionTag }) {
+    let reactionObject = {
+      deletedAt: null,
+      user:  mongoose.Types.ObjectId(userId),
+      reaction_tag: reactionTag,
+    };
+    let conditionFilter = {
+      _id:  mongoose.Types.ObjectId(roomId),
+      deleteAt: null,
+      messages: {
+        $elemMatch: {
+          _id:  mongoose.Types.ObjectId(msgId),
+          deletedAt: null
+        }
+      }
+    };
+
+    try {
+      let reaction = await this.aggregate([
+        { $match: { _id: mongoose.Types.ObjectId(roomId) } },
+        { $unwind: '$messages' },
+        { $match: { 'messages._id': mongoose.Types.ObjectId(msgId), 'messages.deletedAt': null } },
+        {
+          $project: {
+            reaction: {
+              $arrayElemAt: [{
+                $filter: {
+                  input: '$messages.reactions',
+                  as: 'reaction',
+                  cond: { $eq: [ '$$reaction.user', mongoose.Types.ObjectId(userId)] }
+                }
+              }, 0]
+            }
+          }
+        }
+      ]).exec();
+
+      if (reaction[0].reaction) {
+        if (reaction[0].reaction.reaction_tag == reactionTag) {
+          return await this.findOneAndUpdate(
+            conditionFilter,
+            {
+              $pull: { 'messages.$.reactions': {
+                user: { $eq: mongoose.Types.ObjectId(userId) },
+              }}
+            },
+            { multi: true, new: true }
+          )
+        } else {
+          return await this.findOneAndUpdate(
+            conditionFilter,
+            {
+              $set: { 'messages.$.reactions.$[reaction].reaction_tag': reactionTag }
+            },
+            {
+              arrayFilters: [ { 'reaction.user': { $eq: mongoose.Types.ObjectId(userId) } } ],
+              multi: true,
+              new: true
+            }
+          )
+        }
+      } else {
+        return await this.findOneAndUpdate(
+          conditionFilter,
+          {
+            $push: { 'messages.$.reactions': reactionObject },
+          },
+          { new: true, strict: false },
+        )
+      }
+    } catch (err) {
+      throw new Error(err.toString());
+    }
+  }
 };
 
 module.exports = mongoose.model('Room', RoomSchema);

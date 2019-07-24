@@ -201,9 +201,7 @@
   "user": {
     "user_not_exist": "Tài khoản này không tồn tại. Không thể thêm liên lạc này!",
     "upload_file_failed": "File ảnh phải nhỏ hơn {{max}} MB!",
-    "unknown_file": "File không xác định",
-    "not_found": "Không tìm thấy user!",
-    "get_infor_failed": "Lấy thông tin user thất bại!!"
+    "unknown_file": "File không xác định"
   },
   "task": {
     "validate": {
@@ -260,5 +258,9 @@
     "get_list": {
       "failed": "Lấy danh sách biệt danh theo người dùng thất bại"
     }
+  },
+  "reaction": {
+    "success": "Reaction thành công",
+    "failed": "Reaction thất bại"
   }
 }

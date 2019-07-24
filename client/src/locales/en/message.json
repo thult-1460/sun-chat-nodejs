@@ -37,5 +37,6 @@
     "success": "Deleted the message !"
   },
   "cancelled_user": "Cancelled User",
-  "loading": "Loading ..."
+  "loading": "Loading ...",
+  "not_data": "Not data"
 }

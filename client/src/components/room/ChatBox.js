@@ -11,6 +11,7 @@ import {
   getDirectRoomId,
   getListNicknameByUserInRoom,
   deleteMessage,
+  reactionMsg,
 } from './../../api/room.js';
 import {
   addContact,
@@ -147,6 +148,16 @@ class ChatBox extends React.Component {
         });
 
         message.success(t('delete.success'));
+      }
+    });
+
+    this.socket.on('reaction_msg', newMsg => {
+      const { messages } = this.state;
+      const message = this.getMessageById(messages, newMsg._id);
+
+      if (message !== null) {
+        message.reactions = newMsg.reactions;
+        this.forceUpdate();
       }
     });
 
@@ -669,6 +680,12 @@ class ChatBox extends React.Component {
 
   handleVisibleReaction = visible => {};
 
+  // for reaction msg - BEGIN
+  handleReaction = (msgId, reactionTag) => {
+    const currentRoomId = this.props.roomId;
+    reactionMsg(currentRoomId, { msgId, reactionTag })
+  };
+
   generateReactionMsg = msgId => {
     const listReaction = configEmoji.REACTION;
     const { t } = this.props;
@@ -685,6 +702,7 @@ class ChatBox extends React.Component {
                       src={getEmoji(reaction.image)}
                       alt={key}
                       title={t(reaction.tooltip)}
+                      onClick={() => this.handleReaction(msgId, key)}
                     />
                   </span>
                 </span>
@@ -697,48 +715,50 @@ class ChatBox extends React.Component {
 
     return content;
   };
+
+  generateReactionUserList = () => {}
   // for reaction msg - END
 
   // generate list TO - BEGIN
   generateListTo = () => {
     const { t, allMembers, roomInfo } = this.props;
     const currentUserInfo = this.props.userContext.info;
-    const content =
-      allMembers == [] ? (
-        <span>Not data</span>
-      ) : (
-        <div className="member-infinite-container">
-          {roomInfo.type == room.ROOM_TYPE.GROUP_CHAT && (
-            <a className="form-control to-all" href="javascript:;" onClick={handlersMessage.actionFunc.toAll}>
-              <span>{t('to_all')}</span>
-            </a>
-          )}
-          <InfiniteScroll initialLoad={false} pageStart={0} loadMore={this.handleInfiniteOnLoad} useWindow={false}>
-            <List
-              dataSource={allMembers}
-              renderItem={member => {
-                return member._id != currentUserInfo._id ? (
-                  <List.Item key={member._id}>
-                    <List.Item.Meta
-                      avatar={<Avatar size={avatarConfig.AVATAR.SIZE.SMALL} src={getUserAvatarUrl(member.avatar)} />}
-                      title={
-                        <a onClick={handlersMessage.actionFunc.toMember} href="javascript:;" data-mid={member._id}>
-                          {member.nickname ? member.nickname.nickname : member.name}
-                        </a>
-                      }
-                    />
-                  </List.Item>
-                ) : (
-                  <span />
-                );
-              }}
-            />
-          </InfiniteScroll>
-        </div>
-      );
+    const content = allMembers == [] ? (
+      <span>{t('not_data')}</span>
+    ) : (
+      <div className="member-infinite-container">
+        {roomInfo.type == room.ROOM_TYPE.GROUP_CHAT && (
+          <a className="form-control to-all" href="javascript:;" onClick={handlersMessage.actionFunc.toAll}>
+            <span>{t('to_all')}</span>
+          </a>
+        )}
+        <InfiniteScroll initialLoad={false} pageStart={0} loadMore={this.handleInfiniteOnLoad} useWindow={false}>
+          <List
+            dataSource={allMembers}
+            renderItem={member => {
+              return member._id != currentUserInfo._id ? (
+                <List.Item key={member._id}>
+                  <List.Item.Meta
+                    avatar={<Avatar src={getUserAvatarUrl(member.avatar)} />}
+                    title={
+                      <a onClick={handlersMessage.actionFunc.toMember} href="javascript:;" data-mid={member._id}>
+                        {member.name}
+                      </a>
+                    }
+                  />
+                </List.Item>
+              ) : (
+                <span />
+              );
+            }}
+          />
+        </InfiniteScroll>
+      </div>
+    );
 
     return content;
   };
+
   generateListEMoji = () => {
     const listEmoji = configEmoji.EMOJI;
     const { t } = this.props;
@@ -898,6 +918,40 @@ class ChatBox extends React.Component {
     }
   };
   // process for popover - END
+  
+  // Sort reaction array
+  mapOrder = (array, order, objKey) => {
+    array.sort( function (a, b) {
+      let A = a[objKey.key][objKey.subKey],
+          B = b[objKey.key][objKey.subKey];
+
+      if (order.indexOf(A) > order.indexOf(B)) {
+        return 1;
+      } else {
+        return -1;
+      }
+    });
+
+    return array;
+  };
+
+  // handle reaction dupplicate counter
+  reactionDupplicateCounter = (reactionArr = []) => {
+    let configReaction = Object.keys(configEmoji.REACTION);
+
+    reactionArr = reactionArr.reduce((accumulator, currentValue) => {
+      ( accumulator[accumulator.findIndex(item => item.reaction.reaction_tag === currentValue.reaction_tag)] ||
+        accumulator[accumulator.push({reaction: currentValue, count: 0}) - 1] ).count++;
+
+      return accumulator;
+    }, []);
+
+    if (reactionArr.length > 1) {
+      reactionArr = this.mapOrder(reactionArr, configReaction, {key: 'reaction', subKey: 'reaction_tag'})
+    }
+
+    return reactionArr;
+  }
 
   render() {
     const {
@@ -951,6 +1005,7 @@ class ChatBox extends React.Component {
                 messageHtml.__html.includes(`data-tag="[To:${currentUserInfo._id}]"`) ||
                 messageHtml.__html.includes(`data-tag="[rp mid=${currentUserInfo._id}]"`) ||
                 messageHtml.__html.includes(messageConfig.SIGN_TO_ALL);
+              let reactionOfMsg = this.reactionDupplicateCounter(message.reactions);
 
               return (
                 <div
@@ -998,6 +1053,39 @@ class ChatBox extends React.Component {
                           className={'timelineMessage__message ' + notificationClass}
                           dangerouslySetInnerHTML={messageHtml}
                         />
+                            {
+                              (reactionOfMsg.length > 0) ? (
+                                <div className="_reaction timelineMessage__reactionDisplayContainer" style={{display: 'flex'}}>
+                                  {
+                                    reactionOfMsg.map( value => {
+                                      return (configEmoji.REACTION[value.reaction.reaction_tag]) ? (
+                                        <span
+                                          className="reactionButton reactionButton--myReaction _sendReaction _showDescription"
+                                          aria-label="Remove this reaction"
+                                          data-reactiontype="yes"
+                                          onClick={() => this.handleReaction(message._id, value.reaction.reaction_tag)}
+                                        >
+                                          <img
+                                            src={getEmoji(configEmoji.REACTION[value.reaction.reaction_tag].image)}
+                                            alt={value.reaction.reaction_tag}
+                                            className="reactionButton__emoticon"
+                                          />
+                                          <span className="reactionButton__count _reactionCount">{value.count}</span>
+                                        </span>
+                                      ) : '';
+                                    })
+                                  }
+                                  <Popover
+                                    content={this.generateReactionUserList}
+                                    trigger="click"
+                                  >
+                                    <span className="_openSelectedReactionDialog timelineMessage__reactionUserListContainer _showDescription" aria-label="View Reactions">
+                                      <Icon className="timelineMessage__reactionUserListIcon" type="usergroup-add" />
+                                    </span>
+                                  </Popover>
+                                </div>
+                              ) : ('')
+                            }
                       </div>
                     </Col>
                     <Col span={2} className="message-time">
@@ -1043,7 +1131,6 @@ class ChatBox extends React.Component {
                           <Popover
                             content={this.generateReactionMsg(message._id)}
                             trigger="click"
-                            onVisibleChange={this.handleVisibleReaction}
                           >
                             <Button type="link" id={message._id} data-mid={message.user_info._id}>
                               <Icon type="heart" theme="twoTone" twoToneColor="#eb2f96" /> {t('button.reaction')}
