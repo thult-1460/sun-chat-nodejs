@@ -250,5 +250,8 @@
   "call-video-audio": {
     "sent-noti-success": "Gửi thông báo tham gia cuộc gọi thành công",
     "sent-noti-failed": "Gửi thông báo tham gia cuộc gọi thất bại"
+  },
+  "nickname" : {
+    "get_list_nickname_failed": "Lấy danh sách biệt danh thất  theo user thất bại"
   }
 }

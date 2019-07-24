@@ -9,6 +9,7 @@ import {
   loadUnreadNextMessages,
   updateMessage,
   getDirectRoomId,
+  getListNickNameByUserRoom,
 } from './../../api/room.js';
 import {
   addContact,
@@ -49,7 +50,8 @@ const initialState = {
   directRoomIds: [],
   receivedRequestUsers: [],
   sendingRequestUsers: [],
-  infoUserTip: {}
+  infoUserTip: {},
+  listNickName: {},
 };
 const initialAttribute = {
   messageRowRefs: [],
@@ -224,6 +226,12 @@ class ChatBox extends React.Component {
       }
 
       this.fetchData(this.props.roomId);
+      getListNickNameByUserRoom(this.props.roomId).then(res => {
+        const listNickName = res.data.listNickName;
+        this.setState({ listNickName })
+      }).catch(err => {
+          message.error(err.response.data.error);
+      });
     }
 
     if (Object.keys(this.attr.messageRowRefs).length && this.attr.firstLoading) {
@@ -851,9 +859,22 @@ class ChatBox extends React.Component {
   };
   // process for popover - END
 
+  showNickName = (messages, listNickName) => {
+      messages = messages.filter(item => {
+
+      if(listNickName[item.user_info._id] !== undefined) {
+         item.user_info.name = listNickName[item.user_info._id];
+      }
+
+      return item;
+      });
+  }
+
+
   render() {
+    let {messages} = this.state;
     const {
-      messages,
+      listNickName,
       redLineMsgId,
       isEditing,
       loadingPrev,
@@ -870,6 +891,8 @@ class ChatBox extends React.Component {
     const listMember = allMembers.filter(item => item._id != currentUserInfo._id);
 
     let nextMsgId = null;
+
+    this.showNickName(messages, listNickName);
 
     for (let message of messages) {
       if (!redLineMsgId || message._id > redLineMsgId) {

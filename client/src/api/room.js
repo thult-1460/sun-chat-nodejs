@@ -111,3 +111,7 @@ export function editDescOfRoom(roomId, desc) {
 export function sendCallingRequest(data, roomId) {
   return new Http().authenticated().post(`rooms/${roomId}/send-calling-request`, data);
 }
+
+export function getListNickNameByUserRoom(roomId) {
+  return new Http().authenticated().get(`rooms/${roomId}/nickname`);
+}
