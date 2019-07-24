@@ -1573,8 +1573,7 @@ RoomSchema.statics = {
       {
         _id: mongoose.Types.ObjectId(roomId),
         deletedAt: null,
-        'tasks._id': mongoose.Types.ObjectId(taskId),
-        'tasks.deletedAt': null,
+        tasks: { $elemMatch: { _id: taskId, deletedAt: null } },
       },
       {
         $set: { 'tasks.$.deletedAt': Date.now() },

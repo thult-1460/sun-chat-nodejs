@@ -51,7 +51,8 @@
     "edit": "Sửa",
     "delete": "Xóa",
     "done": "Xong",
-    "cancel": "Hủy"
+    "cancel": "Hủy",
+    "reject": "Từ chối"
   },
   "task": {
     "new": "Mới",

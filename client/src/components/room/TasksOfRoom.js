@@ -394,11 +394,18 @@ class TasksOfRoom extends React.Component {
                             )}
 
                             {isAssignedToMe(task, currentUserId) && !isDoneTask(task, currentUserId) && (
-                              <a href="#" onClick={() => this.handleFinishTask(task._id)}>
-                                <Tooltip title={t('button.done')}>
-                                  <Icon type="check-circle" theme="twoTone" twoToneColor="#1890ff" />
-                                </Tooltip>
-                              </a>
+                              <span>
+                                <a href="#" onClick={() => this.handleFinishTask(task._id)}>
+                                  <Tooltip title={t('button.done')}>
+                                    <Icon type="check-circle" theme="twoTone" twoToneColor="#1890ff" />
+                                  </Tooltip>
+                                </a>
+                                <a href="#">
+                                  <Tooltip title={t('button.reject')}>
+                                    <Icon type="close-circle" theme="twoTone" twoToneColor="red" />
+                                  </Tooltip>
+                                </a>
+                              </span>
                             )}
                           </div>
                         </Col>
