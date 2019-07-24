@@ -9,7 +9,7 @@ import {
   loadUnreadNextMessages,
   updateMessage,
   getDirectRoomId,
-  getListNickNameByUserRoom,
+  getListNicknameByUserInRoom,
 } from './../../api/room.js';
 import {
   addContact,
@@ -51,7 +51,7 @@ const initialState = {
   receivedRequestUsers: [],
   sendingRequestUsers: [],
   infoUserTip: {},
-  listNickName: {},
+  nicknames: {},
 };
 const initialAttribute = {
   messageRowRefs: [],
@@ -226,9 +226,9 @@ class ChatBox extends React.Component {
       }
 
       this.fetchData(this.props.roomId);
-      getListNickNameByUserRoom(this.props.roomId).then(res => {
-        const listNickName = res.data.listNickName;
-        this.setState({ listNickName })
+      getListNicknameByUserInRoom(this.props.roomId).then(res => {
+        const nicknames = res.data.nicknames;
+        this.setState({ nicknames })
       }).catch(err => {
           message.error(err.response.data.error);
       });
@@ -859,22 +859,10 @@ class ChatBox extends React.Component {
   };
   // process for popover - END
 
-  showNickName = (messages, listNickName) => {
-      messages = messages.filter(item => {
-
-      if(listNickName[item.user_info._id] !== undefined) {
-         item.user_info.name = listNickName[item.user_info._id];
-      }
-
-      return item;
-      });
-  }
-
-
   render() {
-    let {messages} = this.state;
     const {
-      listNickName,
+      messages,
+      nicknames,
       redLineMsgId,
       isEditing,
       loadingPrev,
@@ -891,8 +879,6 @@ class ChatBox extends React.Component {
     const listMember = allMembers.filter(item => item._id != currentUserInfo._id);
 
     let nextMsgId = null;
-
-    this.showNickName(messages, listNickName);
 
     for (let message of messages) {
       if (!redLineMsgId || message._id > redLineMsgId) {
@@ -956,7 +942,7 @@ class ChatBox extends React.Component {
                             <List.Item.Meta
                               className="show-infor"
                               avatar={<Avatar src={getUserAvatarUrl(message.user_info.avatar)} />}
-                              title={<p>{message.user_info.name}</p>}
+                              title={<p>{nicknames[message.user_info._id] ? nicknames[message.user_info._id] : message.user_info.name}</p>}
                             />
                           </div>
                         </Popover>
@@ -998,7 +984,7 @@ class ChatBox extends React.Component {
                               id={message._id}
                               data-rid={roomId}
                               data-mid={message.user_info._id}
-                              data-name={message.user_info.name}
+                              data-name={nicknames[message.user_info._id] ? nicknames[message.user_info._id] : message.user_info.name}
                             >
                               <Icon type="enter" /> {t('button.reply')}
                             </Button>

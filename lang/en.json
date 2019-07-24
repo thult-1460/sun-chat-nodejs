@@ -257,6 +257,9 @@
     "sent-noti-failed": "Sent notification to member failed"
   },
   "nickname" : {
-    "get_list_nickname_failed": "Get list nickname by user failed"
+    "get_list": {
+      "failed": "Get list nickname by user failed"
+      }
+    }
   }
 }

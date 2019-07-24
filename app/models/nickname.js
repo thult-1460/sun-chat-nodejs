@@ -11,7 +11,7 @@ const Schema = mongoose.Schema;
  * NickName Schema
  */
 
-const NickNameSchema = new Schema(
+const NicknameSchema = new Schema(
   {
     owner: { type: Schema.ObjectId, ref: 'User', },
     user_id: { type: Schema.ObjectId, ref: 'User', },
@@ -28,7 +28,7 @@ const NickNameSchema = new Schema(
   }
 );
 
-NickNameSchema.statics = {
+NicknameSchema.statics = {
   /**
    * Load
    *
@@ -39,7 +39,13 @@ NickNameSchema.statics = {
 
   getList: function (userId, roomId) {
     return this.aggregate([
-      { $match: { owner: mongoose.Types.ObjectId(userId), deletedAt: null, room_id: { $in: [mongoose.Types.ObjectId(roomId), null] } } },
+      {
+        $match: {
+          owner: mongoose.Types.ObjectId(userId),
+          deletedAt: null,
+          room_id: { $in: [mongoose.Types.ObjectId(roomId), null] }
+        }
+      },
       {
         $group: {
           _id: '$user_id',
@@ -57,7 +63,7 @@ NickNameSchema.statics = {
               '$nickname',
               {
                 $cond: {
-                  if: { $gte: [{ $size: '$nickname' }, 1] },
+                  if: { $in: [mongoose.Types.ObjectId(roomId), '$nickname'] },
                   then: { $indexOfArray: ['$room_id', mongoose.Types.ObjectId(roomId)] },
                   else: 0,
                 }
@@ -70,4 +76,4 @@ NickNameSchema.statics = {
   }
 };
 
-module.exports = mongoose.model('NickName', NickNameSchema);
+module.exports = mongoose.model('NickName', NicknameSchema);
