@@ -12,3 +12,11 @@ export function getTasksOfRoom(roomId, type) {
   let typeSelect = type == undefined ? '' : `?type=${type}`;
   return new Http().authenticated().get(`/rooms/${roomId}/tasks${typeSelect}`);
 }
+
+export function deleteTask(roomId, taskId) {
+  return new Http().authenticated().delete(`/rooms/${roomId}/tasks/${taskId}`);
+}
+
+export function finishTask(roomId, taskId) {
+  return new Http().authenticated().post(`/rooms/${roomId}/finish-tasks/${taskId}`);
+}

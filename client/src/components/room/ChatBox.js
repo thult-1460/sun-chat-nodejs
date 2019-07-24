@@ -642,7 +642,7 @@ class ChatBox extends React.Component {
         <ul className="reactionSelectorTooltip__emoticonList">
           {Object.entries(listReaction).map(([key, reaction]) => {
             return (
-              <li className="reactionSelectorTooltip__itemContainer">
+              <li className="reactionSelectorTooltip__itemContainer" key={key}>
                 <span className="reactionSelectorTooltip__item">
                   <span className="reactionSelectorTooltip__emoticonContainer">
                     <Avatar className="reactionSelectorTooltip__emoticon image-emoji" src={getEmoji(reaction.image)} alt={key} title={t(reaction.tooltip)} />
@@ -708,7 +708,7 @@ class ChatBox extends React.Component {
               <div className="box-emoji" >
                 {Object.entries(listEmoji).map(([key, emoji]) => {
                   return (
-                    <p className="line-emoji"><Avatar className="image-emoji" src={getEmoji(emoji.image)} alt={key} title={t(emoji.tooltip)} onClick={this.handleEmoji}/></p>
+                    <p className="line-emoji" key={key}><Avatar className="image-emoji" src={getEmoji(emoji.image)} alt={key} title={t(emoji.tooltip)} onClick={this.handleEmoji}/></p>
                   )
                 })}
               </div>

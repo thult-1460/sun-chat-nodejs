@@ -395,7 +395,6 @@ RoomSchema.statics = {
                     { $eq: ['$deletedAt', null] },
                     { $in: ['$room_id', '$$roomId'] },
                   ],
-
                 },
               },
             },
@@ -1567,6 +1566,45 @@ RoomSchema.statics = {
     ]).exec();
 
     return task.length == 0 ? {} : task[0];
+  },
+
+  deleteTask(roomId, taskId) {
+    return this.updateOne(
+      {
+        _id: mongoose.Types.ObjectId(roomId),
+        deletedAt: null,
+        'tasks._id': mongoose.Types.ObjectId(taskId),
+        'tasks.deletedAt': null,
+      },
+      {
+        $set: { 'tasks.$.deletedAt': Date.now() },
+      }
+    );
+  },
+
+  finishTask(roomId, taskId, userId) {
+    return this.updateOne(
+      { _id: roomId, deletedAt: null },
+      {
+        $set: {
+          'tasks.$[i].assignees.$[j].percent': 100,
+          'tasks.$[i].assignees.$[j].status': config.TASK.STATUS.DONE,
+        },
+      },
+      {
+        arrayFilters: [
+          {
+            'i._id': mongoose.Types.ObjectId(taskId),
+            'i.deletedAt': null,
+          },
+          {
+            'j.user': mongoose.Types.ObjectId(userId),
+            'j.deletedAt': null,
+          },
+        ],
+        multi: true,
+      }
+    );
   },
 };
 

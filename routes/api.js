@@ -181,19 +181,40 @@ router.post(
   roomsValidate.validate('createTask'),
   tasksController.createTask
 );
+router.post(
+  '/rooms/:roomId/send-calling-request',
+  [auth.jwtMiddleware, authorization.room.hasAuthorization],
+  roomsController.sendCallingRequest
+);
 
 router.post(
   '/rooms/:roomId/tasks/:taskId',
-  [auth.jwtMiddleware, authorization.room.hasAuthorization, authorization.room.editTask],
+  [auth.jwtMiddleware, authorization.room.hasAuthorization, authorization.tasks.editTask],
   roomsValidate.validate('createTask'),
   tasksController.editTask
 );
 
-router.post('/rooms/:roomId/send-calling-request', [auth.jwtMiddleware, authorization.room.hasAuthorization], roomsController.sendCallingRequest);
+router.post(
+  '/rooms/:roomId/send-calling-request',
+  [auth.jwtMiddleware, authorization.room.hasAuthorization],
+  roomsController.sendCallingRequest
+);
 router.get(
   '/rooms/:roomId/tasks',
   [auth.jwtMiddleware, authorization.room.hasAuthorization],
   tasksController.getTasksOfRoom
+);
+
+router.delete(
+  '/rooms/:roomId/tasks/:taskId',
+  [auth.jwtMiddleware, authorization.room.hasAuthorization, authorization.tasks.editTask],
+  tasksController.deleteTask
+);
+
+router.post(
+  '/rooms/:roomId/finish-tasks/:taskId',
+  [auth.jwtMiddleware, authorization.room.hasAuthorization, authorization.tasks.isAssignee],
+  tasksController.finishTask
 );
 
 module.exports = router;

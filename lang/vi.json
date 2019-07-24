@@ -236,6 +236,15 @@
       "success": "Chỉnh sửa công việc thành công",
       "error": "Chỉnh sửa công việc thất bại",
       "authorization": "Bạn không thể chỉnh sửa công việc này"
+    },
+    "delete": {
+      "success": "Xóa công việc thành công",
+      "error": "Xóa công việc thất bại"
+    },
+    "finish": {
+      "success": "Hoàn thành công việc",
+      "error": "Chưa thể hoàn thành được công việc",
+      "authorization": "Bạn không được phép thực hiện hành động này"
     }
   },
   "call-video-audio": {

@@ -104,3 +104,56 @@ exports.getTasksOfRoom = async function(req, res) {
     });
   }
 };
+
+exports.deleteTask = async function(req, res) {
+  const errors = validationResult(req);
+
+  if (errors.array().length > 0) {
+    let customErrors = customMessageValidate(errors);
+
+    return res.status(422).json(customErrors);
+  }
+
+  const { roomId, taskId } = req.params;
+
+  try {
+    let tasks = await Room.deleteTask(roomId, taskId);
+
+    return res.status(200).json({
+      message: __('task.delete.success'),
+    });
+  } catch (err) {
+    channel.error(err);
+
+    return res.status(500).json({
+      error: __('task.delete.error'),
+    });
+  }
+};
+
+exports.finishTask = async function(req, res) {
+  const errors = validationResult(req);
+
+  if (errors.array().length > 0) {
+    let customErrors = customMessageValidate(errors);
+
+    return res.status(422).json(customErrors);
+  }
+
+  const { roomId, taskId } = req.params;
+  const { _id: userId } = req.decoded;
+
+  try {
+    let tasks = await Room.finishTask(roomId, taskId, userId);
+
+    return res.status(200).json({
+      message: __('task.finish.success'),
+    });
+  } catch (err) {
+    channel.error(err);
+
+    return res.status(500).json({
+      error: __('task.finish.error'),
+    });
+  }
+};

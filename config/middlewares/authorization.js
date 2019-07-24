@@ -12,13 +12,13 @@ const config = require('../config');
  *  Generic require login routing middleware
  */
 
-exports.requiresLogin = function (req, res, next) {
+exports.requiresLogin = function(req, res, next) {
   if (req.isAuthenticated()) return next();
   if (req.method == 'GET') req.session.returnTo = req.originalUrl;
   res.redirect('/login');
 };
 
-exports.requiresAPILogin = function (req, res, next) {
+exports.requiresAPILogin = function(req, res, next) {
   const jwtSecret = process.env.JWT_SECRET || 'RESTFULAPIs';
 
   try {
@@ -38,7 +38,7 @@ exports.requiresAPILogin = function (req, res, next) {
  */
 
 exports.user = {
-  hasAuthorization: function (req, res, next) {
+  hasAuthorization: function(req, res, next) {
     if (req.profile.id != req.user.id) {
       req.flash('info', 'You are not authorized');
       return res.redirect('/users/' + req.profile.id);
@@ -46,7 +46,7 @@ exports.user = {
     next();
   },
 
-  generateJWTToken: function (user) {
+  generateJWTToken: function(user) {
     const jwtSecret = process.env.JWT_SECRET || 'RESTFULAPIs';
     const expireTokenHour = process.env.JWT_TTL;
 
@@ -55,7 +55,7 @@ exports.user = {
     });
   },
 
-  checkUserActivated: async function (req, res, next) {
+  checkUserActivated: async function(req, res, next) {
     let userIdReceive = req.body.userId;
 
     try {
@@ -69,7 +69,7 @@ exports.user = {
 
       next();
     } catch (err) {
-      channel.error(err.toString());
+      channel.error(err);
 
       return res.status(500).json({
         error: __('error.common'),
@@ -83,7 +83,7 @@ exports.user = {
  */
 
 exports.article = {
-  hasAuthorization: function (req, res, next) {
+  hasAuthorization: function(req, res, next) {
     if (req.article.user.id != req.user.id) {
       req.flash('info', 'You are not authorized');
       return res.redirect('/articles/' + req.article.id);
@@ -97,7 +97,7 @@ exports.article = {
  */
 
 exports.comment = {
-  hasAuthorization: function (req, res, next) {
+  hasAuthorization: function(req, res, next) {
     // if the current user is comment owner or article owner
     // give them authority to delete
     if (req.user.id === req.comment.user.id || req.user.id === req.article.user.id) {
@@ -114,7 +114,7 @@ exports.comment = {
  */
 
 exports.room = {
-  hasAuthorization: async function (req, res, next) {
+  hasAuthorization: async function(req, res, next) {
     const { roomId } = req.params;
     const { _id } = req.decoded;
 
@@ -133,7 +133,7 @@ exports.room = {
 
       next();
     } catch (err) {
-      channel.error(err.toString());
+      channel.error(err);
 
       return res.status(500).json({
         err: __('error.common'),
@@ -141,7 +141,7 @@ exports.room = {
     }
   },
 
-  checkAdmin: async function (req, res, next) {
+  checkAdmin: async function(req, res, next) {
     let { roomId } = req.body;
     let { _id } = req.decoded;
 
@@ -164,7 +164,7 @@ exports.room = {
 
       next();
     } catch (err) {
-      channel.error(err.toString());
+      channel.error(err);
 
       return res.status(500).json({
         error: __('error.common'),
@@ -172,7 +172,7 @@ exports.room = {
     }
   },
 
-  checkMemberCanJoinRoom: async function (req, res, next) {
+  checkMemberCanJoinRoom: async function(req, res, next) {
     let { invitation_code } = req.params;
     let { _id } = req.decoded;
 
@@ -214,7 +214,7 @@ exports.room = {
 
       next();
     } catch (err) {
-      channel.error(err.toString());
+      channel.error(err);
 
       return res.status(500).json({
         error: __('error.common'),
@@ -222,7 +222,7 @@ exports.room = {
     }
   },
 
-  checkDeleteSelf: function (req, res, next) {
+  checkDeleteSelf: function(req, res, next) {
     const { memberId } = req.body;
     let { _id } = req.decoded;
 
@@ -235,7 +235,7 @@ exports.room = {
     next();
   },
 
-  updateMessage: async function (req, res, next) {
+  updateMessage: async function(req, res, next) {
     let { roomId, messageId } = req.params;
     let { _id } = req.decoded;
 
@@ -255,7 +255,7 @@ exports.room = {
 
       next();
     } catch (err) {
-      channel.error(err.toString());
+      channel.error(err);
 
       return res.status(500).json({
         error: __('error.common'),
@@ -263,7 +263,7 @@ exports.room = {
     }
   },
 
-  createMessage: async function (req, res, next) {
+  createMessage: async function(req, res, next) {
     const { roomId } = req.params;
     const { _id: userId } = req.decoded;
 
@@ -288,7 +288,7 @@ exports.room = {
 
       next();
     } catch (err) {
-      channel.error(err.toString());
+      channel.error(err);
 
       return res.status(500).json({
         error: __('error.common'),
@@ -296,7 +296,7 @@ exports.room = {
     }
   },
 
-  checkExistMember: async function (req, res, next) {
+  checkExistMember: async function(req, res, next) {
     let { roomId, users } = req.body;
 
     try {
@@ -320,7 +320,7 @@ exports.room = {
 
       next();
     } catch (err) {
-      channel.error(err.toString());
+      channel.error(err);
 
       return res.status(500).json({
         error: __('error.common'),
@@ -328,7 +328,7 @@ exports.room = {
     }
   },
 
-  leaveRoom: async function (req, res, next) {
+  leaveRoom: async function(req, res, next) {
     const { _id: userId } = req.decoded;
     const { roomId } = req.params;
 
@@ -338,6 +338,60 @@ exports.room = {
       if (myChatRoomId.length > 0 && roomId == myChatRoomId[0]._id) {
         return res.status(403).json({
           error: __('room.my_chat.cant_leave'),
+        });
+      }
+
+      next();
+    } catch (err) {
+      channel.error(err);
+
+      return res.status(500).json({
+        error: __('error.common'),
+      });
+    }
+  },
+};
+
+exports.tasks = {
+  isAssignee: async function(req, res, next) {
+    const { _id: userId } = req.decoded;
+    const { roomId, taskId } = req.params;
+
+    try {
+      const task = await Room.aggregate([
+        { $match: { _id: mongoose.Types.ObjectId(roomId), deletedAt: null } },
+        { $unwind: '$tasks' },
+        {
+          $match: {
+            'tasks._id': mongoose.Types.ObjectId(taskId),
+            'tasks.deletedAt': null,
+          },
+        },
+        {
+          $addFields: {
+            'tasks.assignees': {
+              $filter: {
+                input: '$tasks.assignees',
+                as: 'assignee',
+                cond: {
+                  $eq: ['$$assignee.deletedAt', null],
+                },
+              },
+            },
+          },
+        },
+        {
+          $match: {
+            $expr: {
+              $in: [mongoose.Types.ObjectId(userId), '$tasks.assignees.user'],
+            },
+          },
+        },
+      ]);
+
+      if (task.length == 0) {
+        return res.status(403).json({
+          error: __('task.finish.authorization'),
         });
       }
 
@@ -363,7 +417,6 @@ exports.room = {
           $match: {
             'tasks._id': mongoose.Types.ObjectId(taskId),
             'tasks.assigner': mongoose.Types.ObjectId(userId),
-            deletedAt: null,
           },
         },
         {

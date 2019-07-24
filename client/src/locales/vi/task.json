@@ -7,6 +7,15 @@
     "edit": {
       "success": "Chỉnh sửa công việc thành công",
       "failed": "Chỉnh sửa công việc thất bại"
+    },
+    "finish": {
+      "success": "Đã hoàn thành công việc!",
+      "failed": "Không thể hoàn thành công việc"
+    },
+    "delete": {
+      "success": "Xóa công việc thành công!",
+      "failed": "Xóa công việc thất bại",
+      "confirm": "Bạn có chắc?"
     }
   },
   "title": {
@@ -41,7 +50,8 @@
   "button": {
     "edit": "Sửa",
     "delete": "Xóa",
-    "done": "Xong"
+    "done": "Xong",
+    "cancel": "Hủy"
   },
   "task": {
     "new": "Mới",

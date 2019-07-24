@@ -237,6 +237,15 @@
     "create": {
       "error": "Create new task failed"
     },
+    "delete": {
+      "success": "Delete task successfully",
+      "error": "Delete task failed"
+    },
+    "finish": {
+      "success": "Finish task successfully",
+      "error": "Finish task faild",
+      "authorization": "You can't finish this task"
+    },
     "edit": {
       "success": "Edit task successfully",
       "error": "Edit task failed",

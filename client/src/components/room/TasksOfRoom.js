@@ -1,6 +1,6 @@
 import React from 'react';
 import 'antd/dist/antd.css';
-import { Typography, Row, Col, message, Button, Input, Icon, Avatar, Progress, Tooltip, Tabs } from 'antd';
+import { Typography, Row, Col, message, Button, Input, Icon, Avatar, Progress, Tooltip, Tabs, Popconfirm } from 'antd';
 import { withNamespaces } from 'react-i18next';
 import { withRouter } from 'react-router';
 import { getTasksOfRoom } from '../../api/task';
@@ -11,11 +11,12 @@ import { getUserAvatarUrl } from '../../helpers/common';
 import ModalEditTask from './../task/ModalEditTask';
 import moment from 'moment';
 import ModalCreateTask from './../task/ModalCreateTask';
-import { isAssignedToMe } from './../../helpers/task';
+import { isAssignedToMe, isDoneTask } from './../../helpers/task';
+import { finishTask, deleteTask } from './../../api/task';
 
 const { Text } = Typography;
 const { TabPane } = Tabs;
-const _ = require('underscore');
+const _ = require('lodash');
 
 let editedTaskInfo = {};
 let newTask = null;
@@ -178,6 +179,81 @@ class TasksOfRoom extends React.Component {
     });
   };
 
+  updateDataWhenDeletingTask = (stateName, stateValue, taskId) => {
+    let newState = {};
+    newState[stateName] = _.filter(stateValue, function(task) {
+      return task._id != taskId;
+    });
+
+    this.setState(newState);
+  };
+
+  updateDataWhenFinishTask = (stateName, stateValue, taskId) => {
+    let newState = {};
+    newState[stateName] = stateValue.map(task => {
+      if (task._id == taskId) {
+        let assignees = task.assignees;
+
+        for (let i = 0; i < assignees.length; i++) {
+          if (assignees[i].user == this.props.userContext.info._id) {
+            assignees[i].percent = 100;
+            assignees[i].status = configTask.STATUS.DONE.VALUE;
+            break;
+          }
+        }
+      }
+
+      return task;
+    });
+
+    this.setState(newState);
+  };
+
+  handleDeleteTask = taskId => {
+    const roomId = this.props.match.params.id;
+    const { t } = this.props;
+    let { myTasks, tasksAssigned, tasks } = this.state;
+
+    deleteTask(roomId, taskId)
+      .then(res => {
+        message.success(t('messages.delete.success'));
+
+        // Update tasks list when a task edited
+        if (tabIndex == configTask.TYPE.MY_TASKS) {
+          this.updateDataWhenDeletingTask('myTasks', myTasks, taskId);
+        } else if (tabIndex == configTask.TYPE.TASKS_ASSIGNED) {
+          this.updateDataWhenDeletingTask('tasksAssigned', tasksAssigned, taskId);
+        } else {
+          this.updateDataWhenDeletingTask('tasks', tasks, taskId);
+        }
+      })
+      .catch(error => {
+        message.error(t('messages.delete.failed'));
+      });
+  };
+
+  handleFinishTask = taskId => {
+    const roomId = this.props.match.params.id;
+    const { t } = this.props;
+    let { myTasks, tasksAssigned, tasks } = this.state;
+
+    finishTask(roomId, taskId)
+      .then(res => {
+        message.success(t('messages.finish.success'));
+
+        if (tabIndex == configTask.TYPE.MY_TASKS) {
+          this.updateDataWhenFinishTask('myTasks', myTasks, taskId);
+        } else if (tabIndex == configTask.TYPE.TASKS_ASSIGNED) {
+          this.updateDataWhenFinishTask('tasksAssigned', tasksAssigned, taskId);
+        } else {
+          this.updateDataWhenFinishTask('tasks', tasks, taskId);
+        }
+      })
+      .catch(error => {
+        message.error(t('messages.finish.failed'));
+      });
+  };
+
   updateEditedTaskIntoList = data => {
     let { myTasks, tasksAssigned, tasks } = this.state;
 
@@ -186,12 +262,7 @@ class TasksOfRoom extends React.Component {
 
       // Update tasks list when a task edited
       if (tabIndex == configTask.TYPE.MY_TASKS) {
-        for (let i = 0; i < myTasks.length; i++) {
-          if (myTasks[i]._id == data._id) {
-            indexOfEditedTask = i;
-            break;
-          }
-        }
+        indexOfEditedTask = _.findIndex(myTasks, { _id: data._id });
 
         if (isAssignedToMe(data, this.props.userContext.info._id) && indexOfEditedTask != -1) {
           myTasks[indexOfEditedTask] = data;
@@ -221,6 +292,7 @@ class TasksOfRoom extends React.Component {
   render() {
     let members = [];
     const roomId = this.props.match.params.id;
+    const currentUserId = this.props.userContext.info._id;
     const { t, roomInfo } = this.props;
 
     if (roomInfo != undefined && typeof roomInfo != 'string') {
@@ -300,23 +372,33 @@ class TasksOfRoom extends React.Component {
                         <Col span={6}>
                           <div className="task-icon">
                             {this.props.userContext.info._id == task.assigner._id && (
-                              <div>
+                              <span>
                                 <a href="#">
                                   <Tooltip title={t('button.edit')}>
                                     <Icon type="edit" onClick={this.handleEditTask} data-taskid={task._id} />
                                   </Tooltip>
                                 </a>
-                                <a href="#">
-                                  <Tooltip title={t('button.delete')}>
-                                    <Icon type="delete" />
-                                  </Tooltip>
-                                </a>
-                                <a href="#">
-                                  <Tooltip title={t('button.done')}>
-                                    <Icon type="check-circle" theme="twoTone" twoToneColor="#1890ff" />
-                                  </Tooltip>
-                                </a>
-                              </div>
+                                <Popconfirm
+                                  title={t('messages.delete.confirm')}
+                                  icon={<Icon type="question-circle-o" style={{ color: 'red' }} />}
+                                  onConfirm={() => this.handleDeleteTask(task._id)}
+                                  cancelText={t('button.cancel')}
+                                >
+                                  <a href="#">
+                                    <Tooltip title={t('button.delete')}>
+                                      <Icon type="delete" />
+                                    </Tooltip>
+                                  </a>
+                                </Popconfirm>
+                              </span>
+                            )}
+
+                            {isAssignedToMe(task, currentUserId) && !isDoneTask(task, currentUserId) && (
+                              <a href="#" onClick={() => this.handleFinishTask(task._id)}>
+                                <Tooltip title={t('button.done')}>
+                                  <Icon type="check-circle" theme="twoTone" twoToneColor="#1890ff" />
+                                </Tooltip>
+                              </a>
                             )}
                           </div>
                         </Col>

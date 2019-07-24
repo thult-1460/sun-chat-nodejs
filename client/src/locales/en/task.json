@@ -7,6 +7,15 @@
     "edit": {
       "success": "Edit task successfully!",
       "failed": "Edit task failed"
+    },
+    "finish": {
+      "success": "Finish task successfully!",
+      "failed": "Finish task failed"
+    },
+    "delete": {
+      "success": "Remove task successfully!",
+      "failed": "Remove task failed",
+      "confirm": "Are you sure？"
     }
   },
   "title": {
@@ -41,7 +50,8 @@
   "button": {
     "edit": "Edit",
     "delete": "Delete",
-    "done": "Done"
+    "done": "Done",
+    "cancel": "Cancel"
   },
   "task": {
     "new": "New",

@@ -1,9 +1,8 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import 'antd/dist/antd.css';
 import { withNamespaces } from 'react-i18next';
 import { withRouter } from 'react-router';
-import { Form, Input, Icon, Button, Select, DatePicker, message, Alert } from 'antd';
+import { Form, Input, Button, Select, DatePicker, message, Alert } from 'antd';
 import { createTask } from './../../api/task.js';
 import { config as taskConfig } from './../../config/task.js';
 

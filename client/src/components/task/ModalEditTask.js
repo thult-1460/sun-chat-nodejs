@@ -1,5 +1,4 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import 'antd/dist/antd.css';
 import { withNamespaces } from 'react-i18next';
 import { withRouter } from 'react-router';
