@@ -255,5 +255,11 @@
   "call-video-audio": {
     "sent-noti-success": "Sent notification to member successful",
     "sent-noti-failed": "Sent notification to member failed"
+  },
+  "nickname" : {
+    "get_list": {
+      "failed": "Get list nickname by user failed"
+      }
+    }
   }
 }

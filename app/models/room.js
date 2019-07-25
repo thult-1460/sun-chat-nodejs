@@ -398,7 +398,7 @@ RoomSchema.statics = {
                 },
               },
             },
-            { $project: { _id: 1, nickname: 1 } },
+            { $project: { _id: 1, nickname: 1, room_id: 1 } },
           ],
           as: 'user.nickname',
         },

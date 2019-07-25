@@ -9,6 +9,7 @@ import {
   loadUnreadNextMessages,
   updateMessage,
   getDirectRoomId,
+  getListNicknameByUserInRoom,
 } from './../../api/room.js';
 import {
   addContact,
@@ -49,7 +50,8 @@ const initialState = {
   directRoomIds: [],
   receivedRequestUsers: [],
   sendingRequestUsers: [],
-  infoUserTip: {}
+  infoUserTip: {},
+  nicknames: {},
 };
 const initialAttribute = {
   messageRowRefs: [],
@@ -224,6 +226,12 @@ class ChatBox extends React.Component {
       }
 
       this.fetchData(this.props.roomId);
+      getListNicknameByUserInRoom(this.props.roomId).then(res => {
+        const nicknames = res.data.nicknames;
+        this.setState({ nicknames })
+      }).catch(err => {
+          message.error(err.response.data.error);
+      });
     }
 
     if (Object.keys(this.attr.messageRowRefs).length && this.attr.firstLoading) {
@@ -854,6 +862,7 @@ class ChatBox extends React.Component {
   render() {
     const {
       messages,
+      nicknames,
       redLineMsgId,
       isEditing,
       loadingPrev,
@@ -933,7 +942,7 @@ class ChatBox extends React.Component {
                             <List.Item.Meta
                               className="show-infor"
                               avatar={<Avatar src={getUserAvatarUrl(message.user_info.avatar)} />}
-                              title={<p>{message.user_info.name}</p>}
+                              title={<p>{nicknames[message.user_info._id] ? nicknames[message.user_info._id] : message.user_info.name}</p>}
                             />
                           </div>
                         </Popover>
@@ -975,7 +984,7 @@ class ChatBox extends React.Component {
                               id={message._id}
                               data-rid={roomId}
                               data-mid={message.user_info._id}
-                              data-name={message.user_info.name}
+                              data-name={nicknames[message.user_info._id] ? nicknames[message.user_info._id] : message.user_info.name}
                             >
                               <Icon type="enter" /> {t('button.reply')}
                             </Button>
