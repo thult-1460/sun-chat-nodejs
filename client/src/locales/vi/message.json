@@ -22,7 +22,8 @@
     "edit": "Sửa",
     "reply": "Trả lời",
     "quote": "Trích dẫn",
-    "reaction": "Phản ứng"
+    "reaction": "Phản ứng",
+    "delete": "Xoá"
   },
   "title": {
     "my_chat": "Trò chuyện của tôi",
@@ -31,6 +32,9 @@
     "cancel_request": "Hủy",
     "reject_request": "Từ chối",
     "accept_request": "Đồng ý"
+  },
+  "delete": {
+    "success": "Xoá tin nhắn thành công !"
   },
   "cancelled_user": "Người dùng đã hủy sử dụng",
   "loading": "Đang tải ..."

@@ -22,7 +22,8 @@
     "edit": "Edit",
     "reply": "Reply",
     "quote": "Quote",
-    "reaction": "Reaction"
+    "reaction": "Reaction",
+    "delete": "Delete"
   },
   "title": {
     "my_chat": "My chat",
@@ -31,6 +32,9 @@
     "cancel_request": "Cancel",
     "reject_request": "Reject",
     "accept_request": "Accept"
+  },
+  "delete": {
+    "success": "Deleted the message !"
   },
   "cancelled_user": "Cancelled User",
   "loading": "Loading ..."

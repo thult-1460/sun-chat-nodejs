@@ -559,16 +559,14 @@ exports.changeRoleMember = async (req, res) => {
 };
 
 exports.deleteMessage = async (req, res) => {
+  const io = req.app.get('socketIO');
   const { messageId, roomId } = req.params;
 
   try {
     await Room.deleteMessage(messageId, roomId);
-
-    return res.status(200).json({ success: __('room.delete_message.success') });
+    io.to(roomId).emit('delete-message', messageId);
   } catch (err) {
     channel.error(err);
-
-    return res.status(500).json({ error: __('room.delete_message.failed') });
   }
 };
 

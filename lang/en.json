@@ -171,10 +171,6 @@
       "failed": "Change role of members failed"
     },
     "not_message_owner": "You are not message owner. So you can't delete message",
-    "delete_message": {
-      "success": "Delete message successfully",
-      "failed": "Delete message failed"
-    },
     "message": {
       "create": {
         "success": "Send message successfully",

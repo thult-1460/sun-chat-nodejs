@@ -1,7 +1,6 @@
 const jwt = require('jsonwebtoken');
 const jwtSecret = process.env.JWT_SECRET;
 const mongoose = require('mongoose');
-const User = mongoose.model('User');
 const Room = mongoose.model('Room');
 
 module.exports = function(io) {
@@ -46,10 +45,6 @@ module.exports = function(io) {
       let roomInfo = await Room.getRoomInfoNewMember(roomId, [socket.userId]);
       io.to(socket.userId).emit('update_quantity_unread', { room_id: roomId, quantity_unread: roomInfo[0].quantity_unread });
       io.to(socket.userId).emit('update_last_message_id_success', { messageId: result ? messageId : false });
-    });
-
-    socket.on('delete_msg', messageId => {
-      io.to(socket.roomId).emit('delete_msg', messageId);
     });
     // action of USER - END
 

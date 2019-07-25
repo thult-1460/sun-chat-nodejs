@@ -260,3 +260,20 @@ img.image-emoji {
     pointer-events: none;
   }
 }
+
+.optionChangeMessage {
+  background-color: white;
+  font-family: cursive;
+  button {
+    padding: 0 5px 0 10px;
+  }
+  .anticon-edit {
+    color: #bd5f5f;
+  }
+  .anticon-rollback {
+    color: #3f00f2;
+  }
+  .anticon-delete {
+    color: black;
+  }
+}
