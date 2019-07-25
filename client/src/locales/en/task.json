@@ -8,9 +8,13 @@
       "success": "Edit task successfully!",
       "failed": "Edit task failed"
     },
-    "finish": {
-      "success": "Finish task successfully!",
-      "failed": "Finish task failed"
+    "done": {
+      "success": "Done task!",
+      "failed": "Can not done this task"
+    },
+    "reject": {
+      "success": "Reject task successfully!",
+      "failed": "Reject task failed"
     },
     "delete": {
       "success": "Remove task successfully!",

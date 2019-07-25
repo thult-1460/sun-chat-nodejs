@@ -241,15 +241,20 @@
       "success": "Delete task successfully",
       "error": "Delete task failed"
     },
-    "finish": {
-      "success": "Finish task successfully",
-      "error": "Finish task faild",
-      "authorization": "You can't finish this task"
+    "done": {
+      "success": "Done task",
+      "error": "Can not done task",
+      "authorization": "You can't done this task"
     },
     "edit": {
       "success": "Edit task successfully",
       "error": "Edit task failed",
       "authorization": "You cannot edit this task"
+    },
+    "reject": {
+      "success": "Reject task successfully",
+      "error": "Reject task faild",
+      "authorization": "You can't reject this task"
     }
   },
   "call-video-audio": {

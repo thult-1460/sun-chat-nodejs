@@ -8,9 +8,13 @@
       "success": "Chỉnh sửa công việc thành công",
       "failed": "Chỉnh sửa công việc thất bại"
     },
-    "finish": {
+    "done": {
       "success": "Đã hoàn thành công việc!",
       "failed": "Không thể hoàn thành công việc"
+    },
+    "reject": {
+      "success": "Đã từ chối công biệc!",
+      "failed": "Từ chối công việc thất bại"
     },
     "delete": {
       "success": "Xóa công việc thành công!",

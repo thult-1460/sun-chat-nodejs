@@ -11,8 +11,8 @@ import { getUserAvatarUrl } from '../../helpers/common';
 import ModalEditTask from './../task/ModalEditTask';
 import moment from 'moment';
 import ModalCreateTask from './../task/ModalCreateTask';
-import { isAssignedToMe, isDoneTask } from './../../helpers/task';
-import { finishTask, deleteTask } from './../../api/task';
+import { isAssignedToMe, isFinishTask } from './../../helpers/task';
+import { doneTask, deleteTask, rejectTask } from './../../api/task';
 
 const { Text } = Typography;
 const { TabPane } = Tabs;
@@ -179,8 +179,10 @@ class TasksOfRoom extends React.Component {
     });
   };
 
-  updateDataWhenDeletingTask = (stateName, stateValue, taskId) => {
+  updateDataWhenDeletingTask = taskId => {
+    const { key: stateName, value: stateValue } = this.getStateFromTabIndex();
     let newState = {};
+
     newState[stateName] = _.filter(stateValue, function(task) {
       return task._id != taskId;
     });
@@ -188,7 +190,53 @@ class TasksOfRoom extends React.Component {
     this.setState(newState);
   };
 
-  updateDataWhenFinishTask = (stateName, stateValue, taskId) => {
+  updateDataWhenDoneTask = taskId => {
+    const { key: stateName, value: stateValue } = this.getStateFromTabIndex();
+    let newState = {};
+
+    newState[stateName] = stateValue.map(task => {
+      if (task._id == taskId) {
+        let assignees = task.assignees;
+
+        for (let i = 0; i < assignees.length; i++) {
+          if (assignees[i].user == this.props.userContext.info._id) {
+            assignees[i].percent = configTask.PERCENT.DONE;
+            assignees[i].status = configTask.STATUS.DONE.VALUE;
+            break;
+          }
+        }
+      }
+
+      return task;
+    });
+
+    this.setState(newState);
+  };
+
+  getStateFromTabIndex = () => {
+    const { myTasks, tasksAssigned, tasks } = this.state;
+    switch (tabIndex) {
+      case configTask.TYPE.MY_TASKS:
+        return {
+          key: 'myTasks',
+          value: myTasks,
+        };
+      case configTask.TYPE.TASKS_ASSIGNED:
+        return {
+          key: 'tasksAssigned',
+          value: tasksAssigned,
+        };
+      default:
+        return {
+          key: 'tasks',
+          value: tasks,
+        };
+    }
+  };
+
+  updateDataWhenRejectTask = taskId => {
+    const { key: stateName, value: stateValue } = this.getStateFromTabIndex();
+
     let newState = {};
     newState[stateName] = stateValue.map(task => {
       if (task._id == taskId) {
@@ -196,8 +244,7 @@ class TasksOfRoom extends React.Component {
 
         for (let i = 0; i < assignees.length; i++) {
           if (assignees[i].user == this.props.userContext.info._id) {
-            assignees[i].percent = 100;
-            assignees[i].status = configTask.STATUS.DONE.VALUE;
+            assignees[i].status = configTask.STATUS.REJECT.VALUE;
             break;
           }
         }
@@ -212,45 +259,45 @@ class TasksOfRoom extends React.Component {
   handleDeleteTask = taskId => {
     const roomId = this.props.match.params.id;
     const { t } = this.props;
-    let { myTasks, tasksAssigned, tasks } = this.state;
 
     deleteTask(roomId, taskId)
       .then(res => {
         message.success(t('messages.delete.success'));
 
-        // Update tasks list when a task edited
-        if (tabIndex == configTask.TYPE.MY_TASKS) {
-          this.updateDataWhenDeletingTask('myTasks', myTasks, taskId);
-        } else if (tabIndex == configTask.TYPE.TASKS_ASSIGNED) {
-          this.updateDataWhenDeletingTask('tasksAssigned', tasksAssigned, taskId);
-        } else {
-          this.updateDataWhenDeletingTask('tasks', tasks, taskId);
-        }
+        this.updateDataWhenDeletingTask(taskId);
       })
       .catch(error => {
         message.error(t('messages.delete.failed'));
       });
   };
 
-  handleFinishTask = taskId => {
+  handleDoneTask = taskId => {
     const roomId = this.props.match.params.id;
     const { t } = this.props;
-    let { myTasks, tasksAssigned, tasks } = this.state;
 
-    finishTask(roomId, taskId)
+    doneTask(roomId, taskId)
       .then(res => {
-        message.success(t('messages.finish.success'));
+        message.success(t('messages.done.success'));
 
-        if (tabIndex == configTask.TYPE.MY_TASKS) {
-          this.updateDataWhenFinishTask('myTasks', myTasks, taskId);
-        } else if (tabIndex == configTask.TYPE.TASKS_ASSIGNED) {
-          this.updateDataWhenFinishTask('tasksAssigned', tasksAssigned, taskId);
-        } else {
-          this.updateDataWhenFinishTask('tasks', tasks, taskId);
-        }
+        this.updateDataWhenDoneTask(taskId);
       })
       .catch(error => {
-        message.error(t('messages.finish.failed'));
+        message.error(t('messages.done.failed'));
+      });
+  };
+
+  handleRejectTask = taskId => {
+    const roomId = this.props.match.params.id;
+    const { t } = this.props;
+
+    rejectTask(roomId, taskId)
+      .then(res => {
+        message.success(t('messages.reject.success'));
+
+        this.updateDataWhenRejectTask(taskId);
+      })
+      .catch(error => {
+        message.error(t('messages.reject.failed'));
       });
   };
 
@@ -393,14 +440,14 @@ class TasksOfRoom extends React.Component {
                               </span>
                             )}
 
-                            {isAssignedToMe(task, currentUserId) && !isDoneTask(task, currentUserId) && (
+                            {isAssignedToMe(task, currentUserId) && !isFinishTask(task, currentUserId) && (
                               <span>
-                                <a href="#" onClick={() => this.handleFinishTask(task._id)}>
+                                <a href="#" onClick={() => this.handleDoneTask(task._id)}>
                                   <Tooltip title={t('button.done')}>
                                     <Icon type="check-circle" theme="twoTone" twoToneColor="#1890ff" />
                                   </Tooltip>
                                 </a>
-                                <a href="#">
+                                <a href="#" onClick={() => this.handleRejectTask(task._id)}>
                                   <Tooltip title={t('button.reject')}>
                                     <Icon type="close-circle" theme="twoTone" twoToneColor="red" />
                                   </Tooltip>

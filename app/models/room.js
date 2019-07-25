@@ -1586,8 +1586,32 @@ RoomSchema.statics = {
       { _id: roomId, deletedAt: null },
       {
         $set: {
-          'tasks.$[i].assignees.$[j].percent': 100,
+          'tasks.$[i].assignees.$[j].percent': config.TASK.PERCENT.DONE,
           'tasks.$[i].assignees.$[j].status': config.TASK.STATUS.DONE,
+        },
+      },
+      {
+        arrayFilters: [
+          {
+            'i._id': mongoose.Types.ObjectId(taskId),
+            'i.deletedAt': null,
+          },
+          {
+            'j.user': mongoose.Types.ObjectId(userId),
+            'j.deletedAt': null,
+          },
+        ],
+        multi: true,
+      }
+    );
+  },
+
+  rejectTask(roomId, taskId, userId) {
+    return this.updateOne(
+      { _id: roomId, deletedAt: null },
+      {
+        $set: {
+          'tasks.$[i].assignees.$[j].status': config.TASK.STATUS.REJECT,
         },
       },
       {

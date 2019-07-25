@@ -147,13 +147,40 @@ exports.finishTask = async function(req, res) {
     let tasks = await Room.finishTask(roomId, taskId, userId);
 
     return res.status(200).json({
-      message: __('task.finish.success'),
+      message: __('task.done.success'),
     });
   } catch (err) {
     channel.error(err);
 
     return res.status(500).json({
-      error: __('task.finish.error'),
+      error: __('task.done.error'),
+    });
+  }
+};
+
+exports.rejectTask = async function(req, res) {
+  const errors = validationResult(req);
+
+  if (errors.array().length > 0) {
+    let customErrors = customMessageValidate(errors);
+
+    return res.status(422).json(customErrors);
+  }
+
+  const { roomId, taskId } = req.params;
+  const { _id: userId } = req.decoded;
+
+  try {
+    let tasks = await Room.rejectTask(roomId, taskId, userId);
+
+    return res.status(200).json({
+      message: __('task.reject.success'),
+    });
+  } catch (err) {
+    channel.error(err);
+
+    return res.status(500).json({
+      error: __('task.reject.error'),
     });
   }
 };
