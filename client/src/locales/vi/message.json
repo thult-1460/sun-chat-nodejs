@@ -37,5 +37,6 @@
     "success": "Xoá tin nhắn thành công !"
   },
   "cancelled_user": "Người dùng đã hủy sử dụng",
-  "loading": "Đang tải ..."
+  "loading": "Đang tải ...",
+  "not_data": "Không có dữ liệu!"
 }

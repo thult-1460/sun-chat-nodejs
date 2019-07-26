@@ -230,4 +230,11 @@ router.post(
   tasksController.rejectTask
 );
 
+// Reaction
+router.post(
+  '/rooms/:roomId/reaction-msg',
+  [auth.jwtMiddleware, authorization.room.hasAuthorization],
+  roomsController.reactionMsg
+);
+
 module.exports = router;

@@ -757,10 +757,8 @@ exports.sendCallingRequest = async(req, res) => {
   const {checkedList, callType, roomName} = req.body;
   const { roomId } = req.params;
   const { _id: userId } = req.decoded;
-  let room = [];
 
   try {
-
     const inforSelectedMember = await User.showListUsersInfo(checkedList);
     let listMemberHaveTo = '';
     let room  = [];
@@ -770,8 +768,7 @@ exports.sendCallingRequest = async(req, res) => {
     });
 
     if (checkedList.length > 0) {
-       const content = `[info][title]Started Sun chat Live[/title]` + listMemberHaveTo +
-      `[live rid=${roomId} id=2333] [/info]`;
+      const content = `[info][title]Started Sun chat Live[/title]` + listMemberHaveTo + `[live rid=${roomId} id=2333] [/info]`;
       room = await Room.storeMessage(roomId, userId, content);
 
       inforSelectedMember.map(member => {
@@ -789,7 +786,7 @@ exports.sendCallingRequest = async(req, res) => {
 
     return res.status(200).json({
       message: __('call-video-audio.sent-noti-success'),
-      });
+    });
   } catch (err) {
     channel.error(err);
 
@@ -798,3 +795,26 @@ exports.sendCallingRequest = async(req, res) => {
     });
   }
 };
+
+exports.reactionMsg = async(req, res) => {
+  const io = req.app.get('socketIO');
+  const { roomId } = req.params;
+  const { _id: userId } = req.decoded;
+  const { msgId, reactionTag } = req.body;
+
+  try {
+    let room = await Room.toggleReactionMsg({ roomId, userId, msgId, reactionTag });
+    const message = await Room.getMessageInfo(roomId, msgId);
+    io.to(roomId).emit('reaction_msg', message);
+
+    return res.status(200).json({
+      message: __('reaction.success'),
+    });
+  } catch(err) {
+    channel.error(err);
+
+    return res.status(500).json({
+      error: __('reaction.failed'),
+    });
+  }
+}
