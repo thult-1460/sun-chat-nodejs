@@ -818,3 +818,21 @@ exports.reactionMsg = async(req, res) => {
     });
   }
 }
+
+exports.getReactionUserListOfMsg = async(req, res) => {
+  const io = req.app.get('socketIO');
+  const { roomId, msgId, reactionTag } = req.params;
+  const { _id: userId } = req.decoded;
+
+  try {
+    let listUser = await Room.getUserListByReactionTag({ roomId, msgId, reactionTag });
+
+    return res.status(200).json({ list_user: listUser });
+  } catch(err) {
+    channel.error(err);
+
+    return res.status(500).json({
+      error: __('error.common'),
+    });
+  }
+}

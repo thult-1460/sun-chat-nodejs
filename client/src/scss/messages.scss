@@ -277,3 +277,15 @@ img.image-emoji {
     color: black;
   }
 }
+
+.reactionUserListTollTip {
+  width: 230px;
+  height: 290px;
+
+  .ant-tabs-nav {
+    .ant-tabs-tab {
+      margin: 0 10px 5px 0 !important;
+      padding: 0 !important;
+    }
+  }
+}

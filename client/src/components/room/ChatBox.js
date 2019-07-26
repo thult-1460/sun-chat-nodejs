@@ -1,7 +1,7 @@
 import React from 'react';
 import { withRouter } from 'react-router';
 import { Link } from 'react-router-dom';
-import { Layout, Input, Button, List, Avatar, Icon, Row, Col, Badge, Popover, message, Spin } from 'antd';
+import { Layout, Input, Button, List, Avatar, Icon, Row, Col, Badge, Popover, message, Spin, Tabs } from 'antd';
 import {
   loadMessages,
   sendMessage,
@@ -12,6 +12,7 @@ import {
   getListNicknameByUserInRoom,
   deleteMessage,
   reactionMsg,
+  getReactionUserListOfMsg,
 } from './../../api/room.js';
 import {
   addContact,
@@ -37,6 +38,7 @@ import avatarConfig from '../../config/avatar';
 import $ from 'jquery';
 
 const { Content } = Layout;
+const { TabPane } = Tabs;
 const initialState = {
   // for edit msg
   isEditing: false,
@@ -55,6 +57,9 @@ const initialState = {
   sendingRequestUsers: [],
   infoUserTip: {},
   nicknames: {},
+  reactionUserList: {},
+  flagMsgId: '',
+  activeKeyTab: 0,
 };
 const initialAttribute = {
   messageRowRefs: [],
@@ -716,7 +721,98 @@ class ChatBox extends React.Component {
     return content;
   };
 
-  generateReactionUserList = () => {}
+  onChangeTab = activeKey => {
+    this.setState({ activeKeyTab: activeKey });
+  };
+
+  generateReactionUserList = (msgId, reactionOfMsg) => {
+    return (
+      <div className="reactionUserListTollTip">
+        <Tabs
+          activeKey={this.state.activeKeyTab}
+          onChange={this.onChangeTab}
+        >
+          {
+            reactionOfMsg.map( (value, index) => {
+              return (
+                <TabPane
+                  tab={
+                    <div onClick={() => this.fetchReactionUserList(msgId, value.reaction.reaction_tag)}>
+                      <img
+                        src={getEmoji(configEmoji.REACTION[value.reaction.reaction_tag].image)}
+                        alt={value.reaction.reaction_tag}
+                        className="reactionButton__emoticon"
+                      />
+                      <span className="reactionButton__count _reactionCount">{value.count}</span>
+                    </div>
+                  }
+                  key={index}
+                >
+                {this.contentReactionUserList(msgId, value.reaction.reaction_tag)}
+                </TabPane>
+              )
+            })
+          }
+        </Tabs>
+      </div>
+    )
+  };
+
+  contentReactionUserList = (msgId, reactionTag) => {
+    let { reactionUserList } = this.state;
+    let content = '';
+
+    if (reactionUserList[`${msgId}-${reactionTag}`]) {
+      content = (
+        <div className="member-infinite-container">
+          <InfiniteScroll initialLoad={false} pageStart={0} loadMore={this.handleInfiniteOnLoad} useWindow={false}>
+            <List
+              dataSource={reactionUserList[`${msgId}-${reactionTag}`]}
+              renderItem={user => {
+                return (
+                  <List.Item key={user.info_user._id}>
+                    <List.Item.Meta
+                      avatar={<Avatar src={getUserAvatarUrl(user.info_user.avatar)} size={avatarConfig.AVATAR.SIZE.SMALL} />}
+                      title={user.info_user.name}
+                    />
+                  </List.Item>
+                )
+              }}
+            />
+          </InfiniteScroll>
+        </div>
+      )
+    }
+
+    return content;
+  };
+
+  fetchReactionUserList = (msgId, reactionTag) => {
+    const { roomId } = this.props;
+    let { reactionUserList } = this.state;
+
+    getReactionUserListOfMsg(roomId, msgId, reactionTag).then(res => {
+      reactionUserList[`${msgId}-${reactionTag}`] = res.data.list_user
+
+      this.setState({
+        reactionUserList: reactionUserList
+      })
+    })
+  };
+
+  showReactionUserList = (msgId, reactionTag, visible) => {
+    let { activeKeyTab } = this.state;
+
+    if (visible) {
+      this.fetchReactionUserList(msgId, reactionTag)
+      this.setState({
+        flagMsgId: msgId,
+        activeKeyTab: '0'
+      })
+    } else {
+      this.setState({ flagMsgId: '' })
+    }
+  }
   // for reaction msg - END
 
   // generate list TO - BEGIN
@@ -964,6 +1060,7 @@ class ChatBox extends React.Component {
       messageIdEditing,
       messageIdHovering,
       infoUserTip,
+      flagMsgId,
     } = this.state;
     const { t, roomInfo, isReadOnly, roomId, allMembers } = this.props;
     const currentUserInfo = this.props.userContext.info;
@@ -1076,8 +1173,10 @@ class ChatBox extends React.Component {
                                     })
                                   }
                                   <Popover
-                                    content={this.generateReactionUserList}
                                     trigger="click"
+                                    content={this.generateReactionUserList(message._id, reactionOfMsg)}
+                                    visible={(flagMsgId === message._id)}
+                                    onVisibleChange={(visible) => this.showReactionUserList(message._id, reactionOfMsg[0].reaction.reaction_tag, visible)}
                                   >
                                     <span className="_openSelectedReactionDialog timelineMessage__reactionUserListContainer _showDescription" aria-label="View Reactions">
                                       <Icon className="timelineMessage__reactionUserListIcon" type="usergroup-add" />
