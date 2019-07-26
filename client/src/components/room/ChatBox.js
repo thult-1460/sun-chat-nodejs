@@ -32,6 +32,7 @@ import '../../scss/messages.scss';
 import handlersMessage from '../../helpers/handlersMessage';
 import { getUserAvatarUrl, saveSizeComponentsChat, getEmoji } from './../../helpers/common';
 import ModalChooseMemberToCall from './ModalChooseMemberToCall';
+import avatarConfig from '../../config/avatar';
 import $ from 'jquery';
 
 const { Content } = Layout;
@@ -225,6 +226,7 @@ class ChatBox extends React.Component {
   componentDidUpdate(prevProps) {
     if (prevProps.loadedRoomInfo && !this.props.loadedRoomInfo) {
       document.getElementById('msg-content').value = '';
+      this.inputMsg.focus();
 
       this.attr = JSON.parse(JSON.stringify(initialAttribute));
       this.setState(initialState);
@@ -572,6 +574,7 @@ class ChatBox extends React.Component {
         }
 
         document.getElementById('msg-content').value = '';
+        this.inputMsg.focus();
       }
     }
 
@@ -717,7 +720,7 @@ class ChatBox extends React.Component {
                 return member._id != currentUserInfo._id ? (
                   <List.Item key={member._id}>
                     <List.Item.Meta
-                      avatar={<Avatar src={getUserAvatarUrl(member.avatar)} />}
+                      avatar={<Avatar size={avatarConfig.AVATAR.SIZE.SMALL} src={getUserAvatarUrl(member.avatar)} />}
                       title={
                         <a onClick={handlersMessage.actionFunc.toMember} href="javascript:;" data-mid={member._id}>
                           {member.nickname ? member.nickname.nickname : member.name}
@@ -978,7 +981,7 @@ class ChatBox extends React.Component {
                           <div data-user-id={message.user_info._id}>
                             <List.Item.Meta
                               className="show-infor"
-                              avatar={<Avatar src={getUserAvatarUrl(message.user_info.avatar)} />}
+                              avatar={<Avatar size={avatarConfig.AVATAR.SIZE.MEDIUM} src={getUserAvatarUrl(message.user_info.avatar)} />}
                               title={
                                 <p>
                                   {nicknames[message.user_info._id]

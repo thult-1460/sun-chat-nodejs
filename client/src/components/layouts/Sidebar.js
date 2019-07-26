@@ -11,6 +11,7 @@ import { SocketContext } from './../../context/SocketContext';
 import { withUserContext } from './../../context/withUserContext';
 import { withRouter } from 'react-router';
 import { getRoomAvatarUrl, getUserAvatarUrl } from './../../helpers/common';
+import avatarConfig from './../../config/avatar';
 import { Resizable } from 're-resizable';
 const { Sider } = Layout;
 
@@ -305,7 +306,7 @@ class Sidebar extends React.Component {
           >
             <Link to={`/rooms/${item._id}`}>
               <div className="avatar-name">
-                <Avatar
+                <Avatar size={avatarConfig.AVATAR.SIZE.MEDIUM}
                   src={
                     item.type === room.ROOM_TYPE.GROUP_CHAT
                       ? getRoomAvatarUrl(item.avatar)

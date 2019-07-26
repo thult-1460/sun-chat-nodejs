@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Modal, Avatar } from 'antd';
 import ListMember from './../../../pages/rooms/ListMember';
+import avatarConfig from '../../../config/avatar'
 
 class ModalListMember extends Component {
   state = {
@@ -29,7 +30,7 @@ class ModalListMember extends Component {
     return (
       <div>
         <a>
-          <Avatar className="list-member-chat-room" onClick={this.showListMember}>
+          <Avatar size={avatarConfig.AVATAR.SIZE.SMALL} className="list-member-chat-room" onClick={this.showListMember}>
             +{this.props.numRemainMember}
           </Avatar>
         </a>
