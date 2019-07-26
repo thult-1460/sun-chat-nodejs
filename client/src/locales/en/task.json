@@ -24,9 +24,7 @@
     "edit_status": {
       "success": "Edit status successfully!",
       "failed": "Edit status failed!"
-    },
-    "edit_status": "Edit status",
-    "edit_my_status": "Edit my status"
+    }
   },
   "title": {
     "create": "Create new task",
@@ -42,7 +40,8 @@
       "all": "All Tasks",
       "add_task": "Add Task"
     },
-    "edit_my_task": "Edit my task"
+    "edit_status": "Edit status",
+    "edit_my_status": "Edit my status"
   },
   "status": {
     "new": "New",

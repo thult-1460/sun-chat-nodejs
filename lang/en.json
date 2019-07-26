@@ -222,10 +222,14 @@
         "not_member": "The assignees must be a member of this room"
       },
       "status": {
-        "not_array": "The status is not array"
+        "not_array": "The status is not array",
+        "required": "The status is not empty",
+        "not_exist": "Status is not exist!"
       },
       "percent": {
-        "not_array": "The percent is not array"
+        "not_array": "The percent is not array",
+        "failed": "Percent must from {{min}} to {{max}}",
+        "status_done_failed": "Status only DONE when the percent is {{max}}"
       }
     },
     "create": {

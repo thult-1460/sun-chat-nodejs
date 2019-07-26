@@ -511,6 +511,7 @@ RoomSchema.statics = {
             assigneeId: '$tasks.assignees.user',
             status: '$tasks.assignees.status',
             percent: '$tasks.assignees.percent',
+            id: '$tasks.assignees._id',
           },
           pipeline: [
             {
@@ -520,7 +521,7 @@ RoomSchema.statics = {
                 },
               },
             },
-            { $project: { user: '$_id', _id: 0, avatar: 1, name: 1, status: '$$status', percent: '$$percent' } },
+            { $project: { user: '$_id', _id: '$$id', avatar: 1, name: 1, status: '$$status', percent: '$$percent' } },
           ],
           as: 'tasks.assignees',
         },

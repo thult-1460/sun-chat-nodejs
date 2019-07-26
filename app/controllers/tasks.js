@@ -186,22 +186,18 @@ exports.rejectTask = async function(req, res) {
 };
 
 exports.changeStatusOfMyTask = async function(req, res) {
-  const { roomId, taskId, userId } = req.params;
-  let { status, percent } = req.body;
+  const errors = validationResult(req);
+
+  if (errors.array().length > 0) {
+    let customErrors = customMessageValidate(errors);
+
+    return res.status(422).json(customErrors);
+  }
+
+  const { roomId, taskId } = req.params;
+  let { userId, status, percent } = req.body;
 
   try {
-    if (status == config.TASK.STATUS.NEW || status == config.TASK.STATUS.REJECT) {
-      percent = 0;
-    } else if (status == config.TASK.STATUS.DONE) {
-      percent = 100;
-    } else if (status == config.TASK.STATUS.IN_PROGRESS || status == config.TASK.STATUS.PENDING) {
-      if (percent > 100 || percent < 0) {
-        return res.status(422).json({
-          error: __('task.validate.percent.value', { min: 1, max: 100 }),
-        });
-      }
-    }
-
     await Room.changeStatusOfMyTask(roomId, taskId, userId, status, percent);
 
     return res.status(200).json({ message: __('task.edit.status.success') });

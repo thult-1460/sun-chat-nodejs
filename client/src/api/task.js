@@ -25,6 +25,6 @@ export function rejectTask(roomId, taskId) {
   return new Http().authenticated().post(`/rooms/${roomId}/reject-tasks/${taskId}`);
 }
 
-export function changeStatusOfMyTask(roomId, taskId, userId, data) {
-  return new Http().authenticated().post(`/rooms/${roomId}/tasks/${taskId}/change-my-status/${userId}`, data);
+export function changeStatusOfMyTask(roomId, taskId, data) {
+  return new Http().authenticated().put(`/rooms/${roomId}/tasks/${taskId}/change-my-status`, data);
 }

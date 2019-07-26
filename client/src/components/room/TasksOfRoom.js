@@ -358,10 +358,15 @@ class TasksOfRoom extends React.Component {
     }
   };
 
-  handleVisibleChangeStatus = (key = '', keyTab = '') => visible => {
+  handleVisibleChangeStatus = (assignee = {}) => visible => {
     this.setState({
-      keyTab: visible ? keyTab : '',
-      keyVisible: visible ? key : '',
+      keyVisible: visible ? assignee._id : '',
+      percent: assignee.percent,
+      status: assignee.status,
+      stylePercent:
+        assignee.status == configTask.STATUS.IN_PROGRESS.VALUE || assignee.status == configTask.STATUS.PENDING.VALUE
+          ? 'block'
+          : 'none',
     });
   };
 
@@ -383,19 +388,22 @@ class TasksOfRoom extends React.Component {
     e.preventDefault();
     const { roomId, t } = this.props;
     const taskId = e.target.value;
-    const userId = e.target.getAttribute('data-userid');
     const data = {};
     data['status'] = this.state.status;
+    data['userId'] = e.target.getAttribute('data-userid');
+    data['assigneeId'] = e.target.getAttribute('data-assigneeid');
+    data['percent'] = this.state.percent;
 
-    if (this.state.status == configTask.STATUS.NEW.VALUE || this.state.status == configTask.STATUS.REJECT.VALUE) {
+    if (this.state.status == configTask.STATUS.NEW.VALUE) {
       data['percent'] = 0;
     } else if (this.state.status == configTask.STATUS.DONE.VALUE) {
-      data['percent'] = 100;
-    } else {
-      data['percent'] = this.state.percent ? this.state.percent : 0;
+      data['percent'] = configTask.PERCENT.DONE;
+    } else if (this.state.status == configTask.STATUS.IN_PROGRESS.VALUE && this.state.percent == configTask.PERCENT.DONE) {
+      data['percent'] = configTask.PERCENT.DONE;
+      data['status'] = configTask.STATUS.DONE.VALUE;
     }
 
-    changeStatusOfMyTask(roomId, taskId, userId, data)
+    changeStatusOfMyTask(roomId, taskId, data)
       .then(res => {
         message.success(t('messages.edit_status.success'));
 
@@ -424,21 +432,22 @@ class TasksOfRoom extends React.Component {
       );
     });
 
-    for (let i = 0; i <= 100; i += 10) {
-      percentHTML.push(<Option value={i}>{i}%</Option>);
+    for (let i = 0; i <= configTask.PERCENT.DONE; i += 10) {
+      percentHTML.push(<Option value={i}>{i}</Option>);
     }
 
     return (
       <div className="change-status-box">
         <div>
-          <Select defaultValue={t(assignee.statusTitle)} style={{ width: 150 }} onChange={this.handleChangeStatus}>
+          <Select defaultValue={t(assignee.statusTitle)} style={{ width: 160 }} onChange={this.handleChangeStatus}>
             {statusHTML}
           </Select>
         </div>
         <div style={{ display: this.state.stylePercent }}>
-          <Select defaultValue="0%" style={{ width: 150 }} onChange={this.handleChangePercent}>
+          <Select defaultValue={assignee.percent} style={{ width: 140 }} onChange={this.handleChangePercent}>
             {percentHTML}
-          </Select>
+          </Select>{' '}
+          (%)
         </div>
         <div>
           <Button
@@ -446,6 +455,7 @@ class TasksOfRoom extends React.Component {
             htmlType="submit"
             value={taskId}
             data-userid={assignee.user}
+            data-assigneeid={assignee._id}
             onClick={this.handleUpdateMyStatusTask}
           >
             {t('button.update')}
@@ -529,10 +539,8 @@ class TasksOfRoom extends React.Component {
                                         title={t('title.edit_status')}
                                         placement="topRight"
                                         trigger="click"
-                                        visible={
-                                          this.state.keyVisible === key && this.state.keyTab === list_tasks[index].KEY
-                                        }
-                                        onVisibleChange={this.handleVisibleChangeStatus(key, list_tasks[index].KEY)}
+                                        visible={this.state.keyVisible === assignee._id}
+                                        onVisibleChange={this.handleVisibleChangeStatus(assignee)}
                                       >
                                         <Tooltip title={t('title.edit_my_status')}>
                                           <Button className="btn-my-edit" value={assignee.user}>
