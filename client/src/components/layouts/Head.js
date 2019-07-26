@@ -14,6 +14,7 @@ import { withRouter } from 'react-router';
 import { withNamespaces } from 'react-i18next';
 import { getUserAvatarUrl } from './../../helpers/common';
 import ModalNotificationCallRequest from '../modals/notification/ModalNotificationCallRequest';
+import avatarConfig from "../../config/avatar";
 const { Header } = Layout;
 
 class Head extends React.Component {
@@ -85,7 +86,7 @@ class Head extends React.Component {
             <Popover content={menu}>
               <Badge className="header-icon dropdown-setting" type="primary">
                 <a href="javascript:;">
-                  <Avatar src={getUserAvatarUrl(avatar == null ? this.props.userContext.info.avatar : avatar)} />
+                  <Avatar size={avatarConfig.AVATAR.SIZE.MEDIUM} src={getUserAvatarUrl(avatar == null ? this.props.userContext.info.avatar : avatar)} />
                   <span className="account-name">
                     {this.props.userContext.info.name}
                   </span>

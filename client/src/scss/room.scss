@@ -74,6 +74,7 @@ head .delete-member {
 }
 .list-member-chat-room {
   display: flex;
+  margin: 3px 0 0 5px;
 }
 .adding-member-icon {
   float: right;
@@ -249,11 +250,6 @@ head .delete-member {
 
 .list-message .ant-list-item-meta-avatar {
   margin-right: 0px;
-}
-
-.list-message .ant-avatar {
-  width: 40px !important;
-  height: 40px !important;
 }
 
 .list-message .ant-list-item-meta-description {

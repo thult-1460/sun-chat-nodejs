@@ -63,7 +63,7 @@ NicknameSchema.statics = {
               '$nickname',
               {
                 $cond: {
-                  if: { $in: [mongoose.Types.ObjectId(roomId), '$nickname'] },
+                  if: { $in: [mongoose.Types.ObjectId(roomId), '$room_id'] },
                   then: { $indexOfArray: ['$room_id', mongoose.Types.ObjectId(roomId)] },
                   else: 0,
                 }

@@ -13,6 +13,7 @@ import { SocketContext } from './../../context/SocketContext';
 import { withUserContext } from './../../context/withUserContext';
 import { withRouter } from 'react-router';
 import { getUserAvatarUrl, getRoomAvatarUrl } from './../../helpers/common';
+import avatarConfig from '../../config/avatar';
 
 const { Header } = Layout;
 
@@ -49,7 +50,7 @@ class HeaderOfRoom extends React.Component {
 
       this.state.memberOfRoom.map(member => {
         listMember.push(
-          <Avatar size={30} key={member._id} src={getUserAvatarUrl(member.avatar)} />
+          <Avatar size={avatarConfig.AVATAR.SIZE.SMALL} key={member._id} src={getUserAvatarUrl(member.avatar)}  className="list-member-chat-room"/>
         );
       });
     }
@@ -166,7 +167,7 @@ class HeaderOfRoom extends React.Component {
                       )}
                       {this.props.isAdmin && (
                         <Menu.Item>
-                          <Button onClick={this.handleDeleteRoom}>{t('button.delete-room')}</Button> 
+                          <Button onClick={this.handleDeleteRoom}>{t('button.delete-room')}</Button>
                         </Menu.Item>
                       )}
                       <Menu.Item>
