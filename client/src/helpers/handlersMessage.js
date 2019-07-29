@@ -134,15 +134,15 @@ const messageToHtml = {
 
 const renderMessageToHtml = {
   to: function(content) {
-    let regEx = /\[to:([\w-]+)\]/gi;
+    let contents = content;
+    let regEx = /^(.*?)(\[to:([\w-]+)\])(.*)$/si;
     let match = regEx.exec(content);
 
-    while (match !== null) {
-      content = content.replace(match[0], messageToHtml.to(match[1]));
-      match = regEx.exec(content);
+    if (match) {
+      contents = match[1] + messageToHtml.to(match[3]) + this.to(match[4]);
     }
 
-    return content;
+    return contents;
   },
   toall: function(content) {
     content = content.replace(/\[toall\]/gi, messageToHtml.toall());
@@ -150,15 +150,15 @@ const renderMessageToHtml = {
     return content;
   },
   reply: function(content) {
-    let regEx = /\[rp mid=([\w-]+).*?\]/g;
+    let contents = content;
+    let regEx = /^(.*?)(\[rp mid=([\w-]+)\])(.*)$/s;
     let match = regEx.exec(content);
 
-    while (match !== null) {
-      content = content.replace(match[0], messageToHtml.reply(match[1]));
-      match = regEx.exec(content);
+    if (match) {
+      contents = match[1] + messageToHtml.reply(match[3]) + this.reply(match[4]);
     }
 
-    return content;
+    return contents;
   },
   info: function(content) {
     let infoRegEx = /(\[info\])(((?!\[(\/?info)\]).)*)(\[\/info\])/s;
