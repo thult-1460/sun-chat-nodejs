@@ -36,6 +36,7 @@ import { getUserAvatarUrl, saveSizeComponentsChat, getEmoji } from './../../help
 import ModalChooseMemberToCall from './ModalChooseMemberToCall';
 import avatarConfig from '../../config/avatar';
 import $ from 'jquery';
+import ModalSetNicknames from '../modals/room/ModalSetNicknames';
 
 const { Content } = Layout;
 const { TabPane } = Tabs;
@@ -60,6 +61,7 @@ const initialState = {
   reactionUserList: {},
   flagMsgId: '',
   activeKeyTab: 0,
+  visiblePopoverTo: false,
 };
 const initialAttribute = {
   messageRowRefs: [],
@@ -822,37 +824,50 @@ class ChatBox extends React.Component {
     const content = allMembers == [] ? (
       <span>{t('not_data')}</span>
     ) : (
-      <div className="member-infinite-container">
-        {roomInfo.type == room.ROOM_TYPE.GROUP_CHAT && (
-          <a className="form-control to-all" href="javascript:;" onClick={handlersMessage.actionFunc.toAll}>
-            <span>{t('to_all')}</span>
-          </a>
-        )}
-        <InfiniteScroll initialLoad={false} pageStart={0} loadMore={this.handleInfiniteOnLoad} useWindow={false}>
-          <List
-            dataSource={allMembers}
-            renderItem={member => {
-              return member._id != currentUserInfo._id ? (
-                <List.Item key={member._id}>
-                  <List.Item.Meta
-                    avatar={<Avatar src={getUserAvatarUrl(member.avatar)} />}
-                    title={
-                      <a onClick={handlersMessage.actionFunc.toMember} href="javascript:;" data-mid={member._id}>
-                        {member.name}
-                      </a>
-                    }
-                  />
-                </List.Item>
-              ) : (
-                <span />
-              );
-            }}
-          />
-        </InfiniteScroll>
-      </div>
+      <React.Fragment>
+        <div className="member-infinite-container">
+          {roomInfo.type == room.ROOM_TYPE.GROUP_CHAT && (
+            <a className="form-control to-all" href="javascript:;" onClick={handlersMessage.actionFunc.toAll}>
+              <span>{t('to_all')}</span>
+            </a>
+          )}
+          <InfiniteScroll initialLoad={false} pageStart={0} loadMore={this.handleInfiniteOnLoad} useWindow={false}>
+            <List
+              dataSource={allMembers}
+              renderItem={member => {
+                return member._id != currentUserInfo._id ? (
+                  <List.Item key={member._id}>
+                    <List.Item.Meta
+                      avatar={<Avatar src={getUserAvatarUrl(member.avatar)} />}
+                      title={
+                        <a onClick={handlersMessage.actionFunc.toMember} href="javascript:;" data-mid={member._id}>
+                          {member.nickname ? member.nickname.nickname : member.name}
+                        </a>
+                      }
+                    />
+                  </List.Item>
+                ) : (
+                  <span />
+                );
+              }}
+            />
+          </InfiniteScroll>
+        </div>
+        <ModalSetNicknames hidePopoverTo={this.hidePopoverTo} members={allMembers}/>
+      </React.Fragment>
     );
 
     return content;
+  };
+
+  hidePopoverTo = () => {
+    this.setState({
+      visiblePopoverTo: false,
+    });
+  };
+
+  handleVisibleChangePopoverTo = visiblePopoverTo => {
+    this.setState({ visiblePopoverTo });
   };
 
   generateListEMoji = () => {
@@ -1263,12 +1278,12 @@ class ChatBox extends React.Component {
           </div>
         </div>
         <div className="box-button">
-          <Popover content={showListEmoji}>
+          <Popover content={showListEmoji} trigger="click">
             <Badge className="header-icon" type="primary">
-              <Icon type="smile" theme="outlined" />
+              <a><Icon type="smile" theme="outlined"/></a>
             </Badge>
           </Popover>
-          <Popover content={showListMember}>
+          <Popover content={showListMember} trigger="click" visible={this.state.visiblePopoverTo} onVisibleChange={this.handleVisibleChangePopoverTo}>
             <Badge className="header-icon" type="primary">
               <a href="javascript:;">{roomInfo.type !== room.ROOM_TYPE.MY_CHAT ? <strong>{t('to')}</strong> : ''}</a>
             </Badge>

@@ -265,6 +265,10 @@
   "nickname": {
     "get_list": {
       "failed": "Lấy danh sách biệt danh theo người dùng thất bại"
+    },
+    "edit": {
+      "success": "Cài đặt nickname thành công",
+      "failed": "Cài đặt nickname thất bại"
     }
   },
   "reaction": {

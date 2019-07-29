@@ -1,12 +1,20 @@
 import React, { Component } from 'react';
-import { Icon, Badge, Modal } from 'antd';
+import { Icon, Badge, Modal, Tabs, Button, Form, message } from 'antd';
 import ListContacts from './ListContacts';
+import ListGlobalNicknames from './ListGlobalNicknames';
+import { withNamespaces } from 'react-i18next';
+import { withRouter } from 'react-router';
+
+const { TabPane } = Tabs;
 
 class ModalListContacts extends Component {
-  state = {
-    visible: false,
-    showComponent: false,
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      visible: false,
+      showComponent: false,
+    };
+  }
 
   showModal = () => {
     this.setState({
@@ -29,6 +37,8 @@ class ModalListContacts extends Component {
   };
 
   render() {
+    const { t } = this.props;
+
     return (
       <Badge className="header-icon">
         <Icon type="contacts" onClick={this.showModal} />
@@ -39,11 +49,18 @@ class ModalListContacts extends Component {
           footer={null}
           width="900px"
         >
-          {this.state.showComponent === true ? <ListContacts handleOk={this.handleOk} /> : ''}
+          <Tabs defaultActiveKey="1">
+            <TabPane tab={t('tab.list_contacts')} key="1">
+              {this.state.showComponent === true ? <ListContacts handleOk={this.handleOk} /> : ''}
+            </TabPane>
+            <TabPane tab={t('tab.set_nickname')} key="2">
+              {this.state.showComponent === true ? <ListGlobalNicknames handleOk={this.handleOk} /> : ''}
+            </TabPane>
+          </Tabs>
         </Modal>
       </Badge>
     );
   }
 }
 
-export default ModalListContacts;
+export default withNamespaces(['contact'])(withRouter(ModalListContacts));

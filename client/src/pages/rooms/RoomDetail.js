@@ -152,6 +152,12 @@ class RoomDetail extends React.Component {
         },
       }));
     });
+
+    socket.on('edit_nickname', members => {
+      this.setState({
+        members
+      })
+    })
   }
 
   componentWillReceiveProps(nextProps) {

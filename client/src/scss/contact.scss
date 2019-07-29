@@ -121,7 +121,13 @@
 }
 
 .ant-modal-content .ant-input-search {
-  .ant-input-lg, .ant-input-search-button {
+  .ant-input-lg,
+  .ant-input-search-button {
     font-size: 13px;
   }
+}
+
+.infinite-container-nickname {
+  height: 300px;
+  overflow: auto;
 }

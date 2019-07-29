@@ -13,8 +13,8 @@ const Schema = mongoose.Schema;
 
 const NicknameSchema = new Schema(
   {
-    owner: { type: Schema.ObjectId, ref: 'User', },
-    user_id: { type: Schema.ObjectId, ref: 'User', },
+    owner: { type: Schema.ObjectId, ref: 'User' },
+    user_id: { type: Schema.ObjectId, ref: 'User' },
     nickname: {
       type: String,
       default: '',
@@ -36,15 +36,40 @@ NicknameSchema.statics = {
    * @param {Function} cb
    * @api private
    */
+  edit: function(nickname) {
+    return this.updateOne(
+      {
+        _id: nickname._id,
+      },
+      {
+        $set: {
+          nickname: nickname.nickname,
+        },
+      }
+    );
+  },
 
-  getList: function (userId, roomId) {
+  delete: function(nickname) {
+    return this.updateOne(
+      {
+        _id: nickname._id,
+      },
+      {
+        $set: {
+          deletedAt: Date.now()
+        },
+      }
+    );
+  },
+
+  getList: function(userId, roomId) {
     return this.aggregate([
       {
         $match: {
           owner: mongoose.Types.ObjectId(userId),
           deletedAt: null,
-          room_id: { $in: [mongoose.Types.ObjectId(roomId), null] }
-        }
+          room_id: { $in: [mongoose.Types.ObjectId(roomId), null] },
+        },
       },
       {
         $group: {
@@ -52,8 +77,8 @@ NicknameSchema.statics = {
           owner: { $first: '$owner' },
           user_id: { $first: '$user_id' },
           room_id: { $push: '$room_id' },
-          nickname: { $push: '$nickname' }
-        }
+          nickname: { $push: '$nickname' },
+        },
       },
       {
         $project: {
@@ -66,14 +91,14 @@ NicknameSchema.statics = {
                   if: { $in: [mongoose.Types.ObjectId(roomId), '$room_id'] },
                   then: { $indexOfArray: ['$room_id', mongoose.Types.ObjectId(roomId)] },
                   else: 0,
-                }
-              }
-            ]
+                },
+              },
+            ],
           },
-        }
-      }
+        },
+      },
     ]);
-  }
+  },
 };
 
 module.exports = mongoose.model('NickName', NicknameSchema);

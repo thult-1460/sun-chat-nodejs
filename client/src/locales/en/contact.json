@@ -41,6 +41,15 @@
   "button": {
     "delete": "Delete",
     "accept": "Accept",
-    "check_all": "Check all"
+    "check_all": "Check all",
+    "save": "Save"
+  },
+  "tab": {
+    "list_contacts": "List contact",
+    "set_nickname": "Set Nickname"
+  },
+  "nickname": {
+    "note": "Note",
+    "content": "The nickname installed here will be used when the user has not been nicknamed in a specific room"
   }
 }

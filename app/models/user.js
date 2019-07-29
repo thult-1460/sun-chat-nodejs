@@ -367,6 +367,30 @@ UserSchema.statics = {
         },
       },
       {
+        $lookup: {
+          from: 'nicknames',
+          let: {
+            userId: '$member._id',
+          },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ['$user_id', '$$userId'] },
+                    { $eq: ['$owner', mongoose.Types.ObjectId(userId)] },
+                    { $eq: ['$deletedAt', null] },
+                    { $eq: ['$room_id', null] },
+                  ],
+                },
+              },
+            },
+            { $project: { _id: 1, nickname: 1, room_id: 1 } },
+          ],
+          as: 'member.nickname',
+        },
+      },
+      {
         $project: {
           _id: '$member._id',
           room_id: '$_id',
@@ -379,6 +403,7 @@ UserSchema.statics = {
           google: '$member.google',
           github: '$member.github',
           avatar: '$member.avatar',
+          nickname: {$arrayElemAt: ['$member.nickname', 0]},
         },
       },
       {

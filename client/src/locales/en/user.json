@@ -16,7 +16,8 @@
     "phone": "Phone Number",
     "title_update_info": "Setting Information",
     "upload": "Upload",
-    "avatar": "Avatar"
+    "avatar": "Avatar",
+    "nickname": "Nickname"
   },
   "button": {
     "update_info": "Update Information",

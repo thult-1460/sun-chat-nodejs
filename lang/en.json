@@ -266,6 +266,10 @@
   "nickname": {
     "get_list": {
       "failed": "Get list nickname by user failed"
+    },
+    "edit": {
+      "success": "Set nickname for users successful",
+      "failed": "Set nickname for users failed"
     }
   },
   "reaction": {

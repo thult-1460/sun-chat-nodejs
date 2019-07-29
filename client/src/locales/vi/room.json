@@ -17,7 +17,8 @@
     "admin_confirm": "Cần sự xác nhận của quản trị viên",
     "add_member": "Thêm thành viên",
     "edit-desc-of-room": "Chỉnh sửa mô tả cuộc trò chuyện",
-    "video-audio-call": "Trò truyện trực tiếp"
+    "video-audio-call": "Trò truyện trực tiếp",
+    "set_nickname": "Cài đặt Nickname"
   },
   "button": {
     "cancel": "Hủy",
@@ -34,7 +35,9 @@
     "check-all": "Tất cả",
     "uncheck-all": "Bỏ chọn",
     "video-call": "Gọi thoại hình ảnh",
-    "audio-call": "Cuộc gọi âm thanh"
+    "audio-call": "Cuộc gọi âm thanh",
+    "set_nickname": "Cài đặt Nickname",
+    "save": "Lưu"
   },
   "invitation": {
     "joined": "Bạn đã vào phòng này",

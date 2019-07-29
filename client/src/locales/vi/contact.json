@@ -41,6 +41,15 @@
   "button": {
     "delete": "Xóa",
     "accept": "Đồng ý",
-    "check_all": "Chọn tất cả"
+    "check_all": "Chọn tất cả",
+    "save": "Lưu"
+  },
+  "tab": {
+    "list_contacts": "Danh bạ",
+    "set_nickname": "Cài đặt Nickname"
+  },
+  "nickname": {
+    "note": "Lưu ý",
+    "content": "Nickname được cài đặt ở đây sẽ được sử dụng khi user chưa được đặt nickname trong 1 phòng cụ thể"
   }
 }

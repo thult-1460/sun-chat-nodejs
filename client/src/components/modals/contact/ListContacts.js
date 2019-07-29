@@ -181,9 +181,6 @@ class ListContacts extends React.Component {
 
     return (
       <React.Fragment>
-        <h2 className="title-contact">
-          {t('contact:list_contact.title_list_contact')} ({this.state.totalContact})
-        </h2>
         <Row gutter={16}>
           <Col span={14}>
             <Search

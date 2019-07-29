@@ -17,7 +17,8 @@
     "admin_confirm": "Requires confirmation from admin to join",
     "add_member": "Add members",
     "edit-desc-of-room": "Edit Description Of Room",
-    "video-audio-call": "Sun chat live"
+    "video-audio-call": "Sun chat live",
+    "set_nickname": "Set Nickname"
   },
   "button": {
     "cancel": "Cancel",
@@ -34,7 +35,9 @@
     "check-all": "Checked all",
     "uncheck-all": "Uncheck all",
     "video-call": "Video call",
-    "audio-call": "Audio call"
+    "audio-call": "Audio call",
+    "set_nickname": "Set Nickname",
+    "save": "Save"
   },
   "invitation": {
     "joined": "You are in this room",

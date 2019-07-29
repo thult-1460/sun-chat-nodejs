@@ -414,7 +414,6 @@ RoomSchema.statics = {
           as: 'user.nickname',
         },
       },
-
       {
         $project: {
           members: 1,

@@ -9,6 +9,7 @@ const auth = require('../app/controllers/auth/authController');
 //controller
 const users = require('../app/controllers/users');
 const roomsController = require('../app/controllers/rooms');
+const nicknamesController = require('../app/controllers/nicknames');
 const tasksController = require('../app/controllers/tasks');
 const nicknameController = require('../app/controllers/nicknames');
 const authorization = require('../config/middlewares/authorization.js');
@@ -247,5 +248,8 @@ router.get(
   [auth.jwtMiddleware, authorization.room.hasAuthorization],
   roomsController.getReactionUserListOfMsg
 );
+
+//Nickname
+router.post('/nicknames/rooms/:roomId', auth.jwtMiddleware, nicknamesController.edit)
 
 module.exports = router;
