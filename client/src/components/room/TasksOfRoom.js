@@ -1,9 +1,24 @@
 import React from 'react';
 import 'antd/dist/antd.css';
-import { Typography, Row, Col, message, Button, Input, Icon, Avatar, Progress, Tooltip, Tabs, Popconfirm } from 'antd';
+import {
+  Typography,
+  Row,
+  Col,
+  message,
+  Button,
+  Input,
+  Icon,
+  Avatar,
+  Progress,
+  Tooltip,
+  Tabs,
+  Popover,
+  Popconfirm,
+  Select,
+} from 'antd';
 import { withNamespaces } from 'react-i18next';
 import { withRouter } from 'react-router';
-import { getTasksOfRoom } from '../../api/task';
+import { getTasksOfRoom, changeStatusOfMyTask } from '../../api/task';
 import { SocketContext } from './../../context/SocketContext';
 import { withUserContext } from './../../context/withUserContext';
 import { config as configTask } from '../../config/task';
@@ -13,6 +28,7 @@ import moment from 'moment';
 import ModalCreateTask from './../task/ModalCreateTask';
 import { isAssignedToMe, isFinishTask } from './../../helpers/task';
 import { doneTask, deleteTask, rejectTask } from './../../api/task';
+import '../../scss/task.scss';
 
 const { Text } = Typography;
 const { TabPane } = Tabs;
@@ -21,6 +37,7 @@ const _ = require('lodash');
 let editedTaskInfo = {};
 let newTask = null;
 let tabIndex = configTask.TYPE.MY_TASKS; //check tab task that user selected
+const { Option } = Select;
 
 class TasksOfRoom extends React.Component {
   static contextType = SocketContext;
@@ -29,6 +46,11 @@ class TasksOfRoom extends React.Component {
     tasksAssigned: [],
     myTasks: [],
     tasks: [],
+    status: 0,
+    percent: 0,
+    keyTab: '',
+    keyVisibleStatus: '',
+    stylePercent: 'none',
   };
 
   showCreateTaskModal = () => {
@@ -336,19 +358,127 @@ class TasksOfRoom extends React.Component {
     }
   };
 
+  handleVisibleChangeStatus = (assignee = {}) => visible => {
+    this.setState({
+      keyVisible: visible ? assignee._id : '',
+      percent: assignee.percent,
+      status: assignee.status,
+      stylePercent:
+        assignee.status == configTask.STATUS.IN_PROGRESS.VALUE || assignee.status == configTask.STATUS.PENDING.VALUE
+          ? 'block'
+          : 'none',
+    });
+  };
+
+  handleChangeStatus = (value = 0) => {
+    this.setState({
+      status: value,
+      stylePercent:
+        value == configTask.STATUS.IN_PROGRESS.VALUE || value == configTask.STATUS.PENDING.VALUE ? 'block' : 'none',
+    });
+  };
+
+  handleChangePercent = (value = 0) => {
+    this.setState({
+      percent: value,
+    });
+  };
+
+  handleUpdateMyStatusTask = e => {
+    e.preventDefault();
+    const { roomId, t } = this.props;
+    const taskId = e.target.value;
+    const data = {};
+    data['status'] = this.state.status;
+    data['userId'] = e.target.getAttribute('data-userid');
+    data['assigneeId'] = e.target.getAttribute('data-assigneeid');
+    data['percent'] = this.state.percent;
+
+    if (this.state.status == configTask.STATUS.NEW.VALUE) {
+      data['percent'] = 0;
+    } else if (this.state.status == configTask.STATUS.DONE.VALUE) {
+      data['percent'] = configTask.PERCENT.DONE;
+    } else if (this.state.status == configTask.STATUS.IN_PROGRESS.VALUE && this.state.percent == configTask.PERCENT.DONE) {
+      data['percent'] = configTask.PERCENT.DONE;
+      data['status'] = configTask.STATUS.DONE.VALUE;
+    }
+
+    changeStatusOfMyTask(roomId, taskId, data)
+      .then(res => {
+        message.success(t('messages.edit_status.success'));
+
+        this.setState({
+          percent: 0,
+          status: 0,
+        });
+
+        this.handleVisibleChangeStatus()(true);
+      })
+      .catch(error => {
+        message.error(t('messages.edit_status.failed'));
+      });
+  };
+
+  renderContentChangeStatus = (assignee, taskId) => {
+    const { t, form } = this.props;
+    const statusHTML = [];
+    const percentHTML = [];
+
+    Object.values(configTask.STATUS).map((stt, key) => {
+      statusHTML.push(
+        <Option key={key} value={stt.VALUE}>
+          {t(stt.TITLE)}
+        </Option>
+      );
+    });
+
+    for (let i = 0; i <= configTask.PERCENT.DONE; i += 10) {
+      percentHTML.push(<Option value={i}>{i}</Option>);
+    }
+
+    return (
+      <div className="change-status-box">
+        <div>
+          <Select defaultValue={t(assignee.statusTitle)} style={{ width: 160 }} onChange={this.handleChangeStatus}>
+            {statusHTML}
+          </Select>
+        </div>
+        <div style={{ display: this.state.stylePercent }}>
+          <Select defaultValue={assignee.percent} style={{ width: 140 }} onChange={this.handleChangePercent}>
+            {percentHTML}
+          </Select>{' '}
+          (%)
+        </div>
+        <div>
+          <Button
+            type="primary"
+            htmlType="submit"
+            value={taskId}
+            data-userid={assignee.user}
+            data-assigneeid={assignee._id}
+            onClick={this.handleUpdateMyStatusTask}
+          >
+            {t('button.update')}
+          </Button>
+        </div>
+      </div>
+    );
+  };
+
   render() {
     let members = [];
+    let statusHTML = [];
+    let condFilter = [];
+    const myId = this.props.userContext.info._id;
     const roomId = this.props.match.params.id;
     const currentUserId = this.props.userContext.info._id;
     const { t, roomInfo } = this.props;
+    const { myTasks, tasks, tasksAssigned } = this.state;
+    const list_tasks = configTask.LIST_TASKS;
 
     if (roomInfo != undefined && typeof roomInfo != 'string') {
       members = roomInfo.members_info;
     }
-
-    const { myTasks, tasks, tasksAssigned } = this.state;
-    const list_tasks = configTask.LIST_TASKS;
-    let condFilter = [];
 
     for (let index in list_tasks) {
       let list_task = [];
@@ -388,6 +518,7 @@ class TasksOfRoom extends React.Component {
                             {task.assignees.map((assignee, key) => {
                               const status = _.find(configTask.STATUS, { VALUE: assignee.status });
                               const color = status ? status.COLOR : '';
+                              assignee.statusTitle = status ? t(status.TITLE) : '';
 
                               return (
                                 <div key={key}>
@@ -401,6 +532,26 @@ class TasksOfRoom extends React.Component {
                                       status={status ? status.STATUS : ''}
                                     />
                                   </Tooltip>
+                                  {assignee.user == myId ? (
+                                    <span>
+                                      <Popover
+                                        content={this.renderContentChangeStatus(assignee, task._id)}
+                                        title={t('title.edit_status')}
+                                        placement="topRight"
+                                        trigger="click"
+                                        visible={this.state.keyVisible === assignee._id}
+                                        onVisibleChange={this.handleVisibleChangeStatus(assignee)}
+                                      >
+                                        <Tooltip title={t('title.edit_my_status')}>
+                                          <Button className="btn-my-edit" value={assignee.user}>
+                                            <Icon type="edit" />
+                                          </Button>
+                                        </Tooltip>
+                                      </Popover>
+                                    </span>
+                                  ) : (
+                                    ''
+                                  )}
                                 </div>
                               );
                             })}

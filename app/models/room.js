@@ -511,6 +511,7 @@ RoomSchema.statics = {
             assigneeId: '$tasks.assignees.user',
             status: '$tasks.assignees.status',
             percent: '$tasks.assignees.percent',
+            id: '$tasks.assignees._id',
           },
           pipeline: [
             {
@@ -520,7 +521,7 @@ RoomSchema.statics = {
                 },
               },
             },
-            { $project: { user: '$_id', _id: 0, avatar: 1, name: 1, status: '$$status', percent: '$$percent' } },
+            { $project: { user: '$_id', _id: '$$id', avatar: 1, name: 1, status: '$$status', percent: '$$percent' } },
           ],
           as: 'tasks.assignees',
         },
@@ -1757,7 +1758,32 @@ RoomSchema.statics = {
         },
       },
     ]);
-  }
+  },
+
+  changeStatusOfMyTask(roomId, taskId, userId, status, percent) {
+    return this.updateOne(
+      { _id: roomId },
+      {
+        $set: {
+          'tasks.$[i].assignees.$[j].percent': percent,
+          'tasks.$[i].assignees.$[j].status': status,
+        },
+      },
+      {
+        arrayFilters: [
+          {
+            'i._id': mongoose.Types.ObjectId(taskId),
+            'i.deletedAt': null,
+          },
+          {
+            'j.user': mongoose.Types.ObjectId(userId),
+            'j.deletedAt': null,
+          },
+        ],
+        multi: true,
+      }
+    ).exec();
+  },
 };
 
 module.exports = mongoose.model('Room', RoomSchema);

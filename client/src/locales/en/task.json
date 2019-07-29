@@ -20,6 +20,10 @@
       "success": "Remove task successfully!",
       "failed": "Remove task failed",
       "confirm": "Are you sure？"
+    },
+    "edit_status": {
+      "success": "Edit status successfully!",
+      "failed": "Edit status failed!"
     }
   },
   "title": {
@@ -35,7 +39,9 @@
       "tasks_assigned": "Tasks Assigned",
       "all": "All Tasks",
       "add_task": "Add Task"
-    }
+    },
+    "edit_status": "Edit status",
+    "edit_my_status": "Edit my status"
   },
   "status": {
     "new": "New",
@@ -56,7 +62,9 @@
     "delete": "Delete",
     "done": "Done",
     "cancel": "Cancel",
-    "reject": "Reject"
+    "reject": "Reject",
+    "done": "Done",
+    "update": "Update"
   },
   "task": {
     "new": "New",

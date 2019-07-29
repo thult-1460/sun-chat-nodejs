@@ -24,3 +24,7 @@ export function doneTask(roomId, taskId) {
 export function rejectTask(roomId, taskId) {
   return new Http().authenticated().post(`/rooms/${roomId}/reject-tasks/${taskId}`);
 }
+
+export function changeStatusOfMyTask(roomId, taskId, data) {
+  return new Http().authenticated().put(`/rooms/${roomId}/tasks/${taskId}/change-my-status`, data);
+}

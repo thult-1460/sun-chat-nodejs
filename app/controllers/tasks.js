@@ -184,3 +184,26 @@ exports.rejectTask = async function(req, res) {
     });
   }
 };
+
+exports.changeStatusOfMyTask = async function(req, res) {
+  const errors = validationResult(req);
+
+  if (errors.array().length > 0) {
+    let customErrors = customMessageValidate(errors);
+
+    return res.status(422).json(customErrors);
+  }
+
+  const { roomId, taskId } = req.params;
+  let { userId, status, percent } = req.body;
+
+  try {
+    await Room.changeStatusOfMyTask(roomId, taskId, userId, status, percent);
+
+    return res.status(200).json({ message: __('task.edit.status.success') });
+  } catch (err) {
+    channel.error(err);
+
+    return res.status(500).json({ error: __('task.edit.status.error') });
+  }
+};

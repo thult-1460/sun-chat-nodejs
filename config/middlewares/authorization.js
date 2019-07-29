@@ -441,4 +441,47 @@ exports.tasks = {
       });
     }
   },
+
+  changeStatus: async function(req, res, next) {
+    try {
+      const { roomId, taskId } = req.params;
+      const { userId, assigneeId } = req.body;
+
+      const task = await Room.aggregate([
+        { $match: { _id: mongoose.Types.ObjectId(roomId), deletedAt: null } },
+        { $unwind: '$tasks' },
+        {
+          $match: {
+            'tasks._id': mongoose.Types.ObjectId(taskId),
+          },
+        },
+        { $unwind: '$tasks.assignees' },
+        {
+          $match: {
+            'tasks.assignees.user': mongoose.Types.ObjectId(userId),
+            'tasks.assignees._id': mongoose.Types.ObjectId(assigneeId),
+          },
+        },
+        {
+          $project: {
+            tasks: 1,
+          },
+        },
+      ]);
+
+      if (task.length == 0) {
+        return res.status(403).json({
+          error: __('task.edit.authorization'),
+        });
+      }
+
+      next();
+    } catch (err) {
+      channel.error(err);
+
+      return res.status(500).json({
+        error: __('error.common'),
+      });
+    }
+  },
 };

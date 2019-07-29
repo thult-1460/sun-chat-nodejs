@@ -221,10 +221,14 @@
         "not_member": "Người được gán phải là thành viên trong phòng"
       },
       "status": {
-        "not_array": "Trường trạng thái phải là 1 mảng"
+        "not_array": "Trường trạng thái phải là 1 mảng",
+        "required": "Trường trạng thái không được để trống",
+        "not_exist": "Trạng thái này không tồn tại!"
       },
       "percent": {
-        "not_array": "Trường tiến độ phải là một mảng"
+        "not_array": "Trường tiến độ phải là một mảng",
+        "failed": "Trường tiến độ phải từ {{min}} đến {{max}}",
+        "status_done_failed": "Trạng thái chỉ Hoàn Thành khi tiến độ là {{max}}",
       }
     },
     "create": {
@@ -233,7 +237,11 @@
     "edit": {
       "success": "Chỉnh sửa công việc thành công",
       "error": "Chỉnh sửa công việc thất bại",
-      "authorization": "Bạn không thể chỉnh sửa công việc này"
+      "authorization": "Bạn không thể chỉnh sửa công việc này",
+      "status": {
+        "success": "Chỉnh sửa trạng thái thành công",
+        "error": "Chỉnh sửa trạng thái thất bại"
+      }
     },
     "delete": {
       "success": "Xóa công việc thành công",
