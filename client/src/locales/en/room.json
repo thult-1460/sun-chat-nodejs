@@ -54,5 +54,6 @@
     "choose-member": "Select a member to join the Sun chat live",
     "search-member": "Search member by name"
   },
-  "no-data": "No data"
+  "no-data": "No data",
+  "no-desc": "No description"
 }

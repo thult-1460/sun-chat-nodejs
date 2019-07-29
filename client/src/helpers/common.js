@@ -46,3 +46,8 @@ export function saveSizeComponentsChat () {
     localStorage.setItem('descW', descW.offsetWidth);
   }
 }
+
+export function saveSizeComponentsDesc() {
+  let descH = document.getElementsByClassName('content-desc-chat-room')[0].parentNode.offsetHeight;
+  localStorage.setItem('descH', descH);
+}

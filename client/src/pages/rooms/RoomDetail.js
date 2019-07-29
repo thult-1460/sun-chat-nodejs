@@ -12,7 +12,7 @@ import { withUserContext } from './../../context/withUserContext';
 import ModalEditDesc from '../../components/room/ModalEditDesc';
 import { room } from '../../config/room';
 import { Resizable } from 're-resizable';
-import { saveSizeComponentsChat } from '../../helpers/common';
+import { saveSizeComponentsChat, saveSizeComponentsDesc } from '../../helpers/common';
 
 const { Sider, Content } = Layout;
 const { Text } = Typography;
@@ -174,6 +174,10 @@ class RoomDetail extends React.Component {
     saveSizeComponentsChat();
   };
 
+  setHeightDescription = () => {
+    saveSizeComponentsDesc();
+  };
+
   render() {
     const { t } = this.props;
     const { roomInfo, isAdmin, isCopy, lastMsgId, isReadOnly, members, loadedRoomInfo } = this.state;
@@ -181,6 +185,8 @@ class RoomDetail extends React.Component {
     const roomId = this.props.match.params.id;
     const minW = room.MIN_WIDTH_DESC * window.innerWidth;
     const maxW = room.MAX_WIDTH_DESC * window.innerWidth;
+    const minH = room.MIN_HEIGHT_DESC * window.innerHeight;
+    const maxH = room.MAX_HEIGHT_DESC * window.innerHeight;
 
     return (
       <React.Fragment>
@@ -233,24 +239,36 @@ class RoomDetail extends React.Component {
                     </Modal>
                   </Col>
                 </Row>
-                <div className="content-desc-chat-room">
-                  {roomInfo.desc ? roomInfo.desc : <div className="no-description">No description</div>}
-                </div>
-                {roomInfo.type == room.ROOM_TYPE.GROUP_CHAT ? (
-                  <div>
-                    <Button type="primary" block onClick={this.showModal} className="invitation-btn">
-                      {t('invitation.title')}
-                    </Button>
+                <Resizable
+                  enable={{ bottom: true }}
+                  minHeight={minH}
+                  maxHeight={maxH}
+                  onResizeStop={this.setHeightDescription}
+                  defaultSize={{ height: localStorage.getItem('descH') ? localStorage.getItem('descH') : (minH + maxH) / 2 }}
+                >
+                  <div className="content-desc-chat-room"
+                    height={localStorage.getItem('descH') ? localStorage.getItem('descH') : (minH + maxH) / 2}
+                  >
+                    {roomInfo.desc ? roomInfo.desc : <div className="no-description">{t('no-desc')}</div>}
                   </div>
-                ) : (
-                  ''
-                )}
-                <TasksOfRoom
-                  roomId={roomId}
-                  roomInfo={roomInfo}
-                  visibleCreateTask={this.state.visibleCreateTask}
-                  showCreateTaskModal={this.showCreateTaskModal}
-                />
+                </Resizable>
+                <div>
+                  {roomInfo.type == room.ROOM_TYPE.GROUP_CHAT ? (
+                    <div>
+                      <Button type="primary" block onClick={this.showModal} className="invitation-btn">
+                        {t('invitation.title')}
+                      </Button>
+                    </div>
+                  ) : (
+                      ''
+                    )}
+                  <TasksOfRoom
+                    roomId={roomId}
+                    roomInfo={roomInfo}
+                    visibleCreateTask={this.state.visibleCreateTask}
+                    showCreateTaskModal={this.showCreateTaskModal}
+                  />
+                </div>
               </Sider>
             </Resizable>
           </Layout>
