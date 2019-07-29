@@ -31,6 +31,8 @@ const room = {
   NUMBER_REQUEST_JOIN_ROOM_OVERFLOW: 99,
   MIN_WIDTH_DESC: 10 / 100, // ratio %
   MAX_WIDTH_DESC: 37 / 100, // ratio %
+  MIN_HEIGHT_DESC: 10 / 100, // ratio %
+  MAX_HEIGHT_DESC: 90 / 100, // ratio %
 };
 
 module.exports = {

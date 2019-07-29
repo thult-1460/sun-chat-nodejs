@@ -51,5 +51,6 @@
     "choose-member": "Chọn thành viên tham gia trò chuyện trực tiếp",
     "search-member": "Tìm kiếm thành viên theo tên"
   },
-  "no-data": "Không có dữ liệu"
+  "no-data": "Không có dữ liệu",
+  "no-desc": "Không có mô tả"
 }
