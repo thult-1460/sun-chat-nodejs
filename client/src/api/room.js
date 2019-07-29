@@ -123,3 +123,7 @@ export function getListNicknameByUserInRoom(roomId) {
 export function reactionMsg(roomId, data) {
   return new Http().authenticated().post(`rooms/${roomId}/reaction-msg`, data);
 }
+
+export function getReactionUserListOfMsg(roomId, msgId, reactionTag) {
+  return new Http().authenticated().get(`rooms/${roomId}/messages/${msgId}/reactions/${escape(reactionTag)}`);
+}

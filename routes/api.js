@@ -236,5 +236,10 @@ router.post(
   [auth.jwtMiddleware, authorization.room.hasAuthorization],
   roomsController.reactionMsg
 );
+router.get(
+  '/rooms/:roomId/messages/:msgId/reactions/:reactionTag',
+  [auth.jwtMiddleware, authorization.room.hasAuthorization],
+  roomsController.getReactionUserListOfMsg
+);
 
 module.exports = router;

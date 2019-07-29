@@ -11,7 +11,6 @@ const Reactions = new Schema(
   {
     user: { type: Schema.ObjectId, ref: 'User' },
     reaction_tag: { type: String },
-    deletedAt: { type: Date, default: null },
   },
   {
     timestamps: true,
@@ -1717,6 +1716,47 @@ RoomSchema.statics = {
     } catch (err) {
       throw new Error(err.toString());
     }
+  },
+
+  getUserListByReactionTag({ roomId, msgId, reactionTag }) {
+    return this.aggregate([
+      { $match: { _id: mongoose.Types.ObjectId(roomId), deletedAt: null } },
+      { $unwind: '$messages' },
+      { $match: { 'messages._id': mongoose.Types.ObjectId(msgId), 'messages.deletedAt': null } },
+      {
+        $addFields: {
+          reactions: {
+            $filter: {
+              input: '$messages.reactions',
+              as: 'reaction',
+              cond: { $eq: [ '$$reaction.reaction_tag', reactionTag ] }
+            },
+          },
+        },
+      },
+      { $unwind: '$reactions' },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'reactions.user',
+          foreignField: '_id',
+          as: 'reactions.info_user',
+        },
+      },
+      {
+        $addFields: {
+          'info_user': { $arrayElemAt: ['$reactions.info_user', 0] },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          'info_user._id': 1,
+          'info_user.avatar': 1,
+          'info_user.name': 1,
+        },
+      },
+    ]);
   }
 };
 

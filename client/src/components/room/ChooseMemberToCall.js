@@ -107,8 +107,8 @@ class ChooseMemberToCall extends React.Component {
     const { listMember, checkedList } = this.state;
 
     return (
-      <React.Fragment >
-        <Row >
+      <React.Fragment>
+        <Row>
           <Row>
             <h2 className="title-call">
               {t('title.video-audio-call')}
