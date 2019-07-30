@@ -153,7 +153,7 @@ class RoomDetail extends React.Component {
       }));
     });
 
-    socket.on('edit_nickname', members => {
+    socket.on('update_nickname_member_in_list_to', members => {
       this.setState({
         members
       })

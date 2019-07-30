@@ -168,6 +168,10 @@ class ChatBox extends React.Component {
       }
     });
 
+    this.socket.on('update_nickname_member_in_message', nicknames => {
+      this.setState({ nicknames });
+    });
+
     if (!localStorage.getItem('descW')) {
       saveSizeComponentsChat();
     }
