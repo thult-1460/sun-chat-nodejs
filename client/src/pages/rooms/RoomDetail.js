@@ -250,25 +250,23 @@ class RoomDetail extends React.Component {
                     height={localStorage.getItem('descH') ? localStorage.getItem('descH') : (minH + maxH) / 2}
                   >
                     {roomInfo.desc ? roomInfo.desc : <div className="no-description">{t('no-desc')}</div>}
+                    {roomInfo.type == room.ROOM_TYPE.GROUP_CHAT ? (
+                      <div>
+                        <Button type="primary" block onClick={this.showModal} className="invitation-btn">
+                          {t('invitation.title')}
+                        </Button>
+                      </div>
+                    ) : (
+                        ''
+                      )}
                   </div>
                 </Resizable>
-                <div>
-                  {roomInfo.type == room.ROOM_TYPE.GROUP_CHAT ? (
-                    <div>
-                      <Button type="primary" block onClick={this.showModal} className="invitation-btn">
-                        {t('invitation.title')}
-                      </Button>
-                    </div>
-                  ) : (
-                      ''
-                    )}
                   <TasksOfRoom
                     roomId={roomId}
                     roomInfo={roomInfo}
                     visibleCreateTask={this.state.visibleCreateTask}
                     showCreateTaskModal={this.showCreateTaskModal}
                   />
-                </div>
               </Sider>
             </Resizable>
           </Layout>

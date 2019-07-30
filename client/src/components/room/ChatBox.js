@@ -838,7 +838,7 @@ class ChatBox extends React.Component {
                 return member._id != currentUserInfo._id ? (
                   <List.Item key={member._id}>
                     <List.Item.Meta
-                      avatar={<Avatar src={getUserAvatarUrl(member.avatar)} />}
+                      avatar={<Avatar size={avatarConfig.AVATAR.SIZE.SMALL} src={getUserAvatarUrl(member.avatar)} />}
                       title={
                         <a onClick={handlersMessage.actionFunc.toMember} href="javascript:;" data-mid={member._id}>
                           {member.nickname ? member.nickname.nickname : member.name}
@@ -1029,7 +1029,6 @@ class ChatBox extends React.Component {
     }
   };
   // process for popover - END
-  
   // Sort reaction array
   mapOrder = (array, order, objKey) => {
     array.sort( function (a, b) {
