@@ -264,6 +264,7 @@ class RoomDetail extends React.Component {
                   <TasksOfRoom
                     roomId={roomId}
                     roomInfo={roomInfo}
+                    members={members}
                     visibleCreateTask={this.state.visibleCreateTask}
                     showCreateTaskModal={this.showCreateTaskModal}
                   />

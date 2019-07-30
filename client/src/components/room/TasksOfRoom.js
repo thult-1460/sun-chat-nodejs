@@ -433,7 +433,7 @@ class TasksOfRoom extends React.Component {
     });
 
     for (let i = 0; i <= configTask.PERCENT.DONE; i += 10) {
-      percentHTML.push(<Option value={i}>{i}</Option>);
+      percentHTML.push(<Option key={i} value={i}>{i}</Option>);
     }
 
     return (
@@ -446,7 +446,7 @@ class TasksOfRoom extends React.Component {
         <div style={{ display: this.state.stylePercent }}>
           <Select defaultValue={assignee.percent} style={{ width: 140 }} onChange={this.handleChangePercent}>
             {percentHTML}
-          </Select>{' '}
+          </Select>
           (%)
         </div>
         <div>
@@ -477,7 +477,7 @@ class TasksOfRoom extends React.Component {
     const list_tasks = configTask.LIST_TASKS;
 
     if (roomInfo != undefined && typeof roomInfo != 'string') {
-      members = roomInfo.members_info;
+      members = this.props.members;
     }
 
     for (let index in list_tasks) {
@@ -533,7 +533,7 @@ class TasksOfRoom extends React.Component {
                                     />
                                   </Tooltip>
                                   {assignee.user == myId ? (
-                                    <span>
+                                    <React.Fragment>
                                       <Popover
                                         content={this.renderContentChangeStatus(assignee, task._id)}
                                         title={t('title.edit_status')}
@@ -548,7 +548,7 @@ class TasksOfRoom extends React.Component {
                                           </Button>
                                         </Tooltip>
                                       </Popover>
-                                    </span>
+                                    </React.Fragment>
                                   ) : (
                                     ''
                                   )}
@@ -570,7 +570,7 @@ class TasksOfRoom extends React.Component {
                         <Col span={6}>
                           <div className="task-icon">
                             {this.props.userContext.info._id == task.assigner._id && (
-                              <span>
+                              <React.Fragment>
                                 <a href="#">
                                   <Tooltip title={t('button.edit')}>
                                     <Icon type="edit" onClick={this.handleEditTask} data-taskid={task._id} />
@@ -588,11 +588,11 @@ class TasksOfRoom extends React.Component {
                                     </Tooltip>
                                   </a>
                                 </Popconfirm>
-                              </span>
+                              </React.Fragment>
                             )}
 
                             {isAssignedToMe(task, currentUserId) && !isFinishTask(task, currentUserId) && (
-                              <span>
+                              <React.Fragment>
                                 <a href="#" onClick={() => this.handleDoneTask(task._id)}>
                                   <Tooltip title={t('button.done')}>
                                     <Icon type="check-circle" theme="twoTone" twoToneColor="#1890ff" />
@@ -603,7 +603,7 @@ class TasksOfRoom extends React.Component {
                                     <Icon type="close-circle" theme="twoTone" twoToneColor="red" />
                                   </Tooltip>
                                 </a>
-                              </span>
+                              </React.Fragment>
                             )}
                           </div>
                         </Col>
@@ -634,7 +634,7 @@ class TasksOfRoom extends React.Component {
           updateEditedTaskIntoList={this.updateEditedTaskIntoList}
         />
         <ModalCreateTask
-          members={roomInfo.members_info}
+          members={members}
           roomId={roomId}
           visibleCreateTask={this.state.visibleCreateTask}
           hideCreateTaskModal={this.hideCreateTaskModal}
