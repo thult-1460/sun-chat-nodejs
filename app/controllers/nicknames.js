@@ -60,8 +60,15 @@ exports.edit = async function(req, res) {
     });
 
     const members = await Room.getMembersOfRoom(currentRoomId, ownerId)
-    io.to(ownerId).emit('edit_nickname', members.map(member => member.user))
+    let results = await Nickname.getList(ownerId, currentRoomId);
+    let nicknames = results.reduce((object, nickname) => {
+      object[nickname.user_id] = nickname.nickname;
 
+      return object;
+    }, {});
+
+    io.to(ownerId).emit('update_nickname_member_in_list_to', members.map(member => member.user));
+    io.to(ownerId).emit('update_nickname_member_in_message', nicknames );
 
     return res.status(200).json({
       success: __('nickname.edit.success'),
