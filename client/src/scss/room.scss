@@ -125,7 +125,10 @@ head .delete-member {
 }
 
 .invitation-btn {
-  position: relative;
+  position: absolute;
+  bottom: 10px;
+  width: 50%;
+  margin-left: 25%;
 }
 
 .no-description {
@@ -133,6 +136,7 @@ head .delete-member {
 }
 
 .chat-task {
+  border-top: #bcb4b4 solid 1px;
   .content-task {
     background-color: #fff;
     border-radius: 5px;
