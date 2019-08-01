@@ -81,10 +81,7 @@ class Profile extends React.Component {
   };
 
   state = {
-    notice: '',
     errors: {},
-    update: false,
-    success: false,
     changedAvatar: false,
   };
 
@@ -106,18 +103,13 @@ class Profile extends React.Component {
     getUser()
       .then(res => {
         this.setState({
-          update: false,
-          success: false,
           imageUrl: res.data.user.avatar,
         });
 
         this.setValueFormItem(res.data.user);
       })
       .catch(error => {
-        this.setState({
-          notice: this.messages.load_to_fail_user_info,
-          success: false,
-        });
+        message.error(this.messages.load_to_fail_user_info);
 
         return Promise.reject(error);
       });
@@ -136,31 +128,22 @@ class Profile extends React.Component {
           user = { name, email, username, twitter, github, google, address, phone };
         }
 
-        this.setState({
-          update: true,
-        });
-
         updateUser(user)
           .then(res => {
             if (res.data.success) {
               this.setState({
-                notice: this.messages.update_to_success_user,
                 errors: {},
-                success: true,
               });
+              message.success(this.messages.update_to_success_user);
             } else {
               this.setState({
-                notice: this.messages.load_to_fail_user_info,
                 errors: res.data,
-                success: false,
               });
+              message.error(this.messages.load_to_fail_user_info);
             }
           })
           .catch(error => {
-            this.setState({
-              notice: this.messages.request_not_processed,
-              success: false,
-            });
+            message.warning(this.messages.request_not_processed);
 
             return Promise.reject(error);
           });
@@ -213,7 +196,6 @@ class Profile extends React.Component {
       <Form>
         <div className="area-edit-profile">
           <p className="font30">{t('user:label.title_update_info')}</p>
-          {this.state.update && <Alert message={this.state.notice} type={this.state.success ? 'success' : 'error'} />}
           <Row>
             <Col span={8}>
               <FormItem
