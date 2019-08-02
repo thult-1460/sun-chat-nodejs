@@ -387,6 +387,31 @@ class TasksOfRoom extends React.Component {
     });
   };
 
+  updateDataWhenChangeStatusTask = (taskId, data) => {
+    const { key: stateName, value: stateValue } = this.getStateFromTabIndex();
+    let newState = {};
+
+    newState[stateName] = stateValue.map(task => {
+      if (task._id == taskId) {
+        let assignees = task.assignees;
+
+        for (let i = 0; i < assignees.length; i++) {
+          if (assignees[i].user == data['userId']) {
+            assignees[i].status = data['status'];
+            assignees[i].percent = data['percent'];
+
+            break;
+          }
+        }
+      }
+      
+      return task;
+    });
+
+    this.setState(newState);
+  };
+
+
   handleUpdateMyStatusTask = e => {
     e.preventDefault();
     const { roomId, t } = this.props;
@@ -414,7 +439,7 @@ class TasksOfRoom extends React.Component {
           percent: 0,
           status: 0,
         });
-
+        this.updateDataWhenChangeStatusTask(taskId, data);
         this.handleVisibleChangeStatus()(true);
       })
       .catch(error => {
