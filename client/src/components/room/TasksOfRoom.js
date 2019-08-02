@@ -48,9 +48,9 @@ class TasksOfRoom extends React.Component {
     tasks: [],
     status: 0,
     percent: 0,
-    keyTab: '',
     keyVisibleStatus: '',
     stylePercent: 'none',
+    keyVisible: '',
   };
 
   showCreateTaskModal = () => {
@@ -65,11 +65,13 @@ class TasksOfRoom extends React.Component {
       if (tabIndex == configTask.TYPE.MY_TASKS && isAssignedToMe(newTask, this.props.userContext.info._id)) {
         this.setState({
           myTasks: [newTask, ...this.state.myTasks],
+          keyVisible: '',
         });
       } else {
         this.setState({
           tasksAssigned: [newTask, ...this.state.tasksAssigned],
           tasks: [newTask, ...this.state.tasks],
+          keyVisible: '',
         });
       }
     }
@@ -198,6 +200,7 @@ class TasksOfRoom extends React.Component {
   handleHiddenEditTaskModal = () => {
     this.setState({
       visibleEditTask: false,
+      keyVisible: '',
     });
   };
 
