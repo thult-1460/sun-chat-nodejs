@@ -140,7 +140,7 @@ class Sidebar extends React.Component {
 
           this.setState({ rooms: this.state.rooms.sort(this.compareRoom) });
         } else {
-          this.addToListRooms(res.room, filter_type);
+          this.addToListRooms(res.room, this.state.filter_type);
         }
       });
 
@@ -230,12 +230,36 @@ class Sidebar extends React.Component {
       }
     }
 
-    if (
-      filter_type === config.FILTER_TYPE.LIST_ROOM.ALL.VALUE ||
-      filter_type === config.FILTER_TYPE.LIST_ROOM.GROUP.VALUE
-    ) {
-      indexUnpinned === -1 ? rooms.push(newRoom) : rooms.splice(indexUnpinned, 0, newRoom);
-      this.setState({ rooms });
+    const {hasMore, quantity_chats} = this.state;
+
+    if (hasMore !== true || indexUnpinned !== -1 || newRoom.pinned === true) {
+      if (newRoom.pinned === true) {
+        if (
+          filter_type === config.FILTER_TYPE.LIST_ROOM.PINNED.VALUE ||
+          filter_type === config.FILTER_TYPE.LIST_ROOM.ALL.VALUE ||
+          (filter_type === config.FILTER_TYPE.LIST_ROOM.GROUP.VALUE &&
+            newRoom.type === room.ROOM_TYPE.GROUP_CHAT) ||
+          (filter_type === config.FILTER_TYPE.LIST_ROOM.DIRECT.VALUE &&
+            newRoom.type === room.ROOM_TYPE.DIRECT_CHAT) ||
+          (filter_type === config.FILTER_TYPE.LIST_ROOM.UNREAD.VALUE &&
+            newRoom.quantity_unread > 0)
+        ) {
+          rooms.splice(0, 0, newRoom);
+
+          if (hasMore === true) rooms.splice(rooms.length - 1, 1);
+        }
+      } else {
+        if (indexUnpinned === -1) {
+          rooms.push(newRoom);
+        } else {
+          rooms.splice(indexUnpinned, 0, newRoom);
+
+          if (quantity_chats % config.LIMIT_ITEM_SHOW.ROOM === 0) { this.setState({hasMore: true}); }
+          rooms.splice(rooms.length - 1, 1);
+        }
+      }
+
+      this.setState({rooms});
     }
   };
 
@@ -247,6 +271,10 @@ class Sidebar extends React.Component {
     } else if (a.pinned < b.pinned) {
       comparison = 1;
     } else {
+      if (a.last_created_msg === null) a.last_created_msg = a.createdAt;
+
+      if (b.last_created_msg === null) b.last_created_msg = b.createdAt;
+
       if (a.last_created_msg > b.last_created_msg) {
         comparison = -1;
       } else if (a.last_created_msg < b.last_created_msg) {
