@@ -361,8 +361,10 @@ class TasksOfRoom extends React.Component {
     }
   };
 
-  handleVisibleChangeStatus = (assignee = {}) => visible => {
+  handleVisibleChangeStatus = (assignee = {}, keyTask = '', keyTab = '') => visible => {
     this.setState({
+      keyTask: visible ? keyTask : '',
+      keyTab: visible ? keyTab : '',
       keyVisible: visible ? assignee._id : '',
       percent: assignee.percent,
       status: assignee.status,
@@ -426,7 +428,10 @@ class TasksOfRoom extends React.Component {
       data['percent'] = 0;
     } else if (this.state.status == configTask.STATUS.DONE.VALUE) {
       data['percent'] = configTask.PERCENT.DONE;
-    } else if (this.state.status == configTask.STATUS.IN_PROGRESS.VALUE && this.state.percent == configTask.PERCENT.DONE) {
+    } else if (
+      this.state.status == configTask.STATUS.IN_PROGRESS.VALUE &&
+      this.state.percent == configTask.PERCENT.DONE
+    ) {
       data['percent'] = configTask.PERCENT.DONE;
       data['status'] = configTask.STATUS.DONE.VALUE;
     }
@@ -563,12 +568,24 @@ class TasksOfRoom extends React.Component {
                                   {assignee.user == myId ? (
                                     <React.Fragment>
                                       <Popover
-                                        content={this.renderContentChangeStatus(assignee, task._id)}
+                                        content={this.renderContentChangeStatus(
+                                          assignee,
+                                          task._id,
+                                          list_tasks[index].KEY
+                                        )}
                                         title={t('title.edit_status')}
                                         placement="topRight"
                                         trigger="click"
-                                        visible={this.state.keyVisible === assignee._id}
-                                        onVisibleChange={this.handleVisibleChangeStatus(assignee)}
+                                        visible={
+                                          this.state.keyVisible === assignee._id &&
+                                          this.state.keyTask == task._id &&
+                                          this.state.keyTab == list_tasks[index].KEY
+                                        }
+                                        onVisibleChange={this.handleVisibleChangeStatus(
+                                          assignee,
+                                          task._id,
+                                          list_tasks[index].KEY
+                                        )}
                                       >
                                         <Tooltip title={t('title.edit_my_status')}>
                                           <Button className="btn-my-edit" value={assignee.user}>
