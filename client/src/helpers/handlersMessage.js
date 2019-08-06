@@ -11,15 +11,25 @@ let listMembers = [];
 let subContent = {};
 let roomId = '';
 
-const insertTextToMessageArea = function(content) {
+const insertTextToMessageArea = function(content, isTag = false) {
   let target = document.getElementById('msg-content');
+  let replaceContent = content;
 
-  target.focus();
-  if (document.execCommand('insertText', false, content)) {
-    return;
+  if (isTag) {
+    replaceContent = content.substr(0, (content.length - 1) / 2)
+      + target.value.substr(target.selectionStart, target.selectionEnd - target.selectionStart)
+      + content.substr(-1 * (content.length + 1) / 2);
   }
 
-  target.setRangeText(content, target.selectionStart, target.selectionEnd, 'end');
+  target.focus();
+
+  if (!document.execCommand('insertText', false, replaceContent)) {
+    target.setRangeText(replaceContent, target.selectionStart, target.selectionEnd, 'end');
+  }
+
+  if (isTag) {
+    target.selectionEnd = target.selectionEnd - (content.length + 1) / 2;
+  }
 };
 
 const handleContentMessageWithI18n = (content) => {
@@ -51,18 +61,18 @@ const actionFunc = {
     return false;
   },
   titleBlock: function(e) {
-    insertTextToMessageArea('[title][/title]');
+    insertTextToMessageArea('[title][/title]', true);
 
     return false;
   },
   codeBlock: function(e) {
-    insertTextToMessageArea('[code][/code]');
+    insertTextToMessageArea('[code][/code]', true);
 
     return false;
   }
   ,
   infoBlock: function(e) {
-    insertTextToMessageArea('[info][/info]');
+    insertTextToMessageArea('[info][/info]', true);
 
     return false;
   },
