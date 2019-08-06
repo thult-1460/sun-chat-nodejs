@@ -158,6 +158,19 @@ class RoomDetail extends React.Component {
         members
       })
     })
+
+    socket.on('remove_global_nickname_from_list_contacts', res => {
+      this.setState(prevState => ({
+        members: prevState.members.map(member =>
+          ( member._id === res.contactId && member.hasOwnProperty('nickname') && member.nickname.room_id === null )
+          ? {
+            ...member,
+            nickname: undefined
+          } : member
+        )
+      }))
+    })
+
   }
 
   componentWillReceiveProps(nextProps) {

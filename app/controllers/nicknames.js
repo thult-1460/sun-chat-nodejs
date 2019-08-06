@@ -36,8 +36,7 @@ exports.getNicknameByUserInRoom = async (req, res) => {
 };
 
 exports.edit = async function(req, res) {
-  const nicknames = req.body;
-  const currentRoomId = req.params.roomId;
+  const { roomId, nicknames } = req.body;
   const ownerId = req.decoded._id;
   const io = req.app.get('socketIO');
 
@@ -59,16 +58,18 @@ exports.edit = async function(req, res) {
       nickname.nickname !== '' ? await Nickname.edit(nickname) : await Nickname.delete(nickname)
     });
 
-    const members = await Room.getMembersOfRoom(currentRoomId, ownerId)
-    let results = await Nickname.getList(ownerId, currentRoomId);
-    let nicknames = results.reduce((object, nickname) => {
-      object[nickname.user_id] = nickname.nickname;
+    if (roomId) {
+      const members = await Room.getMembersOfRoom(roomId, ownerId)
+      let results = await Nickname.getList(ownerId, roomId);
+      let nicknames = results.reduce((object, nickname) => {
+        object[nickname.user_id] = nickname.nickname;
 
-      return object;
-    }, {});
+        return object;
+      }, {});
 
-    io.to(ownerId).emit('update_nickname_member_in_list_to', members.map(member => member.user));
-    io.to(ownerId).emit('update_nickname_member_in_message', nicknames );
+      io.to(ownerId).emit('update_nickname_member_in_list_to', members.map(member => member.user));
+      io.to(ownerId).emit('update_nickname_member_in_message', nicknames );
+    }
 
     return res.status(200).json({
       success: __('nickname.edit.success'),

@@ -475,3 +475,10 @@ pre {
 .create-task-modal {
   margin-top: 20px;
 }
+
+.item-to {
+  .ant-list-item-meta-avatar {
+    margin-left: 5px;
+    margin-right: 5px;
+  }
+}

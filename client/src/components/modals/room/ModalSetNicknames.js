@@ -43,16 +43,16 @@ class ModalSetNicknames extends Component {
     e.preventDefault();
 
     const { members, roomId } = this.state;
-    const nicknames = this.props.form.getFieldsValue();
-    const data = [];
-    Object.keys(nicknames).map(function(key) {
-      if (nicknames[key] !== undefined) {
+    const inputData = this.props.form.getFieldsValue();
+    const nicknames = [];
+    Object.keys(inputData).map(function(key) {
+      if (inputData[key] !== undefined) {
         members.map(member => {
           if (member._id == key) {
-            data.push({
+            nicknames.push({
               _id: (member.nickname !== undefined && member.nickname.room_id !== null) ? member.nickname._id : undefined,
               user_id: member._id,
-              nickname: nicknames[key],
+              nickname: inputData[key],
               room_id: roomId,
             });
           }
@@ -60,7 +60,9 @@ class ModalSetNicknames extends Component {
       }
     });
 
-    setNicknames(data, roomId)
+    const data = {roomId, nicknames}
+
+    setNicknames(data)
       .then(res => {
         message.success(res.data.success);
       })

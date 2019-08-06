@@ -250,6 +250,6 @@ router.get(
 );
 
 //Nickname
-router.post('/nicknames/rooms/:roomId', auth.jwtMiddleware, nicknamesController.edit)
+router.post('/nicknames', auth.jwtMiddleware, nicknamesController.edit)
 
 module.exports = router;

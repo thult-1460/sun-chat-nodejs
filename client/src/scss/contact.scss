@@ -106,6 +106,9 @@
 }
 #list-contact-item {
   width: 290px;
+  .ant-list-item-meta-avatar {
+    margin: 5px 10px 0 10px;
+  }
 }
 
 #list-contacts {

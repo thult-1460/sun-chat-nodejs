@@ -51,9 +51,17 @@ class ListGlobalNicknames extends React.Component {
   };
 
   componentDidMount() {
-    const { page } = this.state;
+    const { page, contacts } = this.state;
+    const { socket } = this.context;
 
     this.fetchData(page);
+
+    socket.on('remove_global_nickname_from_list_contacts', res => {
+      this.setState(prevState => ({
+        contacts: prevState.contacts.filter(item => item._id != res.contactId),
+        totalContact: prevState.totalContact - 1,
+      }));
+    })
   }
 
   handleInfiniteOnLoad = () => {
@@ -88,18 +96,18 @@ class ListGlobalNicknames extends React.Component {
     e.preventDefault();
 
     const { contacts } = this.state;
-    const nicknames = this.props.form.getFieldsValue();
-    const data = [];
-    const currentRoomId = this.props.match.params.id;
+    const inputData = this.props.form.getFieldsValue();
+    const nicknames = [];
+    const roomId = this.props.match.params.id;
 
-    Object.keys(nicknames).map(function(key) {
-      if (nicknames[key] !== undefined) {
+    Object.keys(inputData).map(function(key) {
+      if (inputData[key] !== undefined) {
         contacts.map(contact => {
           if (contact._id === key) {
-            data.push({
+            nicknames.push({
               _id: contact.nickname !== undefined ? contact.nickname._id : undefined,
               user_id: contact._id,
-              nickname: nicknames[key],
+              nickname: inputData[key],
               room_id: null,
             });
           }
@@ -107,7 +115,9 @@ class ListGlobalNicknames extends React.Component {
       }
     });
 
-    setNicknames(data, currentRoomId)
+    const data = {roomId, nicknames}
+
+    setNicknames(data)
       .then(res => {
         message.success(res.data.success);
       })

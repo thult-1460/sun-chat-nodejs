@@ -172,6 +172,10 @@ class ChatBox extends React.Component {
       this.setState({ nicknames });
     });
 
+    this.socket.on('remove_global_nickname_from_message', nicknames => {
+      this.setState({ nicknames });
+    });
+
     if (!localStorage.getItem('descW')) {
       saveSizeComponentsChat();
     }
@@ -842,6 +846,7 @@ class ChatBox extends React.Component {
                 return member._id != currentUserInfo._id ? (
                   <List.Item key={member._id}>
                     <List.Item.Meta
+                      className="item-to"
                       avatar={<Avatar size={avatarConfig.AVATAR.SIZE.SMALL} src={getUserAvatarUrl(member.avatar)} />}
                       title={
                         <a onClick={handlersMessage.actionFunc.toMember} href="javascript:;" data-mid={member._id}>

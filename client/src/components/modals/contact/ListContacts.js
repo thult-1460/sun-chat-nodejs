@@ -129,7 +129,8 @@ class ListContacts extends React.Component {
 
   handleDeteleContact = e => {
     const contactId = e.target.value;
-    deleteContact({ contactId })
+    const currentRoomId = this.props.match.params.id
+    deleteContact({ contactId, currentRoomId })
       .then(res => {
         this.setState(prevState => ({
           contacts: prevState.contacts.filter(item => item._id != contactId),
