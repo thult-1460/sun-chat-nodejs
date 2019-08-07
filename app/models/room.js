@@ -1918,9 +1918,9 @@ RoomSchema.statics = {
     );
   },
 
-  updateStatusCallMember: async function(roomId, liveId, userId, isMasterCall, status) {
+  updateStatusCallMember: async function(roomId, liveId, userId, isMasterCall = null, status) {
     let result = false;
-    let condForParticipant = { 'j.user_id': userId, 'j.is_caller': false };
+    let condForParticipant = { 'j.user_id': userId };
 
     if (status === config.CALL.PARTICIPANT.STATUS.HANGUP) {
       condForParticipant['j.status'] = {
@@ -1928,8 +1928,8 @@ RoomSchema.statics = {
       };
     }
 
-    if (isMasterCall) {
-      condForParticipant['j.is_caller'] = true;
+    if (isMasterCall !== null) {
+      condForParticipant['j.is_caller'] = isMasterCall;
     }
 
     await this.update(
