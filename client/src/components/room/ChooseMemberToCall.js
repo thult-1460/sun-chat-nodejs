@@ -7,10 +7,13 @@ import { SocketContext } from './../../context/SocketContext';
 import { getRoomAvatarUrl, getUserAvatarUrl } from './../../helpers/common';
 import { room } from '../../config/room';
 import { sendCallingRequest } from '../../api/room';
+import { createLiveChat } from '../../api/call';
 const _ = require('lodash');
 const CheckboxGroup = Checkbox.Group;
+
 class ChooseMemberToCall extends React.Component {
   static contextType = SocketContext;
+  socket;
 
   constructor(props) {
     super(props);
@@ -20,13 +23,13 @@ class ChooseMemberToCall extends React.Component {
       checkedAll: false,
       listMember: this.props.listMember,
       indeterminate: false,
+      callType: room.CALL.TYPE.VIDEO_CHAT,
     };
   }
 
   componentDidMount() {
-    const { socket } = this.context;
-
-    socket.on('add_to_list_members', newMember => {
+    this.socket = this.context.socket;
+    this.socket.on('add_to_list_members', newMember => {
       newMember.map(member => {
         this.setState(prevState => ({
           listMember: [...prevState.listMember, member.user],
@@ -34,7 +37,7 @@ class ChooseMemberToCall extends React.Component {
       });
     });
 
-    this.context.socket.on('remove_to_list_members', memberId => {
+    this.socket.on('remove_to_list_members', memberId => {
       this.setState(prevState => ({
         listMember: prevState.listMember.filter(item => item._id != memberId),
         checkedList: prevState.checkedList.filter(item => item != memberId),
@@ -52,55 +55,66 @@ class ChooseMemberToCall extends React.Component {
     const { listMember } = this.state;
     let listIdMember = [];
     listMember.map(member => {
-      listIdMember.push(member._id)
+      listIdMember.push(member._id);
     });
 
     this.setState({
-      checkedList: listIdMember
+      checkedList: listIdMember,
     });
   };
 
   unCheckedAll = () => {
     this.setState({
       checkedList: [],
-    })
-  }
+    });
+  };
 
-  handleSearch = (e) => {
+  handleSearch = e => {
     const searchText = e.target.value.trim();
     const listMember = this.props.listMember;
     const regex = new RegExp(`(.*)(${_.escapeRegExp(searchText)})(.*)`, 'i');
     let result = [];
     listMember.filter(item => {
       if (item.name.match(regex)) result.push(item);
-    })
+    });
     this.setState({
       listMember: result,
     });
-  }
+  };
 
   cancel = () => {
     this.props.handleVisible();
-  }
-  handleSendRequest = (e) => {
-    const { checkedList } = this.state;
-    const callType = e.target.value;
-    const roomId = this.props.roomDetail._id;
-    const roomName = this.props.roomDetail.name;
+  };
 
-    sendCallingRequest({ checkedList, callType, roomName }, roomId).then(res => {
-    }).catch(error => {
-      message.error(error.response.data.error);
+  handleSendRequest = e => {
+    createLiveChat({ roomId: this.props.roomDetail._id, callType: e.target.value }).then(res => {
+      if (res.data.success) {
+        const { checkedList } = this.state;
+        const roomId = this.props.roomDetail._id;
+        const roomName = this.props.roomDetail.name;
+
+        if (res.data.id) {
+          const liveChatId = res.data.id;
+
+          window.open(
+            `${window.location.href}/live/${liveChatId}`,
+            '_blank',
+            'toolbar=yes, width=' + window.innerWidth + ',height=' + window.innerHeight
+          );
+
+          sendCallingRequest({checkedList, roomName, liveChatId}, roomId)
+            .then(res => {
+            })
+            .catch(error => {
+              message.error(error.response.data.error);
+            });
+        }
+      } else {
+        message.error(res.data.message);
+        this.props.handleVisible();
+      }
     });
-  }
-
-  liveChat = () => {
-    window.open(window.location.href + "/user/" + this.props.userContext.info._id, "_blank", "toolbar=yes, width=" + window.innerWidth + ",height=" + window.innerHeight);
-  }
-
-  liveChat = () => {
-    window.open(window.location.href + "/user/" + this.props.userContext.info._id, "_blank", "toolbar=yes, width=" + window.innerWidth + ",height=" + window.innerHeight);
-  }
+  };
 
   render() {
     const { t, roomDetail } = this.props;
@@ -110,27 +124,20 @@ class ChooseMemberToCall extends React.Component {
       <React.Fragment>
         <Row>
           <Row>
-            <h2 className="title-call">
-              {t('title.video-audio-call')}
-            </h2>
+            <h2 className="title-call">{t('title.video-audio-call')}</h2>
           </Row>
           <Row>
-            <Avatar
-              src={getRoomAvatarUrl(roomDetail.avatar)}
-            />
+            <Avatar src={getRoomAvatarUrl(roomDetail.avatar)} />
             &nbsp;&nbsp;
             <span className="nav-text">{roomDetail.name}</span>
           </Row>
           <Row className="input-search-member-to-call">
-            <Input.Search
-              placeholder={t('video-audio-call.search-member')}
-              onChange={this.handleSearch}
-            />
+            <Input.Search placeholder={t('video-audio-call.search-member')} onChange={this.handleSearch} />
           </Row>
           <Row>
             <Col span={24}>
-              <a onClick={this.oncheckedAll}>  {t('button.check-all')} </a>
-              <a onClick={this.unCheckedAll}>  / {t('button.uncheck-all')} </a>
+              <a onClick={this.oncheckedAll}> {t('button.check-all')} </a>
+              <a onClick={this.unCheckedAll}> / {t('button.uncheck-all')} </a>
             </Col>
             <Col span={24} className="group-call-member-list-box">
               <p className="group-call-member-list-box-title">{t('video-audio-call.choose-member')}</p>
@@ -154,24 +161,18 @@ class ChooseMemberToCall extends React.Component {
                   </CheckboxGroup>
                 </div>
               ) : (
-                  <div id="no-contact">{t('no-data')}</div>
-                )}
+                <div id="no-contact">{t('no-data')}</div>
+              )}
             </Col>
           </Row>
           <Row className="button-group-choose-type-call">
-            {/* <Button type="primary" onClick={this.liveChat}>
+            <Button type="primary" onClick={this.handleSendRequest} value={room.CALL.TYPE.VIDEO_CHAT}>
               {t('button.video-call')}
             </Button>
-            <Button onClick={this.liveChat}> */}
-            <Button type="primary" onClick={this.handleSendRequest} value={room.CALL_TYPE.VIDEO_CHAT}>
-              {t('button.video-call')}
-            </Button>
-            <Button onClick={this.handleSendRequest} value={room.CALL_TYPE.AUDIO_CHAT}>
+            <Button onClick={this.handleSendRequest} value={room.CALL.TYPE.AUDIO_CHAT}>
               {t('button.audio-call')}
             </Button>
-            <Button onClick={this.cancel}>
-              {t('button.cancel')}
-            </Button>
+            <Button onClick={this.cancel}>{t('button.cancel')}</Button>
           </Row>
         </Row>
       </React.Fragment>

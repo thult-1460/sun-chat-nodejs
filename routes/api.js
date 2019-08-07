@@ -10,6 +10,7 @@ const auth = require('../app/controllers/auth/authController');
 const users = require('../app/controllers/users');
 const roomsController = require('../app/controllers/rooms');
 const nicknamesController = require('../app/controllers/nicknames');
+const callsController = require('../app/controllers/calls');
 const tasksController = require('../app/controllers/tasks');
 const nicknameController = require('../app/controllers/nicknames');
 const authorization = require('../config/middlewares/authorization.js');
@@ -196,11 +197,6 @@ router.post(
   tasksController.editTask
 );
 
-router.post(
-  '/rooms/:roomId/send-calling-request',
-  [auth.jwtMiddleware, authorization.room.hasAuthorization],
-  roomsController.sendCallingRequest
-);
 router.get(
   '/rooms/:roomId/tasks',
   [auth.jwtMiddleware, authorization.room.hasAuthorization],
@@ -251,5 +247,30 @@ router.get(
 
 //Nickname
 router.post('/nicknames', auth.jwtMiddleware, nicknamesController.edit)
+
+// Live Chat
+router.post(
+  '/live-chat/create',
+  [auth.jwtMiddleware],
+  callsController.create
+);
+
+router.post(
+  '/live-chat/offer-join',
+  [auth.jwtMiddleware],
+  callsController.offerBeJoined
+);
+
+router.post(
+  '/live-chat/check-master',
+  [auth.jwtMiddleware],
+  callsController.checkMaster
+);
+
+router.post(
+  '/accept-member/:memberId',
+  [auth.jwtMiddleware],
+  callsController.acceptMember
+);
 
 module.exports = router;

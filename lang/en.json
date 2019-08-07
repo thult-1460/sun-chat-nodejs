@@ -197,6 +197,18 @@
   "socket": {
     "room": {
       "open_room_failed": "open_room_failed"
+    },
+    "live_chat": {
+      "create": {
+        "existed": "The call chat existed",
+        "fail": "Can't create the call chat"
+      },
+      "offer": {
+        "fail": "The call chat is not exist"
+      },
+      "accept": {
+        "fail": "Can't accept user"
+      }
     }
   },
   "user": {

@@ -20,9 +20,19 @@ const room = {
     DIRECT_CHAT: 1,
     MY_CHAT: 2,
   },
-  CALL_TYPE: {
-    VIDEO_CHAT: 0,
-    AUDIO_CHAT: 1,
+  CALL: {
+    TYPE: {
+      VIDEO_CHAT: 0,
+      AUDIO_CHAT: 1,
+    },
+    PARTICIPANT: {
+      STATUS: {
+        WAITING: 0,
+        CONNECTING: 1,
+        HANGUP: 2,
+        NO_RESPONSE: 3,
+      },
+    },
   },
   LIMIT_REPRESENTATIVE_MEMBER: 5,
   MESSAGE_PAGINATE: 10,
