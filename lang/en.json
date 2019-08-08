@@ -208,6 +208,9 @@
       },
       "accept": {
         "fail": "Can't accept user"
+      },
+      "leave": {
+        "fail": "Error when try to leave"
       }
     }
   },

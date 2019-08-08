@@ -14,7 +14,7 @@ import {
 } from 'react-icons/fa';
 import { MdAddToQueue } from 'react-icons/md';
 import { Icon } from 'antd';
-import { checkMaster, acceptMember } from './../../api/call';
+import { checkMaster, acceptMember, leaveLiveChat } from './../../api/call';
 import { getUserAvatarUrl } from './../../helpers/common';
 import { SocketContext } from './../../context/SocketContext';
 import { withUserContext } from './../../context/withUserContext';
@@ -58,7 +58,7 @@ class LiveChat extends Component {
       this.socket.emit('regist-live-chat', { roomId: roomId, liveId: liveChatId, master: enable });
     });
 
-    this.socket.on('change-offer-list', res => { console.log(res);
+    this.socket.on('change-offer-list', res => {
       const roomId = this.props.match.params.roomId;
       const { listMember, listOfferPerson } = this.state;
       const listKeyOffer = listOfferPerson.map(item => {
@@ -186,6 +186,21 @@ class LiveChat extends Component {
     }
   };
 
+  leaveLiveChat = () => {
+    const { roomId, liveChatId } = this.props.match.params;
+    const userId = this.props.userContext.info._id;
+
+    leaveLiveChat(userId, { roomId: roomId, liveId: liveChatId}).then(res => {
+      if (res.data.success) {
+        window.close();
+      } else {
+        message.error(res.data.message);
+      }
+    }).catch(res => {
+      message.error(res.data.message);
+    });
+  }
+
   render = () => {
     const { checkDisplayLayout, leftOn, rightOn, microOn, cameraOn, listOfferPerson, listMember } = this.state;
     let waiting = '';
@@ -292,7 +307,7 @@ class LiveChat extends Component {
                   </Button>
                 </div>
                 <div id="hangup">
-                  <Button>
+                  <Button onClick={this.leaveLiveChat}>
                     <Icon type="phone" />
                     <span className="tooltip-text">Hangup</span>
                   </Button>

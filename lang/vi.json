@@ -207,6 +207,9 @@
       },
       "accept": {
         "fail": "Không thể thêm người này làm thành viên"
+      },
+      "leave": {
+        "fail": "Gặp phải lỗi khi cố gằng rời phòng"
       }
     }
   },

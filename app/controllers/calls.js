@@ -3,12 +3,14 @@
 const Room = require('../models/room.js');
 const logger = require('./../logger/winston');
 const channel = logger.init('error');
+const config = require('../../config/config');
 
 exports.create = async (req, res) => {
   let { _id: userId } = req.decoded;
   let { roomId, callType } = req.body;
   let success = false,
-    liveChat = {};
+    liveChat = {},
+    message = __('socket.live_chat.create.fail');
 
   try {
     liveChat = await Room.getLiveChat({ roomId, userId });
@@ -18,6 +20,7 @@ exports.create = async (req, res) => {
 
       if (result) {
         success = true;
+        message = '';
         liveChat = await Room.getLiveChat({ roomId, userId });
       }
     }
@@ -25,9 +28,10 @@ exports.create = async (req, res) => {
     res.status(200).json({
       success: success,
       id: liveChat.liveId ? liveChat.liveId : null,
+      message: message,
     });
   } catch (e) {
-    res.status(500).json({ success: false, message: __('socket.live_chat.create.fail') });
+    res.status(500).json({ success: false, message: message });
   }
 };
 
@@ -84,3 +88,25 @@ exports.acceptMember = async (req, res) => {
     channel.error(err);
   }
 };
+
+exports.leaveLiveChat = async (req, res) => {
+  let { _id: userId } = req.decoded;
+  let { roomId, liveChatId } = req.body;
+  let message = __('socket.live_chat.leave.fail');
+
+  try {
+    let result = await Room.updateStatusCallMember(
+      roomId,
+      liveChatId,
+      userId,
+      null,
+      config.CALL.PARTICIPANT.STATUS.HANGUP
+    );
+
+    return res.status(200).json({ success: !!result, message: result ? message : '' });
+  } catch (e) {
+    channel.error(e);
+
+    return res.status(500).json({ message: message });
+  }
+}

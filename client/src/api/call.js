@@ -13,5 +13,9 @@ export function checkMaster(param) {
 }
 
 export function acceptMember(param) {
-  return new Http().authenticated().post(`/accept-member/${param.memberId}`, param);
+  return new Http().authenticated().post(`/live-chat/accept-member/${param.memberId}`, param);
+}
+
+export function leaveLiveChat(userId, param) {
+  return new Http().authenticated().post(`/live-chat/${param.liveId}/hang-up/${userId}`, param);
 }

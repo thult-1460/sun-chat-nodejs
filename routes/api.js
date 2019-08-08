@@ -246,31 +246,17 @@ router.get(
 );
 
 //Nickname
-router.post('/nicknames', auth.jwtMiddleware, nicknamesController.edit)
+router.post('/nicknames', auth.jwtMiddleware, nicknamesController.edit);
 
 // Live Chat
-router.post(
-  '/live-chat/create',
-  [auth.jwtMiddleware],
-  callsController.create
-);
+router.post('/live-chat/create', [auth.jwtMiddleware], callsController.create);
 
-router.post(
-  '/live-chat/offer-join',
-  [auth.jwtMiddleware],
-  callsController.offerBeJoined
-);
+router.post('/live-chat/offer-join', [auth.jwtMiddleware], callsController.offerBeJoined);
 
-router.post(
-  '/live-chat/check-master',
-  [auth.jwtMiddleware],
-  callsController.checkMaster
-);
+router.post('/live-chat/check-master', [auth.jwtMiddleware], callsController.checkMaster);
 
-router.post(
-  '/accept-member/:memberId',
-  [auth.jwtMiddleware],
-  callsController.acceptMember
-);
+router.post('/live-chat/accept-member/:memberId', [auth.jwtMiddleware], callsController.acceptMember);
+
+router.post('/live-chat/:liveChatId/hang-up/:userId', [auth.jwtMiddleware], callsController.leaveLiveChat);
 
 module.exports = router;
