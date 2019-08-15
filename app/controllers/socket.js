@@ -90,10 +90,11 @@ module.exports = function(io) {
         socket.isMasterCall = true;
       } else {
         socket.isMasterCall = false;
-        socket.status = config.CALL.PARTICIPANT.STATUS.WAITING;
+        socket.status = config.CALL.PARTICIPANT.STATUS.CONNECTING;
 
-        const masterId = null;
-        const liveChat = await Room.getLiveChat({ roomId, masterId, liveId });
+        let masterId = null,
+          findMaster = true;
+        let liveChat = await Room.getLiveChat(roomId, masterId, liveId, findMaster);
 
         if (liveChat.member !== undefined) {
           socket.masterId = liveChat.member.user_id;

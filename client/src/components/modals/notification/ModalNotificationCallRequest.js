@@ -37,18 +37,18 @@ class ModalNotificationCallRequest extends Component {
     }
 
     setTimeout(
-      () => this.destroyModal(),
+      () => this.disableModal(),
       config.TIME_SHOW_NOTIFICATION * 1000
     );
   }
 
-  destroyModal = () => {
+  disableModal = () => {
     this.setState({
       visible: false,
       showComponent: false,
     });
     this.pause();
-    this.props.updateShowModal();
+    this.props.disableModal();
   }
 
   showModal = () => {
@@ -60,6 +60,7 @@ class ModalNotificationCallRequest extends Component {
   };
 
   handleOk = e => {
+    this.props.joinLiveChat();
     this.setState({
       visible: false,
     });
@@ -71,7 +72,7 @@ class ModalNotificationCallRequest extends Component {
       showComponent: false,
     });
     this.pause();
-    this.props.updateShowModal();
+    this.props.disableModal();
   }
 
   handleCancel = () => {
@@ -80,16 +81,16 @@ class ModalNotificationCallRequest extends Component {
       showComponent: false,
     });
     this.pause();
-    this.props.updateShowModal();
+    this.props.disableModal();
   };
 
   render() {
     const { t, roomName } = this.props;
     return (
       <span>
-        {this.state.showComponent && (<Modal title={t('video-audio-call.invation')} maskClosable={false} visible={this.state.visible} onOk={this.handleOk} onCancel={this.handleCancel} footer={null} width={400}>
+        {this.state.showComponent && (<Modal title={t('video-audio-call.invation')} maskClosable={false} visible={this.state.visible} onCancel={this.handleCancel} footer={null} width={400}>
           <p> {t('video-audio-call.message-join-call')} {roomName} </p>
-          <Button type="primary" className="btn-join-call">
+          <Button type="primary" className="btn-join-call" onClick={this.handleOk}>
             {t('button.join-call')}
           </Button>
         </Modal>)}

@@ -133,6 +133,7 @@
     "not_admin": "Bạn không phải là admin. Vì vậy bạn không thể xóa cuộc trò chuyện này ",
     "not_me": "Bạn không thể xóa chính bạn",
     "exist_member": "Thành viên đã ở trong nhóm này rồi !",
+    "not_exist_member": "Thành viên chưa ở trong nhóm này rồi !",
     "invitation": {
       "get_error": "Nhóm trò chuyện không tồn tại hoặc được cài đặt bí mật",
       "join_request": "Yêu cầu của bạn đã được gửi, làm ơn hãy chờ sự phê duyệt từ người quản trị viên",

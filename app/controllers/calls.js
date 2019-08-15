@@ -9,11 +9,13 @@ exports.create = async (req, res) => {
   let { _id: userId } = req.decoded;
   let { roomId, callType } = req.body;
   let success = false,
+    liveChatId = null,
+    findMaster = true,
     liveChat = {},
     message = __('socket.live_chat.create.fail');
 
   try {
-    liveChat = await Room.getLiveChat({ roomId, userId });
+    liveChat = await Room.getLiveChat(roomId, userId, liveChatId, findMaster);
 
     if (!liveChat) {
       const result = await Room.createLiveChat({ roomId, userId, callType });
@@ -21,7 +23,7 @@ exports.create = async (req, res) => {
       if (result) {
         success = true;
         message = '';
-        liveChat = await Room.getLiveChat({ roomId, userId });
+        liveChat = await Room.getLiveChat(roomId, userId, liveChatId, findMaster);
       }
     }
 
@@ -38,14 +40,15 @@ exports.create = async (req, res) => {
 exports.offerBeJoined = async (req, res) => {
   let { _id: userId } = req.decoded;
   let { roomId, liveChatId, info } = req.body;
-  const io = req.app.get('socketIO');
   let masterId = null,
+    findMaster = true,
     message = __('socket.live_chat.offer.fail');
 
-  const liveChat = await Room.getLiveChat({ roomId, masterId, liveChatId });
+  const liveChat = await Room.getLiveChat(roomId, masterId, liveChatId, findMaster);
 
-  if (liveChat.member !== undefined) {
+  if (liveChat && liveChat.member !== undefined) {
     masterId = liveChat.member.user_id;
+    const io = req.app.get('socketIO');
     io.to(masterId).emit('change-offer-list', { roomId, userId, info });
     message = '';
   }
@@ -53,14 +56,20 @@ exports.offerBeJoined = async (req, res) => {
   res.status(200).json({ success: !!masterId, message: message });
 };
 
-exports.checkMaster = async (req, res) => {
+exports.checkMember = async (req, res) => {
   let { _id: userId } = req.decoded;
   let { roomId, liveChatId } = req.body;
 
   try {
-    let result = await Room.getLiveChat({ roomId, userId, liveChatId });
+    let result = await Room.getLiveChat(roomId, userId, liveChatId);
 
-    res.status(200).json({ status: !!result });
+    if (result) {
+      const io = req.app.get('socketIO');
+      const disableInvitePopUp = true;
+      io.to(userId).emit('member_receive_notification_join_calling', { disableInvitePopUp });
+    }
+
+    res.status(200).json({ status: !!result, isCaller: result ? result.member.is_caller : null });
   } catch (err) {
     channel.error(err);
   }
@@ -70,6 +79,10 @@ exports.acceptMember = async (req, res) => {
   let { roomId, memberId, liveChatId } = req.body;
   let message = __('socket.live_chat.accept.fail');
   const io = req.app.get('socketIO');
+
+  if (!memberId) {
+    memberId = req.decoded._id;
+  }
 
   try {
     const result = await Room.acceptMemberLiveChat(roomId, liveChatId, memberId);
