@@ -1109,7 +1109,6 @@ class ChatBox extends React.Component {
       loadingPrev,
       loadingNext,
       messageIdEditing,
-      messageIdHovering,
       infoUserTip,
       flagMsgId,
     } = this.state;
@@ -1118,7 +1117,7 @@ class ChatBox extends React.Component {
     const showListMember = this.generateListTo();
     const showListEmoji = this.generateListEMoji();
     const redLine = this.generateRedLine();
-    const listMember = allMembers.filter(item => item._id != currentUserInfo._id);
+    const listMember = allMembers.filter(item => item._id !== currentUserInfo._id);
 
     let nextMsgId = null;
 

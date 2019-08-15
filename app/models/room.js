@@ -1805,11 +1805,12 @@ RoomSchema.statics = {
     ).exec();
   },
 
-  async getLiveChat({ roomId, userId = null, liveChatId = null }) {
-    let cond = [
-      { $eq: ['$$mem.is_caller', true] },
-      { $eq: ['$$mem.status', config.CALL.PARTICIPANT.STATUS.CONNECTING] },
-    ];
+  async getLiveChat(roomId, userId = null, liveChatId = null, findMaster = false) {
+    let cond = [{ $eq: ['$$mem.status', config.CALL.PARTICIPANT.STATUS.CONNECTING] }];
+
+    if (findMaster) {
+      cond.push({ $eq: ['$$mem.is_caller', true] });
+    }
 
     if (userId) {
       cond.push({ $eq: ['$$mem.user_id', mongoose.Types.ObjectId(userId)] });

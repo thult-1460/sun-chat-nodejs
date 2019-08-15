@@ -335,7 +335,7 @@ exports.room = {
     try {
       const myChatRoomId = await Room.getRoomMyChatId(userId);
 
-      if (myChatRoomId.length > 0 && roomId == myChatRoomId[0]._id) {
+      if (myChatRoomId.length > 0 && roomId === myChatRoomId[0]._id) {
         return res.status(403).json({
           error: __('room.my_chat.cant_leave'),
         });
@@ -481,6 +481,31 @@ exports.tasks = {
 
       return res.status(500).json({
         error: __('error.common'),
+      });
+    }
+  },
+};
+
+exports.calls = {
+  checkExistMember: async function(req, res, next) {
+    let { roomId, liveChatId } = req.body;
+    let memberId = req.decoded._id;
+
+    try {
+      const hasMembers = await Room.checkExistMemberLiveChat(roomId, liveChatId, memberId);
+
+      if (!hasMembers) {
+        return res.status(403).json({
+          message: __('room.not_exist_member'),
+        });
+      }
+
+      next();
+    } catch (err) {
+      channel.error(err);
+
+      return res.status(500).json({
+        message: __('error.common'),
       });
     }
   },

@@ -8,8 +8,8 @@ export function offerJoinLiveChat(param) {
   return new Http().authenticated().post(`/live-chat/offer-join`, param);
 }
 
-export function checkMaster(param) {
-  return new Http().authenticated().post(`/live-chat/check-master`, param);
+export function checkMember(param) {
+  return new Http().authenticated().post(`/live-chat/check-member`, param);
 }
 
 export function acceptMember(param) {

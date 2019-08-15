@@ -154,7 +154,7 @@ class HeaderOfRoom extends React.Component {
               </div>
             )}
           </Col>
-          <Col span={4}>
+          <Col span={3}>
             {data.type !== room.ROOM_TYPE.MY_CHAT && (
               <Dropdown
                 placement="bottomCenter"

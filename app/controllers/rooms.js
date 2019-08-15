@@ -768,7 +768,7 @@ exports.sendCallingRequest = async (req, res) => {
 
     if (checkedList.length > 0) {
       inforSelectedMember.map(member => {
-        io.to(member._id).emit('member_receive_notification_join_calling', roomName);
+        io.to(member._id).emit('member_receive_notification_join_calling', { roomName, roomId, liveChatId });
       });
     }
 

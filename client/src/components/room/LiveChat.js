@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { withNamespaces } from 'react-i18next';
 import './../../scss/live_chat.scss';
-import {Button, message} from 'antd';
+import { Button, message } from 'antd';
 import {
   FaMicrophone,
   FaMicrophoneSlash,
@@ -14,7 +14,7 @@ import {
 } from 'react-icons/fa';
 import { MdAddToQueue } from 'react-icons/md';
 import { Icon } from 'antd';
-import { checkMaster, acceptMember, leaveLiveChat } from './../../api/call';
+import { checkMember, acceptMember, leaveLiveChat } from './../../api/call';
 import { getUserAvatarUrl } from './../../helpers/common';
 import { SocketContext } from './../../context/SocketContext';
 import { withUserContext } from './../../context/withUserContext';
@@ -28,6 +28,7 @@ class LiveChat extends Component {
     rightOn: true,
     cameraOn: true,
     microOn: true,
+    isCaller: false,
 
     listMember: [],
     listOfferPerson: [],
@@ -36,41 +37,31 @@ class LiveChat extends Component {
   componentDidMount() {
     const { roomId, liveChatId } = this.props.match.params;
 
-    checkMaster({ roomId, liveChatId }).then(res => {
-      let enable = false;
+    if (window.location.search.split('main-member=')[1]) {
+      this.socket.emit('regist-live-chat', { roomId: roomId, liveId: liveChatId, master: false });
 
-      if (res.data.status) {
-        enable = true;
-        this.socket.emit('join-live-chat', liveChatId);
-
-        this.setState({
-          listMember: [{
-            id: this.props.userContext.info._id,
-            cameraView: '',
-          }],
-        });
-      }
-
+      this.acceptMember({ roomId, liveChatId });
       this.setState({
-        checkDisplayLayout: enable,
+        checkDisplayLayout: true,
       });
-
-      this.socket.emit('regist-live-chat', { roomId: roomId, liveId: liveChatId, master: enable });
-    });
+    } else {
+      this.checkMember({ roomId, liveChatId });
+    }
 
     this.socket.on('change-offer-list', res => {
       const roomId = this.props.match.params.roomId;
-      const { listMember, listOfferPerson } = this.state;
-      const listKeyOffer = listOfferPerson.map(item => {
-        return item.id;
-      });
+      const { listMember, listOfferPerson, isCaller } = this.state;
 
       if (res.roomId && roomId === res.roomId) {
         const listKeyMember = listMember.map(item => {
           return item.id;
         });
 
-        if (listKeyOffer.concat(listKeyMember).indexOf(res.userId) === -1) {
+        const listKeyOffer = listOfferPerson.map(item => {
+          return item.id;
+        });
+
+        if (isCaller && listKeyOffer.concat(listKeyMember).indexOf(res.userId) === -1) {
           listOfferPerson.push({
             id: res.userId,
             avatar: res.info.avatar,
@@ -98,7 +89,7 @@ class LiveChat extends Component {
     this.socket.on('list-member-live-chat', ({ listMember, offerId }) => {
       let members = [];
 
-      listMember.forEach(function (item) {
+      listMember.forEach(function(item) {
         members.push({
           id: item.user_id,
           cameraView: '',
@@ -110,6 +101,35 @@ class LiveChat extends Component {
       });
 
       this.removePersonOffer(offerId);
+    });
+  }
+
+  checkMember({ roomId, liveChatId }) {
+    checkMember({ roomId, liveChatId }).then(res => {
+      let enable = false;
+      const { status, isCaller } = res.data;
+
+      if (status) {
+        enable = true;
+        let listMember = this.state.listMember;
+        listMember.push({
+          id: this.props.userContext.info._id,
+          cameraView: '',
+        });
+
+        this.socket.emit('join-live-chat', liveChatId);
+
+        this.setState({
+          listMember: listMember,
+          isCaller: isCaller,
+        });
+      }
+
+      this.setState({
+        checkDisplayLayout: enable,
+      });
+
+      this.socket.emit('regist-live-chat', { roomId: roomId, liveId: liveChatId, master: this.state.isCaller });
     });
   }
 
@@ -178,31 +198,38 @@ class LiveChat extends Component {
     const memberId = e.currentTarget.dataset.id;
 
     if (memberId) {
-      acceptMember({ roomId, liveChatId, memberId }).then(res => {
-        if (!res.data.success) {
-          message.error(res.data.message);
-        }
-      });
+      let param = { roomId, liveChatId, memberId };
+      this.acceptMember(param);
     }
   };
+
+  acceptMember(param) {
+    acceptMember(param).then(res => {
+      if (!res.data.success) {
+        message.error(res.data.message);
+      }
+    });
+  }
 
   leaveLiveChat = () => {
     const { roomId, liveChatId } = this.props.match.params;
     const userId = this.props.userContext.info._id;
 
-    leaveLiveChat(userId, { roomId: roomId, liveId: liveChatId}).then(res => {
-      if (res.data.success) {
-        window.close();
-      } else {
+    leaveLiveChat(userId, { roomId: roomId, liveId: liveChatId })
+      .then(res => {
+        if (res.data.success) {
+          window.close();
+        } else {
+          message.error(res.data.message);
+        }
+      })
+      .catch(res => {
         message.error(res.data.message);
-      }
-    }).catch(res => {
-      message.error(res.data.message);
-    });
-  }
+      });
+  };
 
   render = () => {
-    const { checkDisplayLayout, leftOn, rightOn, microOn, cameraOn, listOfferPerson, listMember } = this.state;
+    const { checkDisplayLayout, leftOn, rightOn, microOn, cameraOn, listOfferPerson, listMember, isCaller } = this.state;
     let waiting = '';
 
     if (checkDisplayLayout === false) {
@@ -251,7 +278,7 @@ class LiveChat extends Component {
                   );
                 })}
 
-                <div className={rightOn ? '' : 'hide'} id="add-participant">
+                <div className={isCaller ? '' : 'hide'} id="add-participant">
                   <Button>
                     <MdAddToQueue />
                   </Button>
@@ -259,7 +286,7 @@ class LiveChat extends Component {
               </div>
             </div>
             <div id="top-left-column" className="block">
-              {listOfferPerson.length > 0 && (
+              {isCaller && listOfferPerson.length > 0 && (
                 <div
                   className="show-or-hide"
                   data-right="0"
@@ -280,18 +307,18 @@ class LiveChat extends Component {
                 </div>
               )}
               <div className="list-block">
-                {listOfferPerson.map(person => {
+                {isCaller && listOfferPerson.map(person => {
                   return (
                     <div key={person.id} className={leftOn ? 'person' : 'person hidden'}>
                       <img src={getUserAvatarUrl(person.avatar)} />
                       <div>
-                      <span className="person-name">{person.name}</span>
-                      <div className="add-member" data-id={person.id} onClick={this.addMember.bind(this)}>
-                        <FaUserPlus />
-                      </div>
-                      <div className="remove-person" data-id={person.id} onClick={this.rejectPerson.bind(this)}>
-                        <FaUserSlash />
-                      </div>
+                        <span className="person-name">{person.name}</span>
+                        <div className="add-member" data-id={person.id} onClick={this.addMember.bind(this)}>
+                          <FaUserPlus />
+                        </div>
+                        <div className="remove-person" data-id={person.id} onClick={this.rejectPerson.bind(this)}>
+                          <FaUserSlash />
+                        </div>
                       </div>
                     </div>
                   );

@@ -133,6 +133,7 @@
     "not_admin": "You are not  an admin. So you can't delete room.",
     "not_me": "You can't delete yourself.",
     "exist_member": "Existed member into this room",
+    "not_exist_member": "Hasn't existed member into this room",
     "invitation": {
       "get_error": "The group chat doesn't exist, or set as private.",
       "join_request": "Your request have just send, please waiting the approved from administrator",
