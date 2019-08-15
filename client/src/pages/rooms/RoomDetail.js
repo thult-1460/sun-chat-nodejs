@@ -221,10 +221,7 @@ class RoomDetail extends React.Component {
               onResizeStop={this.setWidthChatBox}
               defaultSize={{ width: localStorage.getItem('descW') ? localStorage.getItem('descW') : (minW + maxW) / 2 }}
             >
-              <Sider
-                className="description-chat"
-                width={localStorage.getItem('descW') ? localStorage.getItem('descW') : (minW + maxW) / 2}
-              >
+              <Sider className="description-chat">
                 <Row type="flex" justify="start" className="title-desc-chat-room">
                   <Col span={24}>
                     <Text strong> {t('title.room_des')} </Text>
