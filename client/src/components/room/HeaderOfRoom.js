@@ -138,10 +138,10 @@ class HeaderOfRoom extends React.Component {
             {this.props.data.name}
           </Text>
         </Col>
-        <Col span={6} offset={10}>
+        <Col span={6} offset={9}>
           <div className="option-header-room">
           <Row>
-          <Col span={20} className="list-member-chat-room">
+          <Col span={14} className="list-member-chat-room">
             {this.props.isAdmin && (
               <div className="icon-request-list">
                 <ModalListRequest roomId={data._id} />
