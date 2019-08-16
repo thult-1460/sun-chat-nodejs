@@ -59,29 +59,16 @@ class ModalNotificationCallRequest extends Component {
     this.play();
   };
 
-  handleOk = e => {
+  handleOk = () => {
     this.props.joinLiveChat();
     this.setState({
       visible: false,
     });
+    this.pause();
   };
 
-  handleVisible = () => {
-    this.setState({
-      visible: false,
-      showComponent: false,
-    });
-    this.pause();
-    this.props.disableModal();
-  }
-
   handleCancel = () => {
-    this.setState({
-      visible: false,
-      showComponent: false,
-    });
-    this.pause();
-    this.props.disableModal();
+    this.disableModal();
   };
 
   render() {
