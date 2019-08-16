@@ -1885,7 +1885,7 @@ RoomSchema.statics = {
       {
         $match: {
           'calls._id': mongoose.Types.ObjectId(liveId),
-          'calls.participants.user_id': mongoose.Types.ObjectId(memberId),
+          $expr: { $in: [mongoose.Types.ObjectId(memberId), '$calls.participants.user_id'] },
         },
       },
       {

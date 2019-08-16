@@ -488,11 +488,11 @@ exports.tasks = {
 
 exports.calls = {
   checkExistMember: async function(req, res, next) {
-    let { roomId, liveChatId } = req.body;
+    let { roomId, liveId } = req.body;
     let memberId = req.decoded._id;
 
     try {
-      const hasMembers = await Room.checkExistMemberLiveChat(roomId, liveChatId, memberId);
+      const hasMembers = await Room.checkExistMemberLiveChat(roomId, liveId, memberId);
 
       if (!hasMembers) {
         return res.status(403).json({
