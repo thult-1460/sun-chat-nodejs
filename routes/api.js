@@ -140,6 +140,11 @@ router.get(
   [auth.jwtMiddleware, authorization.room.hasAuthorization],
   roomsController.loadMessages
 );
+router.get(
+  '/rooms/:roomId/messages/:messageId',
+  [auth.jwtMiddleware, authorization.room.hasAuthorization],
+  roomsController.getMessageInfo
+);
 
 // Messages router
 router.post(

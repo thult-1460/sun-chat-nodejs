@@ -4,15 +4,10 @@ import { Link } from 'react-router-dom';
 import { Layout, Input, Button, List, Avatar, Icon, Row, Col, Badge, Popover, message, Spin, Tabs } from 'antd';
 import {
   loadMessages,
-  sendMessage,
   loadPrevMessages,
   loadUnreadNextMessages,
-  updateMessage,
   getDirectRoomId,
   getListNicknameByUserInRoom,
-  deleteMessage,
-  reactionMsg,
-  getReactionUserListOfMsg,
 } from './../../api/room.js';
 import {
   addContact,
@@ -23,6 +18,7 @@ import {
 } from './../../api/contact';
 import { getUserById } from './../../api/user';
 import { offerJoinLiveChat } from '../../api/call';
+import { getMessageInfo } from './../../api/room.js';
 import { SocketContext } from './../../context/SocketContext';
 import { withUserContext } from './../../context/withUserContext';
 import { withNamespaces } from 'react-i18next';
@@ -33,6 +29,16 @@ import { messageConfig, block } from '../../config/message';
 import InfiniteScroll from 'react-infinite-scroller';
 import '../../scss/messages.scss';
 import handlersMessage from '../../helpers/handlersMessage';
+import { generateListEmoji } from '../../helpers/generateHTML/emoji';
+import { generateListTo } from '../../helpers/generateHTML/to';
+import {
+  getReplyMessageContent,
+  generateMsgContent,
+  generateRedLine,
+  generateMessageHTML,
+  handleCancelEdit,
+  handleSendMessage
+} from '../../helpers/generateHTML/message';
 import { getUserAvatarUrl, saveSizeComponentsChat, getEmoji } from './../../helpers/common';
 import ModalChooseMemberToCall from './ModalChooseMemberToCall';
 import avatarConfig from '../../config/avatar';
@@ -63,6 +69,7 @@ const initialState = {
   flagMsgId: '',
   activeKeyTab: 0,
   visiblePopoverTo: false,
+  replyMessageContent: '',
 };
 const initialAttribute = {
   messageRowRefs: [],
@@ -79,6 +86,8 @@ const initialAttribute = {
   scrollTop: 0,
   infoUserTips: {},
 };
+
+let cacheReplyMessages = [];
 
 class ChatBox extends React.Component {
   static contextType = SocketContext;
@@ -129,7 +138,7 @@ class ChatBox extends React.Component {
 
       if (message !== null) {
         message.content = res.content;
-        this.handleCancelEdit();
+        handleCancelEdit(this);
       }
     });
 
@@ -185,6 +194,7 @@ class ChatBox extends React.Component {
     const { t } = this.props;
 
     $(document).on('click', '._avatarClickTip', async function(e) {
+      $('#originMsgTooltip').hide();
       let { infoUserTips } = _this.attr;
       let currentUserInfo = _this.props.userContext.info;
       let flag = true;
@@ -215,6 +225,36 @@ class ChatBox extends React.Component {
       }
     });
 
+    $(document).on('click', '.reply-msg', async function(e) {
+      const msgId = $(e.currentTarget).data('msg_id');
+      const { roomId } = _this.props;
+      const { messages } = _this.state;
+
+      try {
+        if (msgId) {
+          let messagesTmp = cacheReplyMessages.concat(messages);
+          let message = _this.getMessageById(messagesTmp, msgId);
+
+          if (message != null) {
+              await Promise.resolve(1);
+          } else {
+            let messageResponse = await getMessageInfo(roomId, msgId);
+
+            message = messageResponse.data.message;
+            cacheReplyMessages.push(message);
+          }
+
+          let replyMessageContent = getReplyMessageContent(_this, message);
+          _this.setState({'replyMessageContent': replyMessageContent});
+        } else {
+          await Promise.reject(new Error("No message id!"));
+        }
+
+      } catch(err) {
+        _this.setState({'replyMessageContent': initialState.replyMessageContent});
+      }
+    })
+
     $(document).on('click', 'body', function(event) {
       let xPosition = 0,
         yPosition = 0;
@@ -237,14 +277,23 @@ class ChatBox extends React.Component {
       }
 
       if (event.target.id == 'target') {
-        $('.profileTooltip')
+        $('#_profileTip')
           .css({
             top: yPosition + 'px',
             left: xPosition + 'px',
           })
           .show();
+        $('#originMsgTooltip').hide();
+      } else if (event.target.id == 'reply-msg') {
+        $('#originMsgTooltip')
+          .css({
+            top: yPosition + 'px',
+            left: xPosition + 'px',
+          })
+          .show();
+        $('#_profileTip').hide();
       } else {
-        _this.setState({ infoUserTip: {} });
+        _this.setState({ infoUserTip: {}, replyMessageContent: initialState.replyMessageContent });
         $('.profileTooltip').hide();
       }
     });
@@ -298,7 +347,21 @@ class ChatBox extends React.Component {
         this.attr.firstLoading = false;
       }
     }
+    
+    const height = $('#originMsgTooltip').height();
+    const position = $('#originMsgTooltip').position();
+
+    $('#originMsgTooltip').css({
+      top: (position.top + (225 - height)) + 'px',
+      left: position.left + 'px',
+    });
   }
+
+  hidePopoverTo = () => {
+    this.setState({
+      visiblePopoverTo: false,
+    });
+  };
 
   joinLiveChat = liveChatId => {
     let param = {
@@ -499,161 +562,12 @@ class ChatBox extends React.Component {
     this.socket.emit('update_last_message_id', param);
   }
 
-  handleEmoji = e => {
-    handlersMessage.actionFunc.addEmoji(e.target.alt);
-  };
-  // for display msg content - BEGIN
   formatMsgTime(timeInput) {
     const { t } = this.props;
     const time = new Date(timeInput);
 
     return moment(time).format(t('format_time'));
   }
-
-  generateMsgContent = infoUserTip => {
-    const { t } = this.props;
-    const userId = infoUserTip._id ? infoUserTip._id : null;
-    const myChatId = this.props.userContext.my_chat_id;
-    const currentUserId = this.props.userContext.info._id;
-    const directRoomId = this.state.directRoomIds[userId];
-    const receivedRequestUser = this.state.receivedRequestUsers[userId];
-    const sendingRequestUser = this.state.sendingRequestUsers[userId];
-    let button = <Spin />;
-
-    if (userId == currentUserId) {
-      button = (
-        <Link to={`/rooms/${myChatId}`}>
-          <Button>{this.props.t('title.my_chat')}</Button>
-        </Link>
-      );
-    } else if (directRoomId === undefined) {
-      button = '';
-    } else {
-      button = directRoomId ? (
-        <Link to={`/rooms/${directRoomId}`}>
-          <Button>{this.props.t('title.direct_chat')}</Button>
-        </Link>
-      ) : sendingRequestUser ? (
-        <div>
-          <Button value={userId} onClick={this.handleRejectContact}>
-            {this.props.t('title.reject_request')}
-          </Button>
-          <Button value={userId} onClick={this.handleAcceptContact}>
-            {this.props.t('title.accept_request')}
-          </Button>
-        </div>
-      ) : receivedRequestUser ? (
-        <Button value={userId} onClick={this.handleCancelRequest}>
-          {this.props.t('title.cancel_request')}
-        </Button>
-      ) : (
-        <Button value={userId} onClick={this.handleSendRequestContact}>
-          {this.props.t('title.add_contact')}
-        </Button>
-      );
-    }
-
-    return (
-      <div className="popover-infor">
-        <div className="infor-bg">
-          <Avatar src={getUserAvatarUrl(infoUserTip.avatar)} className="infor-avatar" />
-        </div>
-        <div style={{ minHeight: '55px' }}>
-          <p className="infor-name">{infoUserTip.name ? infoUserTip.name : t('loading')}</p>
-          <p>{infoUserTip.email ? infoUserTip.email : ''}</p>
-        </div>
-        <div className="infor-footer">
-          <div>{<List.Item style={{ minHeight: '35px' }}>{button}</List.Item>}</div>
-        </div>
-      </div>
-    );
-  };
-
-  generateRedLine = () => {
-    const { t } = this.props;
-
-    return (
-      <div className={'timeLine__unreadLine'} ref={element => (this.attr.unreadMsgLineRef = element)}>
-        <div className="timeLine__unreadLineBorder">
-          <div className="timeLine__unreadLineContainer">
-            <div className="timeLine__unreadLineBody">
-              <span className="timeLine__unreadLineText">{t('unread_title')}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  createMarkupMessage = message => {
-    const { roomId } = this.props;
-    const members = this.props.allMembers;
-    let messageContentHtml = handlersMessage.renderMessage(message, members, roomId);
-
-    return { __html: messageContentHtml };
-  };
-  // for display msg content - END
-
-  // for SEND msg - BEGIN
-  handleSendMessage = e => {
-    const { t, roomId } = this.props;
-    const messageId = this.state.messageIdEditing;
-
-    if (e.key === undefined || (e.ctrlKey && e.keyCode == 13)) {
-      let messageContent = document.getElementById('msg-content').value;
-
-      if (messageContent.trim() !== '') {
-        let data = {
-          content: handlersMessage.handleContentMessageWithI18n(messageContent),
-        };
-
-        if (messageId == null) {
-          sendMessage(roomId, data).catch(e => {
-            message.error(t('send.failed'));
-          });
-        } else {
-          updateMessage(roomId, messageId, data).catch(e => {
-            message.error(t('edit.failed'));
-          });
-        }
-
-        this.attr.isSender = true;
-
-        if (this.state.messages.length) {
-          let lastMsgId = this.state.messages.slice(-1)[0]._id;
-
-          if (this.checkInView(this.attr.messageRowRefs[lastMsgId]) && !this.attr.hasNextMsg) {
-            this.setState({ redLineMsgId: lastMsgId });
-          }
-        }
-
-        document.getElementById('msg-content').value = '';
-        this.inputMsg.focus();
-      }
-    }
-
-    if (e.keyCode == 27) {
-      this.handleCancelEdit();
-    }
-  };
-  // for SEND msg - END
-
-  // for edit msg - BEGIN
-  handleMouseEnter = e => {
-    const messageIdHovering = e.currentTarget.id;
-
-    if (document.getElementById('action-button-' + messageIdHovering)) {
-      document.getElementById('action-button-' + messageIdHovering).style.display = 'block';
-    }
-  };
-
-  handleMouseLeave = e => {
-    const messageIdHovering = e.currentTarget.id;
-
-    if (document.getElementById('action-button-' + messageIdHovering)) {
-      document.getElementById('action-button-' + messageIdHovering).style.display = 'none';
-    }
-  };
 
   getMessageById(messages, messageId) {
     for (let i = messages.length - 1; i >= 0; i--) {
@@ -665,278 +579,25 @@ class ChatBox extends React.Component {
     return null;
   }
 
-  handleCancelEdit = () => {
-    this.setState({
-      isEditing: false,
-      messageIdEditing: null,
-    });
-
-    document.getElementById('msg-content').value = '';
-  };
-
-  editMessage = e => {
-    const messageId = e.currentTarget.id;
-    const oldMsgFlag = e.currentTarget.getAttribute('old-msg-flag');
-
-    const message =
-      oldMsgFlag == 1
-        ? this.getMessageById(this.state.messages, messageId)
-        : this.getMessageById(this.state.messages, messageId);
-
-    if (message !== null) {
-      this.setState({
-        messageIdEditing: message._id,
-        isEditing: true,
-      });
-
-      document.getElementById('msg-content').value = message.content;
-    }
-  };
-  // for edit msg - END
-
-  // for quote msg - BEGIN
-  quoteMessage = e => {
-    const messageId = e.currentTarget.id;
-    const memberId = e.target.getAttribute('data-mid');
-    const message = this.getMessageById(this.state.messages, messageId);
-
-    let data = {
-      content: message.content,
-      userName: message.user_info.name,
-      time: message.updatedAt,
-    };
-
-    handlersMessage.actionFunc.quoteMessage(memberId, data);
-  };
-  // for quote msg - END
-
-  deleteMessage = e => {
-    if (e.currentTarget.id) {
-      let params = {
-        roomId: this.props.roomId,
-        messageId: e.currentTarget.id,
-      };
-
-      deleteMessage(params);
-    }
-  };
-
-  handleVisibleReaction = visible => {};
-
-  // for reaction msg - BEGIN
-  handleReaction = (msgId, reactionTag) => {
-    const currentRoomId = this.props.roomId;
-    reactionMsg(currentRoomId, { msgId, reactionTag })
-  };
-
-  generateReactionMsg = msgId => {
-    const listReaction = configEmoji.REACTION;
+  getEmptyReplyMessage = () => {
     const { t } = this.props;
-    const content = (
-      <div id="_reactionList" className="reactionSelectorTooltip">
-        <ul className="reactionSelectorTooltip__emoticonList">
-          {Object.entries(listReaction).map(([key, reaction]) => {
-            return (
-              <li className="reactionSelectorTooltip__itemContainer" key={key}>
-                <span className="reactionSelectorTooltip__item">
-                  <span className="reactionSelectorTooltip__emoticonContainer">
-                    <Avatar
-                      className="reactionSelectorTooltip__emoticon image-emoji"
-                      src={getEmoji(reaction.image)}
-                      alt={key}
-                      title={t(reaction.tooltip)}
-                      onClick={() => this.handleReaction(msgId, key)}
-                    />
-                  </span>
-                </span>
-              </li>
-            );
-          })}
-        </ul>
-      </div>
-    );
 
-    return content;
+    return (
+      <div class="empty-reply-msg">
+        <p> { t('messages.no_reply_msg')} </p>
+      </div>
+    )
   };
 
   onChangeTab = activeKey => {
     this.setState({ activeKeyTab: activeKey });
   };
 
-  generateReactionUserList = (msgId, reactionOfMsg) => {
-    return (
-      <div className="reactionUserListTollTip">
-        <Tabs
-          activeKey={this.state.activeKeyTab}
-          onChange={this.onChangeTab}
-        >
-          {
-            reactionOfMsg.map( (value, index) => {
-              return (
-                <TabPane
-                  tab={
-                    <div onClick={() => this.fetchReactionUserList(msgId, value.reaction.reaction_tag)}>
-                      <img
-                        src={getEmoji(configEmoji.REACTION[value.reaction.reaction_tag].image)}
-                        alt={value.reaction.reaction_tag}
-                        className="reactionButton__emoticon"
-                      />
-                      <span className="reactionButton__count _reactionCount">{value.count}</span>
-                    </div>
-                  }
-                  key={index}
-                >
-                {this.contentReactionUserList(msgId, value.reaction.reaction_tag)}
-                </TabPane>
-              )
-            })
-          }
-        </Tabs>
-      </div>
-    )
-  };
-
-  contentReactionUserList = (msgId, reactionTag) => {
-    let { reactionUserList } = this.state;
-    let content = '';
-
-    if (reactionUserList[`${msgId}-${reactionTag}`]) {
-      content = (
-        <div className="member-infinite-container">
-          <InfiniteScroll initialLoad={false} pageStart={0} loadMore={this.handleInfiniteOnLoad} useWindow={false}>
-            <List
-              dataSource={reactionUserList[`${msgId}-${reactionTag}`]}
-              renderItem={user => {
-                return (
-                  <List.Item key={user.info_user._id}>
-                    <List.Item.Meta
-                      avatar={<Avatar src={getUserAvatarUrl(user.info_user.avatar)} size={avatarConfig.AVATAR.SIZE.SMALL} />}
-                      title={user.info_user.name}
-                    />
-                  </List.Item>
-                )
-              }}
-            />
-          </InfiniteScroll>
-        </div>
-      )
-    }
-
-    return content;
-  };
-
-  fetchReactionUserList = (msgId, reactionTag) => {
-    const { roomId } = this.props;
-    let { reactionUserList } = this.state;
-
-    getReactionUserListOfMsg(roomId, msgId, reactionTag).then(res => {
-      reactionUserList[`${msgId}-${reactionTag}`] = res.data.list_user
-
-      this.setState({
-        reactionUserList: reactionUserList
-      })
-    })
-  };
-
-  showReactionUserList = (msgId, reactionTag, visible) => {
-    let { activeKeyTab } = this.state;
-
-    if (visible) {
-      this.fetchReactionUserList(msgId, reactionTag)
-      this.setState({
-        flagMsgId: msgId,
-        activeKeyTab: '0'
-      })
-    } else {
-      this.setState({ flagMsgId: '' })
-    }
-  }
-  // for reaction msg - END
-
-  // generate list TO - BEGIN
-  generateListTo = () => {
-    const { t, allMembers, roomInfo } = this.props;
-    const currentUserInfo = this.props.userContext.info;
-    const content = allMembers == [] ? (
-      <span>{t('not_data')}</span>
-    ) : (
-      <React.Fragment>
-        <div className="member-infinite-container">
-          {roomInfo.type == room.ROOM_TYPE.GROUP_CHAT && (
-            <a className="form-control to-all" href="javascript:;" onClick={handlersMessage.actionFunc.toAll}>
-              <span>{t('to_all')}</span>
-            </a>
-          )}
-          <InfiniteScroll initialLoad={false} pageStart={0} loadMore={this.handleInfiniteOnLoad} useWindow={false}>
-            <List
-              dataSource={allMembers}
-              renderItem={member => {
-                return member._id != currentUserInfo._id ? (
-                  <List.Item key={member._id}>
-                    <List.Item.Meta
-                      className="item-to"
-                      avatar={<Avatar size={avatarConfig.AVATAR.SIZE.SMALL} src={getUserAvatarUrl(member.avatar)} />}
-                      title={
-                        <a onClick={handlersMessage.actionFunc.toMember} href="javascript:;" data-mid={member._id}>
-                          {member.nickname ? member.nickname.nickname : member.name}
-                        </a>
-                      }
-                    />
-                  </List.Item>
-                ) : (
-                  <span />
-                );
-              }}
-            />
-          </InfiniteScroll>
-        </div>
-        <ModalSetNicknames hidePopoverTo={this.hidePopoverTo} members={allMembers}/>
-      </React.Fragment>
-    );
-
-    return content;
-  };
-
-  hidePopoverTo = () => {
-    this.setState({
-      visiblePopoverTo: false,
-    });
-  };
-
   handleVisibleChangePopoverTo = visiblePopoverTo => {
     this.setState({ visiblePopoverTo });
   };
 
-  generateListEMoji = () => {
-    const listEmoji = configEmoji.EMOJI;
-    const { t } = this.props;
-    const content = (
-      <div className="member-infinite-container" style={{ width: '210px' }}>
-        <InfiniteScroll initialLoad={false} pageStart={0} loadMore={this.handleInfiniteOnLoad} useWindow={false}>
-          <div className="box-emoji">
-            {Object.entries(listEmoji).map(([key, emoji]) => {
-              return (
-                <p className="line-emoji" key={key}>
-                  <Avatar
-                    className="image-emoji"
-                    src={getEmoji(emoji.image)}
-                    alt={key}
-                    title={t(emoji.tooltip)}
-                    onClick={this.handleEmoji}
-                  />
-                </p>
-              );
-            })}
-          </div>
-        </InfiniteScroll>
-      </div>
-    );
-
-    return content;
-  };
-
   handleInfiniteOnLoad = () => {};
-  // generate list TO - END
 
   // process for popover - BEGIN
   updateSendingRequestUsers = (requestId, status = true) => {
@@ -1082,26 +743,8 @@ class ChatBox extends React.Component {
     return array;
   };
 
-  // handle reaction dupplicate counter
-  reactionDupplicateCounter = (reactionArr = []) => {
-    let configReaction = Object.keys(configEmoji.REACTION);
-
-    reactionArr = reactionArr.reduce((accumulator, currentValue) => {
-      ( accumulator[accumulator.findIndex(item => item.reaction.reaction_tag === currentValue.reaction_tag)] ||
-        accumulator[accumulator.push({reaction: currentValue, count: 0}) - 1] ).count++;
-
-      return accumulator;
-    }, []);
-
-    if (reactionArr.length > 1) {
-      reactionArr = this.mapOrder(reactionArr, configReaction, {key: 'reaction', subKey: 'reaction_tag'})
-    }
-
-    return reactionArr;
-  }
-
   render() {
-    const {
+    let {
       messages,
       nicknames,
       redLineMsgId,
@@ -1110,15 +753,15 @@ class ChatBox extends React.Component {
       loadingNext,
       messageIdEditing,
       infoUserTip,
+      replyMessageContent,
       flagMsgId,
     } = this.state;
     const { t, roomInfo, isReadOnly, roomId, allMembers } = this.props;
     const currentUserInfo = this.props.userContext.info;
-    const showListMember = this.generateListTo();
-    const showListEmoji = this.generateListEMoji();
-    const redLine = this.generateRedLine();
-    const listMember = allMembers.filter(item => item._id !== currentUserInfo._id);
-
+    const showListMember = generateListTo(this);
+    const showListEmoji = generateListEmoji(this);
+    const redLine = generateRedLine(this);
+    const listMember = allMembers.filter(item => item._id != currentUserInfo._id);
     let nextMsgId = null;
 
     for (let message of messages) {
@@ -1128,12 +771,21 @@ class ChatBox extends React.Component {
       }
     }
 
+    if (replyMessageContent == '') {
+      replyMessageContent = this.getEmptyReplyMessage();
+    }
+
     return (
       <Content className="chat-room">
         <div id="_profileTip" className="profileTooltip tooltip tooltip--white" role="tooltip">
           <div className="_cwTTTriangle tooltipTriangle tooltipTriangle--whiteTop" />
-          {this.generateMsgContent(infoUserTip)}
+          {generateMsgContent(this, infoUserTip)}
         </div>
+
+        <div id="originMsgTooltip" className="profileTooltip tooltip tooltip--white" role="tooltip">
+          {replyMessageContent}
+        </div>
+
         <div
           className="list-message"
           ref={element => (this.attr.msgContainerRef = element)}
@@ -1146,164 +798,7 @@ class ChatBox extends React.Component {
           )}
           <div>
             {messages.map(message => {
-              let messageHtml = this.createMarkupMessage(message);
-              let notificationClass = message.is_notification ? 'pre-notification' : '';
-              let isToMe =
-                messageHtml.__html.includes(`data-tag="[To:${currentUserInfo._id}]"`) ||
-                messageHtml.__html.includes(`data-tag="[rp mid=${currentUserInfo._id}]"`) ||
-                messageHtml.__html.includes(messageConfig.SIGN_TO_ALL);
-              let reactionOfMsg = this.reactionDupplicateCounter(message.reactions);
-
-              return (
-                <div
-                  key={message._id}
-                  ref={element => (this.attr.messageRowRefs[message._id] = element)}
-                  className="wrap-message"
-                >
-                  {message._id === nextMsgId ? redLine : ''}
-                  <Row
-                    key={message._id}
-                    className={
-                      (messageIdEditing === message._id ? 'message-item isEditing' : 'message-item',
-                      isToMe ? 'timelineMessage--mention' : '')
-                    }
-                    onMouseEnter={this.handleMouseEnter}
-                    onMouseLeave={this.handleMouseLeave}
-                    id={message._id}
-                  >
-                    <Col span={22}>
-                      <List.Item className="li-message">
-                        <Popover
-                          placement="topLeft"
-                          trigger="click"
-                          text={message.user_info.name}
-                          content={this.generateMsgContent(message.user_info)}
-                          onVisibleChange={this.handleVisibleChange(message.user_info._id)}
-                        >
-                          <div data-user-id={message.user_info._id}>
-                            <List.Item.Meta
-                              className="show-infor"
-                              avatar={<Avatar size={avatarConfig.AVATAR.SIZE.MEDIUM} src={getUserAvatarUrl(message.user_info.avatar)} />}
-                              title={
-                                <p>
-                                  {nicknames[message.user_info._id]
-                                    ? nicknames[message.user_info._id]
-                                    : message.user_info.name}
-                                </p>
-                              }
-                            />
-                          </div>
-                        </Popover>
-                      </List.Item>
-                      <div className="infor-content">
-                        <pre
-                          className={'timelineMessage__message ' + notificationClass}
-                          dangerouslySetInnerHTML={messageHtml}
-                        />
-                            {
-                              (reactionOfMsg.length > 0) ? (
-                                <div className="_reaction timelineMessage__reactionDisplayContainer" style={{display: 'flex'}}>
-                                  {
-                                    reactionOfMsg.map( value => {
-                                      return (configEmoji.REACTION[value.reaction.reaction_tag]) ? (
-                                        <span
-                                          className="reactionButton reactionButton--myReaction _sendReaction _showDescription"
-                                          aria-label="Remove this reaction"
-                                          data-reactiontype="yes"
-                                          onClick={() => this.handleReaction(message._id, value.reaction.reaction_tag)}
-                                        >
-                                          <img
-                                            src={getEmoji(configEmoji.REACTION[value.reaction.reaction_tag].image)}
-                                            alt={value.reaction.reaction_tag}
-                                            className="reactionButton__emoticon"
-                                          />
-                                          <span className="reactionButton__count _reactionCount">{value.count}</span>
-                                        </span>
-                                      ) : '';
-                                    })
-                                  }
-                                  <Popover
-                                    trigger="click"
-                                    content={this.generateReactionUserList(message._id, reactionOfMsg)}
-                                    visible={(flagMsgId === message._id)}
-                                    onVisibleChange={(visible) => this.showReactionUserList(message._id, reactionOfMsg[0].reaction.reaction_tag, visible)}
-                                  >
-                                    <span className="_openSelectedReactionDialog timelineMessage__reactionUserListContainer _showDescription" aria-label="View Reactions">
-                                      <Icon className="timelineMessage__reactionUserListIcon" type="usergroup-add" />
-                                    </span>
-                                  </Popover>
-                                </div>
-                              ) : ('')
-                            }
-                      </div>
-                    </Col>
-                    <Col span={2} className="message-time">
-                      <h4>
-                        {this.formatMsgTime(message.updatedAt)}{' '}
-                        {message.updatedAt !== message.createdAt ? (
-                          <span>
-                            <Icon type="edit" />
-                          </span>
-                        ) : (
-                          ''
-                        )}
-                      </h4>
-                    </Col>
-                    <Col span={24} style={{ position: 'relative' }}>
-                      {message.is_notification === false && (
-                        <div
-                          className="optionChangeMessage"
-                          id={'action-button-' + message._id}
-                          style={{ textAlign: 'right', position: 'absolute', bottom: '0', right: '0', display: 'none' }}
-                        >
-                          {currentUserInfo._id === message.user_info._id && !message.is_notification && !isReadOnly && (
-                            <Button type="link" onClick={this.editMessage} id={message._id}>
-                              <Icon type="edit" /> {t('button.edit')}
-                            </Button>
-                          )}
-                          {currentUserInfo._id !== message.user_info._id && !isReadOnly && (
-                            <Button
-                              type="link"
-                              onClick={handlersMessage.actionFunc.replyMember}
-                              id={message._id}
-                              data-rid={roomId}
-                              data-mid={message.user_info._id}
-                              data-name={
-                                nicknames[message.user_info._id]
-                                  ? nicknames[message.user_info._id]
-                                  : message.user_info.name
-                              }
-                            >
-                              <Icon type="enter" /> {t('button.reply')}
-                            </Button>
-                          )}
-                          <Popover
-                            content={this.generateReactionMsg(message._id)}
-                            trigger="click"
-                          >
-                            <Button type="link" id={message._id} data-mid={message.user_info._id}>
-                              <Icon type="heart" theme="twoTone" twoToneColor="#eb2f96" /> {t('button.reaction')}
-                            </Button>
-                          </Popover>
-                          <Button
-                            type="link"
-                            onClick={this.quoteMessage}
-                            id={message._id}
-                            data-mid={message.user_info._id}
-                          >
-                            <Icon type="rollback" /> {t('button.quote')}
-                          </Button>
-                          {currentUserInfo._id === message.user_info._id && !isReadOnly && (
-                            <Button type="link" id={message._id} onClick={this.deleteMessage}>
-                              <Icon type="delete" /> {t('button.delete')}
-                            </Button>
-                          )}
-                        </div>
-                      )}
-                    </Col>
-                  </Row>
-                </div>
-              );
+              return generateMessageHTML(this, message);
             })}
 
             {loadingNext && (
@@ -1347,16 +842,16 @@ class ChatBox extends React.Component {
           </a>
           {isEditing ? (
             <React.Fragment>
-              <Button style={{ float: 'right' }} type="primary" onClick={this.handleSendMessage}>
+              <Button style={{ float: 'right' }} type="primary" onClick={(e) => handleSendMessage(e, this)}>
                 {t('button.update')}
               </Button>
-              <Button style={{ float: 'right' }} type="default" onClick={this.handleCancelEdit}>
+              <Button style={{ float: 'right' }} type="default" onClick={() => handleCancelEdit(this)}>
                 {t('button.cancel')}
               </Button>
             </React.Fragment>
           ) : (
             <React.Fragment>
-              <Button style={{ float: 'right' }} type="primary" onClick={this.handleSendMessage} disabled={isReadOnly}>
+              <Button style={{ float: 'right' }} type="primary" onClick={(e) => handleSendMessage(e, this)} disabled={isReadOnly}>
                 {t('button.send')}
               </Button>
             </React.Fragment>
@@ -1368,7 +863,7 @@ class ChatBox extends React.Component {
           style={{ resize: 'none' }}
           id="msg-content"
           disabled={isReadOnly}
-          onKeyDown={this.handleSendMessage}
+          onKeyDown={(e) => handleSendMessage(e, this)}
           ref={input => {
             this.inputMsg = input;
           }}

@@ -46,7 +46,8 @@ const actionFunc = {
     return false;
   },
   replyMember: function(e) {
-    insertTextToMessageArea('[' + i18n.t('message:button.reply') + ' mid=' + e.target.getAttribute('data-mid') + '] ' + e.target.getAttribute('data-name') + '\n');
+    insertTextToMessageArea('[' + i18n.t('message:button.reply') + ' mid=' + e.target.getAttribute('data-mid') + ' msg-id=' + e.target.getAttribute('id') + '] '
+      + e.target.getAttribute('data-name') + '\n');
 
     return false;
   },
@@ -106,10 +107,15 @@ const messageToHtml = {
       '<div class="messageBadge"' + messageConfig.SIGN_TO_ALL + '><div class="messageBadge__toAllBadge"><span>TO ALL</span></div></div>'
     );
   },
-  reply: function(memberId) {
+  reply: function(memberId, msgId) {
     let avatar = getAvatarByID(memberId);
+    let msgAttribute = '';
 
-    return `<div data-tag="[rp mid=${memberId}]" class="messageBadge"><div class="chatTimeLineTo" data-mid="${memberId}"><span class="chatTimeLineReply">&#8592; Re</span>${avatar}</div></div>`;
+    if (msgId) {
+      msgAttribute = `data-msg_id=${msgId}`;
+    }
+
+    return `<div data-tag="[rp mid=${memberId}]" class="messageBadge"><div class="chatTimeLineTo reply-msg" data-mid=${memberId} ${msgAttribute}><span class="chatTimeLineReply" id="reply-msg">&#8592; Re</span>${avatar}</div></div>`;
   },
   title: function(content) {
     return `<div><b>&#9432</b> ${content}</div>`;
@@ -161,11 +167,12 @@ const renderMessageToHtml = {
   },
   reply: function(content) {
     let contents = content;
-    let regEx = /^(.*?)(\[rp mid=([\w-]+)\])(.*)$/s;
+    let regEx = /^(.*?)(\[rp mid=([\w-]+)( msg-id=([\w-]+))?\])(.*)$/s;
     let match = regEx.exec(content);
+    let msgId = (match && match.length > 0) ? match[5] : null;
 
     if (match) {
-      contents = match[1] + messageToHtml.reply(match[3]) + this.reply(match[4]);
+      contents = match[1] + messageToHtml.reply(match[3], msgId) + this.reply(match[6], msgId);
     }
 
     return contents;

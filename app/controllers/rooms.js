@@ -833,3 +833,21 @@ exports.getReactionUserListOfMsg = async(req, res) => {
     });
   }
 }
+
+exports.getMessageInfo = async(req, res) => {
+  const { roomId, messageId} = req.params;
+
+  try {
+    const message = await Room.getMessageInfo(roomId, messageId);
+
+    return res.status(200).json({
+      message: message
+    })
+  } catch(err) {
+    channel.error(err);
+
+    return res.status(500).json({
+      error: __('error.common'),
+    });
+  }
+}

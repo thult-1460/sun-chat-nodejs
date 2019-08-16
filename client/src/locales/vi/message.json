@@ -38,5 +38,8 @@
   },
   "cancelled_user": "Người dùng đã hủy sử dụng",
   "loading": "Đang tải ...",
-  "not_data": "Không có dữ liệu!"
+  "not_data": "Không có dữ liệu!",
+  "messages": {
+    "no_reply_msg": "Tin nhắn không tồn tại hoặc đã bị xóa"
+  }
 }

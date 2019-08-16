@@ -38,5 +38,8 @@
   },
   "cancelled_user": "Cancelled User",
   "loading": "Loading ...",
-  "not_data": "Not data"
+  "not_data": "Not data",
+  "messages": {
+    "no_reply_msg": "The message does not exist or have been deleted"
+  }
 }

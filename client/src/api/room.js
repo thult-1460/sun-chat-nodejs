@@ -127,3 +127,7 @@ export function reactionMsg(roomId, data) {
 export function getReactionUserListOfMsg(roomId, msgId, reactionTag) {
   return new Http().authenticated().get(`rooms/${roomId}/messages/${msgId}/reactions/${escape(reactionTag)}`);
 }
+
+export function getMessageInfo(roomId, msgId) {
+  return new Http().authenticated().get(`rooms/${roomId}/messages/${msgId}`);
+}
