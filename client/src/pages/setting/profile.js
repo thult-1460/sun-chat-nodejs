@@ -2,12 +2,13 @@ import React from 'react';
 import 'antd/dist/antd.css';
 import { Input, Button, Alert, Icon, Form, Upload, message, Row, Col } from 'antd';
 import { getUser, updateUser } from './../../api/user';
-import { authValidate } from './../../config/validate';
+import { authValidate, avatarValidate } from './../../config/validate';
+import avatarConfig from './../../config/avatar';
 import { withNamespaces } from 'react-i18next';
-import { avatarValidate } from '../../config/validate';
 import { getUserAvatarUrl } from './../../helpers/common';
 
 const FormItem = Form.Item;
+const resizeBase64 = require('resize-base64');
 
 function getBase64(img, callback) {
   const reader = new FileReader();
@@ -119,7 +120,8 @@ class Profile extends React.Component {
     this.props.form.validateFields((err, values) => {
       if (!err) {
         const { name, email, username, twitter, github, google, address, phone } = this.props.form.getFieldsValue();
-        const avatar = this.state.imageUrl;
+        const avatar = resizeBase64(this.state.imageUrl, avatarConfig.AVATAR.USER.WIDTH, avatarConfig.AVATAR.USER.HEIGHT)
+
         let user;
 
         if (this.state.changedAvatar) {
@@ -196,44 +198,46 @@ class Profile extends React.Component {
       <Form>
         <div className="area-edit-profile">
           <p className="font30">{t('user:label.title_update_info')}</p>
-          <Row>
-            <Col span={8}>
-              <FormItem
-                name="avatar"
-                help={
-                  form.getFieldError('avatar') ? (
-                    form.getFieldError('avatar')
-                  ) : errors && errors.name ? (
-                    <span className="error-message-from-server">{errors.avatar}</span>
-                  ) : (
-                    ''
-                  )
-                }
-              >
-                {form.getFieldDecorator('avatar')(
-                  <Upload
+          <Row className="form-profile">
+            <Col span={16} offset={3}>
+              <Row>
+                <Col offset={11}>
+                  <FormItem
                     name="avatar"
-                    listType="picture-card"
-                    className="avatar-uploader"
-                    showUploadList={false}
-                    beforeUpload={() => false}
-                    onChange={this.handleChange}
+                    help={
+                      form.getFieldError('avatar') ? (
+                        form.getFieldError('avatar')
+                      ) : errors && errors.name ? (
+                        <span className="error-message-from-server">{errors.avatar}</span>
+                      ) : (
+                        ''
+                      )
+                    }
                   >
-                    {imageUrl ? (
-                      <img
-                        src={changedAvatar ? imageUrl : getUserAvatarUrl(imageUrl)}
-                        alt="avatar"
-                        className="profile-avatar"
-                      />
-                    ) : (
-                      uploadButton
+                    {form.getFieldDecorator('avatar')(
+                      <Upload
+                        name="avatar"
+                        listType="picture-card"
+                        className="avatar-uploader"
+                        showUploadList={false}
+                        beforeUpload={() => false}
+                        onChange={this.handleChange}
+                      >
+                        {imageUrl ? (
+                          <img
+                            src={changedAvatar ? imageUrl : getUserAvatarUrl(imageUrl)}
+                            alt="avatar"
+                            className="profile-avatar"
+                          />
+                        ) : (
+                          uploadButton
+                        )}
+                      </Upload>
                     )}
-                  </Upload>
-                )}
-              </FormItem>
-            </Col>
-            <Col span={16}>
-              <div>
+                  </FormItem>
+                </Col>
+              </Row>
+              <Row>
                 <label className="bold">{t('user:label.name')}</label>
                 <FormItem
                   name="name"
@@ -251,8 +255,8 @@ class Profile extends React.Component {
                     <Input prefix={<Icon type="user" style={{ fontSize: 13 }} />} placeholder={t('name')} />
                   )}
                 </FormItem>
-              </div>
-              <div>
+              </Row>
+              <Row>
                 <label className="bold">{t('user:label.email')}</label>
                 <FormItem
                   name="email"
@@ -270,8 +274,8 @@ class Profile extends React.Component {
                     <Input prefix={<Icon type="user" style={{ fontSize: 13 }} />} placeholder={t('email')} />
                   )}
                 </FormItem>
-              </div>
-              <div>
+              </Row>
+              <Row>
                 <label className="bold">{t('user:label.user_name')}</label>
                 <FormItem
                   name="username"
@@ -289,8 +293,8 @@ class Profile extends React.Component {
                     <Input prefix={<Icon type="user" style={{ fontSize: 13 }} />} placeholder={t('username')} />
                   )}
                 </FormItem>
-              </div>
-              <div>
+              </Row>
+              <Row>
                 <label className="bold">{t('user:label.twitter')}</label>
                 <FormItem
                   name="twitter"
@@ -311,8 +315,8 @@ class Profile extends React.Component {
                     />
                   )}
                 </FormItem>
-              </div>
-              <div>
+              </Row>
+              <Row>
                 <label className="bold">{t('user:label.github')}</label>
                 <FormItem
                   name="github"
@@ -333,8 +337,8 @@ class Profile extends React.Component {
                     />
                   )}
                 </FormItem>
-              </div>
-              <div>
+              </Row>
+              <Row>
                 <label className="bold">{t('user:label.google')}</label>
                 <FormItem
                   name="google"
@@ -355,8 +359,8 @@ class Profile extends React.Component {
                     />
                   )}
                 </FormItem>
-              </div>
-              <div>
+              </Row>
+              <Row>
                 <label className="bold">{t('user:label.address')}</label>
                 <FormItem
                   name="address"
@@ -377,8 +381,8 @@ class Profile extends React.Component {
                     />
                   )}
                 </FormItem>
-              </div>
-              <div>
+              </Row>
+              <Row>
                 <label className="bold">{t('user:label.phone')}</label>
                 <FormItem
                   name="phone"
@@ -399,10 +403,14 @@ class Profile extends React.Component {
                     />
                   )}
                 </FormItem>
-              </div>
-              <Button className="button-submit" onClick={this.handleSubmit}>
-                {this.props.t('user:button.update_info')}
-              </Button>
+              </Row>
+              <Row>
+                <Col offset={11}>
+                  <Button className="button-submit" onClick={this.handleSubmit}>
+                    {this.props.t('user:button.update_info')}
+                  </Button>
+                </Col>
+              </Row>
             </Col>
           </Row>
         </div>

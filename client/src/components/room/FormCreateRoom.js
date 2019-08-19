@@ -8,10 +8,12 @@ import { room } from '../../config/room';
 import { Row, Col, Card, Form, Input, Icon, Button, Modal, message, Checkbox, Upload, Typography } from 'antd';
 import { SocketContext } from './../../context/SocketContext';
 import { getRoomAvatarUrl } from './../../helpers/common';
+import avatarConfig from './../../config/avatar';
 
 const FormItem = Form.Item;
 const { TextArea } = Input;
 const { Paragraph } = Typography;
+const resizeBase64 = require('resize-base64');
 
 class FormCreateRoom extends Component {
   static contextType = SocketContext;
@@ -201,11 +203,14 @@ class FormCreateRoom extends Component {
       }
 
       if (this.state.fileList.length > 0 && changeAvatar) {
-        roomVals = { ...roomVals, ...{ avatar: fileList[0].thumbUrl } };
+        let avatar = resizeBase64(fileList[0].thumbUrl, avatarConfig.AVATAR.ROOM.WIDTH, avatarConfig.AVATAR.ROOM.HEIGHT);
+
+        roomVals = { ...roomVals, ...{ avatar } };
       }
 
       if (roomInfo._id === undefined) {
         roomVals = { ...roomVals, ...{ members } };
+
         this.handleCreateRoom(roomVals);
       } else {
         roomVals.invitation_code = invitationCode;
