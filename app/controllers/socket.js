@@ -50,8 +50,10 @@ module.exports = function(io) {
       }
     });
 
-    socket.on('join-live-chat', liveChatId => {
+    socket.on('join-live-chat', ({ liveChatId, peerId }) => {
+      io.to(liveChatId).emit('add-member', { peerId: peerId });
       socket.join(liveChatId);
+      socket.peerId = peerId;
     });
 
     socket.on('close_room', () => {
