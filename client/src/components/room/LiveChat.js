@@ -224,7 +224,7 @@ class LiveChat extends Component {
         }
       })
       .catch(res => {
-        message.error(res.data.message);
+        message.error(res.message);
       });
   };
 
