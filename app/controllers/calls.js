@@ -56,6 +56,22 @@ exports.offerBeJoined = async (req, res) => {
   res.status(200).json({ success: !!masterId, message: message });
 };
 
+exports.directJoin = async (req, res) => {
+  let { roomId, liveChatId } = req.body;
+  let masterId = null,
+    findMaster = true,
+    message = __('socket.live_chat.offer.fail');
+
+  const liveChat = await Room.getLiveChat(roomId, masterId, liveChatId, findMaster);
+
+  if (liveChat && liveChat.member !== undefined) {
+    masterId = liveChat.member.user_id;
+    message = '';
+  }
+
+  res.status(200).json({ success: !!masterId, message: message });
+};
+
 exports.checkMember = async (req, res) => {
   let { _id: userId } = req.decoded;
   let { roomId, liveChatId } = req.body;
@@ -122,4 +138,19 @@ exports.leaveLiveChat = async (req, res) => {
 
     return res.status(500).json({ message: message });
   }
-}
+};
+
+exports.getListNotMember = async (req, res) => {
+  let { roomId, liveId } = req.body;
+  let message = __('socket.live_chat.list_not_member.fail');
+
+  try {
+    let result = await Room.getListNotMemberLiveChat(roomId, liveId);
+
+    return res.status(200).json({ result });
+  } catch (e) {
+    channel.error(e);
+
+    return res.status(500).json({ message: message });
+  }
+};

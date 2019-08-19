@@ -226,3 +226,10 @@
     }
   }
 }
+
+#list-not-live-member {
+  > span {
+    width: 55% !important;
+    float: none !important;
+  }
+}

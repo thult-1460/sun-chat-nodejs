@@ -259,6 +259,8 @@ router.post('/live-chat/create', [auth.jwtMiddleware], callsController.create);
 
 router.post('/live-chat/offer-join', [auth.jwtMiddleware], callsController.offerBeJoined);
 
+router.post('/live-chat/direct-join', [auth.jwtMiddleware], callsController.directJoin);
+
 router.post('/live-chat/check-member', [auth.jwtMiddleware], callsController.checkMember);
 
 router.post('/live-chat/accept-member/:memberId', [auth.jwtMiddleware], callsController.acceptMember);
@@ -267,6 +269,12 @@ router.post(
   '/live-chat/:liveChatId/hang-up/:userId',
   [auth.jwtMiddleware, authorization.calls.checkExistMember],
   callsController.leaveLiveChat
+);
+
+router.post(
+  '/live-chat/:liveId/get-list-not-member',
+  [auth.jwtMiddleware, authorization.calls.checkExistMember],
+  callsController.getListNotMember
 );
 
 module.exports = router;

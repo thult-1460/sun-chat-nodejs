@@ -213,6 +213,9 @@
       },
       "leave": {
         "fail": "Error when try to leave"
+      },
+      "list_not_member": {
+        "fail": "Can't get list user for the adding member"
       }
     }
   },
