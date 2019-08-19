@@ -271,10 +271,6 @@ class Sidebar extends React.Component {
     } else if (a.pinned < b.pinned) {
       comparison = 1;
     } else {
-      if (a.last_created_msg === null) a.last_created_msg = a.createdAt;
-
-      if (b.last_created_msg === null) b.last_created_msg = b.createdAt;
-
       if (a.last_created_msg > b.last_created_msg) {
         comparison = -1;
       } else if (a.last_created_msg < b.last_created_msg) {

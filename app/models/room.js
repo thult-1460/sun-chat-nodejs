@@ -235,7 +235,9 @@ RoomSchema.statics = {
             },
           },
           type: 1,
-          last_created_msg: { $max: '$messages.createdAt' },
+          last_created_msg: {
+            $max: [{ $max: '$messages.createdAt' }, '$createdAt'],
+          },
           pinned: '$last_msg_id_reserve.pinned',
           createdAt: 1,
           quantity_unread: { $size: '$message_able' },
