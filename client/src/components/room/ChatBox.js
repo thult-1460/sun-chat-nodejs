@@ -583,7 +583,7 @@ class ChatBox extends React.Component {
     const { t } = this.props;
 
     return (
-      <div class="empty-reply-msg">
+      <div className="empty-reply-msg">
         <p> { t('messages.no_reply_msg')} </p>
       </div>
     )
@@ -808,66 +808,80 @@ class ChatBox extends React.Component {
             )}
           </div>
         </div>
-        <div className="box-button">
-          <Popover content={showListEmoji} trigger="click">
-            <Badge className="header-icon" type="primary">
-              <a><Icon type="smile" theme="outlined"/></a>
-            </Badge>
-          </Popover>
-          <Popover content={showListMember} trigger="click" visible={this.state.visiblePopoverTo} onVisibleChange={this.handleVisibleChangePopoverTo}>
-            <Badge className="header-icon" type="primary">
-              <a href="javascript:;">{roomInfo.type !== room.ROOM_TYPE.MY_CHAT ? <strong>{t('to')}</strong> : ''}</a>
-            </Badge>
-          </Popover>
-          {roomInfo.type === room.ROOM_TYPE.GROUP_CHAT && (
-            <ModalChooseMemberToCall
-              listMember={listMember}
-              roomDetail={{
-                name: roomInfo.name,
-                avatar: roomInfo.avatar,
-                type: roomInfo.type,
-                _id: roomInfo._id,
-                currentUserId: currentUserInfo._id,
-              }}
-            />
-          )}
-          <a onClick={handlersMessage.actionFunc.infoBlock} className="block">
-            <strong>{block.INFO_BLOCK}</strong>
-          </a>
-          <a onClick={handlersMessage.actionFunc.titleBlock} className="block">
-            <strong>{block.TITLE_BLOCK}</strong>
-          </a>
-          <a onClick={handlersMessage.actionFunc.codeBlock} className="block">
-            <strong>{block.CODE_BLOCK}</strong>
-          </a>
-          {isEditing ? (
-            <React.Fragment>
-              <Button style={{ float: 'right' }} type="primary" onClick={(e) => handleSendMessage(e, this)}>
-                {t('button.update')}
-              </Button>
-              <Button style={{ float: 'right' }} type="default" onClick={() => handleCancelEdit(this)}>
-                {t('button.cancel')}
-              </Button>
-            </React.Fragment>
-          ) : (
-            <React.Fragment>
-              <Button style={{ float: 'right' }} type="primary" onClick={(e) => handleSendMessage(e, this)} disabled={isReadOnly}>
-                {t('button.send')}
-              </Button>
-            </React.Fragment>
-          )}
+        <div className="chatSendArea">
+          <div className="box-button">
+            <Popover content={showListEmoji} trigger="click">
+              <Badge className="header-icon" type="primary">
+                <a>
+                  <Icon type="smile" theme="outlined" />
+                </a>
+              </Badge>
+            </Popover>
+            <Popover
+              content={showListMember}
+              trigger="click"
+              visible={this.state.visiblePopoverTo}
+              onVisibleChange={this.handleVisibleChangePopoverTo}
+            >
+              <Badge className="header-icon" type="primary">
+                <a href="javascript:;">{roomInfo.type !== room.ROOM_TYPE.MY_CHAT ? <strong>{t('to')}</strong> : ''}</a>
+              </Badge>
+            </Popover>
+            {roomInfo.type === room.ROOM_TYPE.GROUP_CHAT && (
+              <ModalChooseMemberToCall
+                listMember={listMember}
+                roomDetail={{
+                  name: roomInfo.name,
+                  avatar: roomInfo.avatar,
+                  type: roomInfo.type,
+                  _id: roomInfo._id,
+                  currentUserId: currentUserInfo._id,
+                }}
+              />
+            )}
+            <a onClick={handlersMessage.actionFunc.infoBlock} className="block">
+              <strong>{block.INFO_BLOCK}</strong>
+            </a>
+            <a onClick={handlersMessage.actionFunc.titleBlock} className="block">
+              <strong>{block.TITLE_BLOCK}</strong>
+            </a>
+            <a onClick={handlersMessage.actionFunc.codeBlock} className="block">
+              <strong>{block.CODE_BLOCK}</strong>
+            </a>
+            {isEditing ? (
+              <React.Fragment>
+                <Button style={{ float: 'right' }} type="primary" onClick={e => handleSendMessage(e, this)}>
+                  {t('button.update')}
+                </Button>
+                <Button style={{ float: 'right' }} type="default" onClick={() => handleCancelEdit(this)}>
+                  {t('button.cancel')}
+                </Button>
+              </React.Fragment>
+            ) : (
+              <React.Fragment>
+                <Button
+                  style={{ float: 'right' }}
+                  type="primary"
+                  onClick={e => handleSendMessage(e, this)}
+                  disabled={isReadOnly}
+                >
+                  {t('button.send')}
+                </Button>
+              </React.Fragment>
+            )}
+          </div>
+          <Input.TextArea
+            placeholder={t('type_msg')}
+            rows={4}
+            style={{ resize: 'none' }}
+            id="msg-content"
+            disabled={isReadOnly}
+            onKeyDown={e => handleSendMessage(e, this)}
+            ref={input => {
+              this.inputMsg = input;
+            }}
+          />
         </div>
-        <Input.TextArea
-          placeholder={t('type_msg')}
-          rows={4}
-          style={{ resize: 'none' }}
-          id="msg-content"
-          disabled={isReadOnly}
-          onKeyDown={(e) => handleSendMessage(e, this)}
-          ref={input => {
-            this.inputMsg = input;
-          }}
-        />
       </Content>
     );
   }

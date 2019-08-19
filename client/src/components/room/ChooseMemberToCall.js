@@ -142,7 +142,7 @@ class ChooseMemberToCall extends React.Component {
             <Col span={24} className="group-call-member-list-box">
               <p className="group-call-member-list-box-title">{t('video-audio-call.choose-member')}</p>
               {listMember.length > 0 ? (
-                <div className="infinite-container" style={{ height: '400px', overflow: 'auto' }}>
+                <div className="infinite-container container-choose-member-call">
                   <CheckboxGroup onChange={this.onChange} value={checkedList}>
                     <List
                       style={{ padding: '5px' }}
