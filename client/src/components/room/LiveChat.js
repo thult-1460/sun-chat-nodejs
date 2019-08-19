@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { withNamespaces } from 'react-i18next';
+import Peer from 'peerjs';
 import './../../scss/live_chat.scss';
 import { Button, message } from 'antd';
 import {
@@ -16,12 +17,16 @@ import { MdAddToQueue } from 'react-icons/md';
 import { Icon } from 'antd';
 import { checkMember, acceptMember, leaveLiveChat } from './../../api/call';
 import { getUserAvatarUrl } from './../../helpers/common';
+import { openStream } from './../../helpers/livechat/openStream';
+import { playVideo } from './../../helpers/livechat/playVideo';
 import { SocketContext } from './../../context/SocketContext';
 import { withUserContext } from './../../context/withUserContext';
 
 class LiveChat extends Component {
   static contextType = SocketContext;
   socket = this.context.socket;
+  peer = null;
+  stream = null;
   state = {
     checkDisplayLayout: null,
     leftOn: true,
@@ -32,21 +37,11 @@ class LiveChat extends Component {
 
     listMember: [],
     listOfferPerson: [],
+    loaded: false,
   };
 
   componentDidMount() {
     const { roomId, liveChatId } = this.props.match.params;
-
-    if (window.location.search.split('main-member=')[1]) {
-      this.socket.emit('regist-live-chat', { roomId: roomId, liveId: liveChatId, master: false });
-
-      this.acceptMember({ roomId, liveChatId });
-      this.setState({
-        checkDisplayLayout: true,
-      });
-    } else {
-      this.checkMember({ roomId, liveChatId });
-    }
 
     this.socket.on('change-offer-list', res => {
       const roomId = this.props.match.params.roomId;
@@ -79,11 +74,15 @@ class LiveChat extends Component {
     });
 
     this.socket.on('be-accepted-by-master', res => {
-      this.socket.emit('join-live-chat', liveChatId);
+      this.joinLiveChat(liveChatId);
 
       this.setState({
         checkDisplayLayout: res.accepted,
       });
+    });
+
+    this.socket.on('add-member', res => {
+      var call = this.peer.call(res.peerId, this.stream);
     });
 
     this.socket.on('list-member-live-chat', ({ listMember, offerId }) => {
@@ -104,6 +103,58 @@ class LiveChat extends Component {
     });
   }
 
+  componentDidUpdate(prevProps) {
+    const { roomId, liveChatId } = this.props.match.params;
+
+    if (this.props.userContext.info._id && !this.state.loaded) {
+      if (window.location.search.split('main-member=')[1]) {
+        this.socket.emit('regist-live-chat', { roomId: roomId, liveId: liveChatId, master: false });
+
+        this.acceptMember({ roomId, liveChatId });
+        this.setState({
+          checkDisplayLayout: true,
+        });
+      } else {
+        this.checkMember({ roomId, liveChatId });
+      }
+
+      this.setState({
+        loaded: true,
+      });
+    }
+  }
+
+  joinLiveChat(liveChatId) {
+    let _this = this;
+    let peerId = null;
+
+    this.peer = new Peer();
+    /* const peer = new Peer(this.props.userContext.info._id,
+      {
+        host: 'localhost',
+        port: 3001,
+        path: '/peerjs'
+      }
+    );*/
+
+    this.peer.on('open', function(peerId) {
+      peerId = peerId;
+    });
+
+    this.peer.on('call', function(call) {
+      call.answer(this.stream);
+    });
+
+    this.socket.emit('join-live-chat', { liveChatId: liveChatId, peerId: peerId });
+
+    let options = { audio: true, video: true };
+    openStream(options, function(stream) {
+      this.stream = stream;
+      playVideo(stream, 'main-video');
+      playVideo(stream, _this.props.userContext.info._id);
+    });
+  }
+
   checkMember({ roomId, liveChatId }) {
     checkMember({ roomId, liveChatId }).then(res => {
       let enable = false;
@@ -117,8 +168,7 @@ class LiveChat extends Component {
           cameraView: '',
         });
 
-        this.socket.emit('join-live-chat', liveChatId);
-
+        this.joinLiveChat(liveChatId);
         this.setState({
           listMember: listMember,
           isCaller: isCaller,
@@ -247,9 +297,7 @@ class LiveChat extends Component {
       <div id="live-chat">
         {checkDisplayLayout ? (
           <div>
-            <video className="video" controls>
-              <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4" />
-              <source src="https://www.w3schools.com/html/mov_bbb.ogg" type="video/ogg" />
+            <video className="video" id="main-video" controls>
             </video>
             <div id="top-right-column" className="block">
               <div className="show-or-hide" data-right="1" onClick={this.showOrHide.bind(this)}>
@@ -269,9 +317,7 @@ class LiveChat extends Component {
                 {listMember.map(member => {
                   return (
                     <div key={member.id} className={rightOn ? '' : 'hide'}>
-                      <video controls>
-                        <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4" />
-                        <source src="https://www.w3schools.com/html/mov_bbb.ogg" type="video/ogg" />
+                      <video id={member.id} controls>
                       </video>
                       <span className="person-name">{member.name}</span>
                     </div>

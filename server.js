@@ -17,6 +17,7 @@ const models = join(__dirname, 'app/models');
 const port = process.env.PORT || 3001;
 const app = express();
 const http = require('http');
+const ExpressPeerServer = require('peer').ExpressPeerServer;
 
 const { timezone } = require('./config/app.js');
 moment.tz.setDefault(timezone);
@@ -40,6 +41,19 @@ const server = http.createServer(app);
 const io = require('socket.io').listen(server);
 app.set('socketIO', io);
 require('./app/controllers/socket')(io);
+
+const options = {
+  debug: true,
+};
+
+const peerserver = ExpressPeerServer(server, options);
+app.use('/peerjs', peerserver);
+peerserver.on('connection', client => {
+  console.log('peerserver: client connected!', client);
+});
+peerserver.on('disconnect', client => {
+  console.log('peerserver: client disconnected!', client);
+});
 
 connect();
 
