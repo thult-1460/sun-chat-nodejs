@@ -74,10 +74,14 @@
 }
 
 .profile-avatar {
-  width: 225px;
-  height: 225px;
+  width: 100px;
+  height: 100px;
 }
 
 .area-edit-profile .ant-form-item {
   margin-bottom: 13px !important;
+}
+
+.form-profile {
+  padding-top: 0 !important;
 }

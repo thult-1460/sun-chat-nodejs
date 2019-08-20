@@ -9,6 +9,14 @@ const avatarConfig = {
       SMALL: 25,
       MEDIUM: 35,
       LARGE: 45,
+    },
+    USER: {
+      WIDTH: 100,
+      HEIGHT: 100,
+    },
+    ROOM: {
+      WIDTH: 50,
+      HEIGHT: 50,
     }
   }
 };
