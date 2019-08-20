@@ -141,6 +141,7 @@ class Head extends React.Component {
               <Badge className="header-icon dropdown-setting" type="primary">
                 <a href="javascript:;">
                   <Avatar
+                    className={`_avatarHoverTip _avatarClickTip avatarClickTip avatarMedium _avatar _avatar_Uid_${this.props.userContext.info._id}`}
                     size={avatarConfig.AVATAR.SIZE.MEDIUM}
                     src={getUserAvatarUrl(avatar == null ? this.props.userContext.info.avatar : avatar)}
                   />

@@ -119,9 +119,9 @@ class ListContacts extends React.Component {
     this.fetchData(newPage, searchText);
   };
 
-  setAvatar(avatar) {
+  setAvatar(avatar, id) {
     if (avatar) {
-      return <Avatar src={getUserAvatarUrl(avatar)} />;
+      return <Avatar className={`_avatar _avatar_Uid_${id}`} src={getUserAvatarUrl(avatar)} />;
     }
 
     return <Avatar icon="user" size="large" />;
@@ -207,7 +207,7 @@ class ListContacts extends React.Component {
                         <List.Item key={item._id}>
                           <a onClick={this.showContactDetail} id={item._id}>
                             <List.Item.Meta
-                              avatar={this.setAvatar(item.avatar)}
+                              avatar={this.setAvatar(item.avatar, item._id)}
                               title={item.name}
                               description={item.email}
                               id="list-contact-item"

@@ -239,6 +239,13 @@ RoomSchema.statics = {
           pinned: '$last_msg_id_reserve.pinned',
           createdAt: 1,
           quantity_unread: { $size: '$message_able' },
+          members: {
+            $cond : {
+              if: { $eq: ['$type', config.ROOM_TYPE.DIRECT_CHAT] },
+              then: { $arrayElemAt: ['$members.user_info._id', 0] },
+              else: '',
+            }
+          }
         },
       }
     );

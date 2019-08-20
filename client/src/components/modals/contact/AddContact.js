@@ -222,7 +222,7 @@ class AddContact extends React.Component {
                       renderItem={item => (
                         <List.Item key={item._id}>
                           <List.Item.Meta
-                            avatar={<Avatar src={getUserAvatarUrl(item.avatar)} />}
+                            avatar={<Avatar className={`_avatar _avatar_Uid_${item._id}`} src={getUserAvatarUrl(item.avatar)} />}
                             title={item.name}
                             description={item.email}
                           />

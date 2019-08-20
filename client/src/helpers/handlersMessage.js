@@ -95,7 +95,7 @@ const messageToHtml = {
   to: function(id) {
     let avatar = getAvatarByID(id);
 
-    return `<div data-tag="[To:${id}]" class="messageBadge"><div class="chatTimeLineTo"><span>To</span>${avatar}</div></div>`;
+    return `<div data-tag="[To:${id}]" class="messageBadge"><div class="chatTimeLineTo"><span>To</span><span class="ant-avatar messageBadge__avatar _avatarHoverTip _avatarClickTip _avatar_Uid_${id}">${avatar}</span></div></div>`;
   },
   code: function(code) {
     let codeHighlight = hljs.highlightAuto(_.unescape(code));
@@ -115,7 +115,7 @@ const messageToHtml = {
       msgAttribute = `data-msg_id=${msgId}`;
     }
 
-    return `<div data-tag="[rp mid=${memberId}]" class="messageBadge"><div class="chatTimeLineTo reply-msg" data-mid=${memberId} ${msgAttribute}><span class="chatTimeLineReply" id="reply-msg">&#8592; Re</span>${avatar}</div></div>`;
+    return `<div data-tag="[rp mid=${memberId}]" class="messageBadge"><div class="chatTimeLineTo reply-msg" data-mid=${memberId} ${msgAttribute}><span class="chatTimeLineReply" id="reply-msg">&#8592; Re</span><span class="ant-avatar messageBadge__avatar _avatarHoverTip _avatarClickTip _avatar_Uid_${memberId}">${avatar}</span></div></div>`;
   },
   title: function(content) {
     return `<div><b>&#9432</b> ${content}</div>`;
@@ -126,7 +126,7 @@ const messageToHtml = {
   qtmeta: function(id, time) {
     let avatar = getAvatarByID(id, true);
 
-    return `<div class="chatQuote__title"><span class="piconname">${avatar}</span><time class="quoteTimeStamp chatQuote__timeStamp"><span>${moment(parseInt(time)).format(i18n.t('message:format_time'))}</span></time></div>`;
+    return `<div class="chatQuote__title"><span class="piconname ant-avatar ant-avatar-circle ant-avatar-image _avatarHoverTip _avatarClickTip avatarClickTip avatarTiny _avatar _avatar_Uid_${id}">${avatar}</span><time class="quoteTimeStamp chatQuote__timeStamp"><span>${moment(parseInt(time)).format(i18n.t('message:format_time'))}</span></time></div>`;
   },
   url: function(url) {
     return `<a href="${url}" target="_blank" class="url_msg">${url}</a>`;
