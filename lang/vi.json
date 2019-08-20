@@ -217,7 +217,8 @@
   "user": {
     "user_not_exist": "Tài khoản này không tồn tại. Không thể thêm liên lạc này!",
     "upload_file_failed": "File ảnh phải nhỏ hơn {{max}} MB!",
-    "unknown_file": "File không xác định"
+    "unknown_file": "File không xác định",
+    "incorrect_phone_number_format": "Số điện thoại không đúng định dạng"
   },
   "task": {
     "validate": {

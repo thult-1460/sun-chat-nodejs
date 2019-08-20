@@ -88,9 +88,20 @@ let checkImgFile = () => {
     });
 };
 
+let checkPhoneNumber = () => {
+  return check('phone')
+    .matches('^[0-9\-\+]{9,15}$')
+    .withMessage((value, { req, loc, path }) => {
+      throw Error(
+          req.__('user.incorrect_phone_number_format')
+        );
+    });
+};
+
 module.exports = {
   checkNameEdit,
   checkUsernameEdit,
   checkEmailEdit,
   checkImgFile,
+  checkPhoneNumber,
 };
