@@ -210,7 +210,6 @@ class FormCreateRoom extends Component {
 
       if (roomInfo._id === undefined) {
         roomVals = { ...roomVals, ...{ members } };
-
         this.handleCreateRoom(roomVals);
       } else {
         roomVals.invitation_code = invitationCode;

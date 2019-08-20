@@ -61,7 +61,7 @@ class Profile extends React.Component {
     email: {
       validateFirst: true,
       rules: [
-        { message: this.props.t('auth:validate.email.required') },
+        { required: true, message: this.props.t('auth:validate.email.required') },
         {
           pattern: '^[a-zA-Z0-9_.+-]+@(?:(?:[a-zA-Z0-9-]+.)?[a-zA-Z]+.)?(sun-asterisk)\\.com$',
           message: this.props.t('auth:validate.email.regex'),
@@ -72,6 +72,15 @@ class Profile extends React.Component {
         },
       ],
     },
+    phone: {
+      validateFirst: true,
+      rules: [
+        {
+          pattern: '^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s\./0-9]*$',
+          message: this.props.t('auth:validate.phone.regex'),
+        }
+      ],
+    }
   };
 
   messages = {
@@ -120,11 +129,10 @@ class Profile extends React.Component {
     this.props.form.validateFields((err, values) => {
       if (!err) {
         const { name, email, username, twitter, github, google, address, phone } = this.props.form.getFieldsValue();
-        const avatar = resizeBase64(this.state.imageUrl, avatarConfig.AVATAR.USER.WIDTH, avatarConfig.AVATAR.USER.HEIGHT)
-
         let user;
 
         if (this.state.changedAvatar) {
+          let avatar = resizeBase64(this.state.imageUrl, avatarConfig.AVATAR.USER.WIDTH, avatarConfig.AVATAR.USER.HEIGHT)
           user = { name, email, username, twitter, github, google, address, phone, avatar };
         } else {
           user = { name, email, username, twitter, github, google, address, phone };
@@ -396,7 +404,7 @@ class Profile extends React.Component {
                     )
                   }
                 >
-                  {form.getFieldDecorator('phone')(
+                  {form.getFieldDecorator('phone', this.rules.phone)(
                     <Input
                       prefix={<Icon type="phone" style={{ fontSize: 13 }} />}
                       placeholder={t('user:label.phone')}
