@@ -31,6 +31,7 @@
   "email_already_exist": "Email already exist",
   "changed_lang": "Change language to {{lang}}",
   "token_invalid": "Token invalid",
+  "token_valid": "Token valid",
   "token_expired": "Token have been expired",
   "authentication_failed": "Authentication failed",
   "login_successfully": "Login successfully",
