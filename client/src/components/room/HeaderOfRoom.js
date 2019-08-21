@@ -50,7 +50,11 @@ class HeaderOfRoom extends React.Component {
 
       this.state.memberOfRoom.map(member => {
         listMember.push(
-          <Avatar size={avatarConfig.AVATAR.SIZE.SMALL} key={member._id} src={getUserAvatarUrl(member.avatar)}  className="list-member-chat-room"/>
+          <Avatar
+            size={avatarConfig.AVATAR.SIZE.SMALL} key={member._id}
+            src={getUserAvatarUrl(member.avatar)}
+            className={`list-member-chat-room _avatarHoverTip _avatarClickTip avatarClickTip _avatar _avatar_Uid_${member._id}`}
+          />
         );
       });
     }

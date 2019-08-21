@@ -19,11 +19,15 @@
       box-sizing: border-box;
       height: 18px;
       background-color: #66a300;
-      border-radius: 2px 0 0 2px;
+      border-radius: 0 0 0 0;
       padding: 2px 4px;
       font-weight: 700;
       color: #fff;
       cursor: pointer;
+    }
+
+    .messageBadge__avatar {
+      width: 18px;
     }
 
     img {

@@ -31,7 +31,7 @@ export function generateListTo(component) {
                 return member._id != currentUserInfo._id ? (
                   <List.Item key={member._id}>
                     <List.Item.Meta
-                      avatar={<Avatar size={avatarConfig.AVATAR.SIZE.SMALL} src={getUserAvatarUrl(member.avatar)} />}
+                      avatar={<Avatar className={`_avatarHoverTip avatarSmall _avatar _avatar_Uid_${member._id}`} size={avatarConfig.AVATAR.SIZE.SMALL} src={getUserAvatarUrl(member.avatar)} />}
                       title={
                         <a onClick={handlersMessage.actionFunc.toMember} href="javascript:;" data-mid={member._id}>
                           {member.nickname ? member.nickname.nickname : member.name}

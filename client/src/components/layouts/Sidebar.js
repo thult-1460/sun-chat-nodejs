@@ -330,7 +330,13 @@ class Sidebar extends React.Component {
           >
             <Link to={`/rooms/${item._id}`}>
               <div className="avatar-name">
-                <Avatar size={avatarConfig.AVATAR.SIZE.MEDIUM}
+                <Avatar
+                  className={
+                    item.type === room.ROOM_TYPE.DIRECT_CHAT
+                      ? `_avatar _avatar_Uid_${item.members}`
+                      : `_avatar _avatar_Rid_${item._id}`
+                  }
+                  size={avatarConfig.AVATAR.SIZE.MEDIUM}
                   src={
                     item.type === room.ROOM_TYPE.GROUP_CHAT
                       ? getRoomAvatarUrl(item.avatar)

@@ -142,7 +142,11 @@ export function generateMessageHTML(component, message, isGetContentOfReplyMsg =
                 <List.Item.Meta
                   className="show-infor"
                   avatar={
-                    <Avatar size={avatarConfig.AVATAR.SIZE.MEDIUM} src={getUserAvatarUrl(message.user_info.avatar)} />
+                    <Avatar
+                      className={`_avatarHoverTip _avatarClickTip avatarClickTip avatarMedium _avatar _avatar_Uid_${message.user_info._id}`}
+                      size={avatarConfig.AVATAR.SIZE.MEDIUM}
+                      src={getUserAvatarUrl(message.user_info.avatar)}
+                    />
                   }
                   title={
                     <p>
