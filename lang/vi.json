@@ -31,6 +31,7 @@
   "email_already_exist": "Email đã tồn tại",
   "changed_lang": "Thay đổi ngôn ngữ sang {{lang}}",
   "token_invalid": "Token không hợp lệ",
+  "token_valid": "Token hợp lệ",
   "token_expired": "Token đã hết hạn sử dụng",
   "authentication_failed": "Xác thực lỗi",
   "login_successfully": "Đăng nhập thành công",

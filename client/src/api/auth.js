@@ -29,3 +29,7 @@ export function confirmEmail(data) {
 export function resendEmail(data) {
   return new Http().post('/resend-active-email', data);
 }
+
+export function checkResetPasswordToken(token) {
+  return new Http().get(`/users/check-reset-password-token?token=${token}`);
+}

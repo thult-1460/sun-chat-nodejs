@@ -859,3 +859,30 @@ exports.getInforOfUser = async function(req, res) {
     });
   }
 };
+
+exports.checkResetToken = async function(req, res) {
+  const { token } = req.query;
+  const criteria = {
+    reset_token: makeTokenResetPassword(token),
+  };
+
+  try {
+    var user = await User.load({ criteria });
+
+    if (user == null) {
+      return res.status(500).json({
+        error: __('token_invalid'),
+      });
+    }
+
+    return res.status(200).json({
+      message: __('token_valid'),
+    });
+  } catch (err) {
+    channel.error(err);
+
+    return res.status(500).json({
+      error: __('token_invalid'),
+    });
+  }
+}

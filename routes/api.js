@@ -47,6 +47,7 @@ router.post(
   users.sendRequestContact
 );
 
+router.get('/users/check-reset-password-token', users.checkResetToken);
 router.post(
   '/send-mail-reset-password',
   usersValidate.validate('sendMailResetPassword'),
