@@ -1,27 +1,7 @@
 .list-message {
-  padding: 24px;
+  padding: 24px 15px;
   background: #fff;
-  height: 78vh;
+  height: calc(100vh - 240px);
   overflow-y: auto;
   overflow-x: hidden;
-}
-
-@media screen and (min-width: 1500px) {
-  .list-message {
-    padding: 24px;
-    background: #fff;
-    overflow-y: auto;
-    overflow-x: hidden;
-    height: 68vh;
-  }
-}
-
-@media screen and (min-width: 1800px) {
-  .list-message {
-    padding: 24px;
-    background: #fff;
-    overflow-y: auto;
-    overflow-x: hidden;
-    height: 73vh;
-  }
 }
