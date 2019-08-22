@@ -16,7 +16,7 @@
 
     > div {
       border-radius: 5px;
-      width: 10vw;
+      width: 5vw;
       height: 10vh;
       margin-bottom: 1vh;
       text-align: center;
@@ -27,10 +27,13 @@
 
       img {
         width: 100%;
-        height: 80%;
+        height: 100%;
+        filter: blur(2px);
       }
 
       .person-name {
+        color: white;
+        margin-top: 10px;
         float: left;
         margin-left: 5px;
         text-align: left;
@@ -40,20 +43,20 @@
 
       .add-member {
         position: fixed;
-        font-size: 20px;
-        margin: -0.3vh 0px 0px 7vw;
+        font-size: 35px;
+        margin-top: -45px;
+        margin-left: 7px;
         color: #63bff5;
         cursor: -webkit-grab;
-        display: none;
       }
 
       .remove-person {
         position: fixed;
-        font-size: 20px;
-        margin: -0.3vh 0px 0px 8.6vw;
+        font-size: 35px;
+        margin-left: 50px;
+        margin-top: -45px;
         color: #ff4e4e;
         cursor: no-drop;
-        display: none;
       }
 
       video {
@@ -81,7 +84,7 @@
       margin: 0 0 0 10vw;
       z-index: 2;
       svg:first-child {
-        margin: 0px 0px 0px -3px;
+        margin: 0px -10px 0px -87px;
         color: white;
       }
     }
@@ -95,7 +98,7 @@
       color: white;
       margin: 0 0 0 -30px;
       svg:first-child {
-        margin: 0px 0px 0px -3px;
+        margin: 0px -9px 0px -10px;
         color:  #1c7430;
       }
     }
