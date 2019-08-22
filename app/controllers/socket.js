@@ -51,7 +51,7 @@ module.exports = function(io) {
     });
 
     socket.on('join-live-chat', ({ liveChatId, peerId }) => {
-      io.to(liveChatId).emit('add-member', { peerId: peerId });
+      io.to(liveChatId).emit('add-member', { userId: socket.userId, peerId: peerId });
       socket.join(liveChatId);
       socket.peerId = peerId;
     });
