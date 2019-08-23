@@ -15,7 +15,7 @@ import { withNamespaces } from 'react-i18next';
 import { getUserAvatarUrl } from './../../helpers/common';
 import ModalNotificationCallRequest from '../modals/notification/ModalNotificationCallRequest';
 import avatarConfig from '../../config/avatar';
-import { offerJoinLiveChat } from '../../api/call';
+import { directJoin } from '../../api/call';
 const { Header } = Layout;
 
 class Head extends React.Component {
@@ -74,13 +74,9 @@ class Head extends React.Component {
       let param = {
         roomId: roomIdCallRequest,
         liveChatId: liveIdCallRequest,
-        info: {
-          avatar: this.props.userContext.info.avatar,
-          name: this.props.userContext.info.name,
-        },
       };
 
-      offerJoinLiveChat(param).then(res => {
+      directJoin(param).then(res => {
         if (res.data.success) {
           const url = `${window.location.origin}/rooms/${roomIdCallRequest}/live/${liveIdCallRequest}?main-member=1`;
 

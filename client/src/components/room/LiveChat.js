@@ -16,12 +16,13 @@ import {
 } from 'react-icons/fa';
 import { MdAddToQueue } from 'react-icons/md';
 import { Icon } from 'antd';
-import { checkMember, acceptMember, leaveLiveChat } from './../../api/call';
+import { checkMember, acceptMember, leaveLiveChat, getListNotMember } from './../../api/call';
 import { getUserAvatarUrl } from './../../helpers/common';
 import { openStream } from './../../helpers/livechat/openStream';
 import { playVideo } from './../../helpers/livechat/playVideo';
 import { SocketContext } from './../../context/SocketContext';
 import { withUserContext } from './../../context/withUserContext';
+import ModalShowListUserToChooseMember from './../modals/call/ModalShowListUserToChooseMember';
 
 class LiveChat extends Component {
   static contextType = SocketContext;
@@ -35,6 +36,7 @@ class LiveChat extends Component {
     cameraOn: true,
     microOn: true,
     isCaller: false,
+    listUserToChooseMember: null,
 
     listMember: [],
     listOfferPerson: [],
@@ -298,8 +300,46 @@ class LiveChat extends Component {
       });
   };
 
+  showListNotMember = () => {
+    const { roomId, liveChatId } = this.props.match.params;
+
+    getListNotMember({ roomId, liveId: liveChatId }).then(res => {
+      const listUser = res.data.result;
+      let user_info = listUser.map(function(item) {
+        return item.user[0];
+      });
+
+      this.setState({
+        listUserToChooseMember: user_info,
+      });
+    });
+  };
+
+  inviteMember = users => {
+    const { roomId, liveChatId } = this.props.match.params;
+    const roomName = decodeURI(window.location.search.split('roomName=')[1]);
+    this.socket.emit('invite-member', { roomName, roomId, liveChatId, users });
+  };
+
+  closeModalListNotMember = () => {
+    this.setState({
+      listUserToChooseMember: null,
+    });
+  };
+
   render = () => {
-    const { checkDisplayLayout, leftOn, rightOn, microOn, cameraOn, listOfferPerson, listMember, isCaller } = this.state;
+    const {
+      checkDisplayLayout,
+      leftOn,
+      rightOn,
+      microOn,
+      cameraOn,
+      listOfferPerson,
+      listMember,
+      isCaller,
+      listUserToChooseMember,
+    } = this.state;
+    const { t } = this.props;
     let waiting = '';
 
     if (checkDisplayLayout === false) {
@@ -307,7 +347,7 @@ class LiveChat extends Component {
         <div id="waiting-accept">
           <div id="top-div" />
           <div id="tmp-video">
-            <h1 id="notice">Wait master of live chat accept.....</h1>
+            <h1 id="notice">{t('wait_notify')}</h1>
           </div>
         </div>
       );
@@ -317,8 +357,7 @@ class LiveChat extends Component {
       <div id="live-chat">
         {checkDisplayLayout ? (
           <div>
-            <video className="video" id="main-video" controls>
-            </video>
+            <video className="video" id="main-video" />
             <div id="top-right-column" className="block">
               <div className="show-or-hide" data-right="1" onClick={this.showOrHide.bind(this)}>
                 {rightOn ? (
@@ -344,9 +383,16 @@ class LiveChat extends Component {
                 })}
 
                 <div className={isCaller ? '' : 'hide'} id="add-participant">
-                  <Button>
+                  <Button onClick={this.showListNotMember}>
                     <MdAddToQueue />
                   </Button>
+                  {listUserToChooseMember && listUserToChooseMember.length && (
+                    <ModalShowListUserToChooseMember
+                      closeModalListNotMember={this.closeModalListNotMember}
+                      inviteMember={this.inviteMember}
+                      listUserToChooseMember={listUserToChooseMember}
+                    />
+                  )}
                 </div>
               </div>
             </div>
@@ -372,22 +418,23 @@ class LiveChat extends Component {
                 </div>
               )}
               <div className="list-block">
-                {isCaller && listOfferPerson.map(person => {
-                  return (
-                    <div key={person.id} className={leftOn ? 'person' : 'person hidden'}>
-                      <img src={getUserAvatarUrl(person.avatar)} />
-                      <div>
-                        <span className="person-name">{person.name}</span>
-                        <div className="add-member" data-id={person.id} onClick={this.addMember.bind(this)}>
-                          <FaUserPlus />
-                        </div>
-                        <div className="remove-person" data-id={person.id} onClick={this.rejectPerson.bind(this)}>
-                          <FaUserSlash />
+                {isCaller &&
+                  listOfferPerson.map(person => {
+                    return (
+                      <div key={person.id} className={leftOn ? 'person' : 'person hidden'}>
+                        <img src={getUserAvatarUrl(person.avatar)} />
+                        <div>
+                          <span className="person-name">{person.name}</span>
+                          <div className="add-member" data-id={person.id} onClick={this.addMember.bind(this)}>
+                            <FaUserPlus />
+                          </div>
+                          <div className="remove-person" data-id={person.id} onClick={this.rejectPerson.bind(this)}>
+                            <FaUserSlash />
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
               </div>
             </div>
             <div id="bottom-chat">
@@ -395,24 +442,24 @@ class LiveChat extends Component {
                 <div id="action-micro">
                   <Button onClick={this.changeMicro}>
                     {microOn ? <FaMicrophone /> : <FaMicrophoneSlash />}
-                    <span className="tooltip-text">Turn on/off microphone</span>
+                    <span className="tooltip-text">{t('tooltip_micro')}</span>
                   </Button>
                 </div>
                 <div id="hangup">
                   <Button onClick={this.leaveLiveChat}>
                     <Icon type="phone" />
-                    <span className="tooltip-text">Hangup</span>
+                    <span className="tooltip-text">{t('tooltip_hangUp')}</span>
                   </Button>
                 </div>
                 <div id="action-camera">
                   <Button onClick={this.changeCamera}>
                     {cameraOn ? <FaVideo /> : <FaVideoSlash />}
-                    <span className="tooltip-text">Turn on/off camera</span>
+                    <span className="tooltip-text">{t('tooltip_camera')}</span>
                   </Button>
                 </div>
               </div>
               <div id="share-screen">
-                <Button>Share screen</Button>
+                <Button>{t('share_screen')}</Button>
               </div>
             </div>
           </div>
@@ -424,4 +471,4 @@ class LiveChat extends Component {
   };
 }
 
-export default withNamespaces(['live-chat'])(withUserContext(LiveChat));
+export default withNamespaces(['liveChat'])(withUserContext(LiveChat));

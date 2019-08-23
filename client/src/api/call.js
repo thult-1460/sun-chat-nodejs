@@ -8,6 +8,10 @@ export function offerJoinLiveChat(param) {
   return new Http().authenticated().post(`/live-chat/offer-join`, param);
 }
 
+export function directJoin(param) {
+  return new Http().authenticated().post(`/live-chat/direct-join`, param);
+}
+
 export function checkMember(param) {
   return new Http().authenticated().post(`/live-chat/check-member`, param);
 }
@@ -18,4 +22,8 @@ export function acceptMember(param) {
 
 export function leaveLiveChat(userId, param) {
   return new Http().authenticated().post(`/live-chat/${param.liveId}/hang-up/${userId}`, param);
+}
+
+export function getListNotMember(param) {
+  return new Http().authenticated().post(`/live-chat/${param.liveId}/get-list-not-member`, param);
 }

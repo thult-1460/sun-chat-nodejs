@@ -827,7 +827,7 @@ class ChatBox extends React.Component {
                 <a href="javascript:;">{roomInfo.type !== room.ROOM_TYPE.MY_CHAT ? <strong>{t('to')}</strong> : ''}</a>
               </Badge>
             </Popover>
-            {roomInfo.type === room.ROOM_TYPE.GROUP_CHAT && (
+            {roomInfo.type !== room.ROOM_TYPE.MY_CHAT && (
               <ModalChooseMemberToCall
                 listMember={listMember}
                 roomDetail={{

@@ -2005,6 +2005,73 @@ RoomSchema.statics = {
 
     return false;
   },
+
+  getListNotMemberLiveChat: async function(roomId, liveId) {
+    const result = await this.aggregate([
+      {
+        $match: { _id: mongoose.Types.ObjectId(roomId) },
+      },
+      { $unwind: '$calls' },
+      {
+        $match: { 'calls._id': mongoose.Types.ObjectId(liveId) },
+      },
+      {
+        $addFields: {
+          member_connecting: {
+            $filter: {
+              input: '$calls.participants',
+              as: 'participant',
+              cond: { $eq: ['$$participant.status', config.CALL.PARTICIPANT.STATUS.CONNECTING] },
+            },
+          },
+        },
+      },
+      {
+        $addFields: {
+          members: {
+            $filter: {
+              input: '$members',
+              as: 'mem',
+              cond: {
+                $and: [
+                  { $eq: ['$$mem.deletedAt', null] },
+                  { $ne: ['$$mem.role', config.MEMBER_ROLE.READ_ONLY] },
+                  { $not: [{ $in: ['$$mem.user', '$member_connecting.user_id'] }] },
+                ],
+              },
+            },
+          },
+        },
+      },
+      { $unwind: '$members' },
+      {
+        $lookup: {
+          from: 'users',
+          let: {
+            mem: '$members.user',
+          },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: ['$_id', '$$mem'],
+                },
+              },
+            },
+            { $project: { _id: 1, name: 1, avatar: 1, email: 1 } },
+          ],
+          as: 'members.user_info',
+        },
+      },
+      {
+        $project: {
+          user: '$members.user_info',
+        },
+      },
+    ]);
+
+    return result.length ? result : [];
+  },
 };
 
 module.exports = mongoose.model('Room', RoomSchema);

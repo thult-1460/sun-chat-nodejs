@@ -97,7 +97,7 @@ class ChooseMemberToCall extends React.Component {
           const liveChatId = res.data.id;
 
           window.open(
-            `${window.location.href}/live/${liveChatId}`,
+            `${window.location.href}/live/${liveChatId}?roomName=${roomName}`,
             '_blank',
             'toolbar=yes, width=' + window.innerWidth + ',height=' + window.innerHeight
           );
@@ -111,9 +111,10 @@ class ChooseMemberToCall extends React.Component {
         }
       } else {
         message.error(res.data.message);
-        this.props.handleVisible();
       }
     });
+
+    this.props.handleVisible();
   };
 
   render() {

@@ -103,6 +103,12 @@ module.exports = function(io) {
         }
       }
     });
+
+    socket.on('invite-member', async function({ roomName, roomId, liveChatId, users }) {
+      users.map(user => {
+        io.to(user._id).emit('member_receive_notification_join_calling', { roomName, roomId, liveChatId });
+      });
+    });
   });
 };
 

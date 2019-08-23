@@ -212,6 +212,9 @@
       },
       "leave": {
         "fail": "Gặp phải lỗi khi cố gằng rời phòng"
+      },
+      "list_not_member": {
+        "fail": "Không thể lấy danh sách người dùng"
       }
     }
   },
