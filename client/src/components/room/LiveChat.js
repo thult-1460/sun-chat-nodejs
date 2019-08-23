@@ -327,6 +327,10 @@ class LiveChat extends Component {
     });
   };
 
+  changeMainVideo = e => {
+    document.getElementById('main-video').srcObject  = document.getElementById(e.currentTarget.id).srcObject;
+  }
+
   render = () => {
     const {
       checkDisplayLayout,
@@ -375,8 +379,8 @@ class LiveChat extends Component {
               <div className="list-block">
                 {listMember.map(member => {
                   return (
-                    <div key={member.id} className={rightOn ? '' : 'hide'}>
-                      <video className="participant-video" id={member.id} />
+                    <div key={member.id} className={rightOn ? 'member-of-stream' : 'member-of-stream hide'}>
+                      <video className="participant-video" id={member.id} onClick={this.changeMainVideo}/>
                       <span className="person-name">{member.name}</span>
                     </div>
                   );
