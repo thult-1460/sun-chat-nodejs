@@ -255,7 +255,7 @@ class Sidebar extends React.Component {
           rooms.splice(indexUnpinned, 0, newRoom);
 
           if (quantity_chats % config.LIMIT_ITEM_SHOW.ROOM === 0) { this.setState({hasMore: true}); }
-          rooms.splice(rooms.length - 1, 1);
+          if (quantity_chats >= config.LIMIT_ITEM_SHOW.ROOM) { rooms.splice(rooms.length - 1, 1); }
         }
       }
 
